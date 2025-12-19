@@ -581,6 +581,29 @@ export default function FloatingMessagesWindow() {
               LoCuToRiO
             </h2>
           </div>
+          
+          {/* Tab buttons: Privado/Archivo/Ajustes */}
+          <div className="flex items-center gap-1">
+            <button
+              className="px-3 py-1 text-[9px] font-heading font-bold text-neon-green bg-neon-green/10 rounded-lg border border-neon-green/30 hover:bg-neon-green hover:text-forest-dark transition-all uppercase tracking-wide"
+              title="Mensajes Privados"
+            >
+              Privado
+            </button>
+            <button
+              className="px-3 py-1 text-[9px] font-heading font-bold text-gray-400 hover:text-neon-green hover:bg-neon-green/10 rounded-lg transition-all uppercase tracking-wide"
+              title="Archivo"
+            >
+              Archivo
+            </button>
+            <button
+              className="px-3 py-1 text-[9px] font-heading font-bold text-gray-400 hover:text-neon-green hover:bg-neon-green/10 rounded-lg transition-all uppercase tracking-wide"
+              title="Ajustes"
+            >
+              Ajustes
+            </button>
+          </div>
+
           <div className="flex items-center gap-2">
             <button
               onClick={(e) => {
