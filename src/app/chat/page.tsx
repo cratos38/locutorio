@@ -5,8 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import InternalHeader from "@/components/InternalHeader";
+import { useMessages } from "@/contexts/MessagesContext";
 
 export default function ChatRoomsPage() {
+  const { openMessages } = useMessages();
   const [selectedRoom, setSelectedRoom] = useState("general");
   const [messageText, setMessageText] = useState("");
   const [chatMessages, setChatMessages] = useState<Array<{id: number, user: string, avatar: string, text: string, time: string, isOwn: boolean, replyTo?: string | null}>>([]);
@@ -16,9 +18,7 @@ export default function ChatRoomsPage() {
   const [hoveredUser, setHoveredUser] = useState<number | null>(null);
   const [hoveredPosition, setHoveredPosition] = useState({ x: 0, y: 0 });
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const [showPrivateMessage, setShowPrivateMessage] = useState<{id: number, username: string, avatar: string} | null>(null);
-  const [privateMessages, setPrivateMessages] = useState<{[key: number]: Array<{id: number, text: string, time: string, isOwn: boolean}>}>({});
-  const [privateMessageText, setPrivateMessageText] = useState("");
+  // Private messages removed - using FloatingMessagesWindow instead
   const [isTyping, setIsTyping] = useState(false);
   const [savedMessages, setSavedMessages] = useState<number[]>([]);
   const [messageReactions, setMessageReactions] = useState<{[key: number]: {like: number, love: number, haha: number, userReaction?: string}}>({});
@@ -170,23 +170,7 @@ export default function ChatRoomsPage() {
     playNotificationSound();
   };
 
-  // Enviar mensaje privado
-  const handleSendPrivateMessage = () => {
-    if (!privateMessageText.trim() || !showPrivateMessage) return;
-
-    const newPM = {
-      id: (privateMessages[showPrivateMessage.id]?.length || 0) + 1,
-      text: privateMessageText,
-      time: new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
-      isOwn: true,
-    };
-
-    setPrivateMessages({
-      ...privateMessages,
-      [showPrivateMessage.id]: [...(privateMessages[showPrivateMessage.id] || []), newPM]
-    });
-    setPrivateMessageText("");
-  };
+  // Private message function removed - using FloatingMessagesWindow instead
 
   return (
     <div className="h-screen bg-connect-bg-dark text-white font-display flex flex-col overflow-hidden">
@@ -816,7 +800,7 @@ export default function ChatRoomsPage() {
                     Perfil
                   </Link>
                   <button
-                    onClick={() => setShowPrivateMessage({id: user.id, username: user.username, avatar: user.avatar})}
+                    onClick={() => openMessages(user.id)}
                     className="py-1.5 px-2 bg-white/10 hover:bg-white/20 text-white text-xs font-bold rounded-lg transition-colors"
                   >
                     MP
@@ -840,57 +824,7 @@ export default function ChatRoomsPage() {
       )}
 
       {/* Private Message Window */}
-      {showPrivateMessage && (
-        <div className="fixed bottom-4 right-4 w-96 bg-connect-card border-2 border-primary rounded-xl shadow-2xl z-50 flex flex-col max-h-[500px]">
-          <div className="p-4 border-b border-connect-border flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <img src={showPrivateMessage.avatar} alt={showPrivateMessage.username} className="w-10 h-10 rounded-full" />
-              <div>
-                <h3 className="font-bold text-white">{showPrivateMessage.username}</h3>
-                <p className="text-xs text-connect-muted">Mensaje privado</p>
-              </div>
-            </div>
-            <button onClick={() => setShowPrivateMessage(null)} className="text-connect-muted hover:text-white">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-
-          <div className="flex-1 overflow-y-auto p-4 space-y-3">
-            {(privateMessages[showPrivateMessage.id] || []).map((pm) => (
-              <div key={pm.id} className={`flex ${pm.isOwn ? 'justify-end' : 'justify-start'}`}>
-                <div className={`rounded-2xl px-4 py-2 max-w-[80%] ${
-                  pm.isOwn
-                    ? 'bg-primary text-connect-bg-dark'
-                    : 'bg-white/10 text-white'
-                }`}>
-                  <p className="text-sm">{pm.text}</p>
-                  <p className="text-xs opacity-70 mt-1">{pm.time}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="p-4 border-t border-connect-border flex gap-2">
-            <Input
-              value={privateMessageText}
-              onChange={(e) => setPrivateMessageText(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleSendPrivateMessage()}
-              placeholder="Escribe un mensaje..."
-              className="flex-1 bg-connect-bg-dark border-connect-border text-white"
-            />
-            <Button
-              onClick={handleSendPrivateMessage}
-              className="bg-primary hover:bg-primary/90 text-connect-bg-dark"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-              </svg>
-            </Button>
-          </div>
-        </div>
-      )}
+      {/* Private message modal removed - using FloatingMessagesWindow instead */}
     </div>
   );
 }
