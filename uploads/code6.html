@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Búsqueda de Usuarios - ConnectApp</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#2bee79",
+                        "background-light": "#f6f8f7",
+                        "background-dark": "#102217",
+                        "surface-dark": "#1c2720",
+                        "surface-border": "#28392f",
+                        "text-secondary": "#9db9a8"
+                    },
+                    fontFamily: {
+                        "display": ["Spline Sans", "sans-serif"],
+                        "body": ["Noto Sans", "sans-serif"],
+                    },
+                    borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display min-h-screen flex flex-col overflow-x-hidden">
+<!-- Top Navigation -->
+<div class="w-full border-b border-surface-border bg-background-dark sticky top-0 z-50">
+<div class="px-4 md:px-10 py-3 flex items-center justify-between">
+<div class="flex items-center gap-4 text-white">
+<div class="size-8 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-3xl">diversity_1</span>
+</div>
+<h2 class="text-white text-xl font-bold tracking-tight">ConnectApp</h2>
+</div>
+<div class="hidden md:flex flex-1 justify-end gap-8 items-center">
+<nav class="flex items-center gap-6">
+<a class="text-white text-sm font-medium hover:text-primary transition-colors" href="#">Mi Espacio Personal</a>
+<a class="text-white text-sm font-medium hover:text-primary transition-colors" href="#">Mensajes</a>
+<a class="text-white text-sm font-medium hover:text-primary transition-colors" href="#">Notificaciones</a>
+<a class="text-text-secondary text-sm font-medium hover:text-white transition-colors" href="#">Mi Perfil</a>
+</nav>
+<button class="flex cursor-pointer items-center justify-center overflow-hidden rounded-full h-9 px-5 bg-surface-dark border border-surface-border text-white text-sm font-bold hover:bg-surface-border transition-colors">
+<span class="truncate">Cerrar Sesión</span>
+</button>
+<div class="bg-center bg-no-repeat bg-cover rounded-full size-10 border-2 border-surface-border" data-alt="User profile avatar showing a smiling person" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCmq5MWXDUmUbKcBxAd7_IuD2Mm2ThkpLeyeG-43qoVKs8p02c6vVzqvfeYWvCJMOE4Lt7iImDv8ZBPeHLSwxzxa48L231dsv5Om6NfQMY1VxLF1TQvk1OC_QQV3dldcsm9Mkh1hveLpawGXw-elFWo701einZC5IYME3CTF5LdgSEwSFw5lT3jWKYAY5jxn7f0xsRvhTX9b9ZMPCPwJyn4KZk28RrxTjSZ_7ILx0FJL9U_B4ESoFax3p5d15k2kE82xPDCD2SpYe_o");'></div>
+</div>
+<!-- Mobile Menu Icon -->
+<div class="md:hidden text-white">
+<span class="material-symbols-outlined">menu</span>
+</div>
+</div>
+</div>
+<!-- Main Content Layout -->
+<div class="flex-1 flex justify-center py-8 px-4 md:px-8">
+<div class="max-w-[1280px] w-full flex flex-col gap-6">
+<!-- Page Heading -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 pb-4 border-b border-surface-border">
+<div class="flex flex-col gap-2">
+<h1 class="text-white text-3xl md:text-4xl font-black tracking-tight">Encuentra tu conexión</h1>
+<p class="text-text-secondary text-base">Utiliza los filtros para buscar personas con tus mismos intereses.</p>
+</div>
+<div class="flex gap-2">
+<span class="text-primary font-bold text-lg">1,240</span>
+<span class="text-white text-lg">usuarios activos ahora</span>
+</div>
+</div>
+<div class="flex flex-col lg:flex-row gap-8 items-start">
+<!-- Sidebar Filters -->
+<aside class="w-full lg:w-[320px] shrink-0 space-y-6 lg:sticky lg:top-24">
+<div class="bg-surface-dark rounded-xl p-5 border border-surface-border shadow-lg">
+<div class="flex items-center gap-2 mb-6">
+<span class="material-symbols-outlined text-primary">tune</span>
+<h2 class="text-white text-xl font-bold">Filtros</h2>
+</div>
+<!-- Name Search -->
+<div class="space-y-2 mb-6">
+<label class="text-white text-sm font-medium">Buscar usuario</label>
+<div class="flex w-full items-center rounded-xl bg-background-dark border border-surface-border focus-within:border-primary transition-colors overflow-hidden">
+<input class="w-full bg-transparent text-white p-3 text-sm focus:outline-none placeholder:text-text-secondary" placeholder="Nombre o nick..."/>
+<div class="px-3 text-text-secondary">
+<span class="material-symbols-outlined">search</span>
+</div>
+</div>
+</div>
+<!-- Age Slider -->
+<div class="space-y-3 mb-6">
+<div class="flex justify-between text-white text-sm font-medium">
+<span>Edad</span>
+<span class="text-primary">18 - 35</span>
+</div>
+<div class="relative h-6 flex items-center select-none">
+<div class="absolute w-full h-1 bg-surface-border rounded-full"></div>
+<div class="absolute left-[0%] right-[60%] h-1 bg-primary rounded-full"></div>
+<div class="absolute left-0 top-1/2 -translate-y-1/2 size-4 bg-white rounded-full shadow cursor-pointer hover:scale-110 transition-transform"></div>
+<div class="absolute left-[40%] top-1/2 -translate-y-1/2 size-4 bg-white rounded-full shadow cursor-pointer hover:scale-110 transition-transform"></div>
+</div>
+</div>
+<!-- Gender Filter -->
+<div class="space-y-2 mb-6">
+<label class="text-white text-sm font-medium">Sexo</label>
+<div class="grid grid-cols-3 gap-2">
+<button class="rounded-lg py-2 text-sm font-medium bg-background-dark text-text-secondary border border-surface-border hover:bg-surface-border transition-colors">Hombre</button>
+<button class="rounded-lg py-2 text-sm font-medium bg-primary text-background-dark font-bold shadow-md shadow-primary/20">Mujer</button>
+<button class="rounded-lg py-2 text-sm font-medium bg-background-dark text-text-secondary border border-surface-border hover:bg-surface-border transition-colors">Todos</button>
+</div>
+</div>
+<!-- Location & Status -->
+<div class="grid grid-cols-1 gap-4 mb-6">
+<div class="space-y-2">
+<label class="text-white text-sm font-medium">Ciudad</label>
+<div class="relative">
+<select class="w-full appearance-none bg-background-dark border border-surface-border text-white text-sm rounded-xl px-4 py-3 focus:outline-none focus:border-primary">
+<option>Madrid</option>
+<option>Barcelona</option>
+<option>Valencia</option>
+<option>Sevilla</option>
+</select>
+<div class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-text-secondary">
+<span class="material-symbols-outlined">expand_more</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Looking For -->
+<div class="space-y-3 mb-6">
+<label class="text-white text-sm font-medium">Buscan</label>
+<div class="flex flex-wrap gap-2">
+<label class="cursor-pointer group">
+<input checked="" class="peer sr-only" type="checkbox"/>
+<div class="rounded-full border border-surface-border bg-background-dark px-3 py-1.5 text-xs font-medium text-text-secondary peer-checked:bg-primary/20 peer-checked:text-primary peer-checked:border-primary transition-all group-hover:border-text-secondary">
+                                        Pareja
+                                    </div>
+</label>
+<label class="cursor-pointer group">
+<input class="peer sr-only" type="checkbox"/>
+<div class="rounded-full border border-surface-border bg-background-dark px-3 py-1.5 text-xs font-medium text-text-secondary peer-checked:bg-primary/20 peer-checked:text-primary peer-checked:border-primary transition-all group-hover:border-text-secondary">
+                                        Amistad
+                                    </div>
+</label>
+<label class="cursor-pointer group">
+<input class="peer sr-only" type="checkbox"/>
+<div class="rounded-full border border-surface-border bg-background-dark px-3 py-1.5 text-xs font-medium text-text-secondary peer-checked:bg-primary/20 peer-checked:text-primary peer-checked:border-primary transition-all group-hover:border-text-secondary">
+                                        Charlar
+                                    </div>
+</label>
+</div>
+</div>
+<!-- Interests -->
+<div class="space-y-3 mb-8">
+<label class="text-white text-sm font-medium">Intereses</label>
+<div class="flex flex-wrap gap-2">
+<span class="rounded-full bg-background-dark border border-surface-border px-3 py-1 text-xs text-text-secondary hover:text-white cursor-pointer transition-colors">Cine</span>
+<span class="rounded-full bg-primary text-background-dark font-bold px-3 py-1 text-xs cursor-pointer shadow-sm shadow-primary/20">Deportes</span>
+<span class="rounded-full bg-background-dark border border-surface-border px-3 py-1 text-xs text-text-secondary hover:text-white cursor-pointer transition-colors">Viajes</span>
+<span class="rounded-full bg-background-dark border border-surface-border px-3 py-1 text-xs text-text-secondary hover:text-white cursor-pointer transition-colors">Música</span>
+<span class="rounded-full bg-background-dark border border-surface-border px-3 py-1 text-xs text-text-secondary hover:text-white cursor-pointer transition-colors">Gaming</span>
+</div>
+</div>
+<button class="w-full bg-primary hover:bg-[#20d868] text-background-dark font-bold py-3 rounded-full transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">search</span>
+                             Aplicar Filtros
+                        </button>
+</div>
+</aside>
+<!-- Results Grid -->
+<main class="flex-1 w-full">
+<!-- Sorting & View Options -->
+<div class="flex justify-between items-center mb-6">
+<p class="text-text-secondary text-sm"><span class="text-white font-bold">148</span> resultados encontrados</p>
+<div class="flex items-center gap-2">
+<span class="text-text-secondary text-sm hidden sm:block">Ordenar por:</span>
+<div class="relative">
+<select class="appearance-none bg-surface-dark border border-surface-border text-white text-sm rounded-lg pl-3 pr-8 py-2 focus:outline-none focus:border-primary cursor-pointer">
+<option>Más recientes</option>
+<option>Más populares</option>
+<option>Cercanía</option>
+</select>
+<div class="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-text-secondary flex">
+<span class="material-symbols-outlined text-sm">expand_more</span>
+</div>
+</div>
+</div>
+</div>
+<!-- User Cards Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+<!-- Card 1 -->
+<div class="group bg-surface-dark rounded-2xl p-5 border border-surface-border hover:border-primary/40 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/5 flex flex-col items-center">
+<div class="relative mb-4">
+<div class="size-28 rounded-full bg-cover bg-center border-4 border-background-dark group-hover:border-primary/20 transition-colors" data-alt="Portrait of Marta smiling in a park" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBmc1SYBOirsjI0az7RISxfyANqjZO5T6ie9p77_8vQxn69kxMrT026HBFAZafE_HQGDanO3Pt9EJDdCLt_GoDq5v_IsNAsl75i5-UFrREFY-iriF9zxWkHgVu9rEWrWCcwnnSDD5WqDXUQTsgFGQ16YaxYA4XbfNVa3LaMmvwppil01ioqetQWkzZgrE2BFz2LCcKQFJk9TnCctJNiOhl5u-ZZoA64imaCxX7SMPRoA1dA-PI4a4OmQCMqeNQWeDJL-Sp7UUgRh5CS');"></div>
+<div class="absolute bottom-1 right-1 size-5 rounded-full bg-primary border-4 border-surface-dark" title="Online"></div>
+</div>
+<div class="text-center w-full mb-4">
+<h3 class="text-white text-xl font-bold group-hover:text-primary transition-colors">Marta, 24</h3>
+<p class="text-text-secondary text-sm flex items-center justify-center gap-1 mt-1">
+<span class="material-symbols-outlined text-base">location_on</span> Madrid
+                                </p>
+</div>
+<div class="flex flex-wrap justify-center gap-1.5 mb-5 h-12 overflow-hidden">
+<span class="bg-surface-border/50 text-text-secondary text-[10px] px-2 py-1 rounded-full uppercase tracking-wide font-medium">Cine</span>
+<span class="bg-surface-border/50 text-text-secondary text-[10px] px-2 py-1 rounded-full uppercase tracking-wide font-medium">Viajes</span>
+<span class="bg-surface-border/50 text-text-secondary text-[10px] px-2 py-1 rounded-full uppercase tracking-wide font-medium">Fotografía</span>
+</div>
+<div class="grid grid-cols-2 gap-3 w-full mt-auto">
+<button class="py-2 px-4 rounded-full border border-surface-border text-white text-sm font-bold hover:bg-surface-border transition-colors">Perfil</button>
+<button class="py-2 px-4 rounded-full bg-primary text-background-dark text-sm font-bold hover:bg-[#20d868] transition-colors flex items-center justify-center gap-1">
+<span class="material-symbols-outlined text-lg">chat_bubble</span>
+<span>Hola</span>
+</button>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="group bg-surface-dark rounded-2xl p-5 border border-surface-border hover:border-primary/40 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/5 flex flex-col items-center">
+<div class="relative mb-4">
+<div class="size-28 rounded-full bg-cover bg-center border-4 border-background-dark group-hover:border-primary/20 transition-colors" data-alt="Portrait of Carlos looking away thoughtfully" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDdqgzObt4ngpD80mCymnAygemUOeifjg4xfwNFxncveFTKKXEoeFBlmtSHx9DyoqjeihvPJOFNlHXwwnxSlIzFqxbf6jTJlTsFhiKzJeQKq4KgnBx2IJ0A4Uoh0gCwYQ3l11Mm6u3yfjvE0MZsIjn5Zu3QqHrwg8QqkrlS1axRCKbO3JAKb_D65aIE-sgxnEbBWYEeqttY9QheiyTmfqa7hChVQ72cEuud93n1r46zrIyH_5aJ48A8JinIKt1PbmJpyQ16iNvrSqLP');"></div>
+<div class="absolute bottom-1 right-1 size-5 rounded-full bg-gray-500 border-4 border-surface-dark" title="Offline"></div>
+</div>
+<div class="text-center w-full mb-4">
+<h3 class="text-white text-xl font-bold group-hover:text-primary transition-colors">Carlos, 28</h3>
+<p class="text-text-secondary text-sm flex items-center justify-center gap-1 mt-1">
+<span class="material-symbols-outlined text-base">location_on</span> Barcelona
+                                </p>
+</div>
+<div class="flex flex-wrap justify-center gap-1.5 mb-5 h-12 overflow-hidden">
+<span class="bg-surface-border/50 text-text-secondary text-[10px] px-2 py-1 rounded-full uppercase tracking-wide font-medium">Deportes</span>
+<span class="bg-surface-border/50 text-text-secondary text-[10px] px-2 py-1 rounded-full uppercase tracking-wide font-medium">Fitness</span>
+</div>
+<div class="grid grid-cols-2 gap-3 w-full mt-auto">
+<button class="py-2 px-4 rounded-full border border-surface-border text-white text-sm font-bold hover:bg-surface-border transition-colors">Perfil</button>
+<button class="py-2 px-4 rounded-full bg-surface-border text-white/50 text-sm font-bold hover:bg-surface-border cursor-not-allowed transition-colors flex items-center justify-center gap-1">
+<span class="material-symbols-outlined text-lg">mail</span>
+<span>Hola</span>
+</button>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="group bg-surface-dark rounded-2xl p-5 border border-surface-border hover:border-primary/40 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/5 flex flex-col items-center">
+<div class="relative mb-4">
+<div class="size-28 rounded-full bg-cover bg-center border-4 border-background-dark group-hover:border-primary/20 transition-colors" data-alt="Portrait of Elena laughing" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBCrsal2qlp_R5r4FHHSMbeDvFzHrkl-6C5w7-YvOvZcOAaRsqb5j5R2QuE7yHstZHuBP0IaTKmbXtmigl7EWbdz-_LNZgZ5_0kWfGvvisd_5FPDcETF7uOai3xpLdvuWV4z-_0Z5jM9YXFPNsmO384mnq2cXXOP3O3PT-tjc7p5LYczFoWUwRx-4yH8wBD8K8QVKio22HVkzzXCujiJeZaORidCKYGzrQB6FSJLC4U5UilGRn_tjObVj0WN9fc8a4fYMJ-TifUrk02');"></div>
+<div class="absolute bottom-1 right-1 size-5 rounded-full bg-primary border-4 border-surface-dark" title="Online"></div>
+</div>
+<div class="text-center w-full mb-4">
+<h3 class="text-white text-xl font-bold group-hover:text-primary transition-colors">Elena, 22</h3>
+<p class="text-text-secondary text-sm flex items-center justify-center gap-1 mt-1">
+<span class="material-symbols-outlined text-base">location_on</span> Valencia
+                                </p>
+</div>
+<div class="flex flex-wrap justify-center gap-1.5 mb-5 h-12 overflow-hidden">
+<span class="bg-surface-border/50 text-text-secondary text-[10px] px-2 py-1 rounded-full uppercase tracking-wide font-medium">Música</span>
+<span class="bg-surface-border/50 text-text-secondary text-[10px] px-2 py-1 rounded-full uppercase tracking-wide font-medium">Festivales</span>
+<span class="bg-surface-border/50 text-text-secondary text-[10px] px-2 py-1 rounded-full uppercase tracking-wide font-medium">Arte</span>
+</div>
+<div class="grid grid-cols-2 gap-3 w-full mt-auto">
+<button class="py-2 px-4 rounded-full border border-surface-border text-white text-sm font-bold hover:bg-surface-border transition-colors">Perfil</button>
+<button class="py-2 px-4 rounded-full bg-primary text-background-dark text-sm font-bold hover:bg-[#20d868] transition-colors flex items-center justify-center gap-1">
+<span class="material-symbols-outlined text-lg">chat_bubble</span>
+<span>Hola</span>
+</button>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="group bg-surface-dark rounded-2xl p-5 border border-surface-border hover:border-primary/40 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/5 flex flex-col items-center">
+<div class="relative mb-4">
+<div class="size-28 rounded-full bg-cover bg-center border-4 border-background-dark group-hover:border-primary/20 transition-colors" data-alt="Portrait of David with sunglasses" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAE2i9rdy68f5WPtRIuSh_Uv4Lq0cCAWANVC3yOvttdddIFWuAm5aejAQljWQX2qglI-EwxZiDZDyvypfBU7YYuXdvsndQoq4-15CvUys7N4Kp4C2JJcyzWPZSx1nct71PWhxC1oAwOP3bT72UO5v5nLMeVo9EtwF9Uey6OPBPnhVGmvMzrYaBwGFr-AajEWPsnPt4NQ04oNty7R_ZTihttEsPiVdLqqHIazrb9RhC8LVVsWrUXKqT2unwVWNozA4FrCIAdy77Uvbm3');"></div>
+<div class="absolute bottom-1 right-1 size-5 rounded-full bg-primary border-4 border-surface-dark" title="Online"></div>
+</div>
+<div class="text-center w-full mb-4">
+<h3 class="text-white text-xl font-bold group-hover:text-primary transition-colors">David, 30</h3>
+<p class="text-text-secondary text-sm flex items-center justify-center gap-1 mt-1">
+<span class="material-symbols-outlined text-base">location_on</span> Sevilla
+                                </p>
+</div>
+<div class="flex flex-wrap justify-center gap-1.5 mb-5 h-12 overflow-hidden">
+<span class="bg-surface-border/50 text-text-secondary text-[10px] px-2 py-1 rounded-full uppercase tracking-wide font-medium">Cocina</span>
+<span class="bg-surface-border/50 text-text-secondary text-[10px] px-2 py-1 rounded-full uppercase tracking-wide font-medium">Vino</span>
+</div>
+<div class="grid grid-cols-2 gap-3 w-full mt-auto">
+<button class="py-2 px-4 rounded-full border border-surface-border text-white text-sm font-bold hover:bg-surface-border transition-colors">Perfil</button>
+<button class="py-2 px-4 rounded-full bg-primary text-background-dark text-sm font-bold hover:bg-[#20d868] transition-colors flex items-center justify-center gap-1">
+<span class="material-symbols-outlined text-lg">chat_bubble</span>
+<span>Hola</span>
+</button>
+</div>
+</div>
+<!-- Card 5 -->
+<div class="group bg-surface-dark rounded-2xl p-5 border border-surface-border hover:border-primary/40 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/5 flex flex-col items-center">
+<div class="relative mb-4">
+<div class="size-28 rounded-full bg-cover bg-center border-4 border-background-dark group-hover:border-primary/20 transition-colors" data-alt="Portrait of Laura with headphones" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCcduCsbav1fed1fsFd48OIihxjCCqd8RLqxYGsf4HaoYtnBpLCxRW5sQkdd1A-YhSxSOmHtBHgaiBOKSyTTTYiNoVa_mx6Yd--sCCDv7ztbpXOAFLdYYx3z6CnySTnEOZhIgkk_ZTFqa33gR_B2W8HfySHvtE4gdzV0wkcHlggwLXrVhpTEr63ee8_j7-LFhybz-y3jos258NV3T13cIXTtYrsr5xiBrtCX8_k_DZE6plLiKB29IQVsaXOJtzslQap13rTLS0yNmtL');"></div>
+<div class="absolute bottom-1 right-1 size-5 rounded-full bg-gray-500 border-4 border-surface-dark" title="Offline"></div>
+</div>
+<div class="text-center w-full mb-4">
+<h3 class="text-white text-xl font-bold group-hover:text-primary transition-colors">Laura, 26</h3>
+<p class="text-text-secondary text-sm flex items-center justify-center gap-1 mt-1">
+<span class="material-symbols-outlined text-base">location_on</span> Bilbao
+                                </p>
+</div>
+<div class="flex flex-wrap justify-center gap-1.5 mb-5 h-12 overflow-hidden">
+<span class="bg-surface-border/50 text-text-secondary text-[10px] px-2 py-1 rounded-full uppercase tracking-wide font-medium">Lectura</span>
+<span class="bg-surface-border/50 text-text-secondary text-[10px] px-2 py-1 rounded-full uppercase tracking-wide font-medium">Gatos</span>
+<span class="bg-surface-border/50 text-text-secondary text-[10px] px-2 py-1 rounded-full uppercase tracking-wide font-medium">Café</span>
+</div>
+<div class="grid grid-cols-2 gap-3 w-full mt-auto">
+<button class="py-2 px-4 rounded-full border border-surface-border text-white text-sm font-bold hover:bg-surface-border transition-colors">Perfil</button>
+<button class="py-2 px-4 rounded-full bg-surface-border text-white/50 text-sm font-bold hover:bg-surface-border cursor-not-allowed transition-colors flex items-center justify-center gap-1">
+<span class="material-symbols-outlined text-lg">mail</span>
+<span>Hola</span>
+</button>
+</div>
+</div>
+<!-- Card 6 -->
+<div class="group bg-surface-dark rounded-2xl p-5 border border-surface-border hover:border-primary/40 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/5 flex flex-col items-center">
+<div class="relative mb-4">
+<div class="size-28 rounded-full bg-cover bg-center border-4 border-background-dark group-hover:border-primary/20 transition-colors" data-alt="Portrait of Sergio in the mountains" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAR3JiGaIUc5zUvYScHxuciT3LprLIdOT6YtJaEUdJcjmzmt0s6_0g94I-SKDTyv7lksV_F9eIoHkYRUeWeXm0q7VCaZ_iSWYSK2CAt4Ee2dtgjzS7inWUscoQBUGbmX0zpRE2lkBgs-8WPJgl97nVpBEsJN4kB0x3lmJi70s2lc3eaC9XoOrRObejRDd9_r4xrPAC9NhHY7qIr0P10PJS3oHoR3AJfsGjriKWRJpZWMWsnJKO4gTUb9eiG9edt6ZdaGIR4Tma-L5qt');"></div>
+<div class="absolute bottom-1 right-1 size-5 rounded-full bg-primary border-4 border-surface-dark" title="Online"></div>
+</div>
+<div class="text-center w-full mb-4">
+<h3 class="text-white text-xl font-bold group-hover:text-primary transition-colors">Sergio, 29</h3>
+<p class="text-text-secondary text-sm flex items-center justify-center gap-1 mt-1">
+<span class="material-symbols-outlined text-base">location_on</span> Málaga
+                                </p>
+</div>
+<div class="flex flex-wrap justify-center gap-1.5 mb-5 h-12 overflow-hidden">
+<span class="bg-surface-border/50 text-text-secondary text-[10px] px-2 py-1 rounded-full uppercase tracking-wide font-medium">Surf</span>
+<span class="bg-surface-border/50 text-text-secondary text-[10px] px-2 py-1 rounded-full uppercase tracking-wide font-medium">Playa</span>
+</div>
+<div class="grid grid-cols-2 gap-3 w-full mt-auto">
+<button class="py-2 px-4 rounded-full border border-surface-border text-white text-sm font-bold hover:bg-surface-border transition-colors">Perfil</button>
+<button class="py-2 px-4 rounded-full bg-primary text-background-dark text-sm font-bold hover:bg-[#20d868] transition-colors flex items-center justify-center gap-1">
+<span class="material-symbols-outlined text-lg">chat_bubble</span>
+<span>Hola</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Pagination -->
+<div class="mt-8 flex justify-center">
+<div class="flex gap-2">
+<button class="size-10 flex items-center justify-center rounded-full bg-surface-dark border border-surface-border text-white hover:bg-surface-border transition-colors">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<button class="size-10 flex items-center justify-center rounded-full bg-primary text-background-dark font-bold">1</button>
+<button class="size-10 flex items-center justify-center rounded-full bg-surface-dark border border-surface-border text-white hover:bg-surface-border transition-colors">2</button>
+<button class="size-10 flex items-center justify-center rounded-full bg-surface-dark border border-surface-border text-white hover:bg-surface-border transition-colors">3</button>
+<span class="flex items-end justify-center px-1 text-text-secondary">...</span>
+<button class="size-10 flex items-center justify-center rounded-full bg-surface-dark border border-surface-border text-white hover:bg-surface-border transition-colors">12</button>
+<button class="size-10 flex items-center justify-center rounded-full bg-surface-dark border border-surface-border text-white hover:bg-surface-border transition-colors">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+</main>
+</div>
+</div>
+</div>
+</body></html>

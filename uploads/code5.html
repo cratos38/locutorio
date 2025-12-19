@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Mi Espacio Personal</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&amp;family=Montserrat:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        "sc-dark": "#0D1117", // Main background (Very dark)
+                        "sc-panel": "#161B22", // Panel background (Slightly lighter dark)
+                        "sc-green": "#2EA043", // Primary action green
+                        "sc-green-dim": "#238636", // Dimmer green for borders/secondary
+                        "sc-accent": "#2f81f7", // Blue accent for links/info
+                        "sc-text-main": "#F0F6FC", // Main text
+                        "sc-text-sec": "#8B949E", // Secondary text
+                        "forest-green": "#1A5319", 
+                        "vibrant-orange": "#FF6B35",
+                        "soft-gray": "#F8F8F8", 
+                        "graphite": "#333333", 
+                        "pure-white": "#FFFFFF", 
+                        "hover-green": "#144214",
+                        // SocialConnect Palette Adaptation
+                        "dark-bg": "#0F1416", // Main dark background
+                        "dark-surface": "#1A2226", // Surface/Card color
+                        "dark-surface-hover": "#253036", // Surface hover
+                        "neon-green": "#4ADE80", // Vibrant green accent
+                        "deep-green": "#14532D", // Deep green for elements
+                        "alert-orange": "#FF6B35", // Notifications
+                    },
+                    fontFamily: {
+                        "heading": ["Montserrat", "sans-serif"],
+                        "sans": ["Lato", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem", 
+                        "lg": "1rem", 
+                        "xl": "1.5rem", 
+                        "2xl": "2rem",
+                        "full": "9999px"
+                    },
+                    boxShadow: {
+                        'glow': '0 0 15px rgba(74, 222, 128, 0.1)',
+                        'card-dark': '0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2)'
+                    }
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        @layer utilities {
+            .scrollbar-hide::-webkit-scrollbar {
+                display: none;
+            }
+            .scrollbar-hide {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+            .glass-panel {
+                @apply bg-dark-surface border border-white/5 shadow-card-dark;
+            }
+        }
+    </style>
+</head>
+<body class="bg-dark-bg font-sans text-sc-text-main antialiased h-screen overflow-hidden flex flex-col selection:bg-neon-green selection:text-dark-bg">
+<header class="h-16 bg-dark-surface border-b border-white/5 flex items-center justify-between px-6 z-30 shrink-0">
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2">
+<div class="size-9 bg-neon-green/20 rounded-lg flex items-center justify-center text-neon-green">
+<span class="material-symbols-outlined">social_distance</span>
+</div>
+<span class="text-xl font-bold font-heading tracking-wide text-white">SocialConnect</span>
+</div>
+<nav class="hidden lg:flex items-center gap-1 ml-4">
+<a class="px-4 py-2 text-sm font-medium text-white bg-white/10 rounded-lg" href="#">Mi Espacio</a>
+<a class="px-4 py-2 text-sm font-medium text-sc-text-sec hover:text-white hover:bg-white/5 rounded-lg transition-colors" href="#">Chat Rooms</a>
+<a class="px-4 py-2 text-sm font-medium text-sc-text-sec hover:text-white hover:bg-white/5 rounded-lg transition-colors" href="#">Encuentros</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative hidden md:block">
+<span class="material-symbols-outlined absolute left-3 top-2 text-sc-text-sec text-[18px]">search</span>
+<input class="pl-9 pr-4 py-1.5 w-64 bg-dark-bg border border-white/5 rounded-full text-sm text-white placeholder-sc-text-sec focus:ring-1 focus:ring-neon-green focus:border-neon-green transition-all" placeholder="Buscar amigos..." type="text"/>
+</div>
+<div class="h-8 w-px bg-white/10 mx-2"></div>
+<div class="flex items-center gap-3">
+<button class="relative p-2 text-sc-text-sec hover:text-neon-green hover:bg-white/5 rounded-full transition-colors">
+<span class="material-symbols-outlined">mail</span>
+<span class="absolute top-1.5 right-1.5 size-2 bg-neon-green rounded-full ring-2 ring-dark-surface"></span>
+</button>
+<button class="relative p-2 text-sc-text-sec hover:text-neon-green hover:bg-white/5 rounded-full transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-1.5 right-1.5 size-2 bg-alert-orange rounded-full ring-2 ring-dark-surface"></span>
+</button>
+<div class="flex items-center gap-3 ml-2 cursor-pointer hover:bg-white/5 px-2 py-1 rounded-full transition-colors">
+<img alt="Avatar" class="w-8 h-8 rounded-full border border-neon-green" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCYofTvqVt_2Lu8sae20y2yL8U1RSfBdI4CTdq11IzKkQGmmLnacepHa6_RDA63mrE6WYKmUvPX4Df-kx3DaUGM6S3SCk0GEu-sr3DwKsy8ejCWJOgg554w3KwDj2D74_RZQ4HrEu_CIjtNnY9B7ydy_ur9Xski9wL9YcmK7Bkoxvti-rpSbFyiqiM1qmytWWqJDMFCOMd3_x-YHcLpZdviE8Nt5gVZxmRAU8FOq6Ddci9LVMO-hhvrngkyNDslvWLfJmfFwAEc_mtw"/>
+<span class="material-symbols-outlined text-sc-text-sec text-sm">expand_more</span>
+</div>
+</div>
+</div>
+</header>
+<main class="flex-1 overflow-y-auto p-4 lg:p-6 bg-dark-bg">
+<div class="max-w-[1600px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6">
+<div class="lg:col-span-3 space-y-6">
+<div class="glass-panel rounded-xl p-6 relative overflow-hidden group">
+<div class="absolute top-0 left-0 w-full h-24 bg-gradient-to-b from-neon-green/10 to-transparent"></div>
+<div class="relative flex flex-col items-center text-center">
+<div class="relative mb-4">
+<img alt="Avatar" class="w-24 h-24 rounded-full border-4 border-dark-surface shadow-lg object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCYofTvqVt_2Lu8sae20y2yL8U1RSfBdI4CTdq11IzKkQGmmLnacepHa6_RDA63mrE6WYKmUvPX4Df-kx3DaUGM6S3SCk0GEu-sr3DwKsy8ejCWJOgg554w3KwDj2D74_RZQ4HrEu_CIjtNnY9B7ydy_ur9Xski9wL9YcmK7Bkoxvti-rpSbFyiqiM1qmytWWqJDMFCOMd3_x-YHcLpZdviE8Nt5gVZxmRAU8FOq6Ddci9LVMO-hhvrngkyNDslvWLfJmfFwAEc_mtw"/>
+<button class="absolute bottom-0 right-0 p-1.5 bg-dark-surface border border-white/10 rounded-full text-neon-green hover:bg-neon-green hover:text-dark-bg transition-colors">
+<span class="material-symbols-outlined text-[16px]">edit</span>
+</button>
+</div>
+<h2 class="text-xl font-bold font-heading text-white">Ana M.</h2>
+<p class="text-sm text-sc-text-sec mb-4">26 años • Madrid</p>
+<div class="w-full h-px bg-white/5 mb-4"></div>
+<div class="w-full flex justify-between text-sm mb-4">
+<div class="text-center">
+<span class="block font-bold text-white text-lg">128</span>
+<span class="text-xs text-sc-text-sec">Amigos</span>
+</div>
+<div class="text-center">
+<span class="block font-bold text-white text-lg">45</span>
+<span class="text-xs text-sc-text-sec">Fotos</span>
+</div>
+<div class="text-center">
+<span class="block font-bold text-white text-lg">89%</span>
+<span class="text-xs text-sc-text-sec">Completo</span>
+</div>
+</div>
+<button class="w-full py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">edit_square</span> Editar Perfil
+                        </button>
+</div>
+</div>
+<div class="glass-panel rounded-xl overflow-hidden">
+<div class="p-4 border-b border-white/5 bg-white/2">
+<h3 class="font-heading font-bold text-sm text-white flex items-center gap-2">
+<span class="material-symbols-outlined text-neon-green">grid_view</span> Menú Principal
+                        </h3>
+</div>
+<div class="p-2 space-y-1">
+<a class="flex items-center justify-between px-3 py-2.5 rounded-lg hover:bg-white/5 text-sc-text-sec hover:text-white transition-colors group" href="#">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined group-hover:text-neon-green">mail</span>
+<span>Mensajes</span>
+</div>
+<span class="bg-neon-green text-dark-bg text-xs font-bold px-1.5 py-0.5 rounded">3</span>
+</a>
+<a class="flex items-center justify-between px-3 py-2.5 rounded-lg hover:bg-white/5 text-sc-text-sec hover:text-white transition-colors group" href="#">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined group-hover:text-neon-green">forum</span>
+<span>Salas de Chat</span>
+</div>
+</a>
+<a class="flex items-center justify-between px-3 py-2.5 rounded-lg hover:bg-white/5 text-sc-text-sec hover:text-white transition-colors group" href="#">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined group-hover:text-neon-green">group</span>
+<span>Amigos</span>
+</div>
+</a>
+<a class="flex items-center justify-between px-3 py-2.5 rounded-lg hover:bg-white/5 text-sc-text-sec hover:text-white transition-colors group" href="#">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined group-hover:text-neon-green">local_cafe</span>
+<span>Invitaciones</span>
+</div>
+<span class="bg-white/10 text-white text-xs font-bold px-1.5 py-0.5 rounded">5</span>
+</a>
+<a class="flex items-center justify-between px-3 py-2.5 rounded-lg hover:bg-white/5 text-sc-text-sec hover:text-white transition-colors group" href="#">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined group-hover:text-neon-green">photo_library</span>
+<span>Álbumes</span>
+</div>
+</a>
+</div>
+</div>
+<div class="glass-panel rounded-xl p-5">
+<h3 class="font-heading font-bold text-sm text-white flex items-center gap-2 mb-4">
+<span class="material-symbols-outlined text-sc-text-sec">shield</span> Seguridad
+                    </h3>
+<div class="space-y-4">
+<div class="flex items-center justify-between">
+<span class="text-sm text-sc-text-sec">Estado de cuenta</span>
+<span class="text-xs font-bold text-neon-green bg-neon-green/10 px-2 py-0.5 rounded border border-neon-green/20">Protegida</span>
+</div>
+<div class="w-full bg-white/5 rounded-full h-1.5">
+<div class="bg-neon-green h-1.5 rounded-full shadow-glow" style="width: 100%"></div>
+</div>
+<button class="w-full py-1.5 mt-2 bg-transparent hover:bg-white/5 border border-white/10 text-sc-text-sec hover:text-white rounded text-xs transition-colors">
+                            Revisar actividad reciente
+                        </button>
+</div>
+</div>
+</div>
+<div class="lg:col-span-6 space-y-6">
+<div class="glass-panel rounded-xl p-4">
+<div class="flex gap-4">
+<img alt="Me" class="w-10 h-10 rounded-full object-cover border border-white/10" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCYofTvqVt_2Lu8sae20y2yL8U1RSfBdI4CTdq11IzKkQGmmLnacepHa6_RDA63mrE6WYKmUvPX4Df-kx3DaUGM6S3SCk0GEu-sr3DwKsy8ejCWJOgg554w3KwDj2D74_RZQ4HrEu_CIjtNnY9B7ydy_ur9Xski9wL9YcmK7Bkoxvti-rpSbFyiqiM1qmytWWqJDMFCOMd3_x-YHcLpZdviE8Nt5gVZxmRAU8FOq6Ddci9LVMO-hhvrngkyNDslvWLfJmfFwAEc_mtw"/>
+<div class="flex-1">
+<input class="w-full bg-dark-bg border border-white/10 rounded-full px-4 py-2.5 text-sm text-white placeholder-sc-text-sec focus:ring-1 focus:ring-neon-green focus:border-neon-green transition-all" placeholder="¿Qué estás pensando, Ana?" type="text"/>
+</div>
+</div>
+<div class="flex justify-between items-center mt-3 pl-14">
+<div class="flex gap-2">
+<button class="flex items-center gap-1.5 px-3 py-1.5 rounded-full hover:bg-white/5 text-xs text-sc-text-sec hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[18px] text-neon-green">image</span> Foto
+                            </button>
+<button class="flex items-center gap-1.5 px-3 py-1.5 rounded-full hover:bg-white/5 text-xs text-sc-text-sec hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[18px] text-vibrant-orange">mood</span> Estado
+                            </button>
+</div>
+</div>
+</div>
+<div class="bg-gradient-to-r from-deep-green/40 to-dark-surface border border-neon-green/20 rounded-xl p-5 relative overflow-hidden">
+<div class="flex justify-between items-start relative z-10">
+<div>
+<h3 class="font-bold text-white text-lg">Visitas al Perfil</h3>
+<p class="text-sm text-neon-green font-medium mb-4">28 personas te vieron hoy</p>
+<div class="flex -space-x-3 mb-4">
+<img alt="Visita" class="w-10 h-10 rounded-full border-2 border-dark-bg" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBcAgJzBVY0VcA1ICIc8GlT1M1eiu5Og95ubTpOa58bFlu9OV7QmjTZH1cbQBwbPhtvFKip_HyKq7atWt0zzANSMDAC_wrJi67kz8SXvn-HnWmPBihZZc3BAfUyEZ7TOAs4LhWokU66QRGD6Lhq2RYxETUZKEeHUzBCVw0BiuXDqP1lYEwLeNcffCadpUuZggEMO_dPmEceKo3MQ6C2rOGG5yHNZlrhQNjpnrQwZB36kSlcM_HfVWyMRoN6UQ6gNvgLzfLeM1B3VVpJ"/>
+<img alt="Visita" class="w-10 h-10 rounded-full border-2 border-dark-bg" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC_k-QPp7Bm1IORwcSuHrBwaT_cooNKHNEO7JbKB8m3ha0lPXpGDfwzn5chvUYwCPj-s9EoOhcVO8dF1vAaBaSF_i1tPyB_hzk8KO03gjXPyNa6N_QrbNVGTFpDQnDJqg10fnvdppt4JpIGSb5n4ql1Ivdmsn9olN4WVvyYvYvXGFUkTqnZmxxtewOWL7MEejxvXGzyIEmcWxbTMlB2HIf7XruycmsEoo9DgJVX043mkpUuUJhOyS_wCVP3JlP0-kYUXILRCrp8H8ic"/>
+<img alt="Visita" class="w-10 h-10 rounded-full border-2 border-dark-bg" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBeeMOB_U1vT493g04GMXkQt_nyAG8MhMlNfzG4z2DYPQKR24ob0HEzimmB96Sd4GhY0YRP-TPyWuknoITGye5AxQIIkUMS6bJlap4RBIO5q_9eDlpkiyd765t4bxfntbtlcCVH1rCWDZMmwPm00connYJnD94blHHAjyt0rEyqSIOeuhOi0cgq-CVpWnR4eVh26kZy9ucxX4cLrs2p0K3JeEK_8H1TCTgJzrmRB0bDkW41xryg77g7H1GG4XFsbwP_wkCMxr-3NlwB"/>
+<div class="w-10 h-10 rounded-full border-2 border-dark-bg bg-dark-surface flex items-center justify-center text-xs text-white font-bold hover:bg-white/10 cursor-pointer">+25</div>
+</div>
+</div>
+<div class="text-right">
+<button class="px-4 py-2 bg-neon-green hover:bg-green-400 text-dark-bg font-bold rounded-lg text-sm shadow-lg shadow-green-900/20 transition-all">
+                                Ver quiénes son
+                            </button>
+<div class="mt-2 text-xs text-sc-text-sec">
+                                Última visita: Hace 5 min
+                            </div>
+</div>
+</div>
+</div>
+<div class="space-y-4">
+<h3 class="font-heading font-bold text-lg text-white px-2">Actividad Reciente</h3>
+<div class="glass-panel rounded-xl p-5">
+<div class="flex items-start gap-4">
+<img alt="User" class="w-10 h-10 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBeeMOB_U1vT493g04GMXkQt_nyAG8MhMlNfzG4z2DYPQKR24ob0HEzimmB96Sd4GhY0YRP-TPyWuknoITGye5AxQIIkUMS6bJlap4RBIO5q_9eDlpkiyd765t4bxfntbtlcCVH1rCWDZMmwPm00connYJnD94blHHAjyt0rEyqSIOeuhOi0cgq-CVpWnR4eVh26kZy9ucxX4cLrs2p0K3JeEK_8H1TCTgJzrmRB0bDkW41xryg77g7H1GG4XFsbwP_wkCMxr-3NlwB"/>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<div>
+<p class="text-sm text-white"><span class="font-bold text-neon-green">Maria P.</span> añadió fotos nuevas.</p>
+<p class="text-xs text-sc-text-sec">Hace 15 min</p>
+</div>
+<button class="text-sc-text-sec hover:text-white">
+<span class="material-symbols-outlined text-[18px]">more_horiz</span>
+</button>
+</div>
+<div class="mt-3 grid grid-cols-2 gap-2 rounded-lg overflow-hidden">
+<div class="h-40 bg-cover bg-center" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAT9anBwsJWTxsp8zKQ1yfPvO8mByiS-VtEXK9WPBVcMq2QmLs1IqxB0vA9x1dd0JHow5DzqRIQMxoU3NXU8N1qHC2zzfNLDs_YcaG-cyqkOfeq7N6Trfj6tlmMryNEBY88LbSlY852HMmSm_ON-yrT-RuC8SBfxFwokuCgOvoHE4N7KpWl7TkVtmhIMesTDF-06hA6WWQxKxXS_X-OfIHuYb6hLM9JoaxqImezZaDmivLr99Q_R1pNCJg4b_BEH4_8Ob945bspR5EL')"></div>
+<div class="h-40 bg-dark-bg/50 flex items-center justify-center border border-white/5">
+<span class="text-sm text-sc-text-sec">Ver álbum completo</span>
+</div>
+</div>
+<div class="flex gap-4 mt-4 border-t border-white/5 pt-3">
+<button class="flex items-center gap-1.5 text-xs font-bold text-sc-text-sec hover:text-neon-green transition-colors">
+<span class="material-symbols-outlined text-[16px]">thumb_up</span> Me gusta
+                                    </button>
+<button class="flex items-center gap-1.5 text-xs font-bold text-sc-text-sec hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[16px]">chat_bubble</span> Comentar
+                                    </button>
+</div>
+</div>
+</div>
+</div>
+<div class="glass-panel rounded-xl p-5">
+<div class="flex items-start gap-4">
+<img alt="User" class="w-10 h-10 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGb3wmeflExbrjA88BEWgMoBARwnsWXrjnuX9eX0BtYZqnIuIuV2k_c80FD-aUsIiTHut6e-k4cJzjyk4OERJYc_7V103-NFf7eD9WJOXNYzN4YOa0ulR1gN-hucbZyaIz5RfojyS2OglAr4ickMC-qkdFxcoLvF59IV_i3Kxtk7OBbeQjLB2sX2q9THJ5MpQALQETi5ABgMmTiDxzKtRbbs6RUv1H7KU0c6gcA7w_9cbtihKJ1iEfLVPD4g6KGUSrVkXQuXl421Fk"/>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<div>
+<p class="text-sm text-white"><span class="font-bold text-neon-green">Carlos R.</span> actualizó su estado.</p>
+<p class="text-xs text-sc-text-sec">Hace 42 min</p>
+</div>
+</div>
+<div class="mt-2 bg-white/5 p-3 rounded-lg border border-white/5">
+<p class="text-sm text-gray-300 italic">"Buscando gente para ir al concierto este fin de semana. ¿Quién se apunta? 🎸"</p>
+</div>
+<div class="flex gap-4 mt-4 border-t border-white/5 pt-3">
+<button class="flex items-center gap-1.5 text-xs font-bold text-sc-text-sec hover:text-neon-green transition-colors">
+<span class="material-symbols-outlined text-[16px]">thumb_up</span> Me gusta
+                                    </button>
+<button class="flex items-center gap-1.5 text-xs font-bold text-sc-text-sec hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[16px]">chat_bubble</span> Responder
+                                    </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="lg:col-span-3 space-y-6">
+<div class="glass-panel rounded-xl p-0 overflow-hidden">
+<div class="p-4 border-b border-white/5 bg-white/2 flex justify-between items-center">
+<h3 class="font-heading font-bold text-sm text-white">Mensajes</h3>
+<a class="text-xs text-neon-green hover:underline" href="#">Ver todos</a>
+</div>
+<div class="divide-y divide-white/5">
+<div class="p-3 hover:bg-white/5 cursor-pointer transition-colors flex gap-3 items-center relative">
+<div class="relative">
+<img class="w-10 h-10 rounded-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBcAgJzBVY0VcA1ICIc8GlT1M1eiu5Og95ubTpOa58bFlu9OV7QmjTZH1cbQBwbPhtvFKip_HyKq7atWt0zzANSMDAC_wrJi67kz8SXvn-HnWmPBihZZc3BAfUyEZ7TOAs4LhWokU66QRGD6Lhq2RYxETUZKEeHUzBCVw0BiuXDqP1lYEwLeNcffCadpUuZggEMO_dPmEceKo3MQ6C2rOGG5yHNZlrhQNjpnrQwZB36kSlcM_HfVWyMRoN6UQ6gNvgLzfLeM1B3VVpJ"/>
+<span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-neon-green border-2 border-dark-surface rounded-full"></span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-baseline mb-0.5">
+<h4 class="text-sm font-bold text-white truncate">Javier Solis</h4>
+<span class="text-[10px] text-sc-text-sec">12:30</span>
+</div>
+<p class="text-xs text-white font-medium truncate">Hola, ¿viste las fotos que...</p>
+</div>
+<div class="absolute right-3 top-1/2 -mt-1 w-2 h-2 bg-neon-green rounded-full"></div>
+</div>
+<div class="p-3 hover:bg-white/5 cursor-pointer transition-colors flex gap-3 items-center">
+<div class="relative">
+<img class="w-10 h-10 rounded-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC_k-QPp7Bm1IORwcSuHrBwaT_cooNKHNEO7JbKB8m3ha0lPXpGDfwzn5chvUYwCPj-s9EoOhcVO8dF1vAaBaSF_i1tPyB_hzk8KO03gjXPyNa6N_QrbNVGTFpDQnDJqg10fnvdppt4JpIGSb5n4ql1Ivdmsn9olN4WVvyYvYvXGFUkTqnZmxxtewOWL7MEejxvXGzyIEmcWxbTMlB2HIf7XruycmsEoo9DgJVX043mkpUuUJhOyS_wCVP3JlP0-kYUXILRCrp8H8ic"/>
+<span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-sc-text-sec border-2 border-dark-surface rounded-full"></span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-baseline mb-0.5">
+<h4 class="text-sm font-bold text-sc-text-sec truncate">Laura G.</h4>
+<span class="text-[10px] text-sc-text-sec">Ayer</span>
+</div>
+<p class="text-xs text-sc-text-sec truncate">¡Te envió una invitación!</p>
+</div>
+</div>
+</div>
+</div>
+<div class="glass-panel rounded-xl p-5">
+<h3 class="font-heading font-bold text-sm text-white mb-4">Mis Intereses</h3>
+<div class="flex flex-wrap gap-2">
+<span class="px-2.5 py-1 bg-white/5 hover:bg-white/10 text-xs text-sc-text-sec hover:text-white rounded-md cursor-pointer transition-colors border border-white/5">Música</span>
+<span class="px-2.5 py-1 bg-white/5 hover:bg-white/10 text-xs text-sc-text-sec hover:text-white rounded-md cursor-pointer transition-colors border border-white/5">Viajes</span>
+<span class="px-2.5 py-1 bg-white/5 hover:bg-white/10 text-xs text-sc-text-sec hover:text-white rounded-md cursor-pointer transition-colors border border-white/5">Fotografía</span>
+<span class="px-2.5 py-1 bg-white/5 hover:bg-white/10 text-xs text-sc-text-sec hover:text-white rounded-md cursor-pointer transition-colors border border-white/5">Cine</span>
+<button class="px-2.5 py-1 text-xs text-neon-green hover:underline flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">add</span> Añadir
+                        </button>
+</div>
+</div>
+<div class="glass-panel rounded-xl p-0">
+<div class="p-4 border-b border-white/5 bg-white/2 flex justify-between items-center">
+<h3 class="font-heading font-bold text-sm text-white">Amigos en línea (4)</h3>
+</div>
+<div class="p-2 grid grid-cols-4 gap-2">
+<div class="flex flex-col items-center p-2 rounded-lg hover:bg-white/5 cursor-pointer group transition-colors">
+<div class="relative mb-1">
+<img class="w-10 h-10 rounded-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCYofTvqVt_2Lu8sae20y2yL8U1RSfBdI4CTdq11IzKkQGmmLnacepHa6_RDA63mrE6WYKmUvPX4Df-kx3DaUGM6S3SCk0GEu-sr3DwKsy8ejCWJOgg554w3KwDj2D74_RZQ4HrEu_CIjtNnY9B7ydy_ur9Xski9wL9YcmK7Bkoxvti-rpSbFyiqiM1qmytWWqJDMFCOMd3_x-YHcLpZdviE8Nt5gVZxmRAU8FOq6Ddci9LVMO-hhvrngkyNDslvWLfJmfFwAEc_mtw"/>
+<span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-neon-green border-2 border-dark-surface rounded-full"></span>
+</div>
+<span class="text-[10px] text-sc-text-sec group-hover:text-white truncate w-full text-center">Pedro</span>
+</div>
+<div class="flex flex-col items-center p-2 rounded-lg hover:bg-white/5 cursor-pointer group transition-colors">
+<div class="relative mb-1">
+<img class="w-10 h-10 rounded-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGb3wmeflExbrjA88BEWgMoBARwnsWXrjnuX9eX0BtYZqnIuIuV2k_c80FD-aUsIiTHut6e-k4cJzjyk4OERJYc_7V103-NFf7eD9WJOXNYzN4YOa0ulR1gN-hucbZyaIz5RfojyS2OglAr4ickMC-qkdFxcoLvF59IV_i3Kxtk7OBbeQjLB2sX2q9THJ5MpQALQETi5ABgMmTiDxzKtRbbs6RUv1H7KU0c6gcA7w_9cbtihKJ1iEfLVPD4g6KGUSrVkXQuXl421Fk"/>
+<span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-neon-green border-2 border-dark-surface rounded-full"></span>
+</div>
+<span class="text-[10px] text-sc-text-sec group-hover:text-white truncate w-full text-center">Juan</span>
+</div>
+<div class="flex flex-col items-center p-2 rounded-lg hover:bg-white/5 cursor-pointer group transition-colors">
+<div class="relative mb-1">
+<img class="w-10 h-10 rounded-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBeeMOB_U1vT493g04GMXkQt_nyAG8MhMlNfzG4z2DYPQKR24ob0HEzimmB96Sd4GhY0YRP-TPyWuknoITGye5AxQIIkUMS6bJlap4RBIO5q_9eDlpkiyd765t4bxfntbtlcCVH1rCWDZMmwPm00connYJnD94blHHAjyt0rEyqSIOeuhOi0cgq-CVpWnR4eVh26kZy9ucxX4cLrs2p0K3JeEK_8H1TCTgJzrmRB0bDkW41xryg77g7H1GG4XFsbwP_wkCMxr-3NlwB"/>
+<span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-neon-green border-2 border-dark-surface rounded-full"></span>
+</div>
+<span class="text-[10px] text-sc-text-sec group-hover:text-white truncate w-full text-center">Maria</span>
+</div>
+<div class="flex flex-col items-center p-2 rounded-lg hover:bg-white/5 cursor-pointer group transition-colors">
+<div class="relative mb-1">
+<div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-sc-text-sec">
+<span class="material-symbols-outlined text-sm">arrow_forward</span>
+</div>
+</div>
+<span class="text-[10px] text-sc-text-sec group-hover:text-white truncate w-full text-center">Ver más</span>
+</div>
+</div>
+</div>
+<div class="bg-gradient-to-br from-vibrant-orange/10 to-transparent border border-vibrant-orange/20 rounded-xl p-4 text-center">
+<span class="material-symbols-outlined text-vibrant-orange text-3xl mb-2">visibility_off</span>
+<h3 class="font-bold text-white text-sm">Modo Invisible</h3>
+<p class="text-xs text-sc-text-sec mb-3">Navega sin dejar rastro en "Perfiles Visitados".</p>
+<button class="w-full py-1.5 bg-vibrant-orange/90 hover:bg-vibrant-orange text-white text-xs font-bold rounded shadow transition-colors">
+                        Activar Premium
+                    </button>
+</div>
+</div>
+</div>
+<footer class="mt-8 pb-4 text-center text-xs text-sc-text-sec border-t border-white/5 pt-4 max-w-[1600px] mx-auto">
+<p>© 2023 SocialConnect Inc. • <a class="hover:text-neon-green" href="#">Privacidad</a> • <a class="hover:text-neon-green" href="#">Términos</a></p>
+</footer>
+</main>
+
+</body></html>

@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html class="dark" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Pokec Social - Álbumes de Fotos</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@300;400;500;600;700&amp;family=Noto+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#2bee79",
+                        "background-light": "#f6f8f7",
+                        "background-dark": "#102217",
+                        "surface-dark": "#1a2c22", 
+                        "surface-light": "#ffffff",
+                    },
+                    fontFamily: {
+                        "display": ["Spline Sans", "sans-serif"],
+                        "body": ["Noto Sans", "sans-serif"],
+                    },
+                    borderRadius: {"DEFAULT": "1rem", "lg": "1.5rem", "xl": "2rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>.hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 antialiased transition-colors duration-300">
+<div class="relative flex min-h-screen w-full flex-col overflow-x-hidden">
+<header class="sticky top-0 z-50 w-full border-b border-slate-200 dark:border-[#28392f] bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md">
+<div class="mx-auto flex h-16 max-w-[1280px] items-center justify-between px-4 lg:px-8">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-3">
+<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-black">
+<span class="material-symbols-outlined">api</span>
+</div>
+<h2 class="text-lg font-bold tracking-tight text-slate-900 dark:text-white">Pokec Social</h2>
+</div>
+<div class="hidden md:flex relative h-10 w-64 items-center overflow-hidden rounded-full bg-slate-100 dark:bg-[#1a2c22]">
+<div class="flex items-center justify-center pl-4 text-slate-400">
+<span class="material-symbols-outlined text-[20px]">search</span>
+</div>
+<input class="h-full w-full border-none bg-transparent pl-3 pr-4 text-sm text-slate-900 placeholder:text-slate-400 focus:ring-0 dark:text-white" placeholder="Buscar álbumes..."/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<nav class="hidden lg:flex items-center gap-6">
+<a class="text-sm font-medium text-slate-600 hover:text-primary dark:text-slate-300 dark:hover:text-primary transition-colors" href="#">Inicio</a>
+<a class="text-sm font-medium text-slate-600 hover:text-primary dark:text-slate-300 dark:hover:text-primary transition-colors" href="#">Perfiles</a>
+<a class="text-sm font-medium text-slate-600 hover:text-primary dark:text-slate-300 dark:hover:text-primary transition-colors" href="#">Chat</a>
+<a class="text-sm font-medium text-primary" href="#">Álbumes</a>
+</nav>
+<div class="flex items-center gap-4">
+<button class="relative flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 dark:bg-[#1a2c22] text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-[#23382c] transition-colors">
+<span class="material-symbols-outlined text-[20px]">notifications</span>
+<span class="absolute top-2 right-2 h-2 w-2 rounded-full bg-red-500 border border-white dark:border-[#1a2c22]"></span>
+</button>
+<div class="h-10 w-10 overflow-hidden rounded-full bg-slate-200 border-2 border-primary" data-alt="User profile avatar showing a smiling face" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuB8QgtOkl96jPLcuWAqXAKzafQ4zya5rNH_VSk5LVYNzOvv5IzRkIcTRvW0loTYkOIZQRf6vtNj8HGZKQXyHH5r7p3EaYWwtMxOB0YoH6xq3sOofovldF7Loeoa870S1XHoLrpFbIGXc094-IcO3IyMDS0OsJuURBIGNKOOzVSOM6SE6wMoQuBADP1U88RT4hZBWA88UzYo2gF64_oOyA38C1aXQkRGU9GzgHvsnx1LteKuM_ksP5SKk7-bmY7Xuha6Q2TOG7rO8r72'); background-size: cover; background-position: center;"></div>
+</div>
+</div>
+</div>
+</header>
+<main class="flex-1">
+<div class="mx-auto flex max-w-[1280px] flex-col px-4 py-8 lg:px-8">
+<div class="flex flex-col gap-6 md:flex-row md:items-end md:justify-between mb-8">
+<div class="flex flex-col gap-2">
+<h1 class="text-4xl font-black tracking-tight text-slate-900 dark:text-white">Álbumes de Fotos</h1>
+<p class="text-base text-slate-500 dark:text-[#9db9a8] max-w-xl">
+                            Gestiona tus recuerdos con total control. Crea álbumes <b class="text-slate-700 dark:text-white">públicos</b> para todos, compártelos <b class="text-slate-700 dark:text-white">solo con amigos</b> o protégelos con <b class="text-slate-700 dark:text-white">contraseña</b> para máxima privacidad.
+                        </p>
+</div>
+<button class="group flex h-12 items-center gap-2 rounded-full bg-primary px-6 text-sm font-bold text-black transition-all hover:bg-primary/90 hover:shadow-[0_0_20px_rgba(43,238,121,0.3)]">
+<span class="material-symbols-outlined text-[20px]">add_photo_alternate</span>
+<span>Crear Álbum</span>
+<span class="material-symbols-outlined text-[18px] ml-1 opacity-60">expand_more</span>
+</button>
+</div>
+<div class="mb-10 overflow-x-auto pb-2 hide-scrollbar">
+<div class="flex gap-3">
+<button class="flex h-9 min-w-fit items-center gap-2 rounded-full bg-primary px-5 text-sm font-semibold text-black">
+<span class="material-symbols-outlined text-[18px]">grid_view</span>
+                            Todo
+                        </button>
+<button class="flex h-9 min-w-fit items-center gap-2 rounded-full bg-surface-light border border-slate-200 dark:border-transparent dark:bg-surface-dark px-5 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-[#23382c] transition-colors">
+<span class="material-symbols-outlined text-[18px]">public</span>
+                            Públicos
+                        </button>
+<button class="flex h-9 min-w-fit items-center gap-2 rounded-full bg-surface-light border border-slate-200 dark:border-transparent dark:bg-surface-dark px-5 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-[#23382c] transition-colors">
+<span class="material-symbols-outlined text-[18px]">group</span>
+                            Solo Amigos
+                        </button>
+<button class="flex h-9 min-w-fit items-center gap-2 rounded-full bg-surface-light border border-slate-200 dark:border-transparent dark:bg-surface-dark px-5 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-[#23382c] transition-colors">
+<span class="material-symbols-outlined text-[18px]">lock</span>
+                            Protegidos
+                        </button>
+<div class="h-9 w-px bg-slate-300 dark:bg-slate-700 mx-1"></div>
+<button class="flex h-9 min-w-fit items-center gap-2 rounded-full bg-surface-light border border-slate-200 dark:border-transparent dark:bg-surface-dark px-5 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-[#23382c] transition-colors">
+<span class="material-symbols-outlined text-[18px]">trending_up</span>
+                            Populares
+                        </button>
+</div>
+</div>
+<div class="mb-12">
+<div class="flex items-center justify-between mb-5">
+<h2 class="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">folder_special</span>
+                            Mis Álbumes
+                        </h2>
+<a class="text-sm font-medium text-primary hover:underline" href="#">Ver todos</a>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+<div class="group flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed border-slate-300 dark:border-[#28392f] bg-transparent p-6 text-center hover:border-primary hover:bg-primary/5 transition-all cursor-pointer h-full min-h-[260px]">
+<div class="flex h-14 w-14 items-center justify-center rounded-full bg-slate-100 dark:bg-[#1a2c22] text-slate-400 group-hover:bg-primary group-hover:text-black transition-colors">
+<span class="material-symbols-outlined text-[28px]">add</span>
+</div>
+<div>
+<h3 class="font-bold text-slate-900 dark:text-white">Nuevo Álbum</h3>
+<p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Elige: Público, Amigos o Privado</p>
+</div>
+</div>
+<div class="group relative overflow-hidden rounded-xl bg-surface-light dark:bg-surface-dark p-3 transition-all hover:-translate-y-1 hover:shadow-lg dark:hover:shadow-primary/5">
+<div class="relative aspect-[4/3] w-full overflow-hidden rounded-lg bg-slate-200 dark:bg-[#111814]">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110" data-alt="Mountain landscape" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBvevEgWnghi3mfJacp6Eud4wJrKeI-zQj1YnSsC_KM5k42kmc7E0PluLfYEy-DU96rrsjL8q3IZ-dZ-zYuSTtEaegbWdss8rZRje4Mlrk93FguZkBkLX6wa51_YsuUUJ51uaaRipjCef49fSMzgTPk224EK7RFusuG92iuBtcfvAenkdywI416PjR0JNOYTxZikUIS6GXT5x94mlVySK77fd3bNay3OPrJF39MW9rDxLAfrVKPd-DHCOV6ETjYdHjhM4Pla_sj7rLQ');"></div>
+<div class="absolute top-2 right-2 rounded-full bg-black/60 px-2.5 py-1 text-xs font-bold text-white backdrop-blur-md flex items-center gap-1.5 border border-white/10">
+<span class="material-symbols-outlined text-[14px] text-green-400">public</span> Público
+                                </div>
+</div>
+<div class="mt-3">
+<h3 class="font-bold text-slate-900 dark:text-white truncate">Viaje a los Andes</h3>
+<p class="text-sm text-slate-500 dark:text-slate-400">142 fotos • Hace 1 semana</p>
+</div>
+</div>
+<div class="group relative overflow-hidden rounded-xl bg-surface-light dark:bg-surface-dark p-3 transition-all hover:-translate-y-1 hover:shadow-lg dark:hover:shadow-primary/5">
+<div class="relative aspect-[4/3] w-full overflow-hidden rounded-lg bg-slate-200 dark:bg-[#111814]">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110" data-alt="Wedding celebration" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuARRp4Bf3A1E-cTB2zJJP2ra8BLOyEyJszr1kOk7Jl-Abt76n0ZjkiZG1zAL9fzAZVgHQKyVA070Tl7iJxpGFHZQck1ZeiFnGsfQ5nAX8WyOEdFPsH63GtERVLhnoKkonvi_JHaNW8QmU00cXPurHPgQfGlrWXcRDQJStNsmQn3N2IwAocxfD9lCU1PXFt0OImJpIoP9HtlBBuJbA2DPBzsR9cmprlJjR0psg1h-UbZmLWErdKK36fvTwy6K9ksnIpbJLNCNp9_nIGM');"></div>
+<div class="absolute top-2 right-2 rounded-full bg-black/60 px-2.5 py-1 text-xs font-bold text-white backdrop-blur-md flex items-center gap-1.5 border border-white/10">
+<span class="material-symbols-outlined text-[14px] text-blue-400">group</span> Solo Amigos
+                                </div>
+</div>
+<div class="mt-3">
+<h3 class="font-bold text-slate-900 dark:text-white truncate">Boda de mi Hermana</h3>
+<p class="text-sm text-slate-500 dark:text-slate-400">85 fotos • Hace 3 días</p>
+</div>
+</div>
+<div class="group relative overflow-hidden rounded-xl bg-surface-light dark:bg-surface-dark p-3 transition-all hover:-translate-y-1 hover:shadow-lg dark:hover:shadow-primary/5">
+<div class="relative aspect-[4/3] w-full overflow-hidden rounded-lg bg-slate-200 dark:bg-[#111814]">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110 filter blur-[2px]" data-alt="Modern architecture abstract" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAS0aoQJnkDV8OvGzVC6cGegGGY20QXmlbhYAYZaNiuilQm7chQAzNnGEwSYQHdSRGXLHuxLA9UtCh-eF7_NPWrPbtNOzWlmi9Uqtr4CymFuXKS3tkcJ1UPnFUO1ynsHdPPdJvXRRflyD5Og9u8w1SMfEhGccTVYEQQ8RXiLF3xHFRfossu7XLTLpb0THA8dSgjjxv_6-6SkmyuFfifQyDRVr3wxm9QmCyyL8_Ww8WrnXs42ITMcBCOq2sROYDLBjmHbmbK1icYR88n');"></div>
+<div class="absolute inset-0 bg-black/20"></div>
+<div class="absolute top-2 right-2 rounded-full bg-black/60 px-2.5 py-1 text-xs font-bold text-white backdrop-blur-md flex items-center gap-1.5 border border-white/10">
+<span class="material-symbols-outlined text-[14px] text-amber-400">lock</span> Protegido
+                                </div>
+<div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+<div class="bg-black/50 p-2 rounded-full backdrop-blur-sm">
+<span class="material-symbols-outlined text-white text-[24px]">vpn_key</span>
+</div>
+</div>
+</div>
+<div class="mt-3">
+<h3 class="font-bold text-slate-900 dark:text-white truncate">Proyecto X (Privado)</h3>
+<p class="text-sm text-slate-500 dark:text-slate-400">12 archivos • Con contraseña</p>
+</div>
+</div>
+</div>
+</div>
+<div>
+<h2 class="text-xl font-bold text-slate-900 dark:text-white mb-5 px-1 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">public</span>
+                        Tendencias de la Comunidad
+                    </h2>
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+<article class="group relative flex flex-col gap-3 rounded-2xl bg-surface-light dark:bg-surface-dark p-3 shadow-sm hover:shadow-xl dark:hover:shadow-primary/10 transition-all duration-300">
+<div class="relative aspect-[4/3] w-full overflow-hidden rounded-xl bg-slate-200 dark:bg-[#111814]">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" data-alt="Sunny coast of Amalfi Italy with colorful houses" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDk-b6fFitB68l-88YLbE0dNTj9HN1cSYaOcNk9qA2fek-Z1hu9YzLGYBd3BISI6YvfzYkXBqdvMyJ1k_GelOVRvmF3Zr365-1x2Fa_SCrtWWCPoiULSpqvXZMx-J1JvscQcvKCwrZhq4urMGCsu3wbtNYgUYTaI4kG6lpGXpj2XHakiqW9Xel7S8uIslI5jPPok5ojtqF0iyFXnUESI7UIhVTi52xuTSaI6a6PYXyBWHvAVTcb64xf3agx9PmqXpe9ccjxcCGJI1fj');"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60 transition-opacity duration-300 group-hover:opacity-80"></div>
+<div class="absolute bottom-3 right-3 flex gap-2 translate-y-4 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100 z-10">
+<button class="flex h-9 w-9 items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-md hover:bg-primary hover:text-black transition-colors" title="Me gusta">
+<span class="material-symbols-outlined text-[20px]">favorite</span>
+</button>
+<button class="flex h-9 w-9 items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-md hover:bg-white hover:text-black transition-colors" title="Comentar">
+<span class="material-symbols-outlined text-[20px]">chat_bubble</span>
+</button>
+</div>
+<div class="absolute top-3 left-3 rounded-lg bg-black/40 px-2 py-1 backdrop-blur-md">
+<p class="text-xs font-bold text-white flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">photo_library</span> 42
+                                    </p>
+</div>
+</div>
+<div class="px-1 pb-1">
+<div class="flex justify-between items-start mb-2">
+<h3 class="text-lg font-bold text-slate-900 dark:text-white leading-tight group-hover:text-primary transition-colors cursor-pointer">Verano en Italia</h3>
+</div>
+<div class="flex items-center justify-between border-t border-slate-100 dark:border-[#28392f] pt-3 mt-1">
+<div class="flex items-center gap-2">
+<div class="h-6 w-6 rounded-full bg-slate-300 bg-cover bg-center" data-alt="Portrait of user Maria" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuA_iaRQvbsDpIjtshC2ovCjhTKyLUaSEqokDUFJvckF6PMsAQp4stM2VDAxnCJDcVQOMdidY_uS9y0FS9wl23dlQhDbbbkXY0oCnrgiVw2uB0cIPbcNlx90tn5I_jtsa6psPggHhewhImFNvIXxR7fZ3Q9B72Zhu06Ce9w4b-PmfGSKr7SqNJJ02yiJCLbI6fIAZn1gzUPIlWyMnWXS8vWQgQXVMWlTeHrAgcqWE3PKncGtID-YRNVmPtUpT_woeC1MDdfEgM0mBe21');"></div>
+<span class="text-xs font-medium text-slate-600 dark:text-slate-300">@maria_88</span>
+</div>
+<div class="flex items-center gap-3 text-slate-400 text-xs">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">favorite</span> 203</span>
+</div>
+</div>
+</div>
+</article>
+<article class="group relative flex flex-col gap-3 rounded-2xl bg-surface-light dark:bg-surface-dark p-3 shadow-sm hover:shadow-xl dark:hover:shadow-primary/10 transition-all duration-300">
+<div class="relative aspect-[4/3] w-full overflow-hidden rounded-xl bg-slate-200 dark:bg-[#111814]">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" data-alt="Close up of a fluffy cat" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAivlwsKAwhCAp9-HTiFhCjqT3A5T5ejnLbKkagsWChkbEbGz3VXqOTQGCi6aTa2CYbT0rucf9qrrbGu8OHRgEfhjfpUMaVoh7Uq7opHtVtxqNfW1iGIHn7qn3CzG_PIhQrHfQbJasoRizI56Hsi8sqv_egiGRAKSS43lnZtY51qfgHZetKjeCyNXsfS5z2hY4OQS18g85Ws3aSF8f9lRGPBfLxbr3f1iXjAP9g0LEAcLlUZe48gWqPSj4aAtPFFFYfsvhLDcvLeeEJ');"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60 transition-opacity duration-300 group-hover:opacity-80"></div>
+<div class="absolute bottom-3 right-3 flex gap-2 translate-y-4 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100 z-10">
+<button class="flex h-9 w-9 items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-md hover:bg-primary hover:text-black transition-colors">
+<span class="material-symbols-outlined text-[20px]">favorite</span>
+</button>
+</div>
+<div class="absolute top-3 left-3 rounded-lg bg-black/40 px-2 py-1 backdrop-blur-md">
+<p class="text-xs font-bold text-white flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">photo_library</span> 12
+                                    </p>
+</div>
+</div>
+<div class="px-1 pb-1">
+<div class="flex justify-between items-start mb-2">
+<h3 class="text-lg font-bold text-slate-900 dark:text-white leading-tight group-hover:text-primary transition-colors cursor-pointer">Mis Gatos</h3>
+</div>
+<div class="flex items-center justify-between border-t border-slate-100 dark:border-[#28392f] pt-3 mt-1">
+<div class="flex items-center gap-2">
+<div class="h-6 w-6 rounded-full bg-slate-300 bg-cover bg-center" data-alt="User avatar of Alex" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBeq2TkjX9GNwZ95WdBzC_NrnLkMosaPLXEDcYii9up-BS0Tq9_Ss4fShSHbasSywwWDx81GwEVONgXGksJUWJ5Ml3HBi9o2V-tL3EggVZqscIqVl4L6N4DRvqkRVD5tLvITloZh7P0Bn4R3oJGvZ2IKemiIRKdkkXH_MVgILTC_Ji7zJKSeYMtFLnQ89gd_yOB2x7FK3jqX6TpAQCp7pSSo8de95SNLSLM-hQe_1pV-irLRiBLYzjBM2MUD9OHGoEKm1LD9hEovEES');"></div>
+<span class="text-xs font-medium text-slate-600 dark:text-slate-300">@alex_g</span>
+</div>
+<div class="flex items-center gap-3 text-slate-400 text-xs">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">favorite</span> 85</span>
+</div>
+</div>
+</div>
+</article>
+<article class="group relative flex flex-col gap-3 rounded-2xl bg-surface-light dark:bg-surface-dark p-3 shadow-sm hover:shadow-xl dark:hover:shadow-primary/10 transition-all duration-300">
+<div class="relative aspect-[4/3] w-full overflow-hidden rounded-xl bg-slate-200 dark:bg-[#111814]">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" data-alt="Rock band performing on stage with lights" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDHy3h6o6L9xxWkSClW-BsNzI26YD220eCWl0dvJcHgoW_57VMFgJKreFp8BYHmB14RIEfH-ior84BLWCM2YcdS9vV1I5FYag13MRL0rZo4o2-9xqQof98Pdh35D0HiopE7KgHj4mAfnyuOc77_7xNoU80m1eqxAmVsQb1NU328SWQI5nQqyh_ZyO4YxlOux9uNAsQHYfB_r63xdyKtZi72KJfsY7LKF1KuX9TyvxHEiG-r9YKSbNXMLtJEmxWk_1KM5f2qS4NA5XXb');"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60 transition-opacity duration-300 group-hover:opacity-80"></div>
+<div class="absolute bottom-3 right-3 flex gap-2 translate-y-4 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100 z-10">
+<button class="flex h-9 w-9 items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-md hover:bg-primary hover:text-black transition-colors">
+<span class="material-symbols-outlined text-[20px]">favorite</span>
+</button>
+</div>
+<div class="absolute top-3 left-3 rounded-lg bg-black/40 px-2 py-1 backdrop-blur-md">
+<p class="text-xs font-bold text-white flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">photo_library</span> 120
+                                    </p>
+</div>
+</div>
+<div class="px-1 pb-1">
+<div class="flex justify-between items-start mb-2">
+<h3 class="text-lg font-bold text-slate-900 dark:text-white leading-tight group-hover:text-primary transition-colors cursor-pointer">Concierto Rock</h3>
+</div>
+<div class="flex items-center justify-between border-t border-slate-100 dark:border-[#28392f] pt-3 mt-1">
+<div class="flex items-center gap-2">
+<div class="h-6 w-6 rounded-full bg-slate-300 bg-cover bg-center" data-alt="User avatar of Sofia" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAWQPuFSch2HiZ419l7a7oYluz5Fc_g2wAT6RsPXzB6-b3yvml56eMLOKIC-eD7LOyMmjhbafKSxrxrmpktKlKQuPJ5MDTz2Apk7pGrfXkOsHTZ6A5VkJoYw2x-YeLVfgOkzAl81i-YIZC_Y86eaC_z1j9SyhsZX6d6w-KWJVnC_mIqmOOC-Qqfb5Rb2Lt35omLThHsKzi2jBY-_UWvAZZUep8-1KKabB8aPUu5QDJmYjlBcYKwfXjYIua8Cqs3ZA1fxjtVDwjjNyeh');"></div>
+<span class="text-xs font-medium text-slate-600 dark:text-slate-300">@sofia_music</span>
+</div>
+<div class="flex items-center gap-3 text-slate-400 text-xs">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">favorite</span> 1.2k</span>
+</div>
+</div>
+</div>
+</article>
+<article class="group relative flex flex-col gap-3 rounded-2xl bg-surface-light dark:bg-surface-dark p-3 shadow-sm hover:shadow-xl dark:hover:shadow-primary/10 transition-all duration-300">
+<div class="relative aspect-[4/3] w-full overflow-hidden rounded-xl bg-slate-200 dark:bg-[#111814]">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" data-alt="Forest landscape with fog" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCjAyOXQHPAKKgE0WzgJ59L6I8u1DfzheJ96z0kt5JWwtWtG3jtWYhjxd3Dzh9_qiH3YHGBydfz7W3I2LJgRBWAzDVhSYmbjGb0fpgRuVwCWpUdux5FAv1WtCKw3tGRBU-619LjrCNkvEgkJKGAl2VcScsuyhaDGzS6fdyOFShALqVFAbfJkuBySQE-DHxXmgjUDJBiE08emXlaUXzr8ceU4j1CN-1SooVzlW1vJGw6RkLSCaBCfC03pYqtb4KVL-Dp5MjLKd77s_1d');"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60 transition-opacity duration-300 group-hover:opacity-80"></div>
+<div class="absolute bottom-3 right-3 flex gap-2 translate-y-4 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100 z-10">
+<button class="flex h-9 w-9 items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-md hover:bg-primary hover:text-black transition-colors">
+<span class="material-symbols-outlined text-[20px]">favorite</span>
+</button>
+</div>
+<div class="absolute top-3 left-3 rounded-lg bg-black/40 px-2 py-1 backdrop-blur-md">
+<p class="text-xs font-bold text-white flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">photo_library</span> 30
+                                    </p>
+</div>
+</div>
+<div class="px-1 pb-1">
+<div class="flex justify-between items-start mb-2">
+<h3 class="text-lg font-bold text-slate-900 dark:text-white leading-tight group-hover:text-primary transition-colors cursor-pointer">Paisajes Naturales</h3>
+</div>
+<div class="flex items-center justify-between border-t border-slate-100 dark:border-[#28392f] pt-3 mt-1">
+<div class="flex items-center gap-2">
+<div class="h-6 w-6 rounded-full bg-slate-300 bg-cover bg-center" data-alt="User avatar of Ana" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDTppF25l-sV8wW8_5n-ThG5a_c5P4owsb1q2HdvvFuHheS7N1LvtUn7Q2qFR7-TGLosbke-UbxUbMKnsRAyuGrOIEoZtdW0W1r21QR2mhTcquuHHINexR6_azwCQdwqppcCMnANE5GP8Igls6HEDQGx7lIrf6idFWL2A6JvUiyuxSe7BzvD6773y9SWlfKzTdh6S6D6mn3pGU6TWXEymA1JIWsoFolbyzMqc-qbLZiQmO_XbX9LVr8PLovJZHYpj3jTQzEvfX9eNC3');"></div>
+<span class="text-xs font-medium text-slate-600 dark:text-slate-300">@ana_travel</span>
+</div>
+<div class="flex items-center gap-3 text-slate-400 text-xs">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">favorite</span> 112</span>
+</div>
+</div>
+</div>
+</article>
+</div>
+</div>
+<div class="mt-12 flex justify-center pb-12">
+<button class="flex items-center gap-2 rounded-full border border-slate-200 dark:border-[#28392f] bg-transparent px-6 py-3 text-sm font-semibold text-slate-600 dark:text-slate-300 transition-colors hover:bg-slate-100 dark:hover:bg-[#1a2c22] hover:text-primary dark:hover:text-primary">
+<span>Cargar más álbumes</span>
+<span class="material-symbols-outlined text-[18px]">expand_more</span>
+</button>
+</div>
+</div>
+</main>
+</div>
+
+</body></html>
