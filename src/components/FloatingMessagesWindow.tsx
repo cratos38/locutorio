@@ -1002,7 +1002,10 @@ export default function FloatingMessagesWindow() {
                   Para anotar sobre esta persona, activa{" "}
                   <Link
                     href="/connect/tutorial/la-cuenta#section-9"
-                    onClick={() => setShowNotesModal(false)}
+                    onClick={() => {
+                      setShowNotesModal(false);
+                      closeMessages(); // Close floating MP window
+                    }}
                     className="font-bold text-blue-500 hover:text-blue-400 underline transition-colors cursor-pointer"
                   >
                     PLUS
