@@ -581,30 +581,32 @@ export default function FloatingMessagesWindow() {
               LoCuToRiO
             </h2>
           </div>
-          
-          {/* Tab buttons: Privado/Archivo/Ajustes */}
-          <div className="flex items-center gap-1">
-            <button
-              className="px-3 py-1 text-[9px] font-heading font-bold text-neon-green bg-neon-green/10 rounded-lg border border-neon-green/30 hover:bg-neon-green hover:text-forest-dark transition-all uppercase tracking-wide"
-              title="Mensajes Privados"
-            >
-              Privado
-            </button>
-            <button
-              className="px-3 py-1 text-[9px] font-heading font-bold text-gray-400 hover:text-neon-green hover:bg-neon-green/10 rounded-lg transition-all uppercase tracking-wide"
-              title="Archivo"
-            >
-              Archivo
-            </button>
-            <button
-              className="px-3 py-1 text-[9px] font-heading font-bold text-gray-400 hover:text-neon-green hover:bg-neon-green/10 rounded-lg transition-all uppercase tracking-wide"
-              title="Ajustes"
-            >
-              Ajustes
-            </button>
-          </div>
 
           <div className="flex items-center gap-2">
+            {/* Tab buttons: MP/Archivo/Ajustes */}
+            <button
+              className="text-neon-green hover:text-white transition-colors p-1"
+              title="Mensajes Privados"
+            >
+              <span className="material-symbols-outlined text-[18px]">chat</span>
+            </button>
+            <button
+              className="text-text-muted hover:text-gray-300 transition-colors p-1"
+              title="Archivo"
+            >
+              <span className="material-symbols-outlined text-[18px]">inventory_2</span>
+            </button>
+            <button
+              className="text-text-muted hover:text-gray-300 transition-colors p-1"
+              title="Ajustes"
+            >
+              <span className="material-symbols-outlined text-[18px]">settings</span>
+            </button>
+            
+            {/* Separator */}
+            <div className="w-px h-4 bg-forest-dark/50"></div>
+            
+            {/* Window controls */}
             <button
               onClick={(e) => {
                 e.stopPropagation();
