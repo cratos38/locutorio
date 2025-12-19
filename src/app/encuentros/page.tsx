@@ -1,4 +1,5 @@
 "use client";
+import { useMessages } from "@/contexts/MessagesContext";
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
@@ -21,6 +22,7 @@ type CoffeeInvitation = {
 
 export default function EncuentrosPage() {
   const [activeTab, setActiveTab] = useState<"received" | "sent" | "accepted" | "rejected">("received");
+  const { openMessages } = useMessages();
   const [searchQuery, setSearchQuery] = useState("");
   const [historyAccepted, setHistoryAccepted] = useState<any[]>([]);
   const [historyRejected, setHistoryRejected] = useState<any[]>([]);
@@ -416,11 +418,9 @@ export default function EncuentrosPage() {
                           Aceptar
                         </Button>
                       ) : invitation.status === "accepted" ? (
-                        <Link href="/mensajes">
-                          <Button className="w-full bg-primary hover:bg-primary/90 text-connect-bg-dark font-bold">
+                          <Button onClick={() => openMessages()} className="w-full bg-primary hover:bg-primary/90 text-connect-bg-dark font-bold">
                             Mensaje
                           </Button>
-                        </Link>
                       ) : (
                         <Button
                           variant="outline"

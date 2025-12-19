@@ -1,4 +1,5 @@
 "use client";
+import { useMessages } from "@/contexts/MessagesContext";
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -23,6 +24,7 @@ type Match = {
 
 export default function MatchesPage() {
   const [searchQuery, setSearchQuery] = useState("");
+  const { openMessages } = useMessages();
   const [filterType, setFilterType] = useState<"all" | "online" | "new">("all");
   const [sortBy, setSortBy] = useState<"recent" | "name">("recent");
 
@@ -296,11 +298,9 @@ export default function MatchesPage() {
                           Ver perfil
                         </Button>
                       </Link>
-                      <Link href="/mensajes">
-                        <Button className="w-full bg-primary hover:bg-primary/90 text-connect-bg-dark font-bold">
+                        <Button onClick={() => openMessages()} className="w-full bg-primary hover:bg-primary/90 text-connect-bg-dark font-bold">
                           Mensaje
                         </Button>
-                      </Link>
                     </div>
                   </div>
                 </div>

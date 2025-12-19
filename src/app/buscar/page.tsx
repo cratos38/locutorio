@@ -1,4 +1,5 @@
 "use client";
+import { useMessages } from "@/contexts/MessagesContext";
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -7,6 +8,7 @@ import Link from "next/link";
 
 export default function BuscarPage() {
   const [ageMin, setAgeMin] = useState(18);
+  const { openMessages } = useMessages();
   const [ageMax, setAgeMax] = useState(35);
   const [selectedGender, setSelectedGender] = useState("Mujer");
   const [selectedCity, setSelectedCity] = useState("Caracas");
@@ -39,7 +41,7 @@ export default function BuscarPage() {
 
         <nav className="hidden md:flex items-center gap-6">
           <Link href="/inicio" className="text-sm font-medium text-gray-400 hover:text-white">Mi Espacio Personal</Link>
-          <Link href="/mensajes" className="text-sm font-medium text-gray-400 hover:text-white">Mensajes</Link>
+          <button onClick={() => openMessages()} className="text-sm font-medium text-gray-400 hover:text-white">Mensajes</button>
           <Link href="/notificaciones" className="text-sm font-medium text-gray-400 hover:text-white">Notificaciones</Link>
           <Link href="/perfil/editar" className="text-sm font-medium text-gray-400 hover:text-white">Mi Perfil</Link>
         </nav>
@@ -329,14 +331,12 @@ export default function BuscarPage() {
                         </button>
 
                         {user.online ? (
-                          <Link href="/mensajes">
-                            <button className="w-full py-2 px-3 rounded-full bg-primary hover:brightness-110 text-connect-bg-dark text-xs font-bold shadow-[0_0_15px_rgba(43,238,121,0.3)] hover:shadow-[0_0_25px_rgba(43,238,121,0.5)] transition-all flex items-center justify-center gap-1">
+                            <button onClick={() => openMessages(user.id)} className="w-full py-2 px-3 rounded-full bg-primary hover:brightness-110 text-connect-bg-dark text-xs font-bold shadow-[0_0_15px_rgba(43,238,121,0.3)] hover:shadow-[0_0_25px_rgba(43,238,121,0.5)] transition-all flex items-center justify-center gap-1">
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                               </svg>
                               MP
                             </button>
-                          </Link>
                         ) : (
                           <button disabled className="w-full py-2 px-3 rounded-full bg-white/5 text-white/50 text-xs font-bold cursor-not-allowed flex items-center justify-center gap-1">
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
