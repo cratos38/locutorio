@@ -138,10 +138,10 @@ export default function FloatingMessagesWindow() {
       >
         <div className="bg-forest-base border border-neon-green/50 rounded-lg px-3 py-3 flex items-center gap-3 shadow-2xl hover:shadow-neon-green/20 transition-all">
           <span className="material-symbols-outlined text-[10px] text-neon-green">
-            chat
+            diversity_2
           </span>
           <span className="font-heading font-bold text-white">
-            Mensajes Privados
+            LoCuToRiO
           </span>
           {conversations.reduce((sum, c) => sum + c.unreadCount, 0) > 0 && (
             <span className="bg-neon-green text-forest-dark text-xs font-bold px-2 py-1 rounded-full">
@@ -158,13 +158,13 @@ export default function FloatingMessagesWindow() {
     return (
       <div className="fixed inset-0 z-50 bg-forest-dark flex flex-col">
         {/* Simple header with close/restore only */}
-        <div className="flex-none bg-forest-base border-b border-forest-light/20 px-4 py-2 flex items-center justify-between">
+        <div className="flex-none bg-forest-dark border-b border-forest-light/20 px-4 py-2 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="material-symbols-outlined text-neon-green text-base">
               diversity_2
             </span>
             <h2 className="font-heading font-bold text-sm text-white">
-              Mensajes Privados
+              LoCuToRiO
             </h2>
           </div>
           <div className="flex items-center gap-2">
@@ -214,9 +214,9 @@ export default function FloatingMessagesWindow() {
     }
 
     return (
-      <div className="grid grid-cols-1 lg:grid-cols-12 grid-rows-[auto_1fr_auto] gap-2 h-full">
+      <div className="grid grid-cols-12 grid-rows-[auto_1fr_auto] gap-2 h-full">
         {/* Profile Strip */}
-        <div className="col-span-1 lg:col-span-12 bg-forest-base rounded-xl border border-forest-light/30 p-2 flex items-center justify-between shadow-xl relative overflow-hidden group">
+        <div className="col-span-12 bg-forest-base rounded-xl border border-forest-light/30 p-2 flex items-center justify-between shadow-xl relative overflow-hidden group">
           <div className="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-neon-green/5 to-transparent pointer-events-none"></div>
           
           <div className="flex items-center gap-3 z-10">
@@ -293,7 +293,7 @@ export default function FloatingMessagesWindow() {
         </div>
 
         {/* Messages Area (8 columns) */}
-        <div className="col-span-1 lg:col-span-8 bg-forest-base rounded-xl border border-forest-light/20 flex flex-col relative overflow-hidden shadow-lg order-2 lg:order-1">
+        <div className="col-span-8 bg-forest-base rounded-xl border border-forest-light/20 flex flex-col relative overflow-hidden shadow-lg order-1">
           <div className="absolute inset-0 custom-pattern opacity-30 pointer-events-none"></div>
           
           <div className="flex-1 overflow-y-auto p-2 flex flex-col gap-3 relative z-10">
@@ -394,7 +394,7 @@ export default function FloatingMessagesWindow() {
         </div>
 
         {/* User List Sidebar (4 columns) */}
-        <div className="col-span-1 lg:col-span-4 bg-forest-panel rounded-xl border border-forest-light/20 flex flex-col overflow-hidden shadow-lg order-1 lg:order-2">
+        <div className="col-span-4 bg-forest-panel rounded-xl border border-forest-light/20 flex flex-col overflow-hidden shadow-lg order-2">
           <div className="p-2 border-b border-forest-light/20 bg-forest-dark/20 backdrop-blur-sm">
             <div className="flex bg-forest-dark/40 p-1 rounded-xl mb-1">
               <button
@@ -496,7 +496,7 @@ export default function FloatingMessagesWindow() {
         </div>
 
         {/* Input Area (8 columns) */}
-        <div className="col-span-1 lg:col-span-8 bg-forest-panel rounded-xl border border-forest-light/20 flex items-center p-2 shadow-lg order-4 lg:order-3">
+        <div className="col-span-8 bg-forest-panel rounded-xl border border-forest-light/20 flex items-center p-2 shadow-lg order-3">
           <button className="size-12 rounded-lg text-text-muted hover:text-white hover:bg-white/5 flex items-center justify-center transition-colors">
             <span className="material-symbols-outlined">photo_camera</span>
           </button>
@@ -521,7 +521,7 @@ export default function FloatingMessagesWindow() {
         </div>
 
         {/* New Conversation Button (4 columns) */}
-        <div className="col-span-1 lg:col-span-4 rounded-xl flex items-stretch order-3 lg:order-4">
+        <div className="col-span-4 rounded-xl flex items-stretch order-4">
           <button className="w-full bg-forest-panel border border-neon-green/30 rounded-xl flex items-center justify-center gap-3 text-neon-green font-heading font-bold text-[10px] hover:bg-neon-green hover:text-forest-dark transition-all shadow-lg hover:shadow-neon-green/20 group uppercase tracking-widest p-4">
             <span className="material-symbols-outlined text-[10px] group-hover:scale-110 transition-transform">
               add_comment
@@ -548,7 +548,7 @@ export default function FloatingMessagesWindow() {
     >
       {/* Window Header (Draggable) */}
       <div
-        className="flex-none bg-forest-base border-b border-forest-light/20 px-3 py-2 cursor-grab active:cursor-grabbing select-none"
+        className="flex-none bg-forest-dark border-b border-forest-light/20 px-3 py-2 cursor-grab active:cursor-grabbing select-none"
         onMouseDown={handleMouseDown}
       >
         <div className="flex items-center justify-between">
@@ -557,7 +557,7 @@ export default function FloatingMessagesWindow() {
               diversity_2
             </span>
             <h2 className="font-heading font-bold text-[10px] text-white">
-              Mensajes Privados
+              LoCuToRiO
             </h2>
           </div>
           <div className="flex items-center gap-2">
