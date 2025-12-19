@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -81,6 +81,34 @@ export default function LaCuentaPage() {
     message: "",
     file: null as File | null
   });
+
+  // Auto-open section from sessionStorage (triggered by PLUS link in notes)
+  useEffect(() => {
+    const autoOpenSection = sessionStorage.getItem('autoOpenSection');
+    if (autoOpenSection) {
+      sessionStorage.removeItem('autoOpenSection');
+      
+      setTimeout(() => {
+        const sectionId = parseInt(autoOpenSection.replace('section-', ''));
+        setOpenQuestion(sectionId);
+        
+        // Scroll to section after it opens
+        setTimeout(() => {
+          const element = document.getElementById(autoOpenSection);
+          if (element) {
+            const headerOffset = 100;
+            const elementPosition = element.getBoundingClientRect().top;
+            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+            
+            window.scrollTo({
+              top: offsetPosition,
+              behavior: 'smooth'
+            });
+          }
+        }, 300);
+      }, 100);
+    }
+  }, []);
 
   // Mapa de referencias a IDs de secciones
   const sectionReferences: { [key: string]: number } = {

@@ -45,11 +45,13 @@ export default function FloatingMessagesWindow() {
   const [userNote, setUserNote] = useState("");
   const [hasPlus, setHasPlus] = useState(false); // TODO: Connect to real user subscription
   const [notesModalTimer, setNotesModalTimer] = useState<NodeJS.Timeout | null>(null);
+  const [notesModalPosition, setNotesModalPosition] = useState({ top: 0, left: 0 });
   
   const [isResizing, setIsResizing] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const windowRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const notesButtonRef = useRef<HTMLButtonElement>(null);
 
   // Get current conversation
   const conversation = conversations.find((c) => c.id === currentConversation);
@@ -456,7 +458,20 @@ export default function FloatingMessagesWindow() {
               </span>
             </button>
             <button 
-              onClick={() => setShowNotesModal(true)}
+              ref={notesButtonRef}
+              onClick={() => {
+                if (notesButtonRef.current) {
+                  const rect = notesButtonRef.current.getBoundingClientRect();
+                  const windowRect = windowRef.current?.getBoundingClientRect();
+                  if (windowRect) {
+                    setNotesModalPosition({
+                      top: rect.top - windowRect.top + rect.height / 2,
+                      left: rect.left - windowRect.left + rect.width + 10, // 10px spacing
+                    });
+                  }
+                }
+                setShowNotesModal(true);
+              }}
               className="w-14 flex flex-col items-center justify-center gap-1 rounded-lg bg-forest-dark hover:bg-forest-dark/40 border border-forest-dark/20 hover:border-neon-green transition-all group">
               <span className="material-symbols-outlined text-[9px] text-text-muted group-hover:text-neon-green transition-colors">
                 edit_note
@@ -946,7 +961,12 @@ export default function FloatingMessagesWindow() {
       {/* Notes Modal */}
       {showNotesModal && conversation && (
         <div 
-          className="absolute inset-0 flex items-center justify-center z-50 rounded-xl pointer-events-none"
+          className="absolute z-50 pointer-events-none"
+          style={{
+            top: `${notesModalPosition.top}px`,
+            left: `${notesModalPosition.left}px`,
+            transform: 'translateY(-50%)', // Center vertically relative to button
+          }}
           onMouseLeave={() => {
             // Auto-close with delay when mouse leaves
             const timer = setTimeout(() => {
@@ -981,8 +1001,12 @@ export default function FloatingMessagesWindow() {
                   Para anotar sobre esta persona, activa{" "}
                   <a
                     href="/connect/tutorial/la-cuenta#section-9"
-                    onClick={() => setShowNotesModal(false)}
-                    className="font-bold text-blue-500 hover:text-blue-400 underline transition-colors"
+                    onClick={() => {
+                      setShowNotesModal(false);
+                      // Set flag to auto-open section on tutorial page
+                      sessionStorage.setItem('autoOpenSection', 'section-9');
+                    }}
+                    className="font-bold text-blue-500 hover:text-blue-400 underline transition-colors cursor-pointer"
                   >
                     PLUS
                   </a>
