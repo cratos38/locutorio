@@ -137,9 +137,11 @@ export default function FloatingMessagesWindow() {
         onClick={restoreMessages}
       >
         <div className="bg-forest-base border border-neon-green/50 rounded-lg px-3 py-3 flex items-center gap-3 shadow-2xl hover:shadow-neon-green/20 transition-all">
-          <span className="material-symbols-outlined text-[10px] text-neon-green">
-            diversity_2
-          </span>
+          <div className="size-5 text-neon-green bg-neon-green/20 rounded-full flex items-center justify-center flex-shrink-0">
+            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+            </svg>
+          </div>
           <span className="font-heading font-bold text-white">
             LoCuToRiO
           </span>
@@ -160,9 +162,11 @@ export default function FloatingMessagesWindow() {
         {/* Simple header with close/restore only */}
         <div className="flex-none bg-forest-dark border-b border-forest-light/20 px-4 py-2 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-neon-green text-base">
-              diversity_2
-            </span>
+            <div className="size-6 text-neon-green bg-neon-green/20 rounded-full flex items-center justify-center flex-shrink-0">
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+              </svg>
+            </div>
             <h2 className="font-heading font-bold text-sm text-white">
               LoCuToRiO
             </h2>
@@ -553,9 +557,11 @@ export default function FloatingMessagesWindow() {
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <span className="material-symbols-outlined text-neon-green text-[10px]">
-              diversity_2
-            </span>
+            <div className="size-5 text-neon-green bg-neon-green/20 rounded-full flex items-center justify-center flex-shrink-0">
+              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+              </svg>
+            </div>
             <h2 className="font-heading font-bold text-[10px] text-white">
               LoCuToRiO
             </h2>
