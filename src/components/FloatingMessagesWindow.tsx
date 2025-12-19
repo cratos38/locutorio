@@ -807,8 +807,8 @@ export default function FloatingMessagesWindow() {
                 onClick={() => setSidebarTab("conversaciones")}
                 className={`flex-1 py-2.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 ${
                   sidebarTab === "conversaciones"
-                    ? "bg-forest-dark/60 text-gray-300 shadow-sm border border-forest-dark/30"
-                    : "text-text-muted hover:bg-forest-dark/20 hover:text-gray-300"
+                    ? "bg-neon-green/20 text-neon-green shadow-lg border-2 border-neon-green shadow-neon-green/50"
+                    : "text-gray-500 hover:bg-forest-dark/20 hover:text-gray-400"
                 }`}
               >
                 <span className="material-symbols-outlined text-xs">forum</span>
@@ -818,8 +818,8 @@ export default function FloatingMessagesWindow() {
                 onClick={() => setSidebarTab("invitaciones")}
                 className={`flex-1 py-2.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 ${
                   sidebarTab === "invitaciones"
-                    ? "bg-forest-dark/60 text-gray-300 shadow-sm border border-forest-dark/30"
-                    : "text-text-muted hover:bg-forest-dark/20 hover:text-gray-300"
+                    ? "bg-neon-green/20 text-neon-green shadow-lg border-2 border-neon-green shadow-neon-green/50"
+                    : "text-gray-500 hover:bg-forest-dark/20 hover:text-gray-400"
                 }`}
               >
                 <span className="material-symbols-outlined text-xs">mark_email_unread</span>
