@@ -165,6 +165,41 @@ export default function FloatingMessagesWindow() {
   const [showNewConversationModal, setShowNewConversationModal] = useState(false);
   const [searchNick, setSearchNick] = useState('');
   
+  // Emoji picker state
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const emojiPickerRef = useRef<HTMLDivElement>(null);
+  
+  // Popular emojis
+  const emojis = [
+    '👍', '😀', '😉', '😜', '😂',
+    '😔', '😢', '😐', '😎', '😍',
+    '😏', '😠', '😘', '😈', '😇',
+    '❤️', '😑', '🌹', '😱', '🤓'
+  ];
+  
+  // Insert emoji into message input
+  const insertEmoji = (emoji: string) => {
+    setMessageInput(prev => prev + emoji);
+    setShowEmojiPicker(false);
+  };
+  
+  // Close emoji picker when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (emojiPickerRef.current && !emojiPickerRef.current.contains(event.target as Node)) {
+        setShowEmojiPicker(false);
+      }
+    };
+    
+    if (showEmojiPicker) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showEmojiPicker]);
+  
   // Demo saved conversations (TODO: Replace with real data)
   const savedConversations = [
     // Empty for now - will show when user clicks "Guardar para luego"
@@ -877,13 +912,38 @@ export default function FloatingMessagesWindow() {
         </div>
 
         {/* Input Area (8 columns) */}
-        <div className="col-span-8 bg-forest-dark rounded-xl border border-forest-dark/20 flex items-center p-2 shadow-lg order-3">
+        <div className="col-span-8 bg-forest-dark rounded-xl border border-forest-dark/20 flex items-center p-2 shadow-lg order-3 relative">
           <button className="size-12 rounded-lg text-text-muted hover:text-gray-300 hover:bg-white/5 flex items-center justify-center transition-colors">
             <span className="material-symbols-outlined">photo_camera</span>
           </button>
-          <button className="size-12 rounded-lg text-text-muted hover:text-gray-300 hover:bg-white/5 flex items-center justify-center transition-colors">
+          <button 
+            onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+            className="size-12 rounded-lg text-text-muted hover:text-gray-300 hover:bg-white/5 flex items-center justify-center transition-colors relative"
+          >
             <span className="material-symbols-outlined">sentiment_satisfied</span>
           </button>
+          
+          {/* Emoji Picker */}
+          {showEmojiPicker && (
+            <div 
+              ref={emojiPickerRef}
+              className="absolute bottom-full left-16 mb-2 bg-white border border-gray-300 rounded-lg shadow-xl p-3 z-50"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="grid grid-cols-5 gap-2">
+                {emojis.map((emoji, index) => (
+                  <button
+                    key={index}
+                    onClick={() => insertEmoji(emoji)}
+                    className="text-2xl hover:bg-gray-100 rounded p-1 transition-colors"
+                  >
+                    {emoji}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+          
           <div className="h-8 w-px bg-forest-light/20 mx-2"></div>
           <Input
             value={messageInput}
