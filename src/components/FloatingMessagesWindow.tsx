@@ -4,7 +4,6 @@ import React, { useState, useRef, useEffect } from "react";
 import { useMessages, type Conversation } from "@/contexts/MessagesContext";
 import { Input } from "@/components/ui/input";
 
-type TabType = "mensajes" | "archivo" | "ajustes";
 type SidebarTabType = "conversaciones" | "invitaciones";
 
 export default function FloatingMessagesWindow() {
@@ -26,7 +25,6 @@ export default function FloatingMessagesWindow() {
     sendMessage,
   } = useMessages();
 
-  const [activeTab, setActiveTab] = useState<TabType>("mensajes");
   const [sidebarTab, setSidebarTab] = useState<SidebarTabType>("conversaciones");
   const [messageInput, setMessageInput] = useState("");
   const [isDragging, setIsDragging] = useState(false);
@@ -155,79 +153,41 @@ export default function FloatingMessagesWindow() {
     );
   }
 
-  // Maximized state
+  // Maximized state - Simple full screen without internal tabs
   if (windowState === "maximized") {
     return (
-      <div className="fixed inset-0 z-50 bg-forest-dark">
-        <div className="h-full flex flex-col">
-          {/* Header */}
-          <div className="flex-none bg-forest-dark border-b border-forest-light/20">
-            <div className="flex items-center justify-between px-4 h-8">
-              <div className="flex items-center gap-3">
-                <span className="material-symbols-outlined text-neon-green text-[10px]">
-                  diversity_2
-                </span>
-                <h1 className="font-heading font-bold text-[10px] tracking-tight text-white">
-                  LoCuToRiO
-                </h1>
-              </div>
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => setActiveTab("mensajes")}
-                  className={`flex items-center gap-2 px-2 py-2 font-heading font-bold rounded-full transition-all ${
-                    activeTab === "mensajes"
-                      ? "bg-neon-green text-forest-dark shadow-[0_0_15px_rgba(80,250,123,0.2)]"
-                      : "text-text-muted hover:text-white hover:bg-white/5"
-                  }`}
-                >
-                  <span className="material-symbols-outlined text-[10px]">chat</span>
-                  MENSAJES
-                </button>
-                <button
-                  onClick={() => setActiveTab("archivo")}
-                  className={`flex items-center gap-2 px-4 py-2 font-heading font-medium rounded-full transition-colors ${
-                    activeTab === "archivo"
-                      ? "text-white bg-white/10"
-                      : "text-text-muted hover:text-white hover:bg-white/5"
-                  }`}
-                >
-                  <span className="material-symbols-outlined text-[10px]">inventory_2</span>
-                  ARCHIVO
-                </button>
-                <button
-                  onClick={() => setActiveTab("ajustes")}
-                  className={`flex items-center gap-2 px-4 py-2 font-heading font-medium rounded-full transition-colors ${
-                    activeTab === "ajustes"
-                      ? "text-white bg-white/10"
-                      : "text-text-muted hover:text-white hover:bg-white/5"
-                  }`}
-                >
-                  <span className="material-symbols-outlined text-[10px]">settings</span>
-                  AJUSTES
-                </button>
-                <div className="w-px h-6 bg-forest-light/40 mx-2"></div>
-                <button
-                  onClick={restoreMessages}
-                  className="text-text-muted hover:text-white transition-colors"
-                  title="Restaurar"
-                >
-                  <span className="material-symbols-outlined">close_fullscreen</span>
-                </button>
-                <button
-                  onClick={closeMessages}
-                  className="text-text-muted hover:text-white transition-colors"
-                  title="Cerrar"
-                >
-                  <span className="material-symbols-outlined">close</span>
-                </button>
-              </div>
-            </div>
+      <div className="fixed inset-0 z-50 bg-forest-dark flex flex-col">
+        {/* Simple header with close/restore only */}
+        <div className="flex-none bg-forest-base border-b border-forest-light/20 px-4 py-2 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="material-symbols-outlined text-neon-green text-base">
+              diversity_2
+            </span>
+            <h2 className="font-heading font-bold text-sm text-white">
+              Mensajes Privados
+            </h2>
           </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={restoreMessages}
+              className="text-text-muted hover:text-white transition-colors p-1"
+              title="Restaurar"
+            >
+              <span className="material-symbols-outlined">close_fullscreen</span>
+            </button>
+            <button
+              onClick={closeMessages}
+              className="text-text-muted hover:text-white transition-colors p-1"
+              title="Cerrar"
+            >
+              <span className="material-symbols-outlined">close</span>
+            </button>
+          </div>
+        </div>
 
-          {/* Content - Same as normal but full screen */}
-          <div className="flex-1 overflow-hidden p-2 max-w-[1920px] mx-auto w-full">
-            {renderContent()}
-          </div>
+        {/* Content - Same as normal but full screen */}
+        <div className="flex-1 overflow-hidden p-3 max-w-[1920px] mx-auto w-full">
+          {renderContent()}
         </div>
       </div>
     );
