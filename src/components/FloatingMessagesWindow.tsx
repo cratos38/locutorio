@@ -43,20 +43,16 @@ export default function FloatingMessagesWindow() {
   
   // Notes modal state
   const [showNotesModal, setShowNotesModal] = useState(false);
-  const [userNote, setUserNote] = useState("");
-  const [savedNote, setSavedNote] = useState(""); // The saved note to display on avatar
+  const [userNotes, setUserNotes] = useState<{ [userId: number]: string }>({}); // Notes per user
   const [hasPlus, setHasPlus] = useState(true); // TODO: Connect to real user subscription (temporarily true for testing)
   const [notesModalTimer, setNotesModalTimer] = useState<NodeJS.Timeout | null>(null);
   const [notesModalPosition, setNotesModalPosition] = useState({ top: 0, left: 0 });
-  const [isNoteSaving, setIsNoteSaving] = useState(false); // Animation state
-  const [flyingNotePosition, setFlyingNotePosition] = useState({ x: 0, y: 0 });
   
   const [isResizing, setIsResizing] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const windowRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const notesButtonRef = useRef<HTMLButtonElement>(null);
-  const avatarRef = useRef<HTMLDivElement>(null);
 
   // Get current conversation
   const conversation = conversations.find((c) => c.id === currentConversation);
@@ -400,39 +396,11 @@ export default function FloatingMessagesWindow() {
           <div className="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-neon-green/5 to-transparent pointer-events-none"></div>
           
           <div className="flex items-center gap-3 z-10">
-            <div className="relative group/avatar">
+            <div className="relative">
               <div
-                ref={avatarRef}
                 className="size-12 rounded-lg bg-connect-bg-dark border-2 border-forest-dark shadow-2xl bg-center bg-cover"
                 style={{ backgroundImage: `url('${conversation.avatar}')` }}
               ></div>
-              
-              {/* Saved note sticker on avatar */}
-              {savedNote && (
-                <div className="absolute -top-1 -right-1 z-20">
-                  <div className="relative group/note">
-                    {/* Mini Post-it */}
-                    <div className="size-7 bg-yellow-100 border border-yellow-400 rounded shadow-lg cursor-pointer transform rotate-12 group-hover/note:rotate-0 transition-all duration-300 hover:scale-110">
-                      <div className="absolute -top-0.5 left-1/2 -translate-x-1/2 w-2 h-2 bg-red-500 rounded-full border border-red-600"></div>
-                      <div className="flex items-center justify-center h-full">
-                        <span className="material-symbols-outlined text-yellow-600 text-xs">
-                          description
-                        </span>
-                      </div>
-                    </div>
-                    
-                    {/* Expanded note on hover */}
-                    <div className="absolute top-full right-0 mt-2 opacity-0 group-hover/note:opacity-100 pointer-events-none group-hover/note:pointer-events-auto transition-opacity duration-300 z-30">
-                      <div className="bg-yellow-100 border-2 border-yellow-400 rounded-lg p-4 w-56 shadow-2xl transform rotate-2">
-                        <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-4 h-4 bg-red-500 rounded-full border-2 border-red-600 shadow-lg"></div>
-                        <p className="text-gray-900 text-sm font-medium leading-relaxed break-words" style={{ fontFamily: 'Comic Sans MS, cursive' }}>
-                          {savedNote}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
               
               {/* Status indicator: online=neon-green, away=orange, offline=gray */}
               {conversation.status === "online" && (
@@ -506,7 +474,11 @@ export default function FloatingMessagesWindow() {
                 }
                 setShowNotesModal(true);
               }}
-              className="w-14 flex flex-col items-center justify-center gap-1 rounded-lg bg-forest-dark hover:bg-forest-dark/40 border border-forest-dark/20 hover:border-neon-green transition-all group">
+              className="w-14 flex flex-col items-center justify-center gap-1 rounded-lg bg-forest-dark hover:bg-forest-dark/40 border border-forest-dark/20 hover:border-neon-green transition-all group relative">
+              {/* Badge indicator if note exists for this user */}
+              {conversation && userNotes[conversation.id] && (
+                <div className="absolute -top-1 -right-1 size-3 bg-yellow-400 rounded-full border-2 border-forest-dark shadow-lg"></div>
+              )}
               <span className="material-symbols-outlined text-[9px] text-text-muted group-hover:text-neon-green transition-colors">
                 edit_note
               </span>
@@ -1052,8 +1024,15 @@ export default function FloatingMessagesWindow() {
                   {/* Post-it note */}
                   <div className="bg-yellow-100 border-t-2 border-yellow-400 rounded p-2 shadow-lg transform rotate-1 hover:rotate-0 transition-transform">
                     <textarea
-                      value={userNote}
-                      onChange={(e) => setUserNote(e.target.value)}
+                      value={conversation ? (userNotes[conversation.id] || "") : ""}
+                      onChange={(e) => {
+                        if (conversation) {
+                          setUserNotes(prev => ({
+                            ...prev,
+                            [conversation.id]: e.target.value
+                          }));
+                        }
+                      }}
                       placeholder="Nota..."
                       className="w-full h-16 bg-transparent text-gray-800 placeholder:text-gray-500 text-xs resize-none focus:outline-none"
                       style={{ fontFamily: 'Comic Sans MS, cursive' }}
@@ -1069,7 +1048,6 @@ export default function FloatingMessagesWindow() {
                   <button
                     onClick={() => {
                       setShowNotesModal(false);
-                      setUserNote("");
                     }}
                     className="flex-1 px-2 py-1 bg-forest-dark/50 hover:bg-forest-dark text-gray-300 font-heading font-bold text-xs rounded transition-all border border-forest-dark/50"
                   >
@@ -1077,54 +1055,13 @@ export default function FloatingMessagesWindow() {
                   </button>
                   <button
                     onClick={() => {
-                      if (!userNote.trim()) return;
-                      
-                      // Start flying animation
-                      setIsNoteSaving(true);
-                      
-                      // Calculate flying path positions
-                      if (avatarRef.current) {
-                        const avatarRect = avatarRef.current.getBoundingClientRect();
-                        const windowRect = windowRef.current?.getBoundingClientRect();
-                        
-                        if (windowRect) {
-                          setFlyingNotePosition({
-                            x: avatarRect.left - windowRect.left,
-                            y: avatarRect.top - windowRect.top,
-                          });
-                        }
+                      // Simply save the note - no animations
+                      if (conversation) {
+                        console.log('Note saved for', conversation.username, ':', userNotes[conversation.id]);
                       }
-                      
-                      // After animation completes, save note
-                      setTimeout(() => {
-                        setSavedNote(userNote);
-                        setUserNote("");
-                        setIsNoteSaving(false);
-                        setShowNotesModal(false);
-                        console.log('Note saved for', conversation.username, ':', userNote);
-                        
-                        // Play "plop" sound when note sticks to avatar
-                        const audio = new Audio();
-                        audio.volume = 0.3;
-                        // Simple "plop" sound using Web Audio API
-                        const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-                        const oscillator = audioContext.createOscillator();
-                        const gainNode = audioContext.createGain();
-                        
-                        oscillator.connect(gainNode);
-                        gainNode.connect(audioContext.destination);
-                        
-                        oscillator.frequency.value = 200;
-                        oscillator.type = 'sine';
-                        
-                        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-                        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
-                        
-                        oscillator.start(audioContext.currentTime);
-                        oscillator.stop(audioContext.currentTime + 0.15);
-                      }, 1500); // Duration of animation (1.5 seconds)
+                      setShowNotesModal(false);
                     }}
-                    disabled={!userNote.trim()}
+                    disabled={conversation && !userNotes[conversation.id]?.trim()}
                     className="flex-1 px-2 py-1 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-heading font-bold text-xs rounded transition-all"
                   >
                     Guardar
@@ -1136,35 +1073,6 @@ export default function FloatingMessagesWindow() {
         </div>
       )}
 
-      {/* Flying note animation */}
-      {isNoteSaving && (
-        <>
-          <style>{`
-            @keyframes squish {
-              0% { transform: translate(${flyingNotePosition.x - notesModalPosition.left}px, ${flyingNotePosition.y - notesModalPosition.top}px) scale(0.3) rotate(720deg); }
-              50% { transform: translate(${flyingNotePosition.x - notesModalPosition.left}px, ${flyingNotePosition.y - notesModalPosition.top}px) scale(0.4, 0.2) rotate(720deg); }
-              100% { transform: translate(${flyingNotePosition.x - notesModalPosition.left}px, ${flyingNotePosition.y - notesModalPosition.top}px) scale(0.3) rotate(720deg); }
-            }
-          `}</style>
-          <div
-            className="absolute z-[60] pointer-events-none"
-            style={{
-              top: `${notesModalPosition.top}px`,
-              left: `${notesModalPosition.left}px`,
-              transform: `translate(${flyingNotePosition.x - notesModalPosition.left}px, ${flyingNotePosition.y - notesModalPosition.top}px) scale(0.3) rotate(720deg)`,
-              transition: 'transform 1.5s cubic-bezier(0.34, 1.56, 0.64, 1)', // Bounce effect
-              animation: 'squish 0.2s ease-out 1.3s', // Squish at the end
-            }}
-          >
-            <div className="bg-yellow-100 border-2 border-yellow-400 rounded-lg p-3 w-40 shadow-2xl">
-              <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-3 h-3 bg-red-500 rounded-full border border-red-600"></div>
-              <p className="text-gray-800 text-xs leading-relaxed" style={{ fontFamily: 'Comic Sans MS, cursive' }}>
-                {userNote}
-              </p>
-            </div>
-          </div>
-        </>
-      )}
     </div>
   );
 }
