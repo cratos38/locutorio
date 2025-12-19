@@ -35,6 +35,11 @@ export default function FloatingMessagesWindow() {
   
   // Archivo search state
   const [archivoSearchQuery, setArchivoSearchQuery] = useState("");
+  
+  // Report modal state
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [selectedReportReasons, setSelectedReportReasons] = useState<string[]>([]);
+  
   const [isResizing, setIsResizing] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const windowRef = useRef<HTMLDivElement>(null);
@@ -453,7 +458,9 @@ export default function FloatingMessagesWindow() {
               </span>
             </button>
             <div className="w-px h-full bg-forest-light/30 mx-2"></div>
-            <button className="w-14 flex flex-col items-center justify-center gap-1 rounded-lg bg-forest-dark hover:bg-forest-dark/40 border border-forest-dark/20 hover:border-neon-green transition-all group relative overflow-hidden">
+            <button 
+              onClick={() => setShowReportModal(true)}
+              className="w-14 flex flex-col items-center justify-center gap-1 rounded-lg bg-forest-dark hover:bg-forest-dark/40 border border-forest-dark/20 hover:border-neon-green transition-all group relative overflow-hidden">
               <div className="absolute inset-0 bg-neon-green/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
               <span className="material-symbols-outlined text-[9px] text-text-muted group-hover:text-neon-green transition-colors">
                 report
@@ -841,6 +848,92 @@ export default function FloatingMessagesWindow() {
           } 50%)`,
         }}
       ></div>
+
+      {/* Report Modal */}
+      {showReportModal && conversation && (
+        <div className="absolute inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 rounded-xl">
+          <div className="bg-connect-bg-dark border-2 border-neon-green/30 rounded-xl p-6 w-[90%] max-w-md shadow-[0_0_40px_rgba(80,250,123,0.3)]">
+            {/* Header */}
+            <div className="flex items-center gap-3 mb-6">
+              <div 
+                className="size-12 rounded-full bg-cover bg-center border-2 border-forest-dark/50"
+                style={{ backgroundImage: `url('${conversation.avatar}')` }}
+              ></div>
+              <div>
+                <h3 className="font-heading font-bold text-lg text-gray-100">
+                  ¿Qué es malo en esta conversación?
+                </h3>
+                <p className="text-sm text-text-muted">
+                  Conversación con <span className="text-neon-green">{conversation.username}</span>
+                </p>
+              </div>
+            </div>
+
+            {/* Report reasons */}
+            <div className="space-y-2 mb-6">
+              {[
+                { id: 'mensajes-molestos', label: 'Mensajes molestos' },
+                { id: 'proclamacion-odio', label: 'Proclamación de odio' },
+                { id: 'ilicitas', label: 'Cosas ilícitas, fuera de ley' },
+                { id: 'venta', label: 'Venta de mercancía y servicios' },
+                { id: 'abuso-sexual', label: 'Abuso sexual' },
+                { id: 'spam', label: 'Publicidad, Spam' },
+              ].map((reason) => (
+                <button
+                  key={reason.id}
+                  onClick={() => {
+                    if (selectedReportReasons.includes(reason.id)) {
+                      setSelectedReportReasons(selectedReportReasons.filter(r => r !== reason.id));
+                    } else {
+                      setSelectedReportReasons([...selectedReportReasons, reason.id]);
+                    }
+                  }}
+                  className={`w-full text-left px-4 py-3 rounded-lg border-2 transition-all ${
+                    selectedReportReasons.includes(reason.id)
+                      ? 'bg-neon-green/20 border-neon-green text-neon-green'
+                      : 'bg-forest-dark/30 border-forest-dark/50 text-gray-300 hover:border-neon-green/50'
+                  }`}
+                >
+                  {reason.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Emergency warning */}
+            <div className="bg-orange-500/10 border border-orange-500/30 rounded-lg p-3 mb-6">
+              <p className="text-xs text-orange-300 leading-relaxed">
+                ⚠️ Si se trata de que alguien está en peligro de vida, llame al <span className="font-bold">911</span> (Policía de Venezuela) inmediatamente.
+              </p>
+            </div>
+
+            {/* Action buttons */}
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setShowReportModal(false);
+                  setSelectedReportReasons([]);
+                }}
+                className="flex-1 px-4 py-3 bg-forest-dark/50 hover:bg-forest-dark text-gray-300 font-heading font-bold rounded-lg transition-all border border-forest-dark/50"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={() => {
+                  // TODO: Implement report submission
+                  console.log('Report submitted for', conversation.username, 'reasons:', selectedReportReasons);
+                  setShowReportModal(false);
+                  setSelectedReportReasons([]);
+                  // Show success message (could add a toast notification here)
+                }}
+                disabled={selectedReportReasons.length === 0}
+                className="flex-1 px-4 py-3 bg-neon-green hover:bg-neon-green/80 text-forest-dark font-heading font-bold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Enviar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
