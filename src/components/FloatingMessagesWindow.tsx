@@ -44,7 +44,7 @@ export default function FloatingMessagesWindow() {
   // Notes modal state
   const [showNotesModal, setShowNotesModal] = useState(false);
   const [userNote, setUserNote] = useState("");
-  const [hasPlus, setHasPlus] = useState(false); // TODO: Connect to real user subscription
+  const [hasPlus, setHasPlus] = useState(true); // TODO: Connect to real user subscription (temporarily true for testing)
   const [notesModalTimer, setNotesModalTimer] = useState<NodeJS.Timeout | null>(null);
   const [notesModalPosition, setNotesModalPosition] = useState({ top: 0, left: 0 });
   
