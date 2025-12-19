@@ -230,8 +230,8 @@ export default function FloatingMessagesWindow() {
                 style={{ backgroundImage: `url('${conversation.avatar}')` }}
               ></div>
               {conversation.online && (
-                <div className="absolute -bottom-2 -right-2 bg-forest-dark p-1 rounded-full">
-                  <span className="block size-5 bg-neon-green rounded-full border-2 border-forest-dark shadow-[0_0_10px_#50fa7b]"></span>
+                <div className="absolute -bottom-1 -right-1">
+                  <span className="block size-2.5 bg-cyan-400 rounded-full border-2 border-forest-dark shadow-[0_0_8px_rgba(34,211,238,0.6)]"></span>
                 </div>
               )}
             </div>
@@ -448,7 +448,7 @@ export default function FloatingMessagesWindow() {
                       style={{ backgroundImage: `url('${conv.avatar}')` }}
                     ></div>
                     {conv.online && (
-                      <div className="absolute -top-1 -right-1 size-3.5 rounded-full bg-neon-green border-2 border-forest-base"></div>
+                      <div className="absolute -top-1 -right-1 size-2 rounded-full bg-cyan-400 border-2 border-forest-base shadow-[0_0_6px_rgba(34,211,238,0.5)]"></div>
                     )}
                     {!conv.online && conv.unreadCount > 0 && (
                       <div className="absolute -top-1 -right-1 size-3.5 rounded-full bg-orange-400 border-2 border-forest-panel"></div>
