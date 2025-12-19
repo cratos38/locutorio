@@ -5,6 +5,7 @@ import { useMessages, type Conversation } from "@/contexts/MessagesContext";
 import { Input } from "@/components/ui/input";
 
 type SidebarTabType = "conversaciones" | "invitaciones";
+type ActiveViewType = "mensajes" | "archivo" | "ajustes" | "fotos" | "notas" | "denunciar" | "nueva-conversacion";
 
 export default function FloatingMessagesWindow() {
   const {
@@ -25,9 +26,13 @@ export default function FloatingMessagesWindow() {
     sendMessage,
   } = useMessages();
 
+  const [activeView, setActiveView] = useState<ActiveViewType>("mensajes");
   const [sidebarTab, setSidebarTab] = useState<SidebarTabType>("conversaciones");
   const [messageInput, setMessageInput] = useState("");
   const [isDragging, setIsDragging] = useState(false);
+  
+  // Archivo search state
+  const [archivoSearchQuery, setArchivoSearchQuery] = useState("");
   const [isResizing, setIsResizing] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const windowRef = useRef<HTMLDivElement>(null);
@@ -199,6 +204,86 @@ export default function FloatingMessagesWindow() {
 
   // Render main content (used in both maximized and normal states)
   function renderContent() {
+    // ARCHIVO view
+    if (activeView === "archivo") {
+      return (
+        <div className="h-full flex flex-col gap-3">
+          {/* Search bar */}
+          <div className="bg-connect-bg-dark rounded-xl border border-forest-dark/30 p-4 flex items-center gap-4">
+            <div className="flex-1 flex items-center gap-3">
+              <Input
+                type="text"
+                placeholder="Buscar por nick..."
+                value={archivoSearchQuery}
+                onChange={(e) => setArchivoSearchQuery(e.target.value)}
+                className="flex-1 bg-forest-dark/50 border-forest-dark/50 text-gray-300 placeholder:text-gray-500"
+              />
+              <button className="px-4 py-2 bg-neon-green hover:bg-neon-green/80 text-forest-dark font-heading font-bold text-sm rounded-md transition-all">
+                Buscar
+              </button>
+            </div>
+            <div className="flex items-center gap-4 text-sm">
+              <div className="text-gray-400">
+                <span className="text-neon-green font-bold">0</span> archivos
+              </div>
+              <div className="text-gray-400">
+                <span className="text-neon-green font-bold">0</span> mensajes
+              </div>
+            </div>
+          </div>
+
+          {/* Table */}
+          <div className="flex-1 bg-connect-bg-dark rounded-xl border border-forest-dark/30 overflow-hidden flex flex-col">
+            {/* Table header */}
+            <div className="grid grid-cols-12 gap-4 p-4 bg-forest-dark/50 border-b border-forest-dark/50 text-gray-400 text-sm font-heading font-bold">
+              <div className="col-span-3">NICK</div>
+              <div className="col-span-2">STATUS</div>
+              <div className="col-span-4">ÚLTIMA MENSAJE</div>
+              <div className="col-span-2">FECHA</div>
+              <div className="col-span-1">MENSAJES</div>
+            </div>
+
+            {/* Table body */}
+            <div className="flex-1 overflow-y-auto">
+              <div className="flex items-center justify-center h-full">
+                <div className="text-center">
+                  <span className="material-symbols-outlined text-6xl text-text-muted mb-4 block">
+                    inventory_2
+                  </span>
+                  <h3 className="font-heading font-bold text-sm text-gray-300 mb-2">
+                    Archivo vacío
+                  </h3>
+                  <p className="text-text-muted text-sm">
+                    Momentáneamente no tienes ningún archivo guardado
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // AJUSTES view
+    if (activeView === "ajustes") {
+      return (
+        <div className="h-full flex items-center justify-center bg-connect-bg-dark rounded-xl border border-forest-dark/20">
+          <div className="text-center">
+            <span className="material-symbols-outlined text-6xl text-text-muted mb-4 block">
+              settings
+            </span>
+            <h3 className="font-heading font-bold text-sm text-gray-300 mb-2">
+              Ajustes
+            </h3>
+            <p className="text-text-muted text-sm">
+              Configuración de mensajes privados
+            </p>
+          </div>
+        </div>
+      );
+    }
+
+    // MENSAJES view (default)
     if (!conversation) {
       return (
         <div className="h-full flex items-center justify-center bg-connect-bg-dark rounded-xl border border-forest-dark/20">
@@ -586,19 +671,43 @@ export default function FloatingMessagesWindow() {
           {/* Tab buttons CENTRO */}
           <div className="flex items-center gap-2">
             <button
-              className="px-4 py-1.5 text-[12px] font-heading font-bold text-neon-green bg-neon-green/20 rounded-md border border-neon-green/50 shadow-[0_0_10px_rgba(80,250,123,0.3)] transition-all"
-              title="Mensajes Privados (Activo)"
+              onClick={(e) => {
+                e.stopPropagation();
+                setActiveView("mensajes");
+              }}
+              className={`px-4 py-1.5 text-[12px] font-heading font-bold rounded-md border transition-all ${
+                activeView === "mensajes"
+                  ? "text-neon-green bg-neon-green/20 border-neon-green/50 shadow-[0_0_10px_rgba(80,250,123,0.3)]"
+                  : "text-gray-500 bg-gray-500/5 border-gray-500/20 hover:text-neon-green hover:bg-neon-green/20 hover:border-neon-green/50 hover:shadow-[0_0_10px_rgba(80,250,123,0.3)]"
+              }`}
+              title="Mensajes Privados"
             >
               MENSAJES PRIVADOS
             </button>
             <button
-              className="px-4 py-1.5 text-[12px] font-heading font-bold text-gray-500 bg-gray-500/5 hover:text-neon-green hover:bg-neon-green/20 hover:border-neon-green/50 hover:shadow-[0_0_10px_rgba(80,250,123,0.3)] rounded-md border border-gray-500/20 transition-all"
+              onClick={(e) => {
+                e.stopPropagation();
+                setActiveView("archivo");
+              }}
+              className={`px-4 py-1.5 text-[12px] font-heading font-bold rounded-md border transition-all ${
+                activeView === "archivo"
+                  ? "text-neon-green bg-neon-green/20 border-neon-green/50 shadow-[0_0_10px_rgba(80,250,123,0.3)]"
+                  : "text-gray-500 bg-gray-500/5 border-gray-500/20 hover:text-neon-green hover:bg-neon-green/20 hover:border-neon-green/50 hover:shadow-[0_0_10px_rgba(80,250,123,0.3)]"
+              }`}
               title="Archivo"
             >
               ARCHIVO
             </button>
             <button
-              className="px-4 py-1.5 text-[12px] font-heading font-bold text-gray-500 bg-gray-500/5 hover:text-neon-green hover:bg-neon-green/20 hover:border-neon-green/50 hover:shadow-[0_0_10px_rgba(80,250,123,0.3)] rounded-md border border-gray-500/20 transition-all"
+              onClick={(e) => {
+                e.stopPropagation();
+                setActiveView("ajustes");
+              }}
+              className={`px-4 py-1.5 text-[12px] font-heading font-bold rounded-md border transition-all ${
+                activeView === "ajustes"
+                  ? "text-neon-green bg-neon-green/20 border-neon-green/50 shadow-[0_0_10px_rgba(80,250,123,0.3)]"
+                  : "text-gray-500 bg-gray-500/5 border-gray-500/20 hover:text-neon-green hover:bg-neon-green/20 hover:border-neon-green/50 hover:shadow-[0_0_10px_rgba(80,250,123,0.3)]"
+              }`}
               title="Ajustes"
             >
               AJUSTES
