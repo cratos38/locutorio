@@ -36,6 +36,7 @@ export default function AlbumesPage() {
   const [albumPassword, setAlbumPassword] = useState("");
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const passwordFieldRef = useRef<HTMLDivElement>(null);
 
   // Load albums from localStorage - client side only
   const [albums, setAlbums] = useState<Album[]>([]);
@@ -59,6 +60,15 @@ export default function AlbumesPage() {
       }
     }
   }, []);
+
+  // Auto-scroll to password field when "Protegido" is selected
+  useEffect(() => {
+    if (privacyType === "protegido" && passwordFieldRef.current) {
+      setTimeout(() => {
+        passwordFieldRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 300);
+    }
+  }, [privacyType]);
 
   const privacyLabels = {
     publico: { label: "Público", icon: "🌍", color: "text-green-400" },
@@ -292,22 +302,6 @@ export default function AlbumesPage() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {/* Create New Album Card */}
-            <button
-              onClick={() => setShowCreateModal(true)}
-              className="group flex flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-connect-border bg-transparent p-8 text-center hover:border-primary hover:bg-primary/5 transition-all min-h-[280px]"
-            >
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-connect-card text-connect-muted group-hover:bg-primary group-hover:text-connect-bg-dark transition-colors">
-                <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
-              </div>
-              <div>
-                <h3 className="font-bold text-white mb-1">Nuevo Álbum</h3>
-                <p className="text-xs text-connect-muted">Elige: Público, Amigos o Privado</p>
-              </div>
-            </button>
-
             {/* Album Cards */}
             {filteredAlbums.map((album) => {
               const privacy = privacyLabels[album.privacy];
@@ -319,7 +313,14 @@ export default function AlbumesPage() {
                   className="group relative overflow-hidden rounded-2xl bg-connect-card p-3 transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10"
                 >
                   <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl bg-connect-bg-dark">
-                    {album.coverImage ? (
+                    {album.privacy === "protegido" ? (
+                      <div className="w-full h-full flex flex-col items-center justify-center gap-3 bg-gradient-to-br from-orange-500/20 to-red-500/20">
+                        <svg className="w-20 h-20 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                        </svg>
+                        <p className="text-orange-300 font-bold text-sm">ÁLBUM PROTEGIDO</p>
+                      </div>
+                    ) : album.coverImage ? (
                       <>
                         <img
                           src={album.coverImage}
@@ -516,7 +517,7 @@ export default function AlbumesPage() {
               </div>
 
               {privacyType === "protegido" && (
-                <div>
+                <div ref={passwordFieldRef}>
                   <label className="block text-sm font-bold mb-2">
                     Contraseña <span className="text-primary">*</span>
                   </label>
@@ -524,7 +525,7 @@ export default function AlbumesPage() {
                     type="password"
                     value={albumPassword}
                     onChange={(e) => setAlbumPassword(e.target.value)}
-                    placeholder="Ingresa una contraseña segura"
+                    placeholder="Ingresa una contraseña segura (mínimo 6 caracteres)"
                     className="bg-connect-bg-dark border-connect-border text-white"
                     minLength={6}
                   />
@@ -537,7 +538,11 @@ export default function AlbumesPage() {
               <Button onClick={() => setShowCreateModal(false)} variant="outline" className="bg-transparent border-connect-border text-white hover:bg-white/5">
                 Cancelar
               </Button>
-              <Button onClick={handleCreateAlbum} className="bg-primary text-connect-bg-dark hover:brightness-110 font-bold">
+              <Button 
+                onClick={handleCreateAlbum} 
+                disabled={!albumName.trim() || uploadedPhotos.length === 0 || (privacyType === "protegido" && (!albumPassword.trim() || albumPassword.length < 6))}
+                className="bg-primary text-connect-bg-dark hover:brightness-110 font-bold disabled:opacity-50 disabled:cursor-not-allowed"
+              >
                 Crear Álbum
               </Button>
             </div>
