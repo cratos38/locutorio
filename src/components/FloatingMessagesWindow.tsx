@@ -468,9 +468,6 @@ export default function FloatingMessagesWindow() {
                     {conv.status === "offline" && (
                       <div className="absolute -top-1 -right-1 size-2 rounded-full bg-gray-400 border-2 border-forest-base"></div>
                     )}
-                    {!conv.online && conv.unreadCount > 0 && (
-                      <div className="absolute -top-1 -right-1 size-3.5 rounded-full bg-orange-400 border-2 border-forest-panel"></div>
-                    )}
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex justify-between items-baseline mb-0.5">
