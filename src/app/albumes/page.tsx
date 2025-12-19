@@ -216,32 +216,18 @@ export default function AlbumesPage() {
     <div className="min-h-screen bg-connect-bg-dark text-white font-display">
       <InternalHeader />
 
-      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* Header */}
-        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6 mb-10">
-          <div>
-            <h1 className="text-4xl font-bold mb-3">Álbumes de Fotos</h1>
-            <p className="text-connect-muted text-lg max-w-2xl">
-              Gestiona tus recuerdos con total control. Crea álbumes{" "}
-              <span className="text-primary font-semibold">públicos</span> para todos, compártelos{" "}
-              <span className="text-blue-400 font-semibold">solo con amigos</span> o protégelos con{" "}
-              <span className="text-orange-400 font-semibold">contraseña</span> para máxima privacidad.
-            </p>
-          </div>
-
-          <Button
-            onClick={() => setShowCreateModal(true)}
-            className="bg-primary text-connect-bg-dark hover:brightness-110 font-bold shadow-[0_0_20px_rgba(43,238,121,0.3)] flex items-center gap-2 px-6 py-6 text-base"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-            Crear Álbum
-          </Button>
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold mb-2">Álbumes de Fotos</h1>
+          <p className="text-connect-muted text-sm max-w-3xl">
+            Gestiona tus recuerdos: <span className="text-primary font-semibold">públicos</span>, <span className="text-blue-400 font-semibold">solo amigos</span> o <span className="text-orange-400 font-semibold">con contraseña</span>
+          </p>
         </div>
 
-        {/* Search Bar */}
-        <div className="mb-8">
+        {/* Search Bar + Filters + Create Button */}
+        <div className="mb-6 space-y-4">
+          {/* Search Bar */}
           <div className="relative flex-1 max-w-md">
             <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-connect-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -253,10 +239,10 @@ export default function AlbumesPage() {
               className="pl-12 bg-connect-card border-connect-border text-white placeholder-connect-muted rounded-xl h-12"
             />
           </div>
-        </div>
 
-        {/* Filter Tabs */}
-        <div className="flex gap-3 overflow-x-auto pb-2 mb-10 hide-scrollbar">
+          {/* Filter Tabs + Create Button */}
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex gap-3 overflow-x-auto pb-2 hide-scrollbar flex-1">
           <button
             onClick={() => setSelectedFilter("todo")}
             className={`px-6 py-3 rounded-full font-medium text-sm whitespace-nowrap transition-all ${
@@ -293,12 +279,25 @@ export default function AlbumesPage() {
             <span className="mr-2">🔒</span>
             Protegidos
           </button>
+            </div>
+
+            {/* Create Album Button */}
+            <Button
+              onClick={() => setShowCreateModal(true)}
+              className="bg-primary text-connect-bg-dark hover:brightness-110 font-bold shadow-[0_0_20px_rgba(43,238,121,0.3)] flex items-center gap-2 px-6 py-3 text-sm whitespace-nowrap"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              Crear Álbum
+            </Button>
+          </div>
         </div>
 
         {/* Albums Grid */}
         <section className="mb-12">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold">Mis Álbumes ({filteredAlbums.length})</h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold">Mis Álbumes ({filteredAlbums.length})</h2>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
@@ -541,17 +540,56 @@ export default function AlbumesPage() {
             </div>
 
             {/* Modal Footer */}
-            <div className="sticky bottom-0 bg-connect-card border-t border-connect-border p-6 flex gap-3 justify-end">
-              <Button onClick={() => setShowCreateModal(false)} variant="outline" className="bg-transparent border-connect-border text-white hover:bg-white/5">
-                Cancelar
-              </Button>
-              <Button 
-                onClick={handleCreateAlbum} 
-                disabled={!albumName.trim() || uploadedPhotos.length === 0 || (privacyType === "protegido" && (!albumPassword.trim() || albumPassword.length < 6))}
-                className="bg-primary text-connect-bg-dark hover:brightness-110 font-bold disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Crear Álbum
-              </Button>
+            <div className="sticky bottom-0 bg-connect-card border-t border-connect-border p-6">
+              {/* Validation Messages */}
+              <div className="mb-4 space-y-2">
+                {!albumName.trim() && (
+                  <p className="text-xs text-orange-400 flex items-center gap-2">
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                    </svg>
+                    Debes ingresar un nombre para el álbum
+                  </p>
+                )}
+                {uploadedPhotos.length === 0 && (
+                  <p className="text-xs text-orange-400 flex items-center gap-2">
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                    </svg>
+                    Debes añadir al menos una foto
+                  </p>
+                )}
+                {privacyType === "protegido" && !albumPassword.trim() && (
+                  <p className="text-xs text-orange-400 flex items-center gap-2">
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                    </svg>
+                    Debes ingresar una contraseña para el álbum protegido
+                  </p>
+                )}
+                {privacyType === "protegido" && albumPassword.trim() && albumPassword.length < 6 && (
+                  <p className="text-xs text-orange-400 flex items-center gap-2">
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                    </svg>
+                    La contraseña debe tener al menos 6 caracteres (actual: {albumPassword.length})
+                  </p>
+                )}
+              </div>
+
+              {/* Buttons */}
+              <div className="flex gap-3 justify-end">
+                <Button onClick={() => setShowCreateModal(false)} variant="outline" className="bg-transparent border-connect-border text-white hover:bg-white/5">
+                  Cancelar
+                </Button>
+                <Button 
+                  onClick={handleCreateAlbum} 
+                  disabled={!albumName.trim() || uploadedPhotos.length === 0 || (privacyType === "protegido" && (!albumPassword.trim() || albumPassword.length < 6))}
+                  className="bg-primary text-connect-bg-dark hover:brightness-110 font-bold disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Crear Álbum
+                </Button>
+              </div>
             </div>
           </div>
         </div>
