@@ -52,6 +52,14 @@ export default function FloatingMessagesWindow() {
   const [showPhotosModal, setShowPhotosModal] = useState(false);
   const [photosModalTimer, setPhotosModalTimer] = useState<NodeJS.Timeout | null>(null);
   const [photosModalPosition, setPhotosModalPosition] = useState({ top: 0, left: 0 });
+  const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
+  
+  // Demo photos (TODO: Replace with actual conversation photos)
+  const demoPhotos = [
+    { url: 'https://picsum.photos/400/300?random=1', x: 10, y: 15 },
+    { url: 'https://picsum.photos/400/300?random=2', x: 60, y: 25 },
+    { url: 'https://picsum.photos/400/300?random=3', x: 30, y: 60 },
+  ];
   
   const [isResizing, setIsResizing] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
@@ -1103,105 +1111,109 @@ export default function FloatingMessagesWindow() {
       )}
 
       {/* Photos Modal */}
-      {showPhotosModal && conversation && (
-        <>
-          {hasPlus ? (
-            // WITH PLUS: Fullscreen overlay with photo gallery
-            <div className="absolute inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 rounded-xl">
-              <div className="bg-connect-bg-dark border-2 border-neon-green/30 rounded-xl p-6 w-[90%] max-w-3xl max-h-[80%] shadow-[0_0_40px_rgba(80,250,123,0.3)] flex flex-col">
-                {/* Header */}
-                <div className="flex items-center justify-between mb-6">
-                  <div className="flex items-center gap-3">
-                    <span className="material-symbols-outlined text-3xl text-neon-green">
-                      photo_library
-                    </span>
-                    <div>
-                      <h3 className="font-heading font-bold text-lg text-gray-100">
-                        Fotos compartidas
-                      </h3>
-                      <p className="text-sm text-text-muted">
-                        Con <span className="text-neon-green">{conversation.username}</span>
-                      </p>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => setShowPhotosModal(false)}
-                    className="text-gray-400 hover:text-gray-200 transition-colors"
-                  >
-                    <span className="material-symbols-outlined text-3xl">close</span>
-                  </button>
-                </div>
-
-                {/* Photo grid or empty state */}
-                <div className="flex-1 overflow-y-auto">
-                  {/* TODO: Replace with actual photos */}
-                  <div className="flex items-center justify-center h-full">
-                    <div className="text-center">
-                      <span className="material-symbols-outlined text-6xl text-text-muted mb-4 block">
-                        photo_library
-                      </span>
-                      <h4 className="font-heading font-bold text-base text-gray-300 mb-2">
-                        No han intercambiado fotos aún
-                      </h4>
-                      <p className="text-text-muted text-sm">
-                        Las fotos que envíes y recibas aparecerán aquí
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
+      {showPhotosModal && conversation && hasPlus && (
+        <div 
+          className="absolute inset-0 bg-black/90 backdrop-blur-md z-50 rounded-xl cursor-pointer"
+          onClick={() => {
+            setSelectedPhoto(null);
+            setShowPhotosModal(false);
+          }}
+        >
+          <style>{`
+            @keyframes float {
+              0%, 100% { transform: translateY(0px) rotate(0deg); }
+              50% { transform: translateY(-20px) rotate(2deg); }
+            }
+          `}</style>
+          
+          {selectedPhoto ? (
+            // Fullsize photo view
+            <div className="flex items-center justify-center h-full p-8">
+              <img 
+                src={selectedPhoto}
+                alt="Foto completa"
+                className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
+                onClick={(e) => e.stopPropagation()}
+              />
+            </div>
+          ) : demoPhotos.length > 0 ? (
+            // Floating thumbnails
+            <div className="relative w-full h-full">
+              {demoPhotos.map((photo, index) => (
+                <img 
+                  key={index}
+                  src={photo.url}
+                  alt={`Foto ${index + 1}`}
+                  className="absolute w-32 h-32 object-cover rounded-lg shadow-2xl cursor-pointer hover:scale-110 hover:z-10 transition-all border-2 border-white/20"
+                  style={{
+                    top: `${photo.y}%`,
+                    left: `${photo.x}%`,
+                    animation: `float ${3 + index * 0.5}s ease-in-out infinite`,
+                    animationDelay: `${index * 0.2}s`,
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedPhoto(photo.url);
+                  }}
+                />
+              ))}
             </div>
           ) : (
-            // WITHOUT PLUS: Small bubble below button
-            <div
-              className="absolute z-50 pointer-events-none"
-              style={{
-                top: `${photosModalPosition.top}px`,
-                left: `${photosModalPosition.left}px`,
-                transform: 'translateX(-50%)',
-              }}
-              onMouseLeave={() => {
-                const timer = setTimeout(() => {
-                  setShowPhotosModal(false);
-                }, 800);
-                setPhotosModalTimer(timer);
-              }}
-              onMouseEnter={() => {
-                if (photosModalTimer) {
-                  clearTimeout(photosModalTimer);
-                  setPhotosModalTimer(null);
-                }
-              }}
-            >
-              <div className="bg-connect-bg-dark border-2 border-blue-500/30 rounded-xl p-3 w-40 shadow-[0_0_40px_rgba(59,130,246,0.3)] pointer-events-auto">
-                <div className="flex items-center gap-1 mb-2">
-                  <span className="material-symbols-outlined text-lg text-blue-500">
-                    photo_library
-                  </span>
-                  <h3 className="font-heading font-bold text-xs text-gray-100">
-                    Fotos compartidas
-                  </h3>
-                </div>
-
-                <div className="text-center py-2">
-                  <p className="text-gray-300 text-xs leading-relaxed mb-1">
-                    Para ver fotos intercambiadas con esta persona, activa{" "}
-                    <Link
-                      href="/connect/tutorial/la-cuenta#section-9"
-                      onClick={() => {
-                        setShowPhotosModal(false);
-                        closeMessages();
-                      }}
-                      className="font-bold text-blue-500 hover:text-blue-400 underline transition-colors cursor-pointer"
-                    >
-                      PLUS
-                    </Link>
-                  </p>
-                </div>
-              </div>
-            </div>
+            // Empty state - just dark background (no text, no nothing)
+            <div></div>
           )}
-        </>
+        </div>
+      )}
+
+      {/* Photos bubble for non-PLUS users */}
+      {showPhotosModal && conversation && !hasPlus && (
+        <div
+          className="absolute z-50 pointer-events-none"
+          style={{
+            top: `${photosModalPosition.top}px`,
+            left: `${photosModalPosition.left}px`,
+            transform: 'translateX(-50%)',
+          }}
+          onMouseLeave={() => {
+            const timer = setTimeout(() => {
+              setShowPhotosModal(false);
+            }, 800);
+            setPhotosModalTimer(timer);
+          }}
+          onMouseEnter={() => {
+            if (photosModalTimer) {
+              clearTimeout(photosModalTimer);
+              setPhotosModalTimer(null);
+            }
+          }}
+        >
+          <div className="bg-connect-bg-dark border-2 border-blue-500/30 rounded-xl p-3 w-40 shadow-[0_0_40px_rgba(59,130,246,0.3)] pointer-events-auto">
+            <div className="flex items-center gap-1 mb-2">
+              <span className="material-symbols-outlined text-lg text-blue-500">
+                photo_library
+              </span>
+              <h3 className="font-heading font-bold text-xs text-gray-100">
+                Fotos compartidas
+              </h3>
+            </div>
+
+            <div className="text-center py-2">
+              <p className="text-gray-300 text-xs leading-relaxed mb-1">
+                Para ver fotos intercambiadas con esta persona, activa{" "}
+                <Link
+                  href="/connect/tutorial/la-cuenta#section-9"
+                  onClick={() => {
+                    setShowPhotosModal(false);
+                    closeMessages();
+                  }}
+                  className="font-bold text-blue-500 hover:text-blue-400 underline transition-colors cursor-pointer"
+                >
+                  PLUS
+                </Link>
+              </p>
+            </div>
+          </div>
+        </div>
       )}
 
     </div>
