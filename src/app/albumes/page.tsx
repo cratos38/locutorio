@@ -300,7 +300,7 @@ export default function AlbumesPage() {
             <h2 className="text-xl font-bold">Mis Álbumes ({filteredAlbums.length})</h2>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
             {/* Album Cards */}
             {filteredAlbums.map((album) => {
               const privacy = privacyLabels[album.privacy];
@@ -309,22 +309,22 @@ export default function AlbumesPage() {
                   key={album.id}
                   href={`/albumes/${album.id}`}
                   prefetch={false}
-                  className="group relative overflow-hidden rounded-2xl bg-connect-card p-3 transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10"
+                  className="group relative overflow-hidden rounded-xl bg-connect-card p-2 transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10"
                 >
-                  <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl bg-connect-bg-dark">
+                  <div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg bg-connect-bg-dark">
                     {album.privacy === "protegido" ? (
-                      <div className="w-full h-full flex flex-col items-center justify-center gap-3 bg-gradient-to-br from-orange-500/20 to-red-500/20">
-                        <svg className="w-20 h-20 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div className="w-full h-full flex flex-col items-center justify-center gap-2 bg-gradient-to-br from-orange-500/20 to-red-500/20">
+                        <svg className="w-12 h-12 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                         </svg>
-                        <p className="text-orange-300 font-bold text-sm">ÁLBUM PROTEGIDO</p>
+                        <p className="text-orange-300 font-bold text-xs">PROTEGIDO</p>
                       </div>
                     ) : album.privacy === "amigos" ? (
-                      <div className="w-full h-full flex flex-col items-center justify-center gap-3 bg-gradient-to-br from-blue-500/20 to-cyan-500/20">
-                        <svg className="w-20 h-20 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div className="w-full h-full flex flex-col items-center justify-center gap-2 bg-gradient-to-br from-blue-500/20 to-cyan-500/20">
+                        <svg className="w-12 h-12 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                         </svg>
-                        <p className="text-blue-300 font-bold text-sm">SOLO AMIGOS</p>
+                        <p className="text-blue-300 font-bold text-xs">AMIGOS</p>
                       </div>
                     ) : album.coverImage ? (
                       <>
@@ -349,15 +349,15 @@ export default function AlbumesPage() {
                     )}
 
                     {/* Privacy Badge */}
-                    <div className="absolute top-2 right-2 rounded-full bg-black/60 px-2.5 py-1 text-xs font-bold text-white backdrop-blur-md flex items-center gap-1.5 border border-white/10">
-                      <span className={privacy.color}>{privacy.icon}</span> {privacy.label}
+                    <div className="absolute top-1.5 right-1.5 rounded-full bg-black/60 px-2 py-0.5 text-[10px] font-bold text-white backdrop-blur-md flex items-center gap-1 border border-white/10">
+                      <span className={privacy.color}>{privacy.icon}</span>
                     </div>
 
                     {/* Lock Overlay for Protected */}
                     {album.privacy === "protegido" && (
                       <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <div className="bg-black/50 p-3 rounded-full backdrop-blur-sm">
-                          <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div className="bg-black/50 p-2 rounded-full backdrop-blur-sm">
+                          <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path
                               strokeLinecap="round"
                               strokeLinejoin="round"
@@ -370,10 +370,10 @@ export default function AlbumesPage() {
                     )}
                   </div>
 
-                  <div className="mt-3">
-                    <h3 className="font-bold text-white truncate group-hover:text-primary transition-colors">{album.title}</h3>
-                    <p className="text-sm text-connect-muted">
-                      {album.photos} fotos • {album.lastUpdate}
+                  <div className="mt-2">
+                    <h3 className="font-bold text-sm text-white truncate group-hover:text-primary transition-colors">{album.title}</h3>
+                    <p className="text-xs text-connect-muted">
+                      {album.photos} fotos
                     </p>
                   </div>
                 </Link>
