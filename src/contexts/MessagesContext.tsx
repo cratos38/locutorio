@@ -192,6 +192,9 @@ export const MessagesProvider: React.FC<MessagesProviderProps> = ({ children }) 
         setCurrentConversation(conversation.id);
         markAsRead(conversation.id);
       }
+    } else if (conversations.length > 0 && !currentConversation) {
+      // Auto-select first conversation if none selected
+      setCurrentConversation(conversations[0].id);
     }
     if (settings.sound && typeof Audio !== 'undefined') {
       try {
