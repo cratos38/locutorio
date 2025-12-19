@@ -8,6 +8,109 @@ import { Input } from "@/components/ui/input";
 type SidebarTabType = "conversaciones" | "invitaciones";
 type ActiveViewType = "mensajes" | "archivo" | "ajustes" | "fotos" | "notas" | "denunciar" | "nueva-conversacion";
 
+// Demo conversation requests (TODO: Replace with real data from backend)
+const demoRequests = [
+  {
+    id: 1,
+    name: "The.Ronin",
+    avatar: "https://i.pravatar.cc/150?img=12",
+    message: "quiere conversar contigo"
+  },
+  {
+    id: 2,
+    name: "Laura",
+    avatar: "https://i.pravatar.cc/150?img=47",
+    message: "quiere conversar contigo"
+  }
+];
+
+// Invitaciones Content Component
+function InvitacionesContent() {
+  const [requests, setRequests] = useState(demoRequests);
+
+  const handleAccept = (id: number) => {
+    console.log(`Accepted request from user ${id}`);
+    // TODO: Add to conversations list in backend
+    setRequests(requests.filter(r => r.id !== id));
+  };
+
+  const handleReject = (id: number) => {
+    console.log(`Rejected request from user ${id}`);
+    // TODO: Remove from requests in backend
+    setRequests(requests.filter(r => r.id !== id));
+  };
+
+  const handleSaveForLater = (id: number) => {
+    console.log(`Saved request from user ${id} for later`);
+    // TODO: Mark as "saved for later" in backend
+    setRequests(requests.filter(r => r.id !== id));
+  };
+
+  if (requests.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full text-center px-6 py-12">
+        <span className="material-symbols-outlined text-6xl text-text-muted/30 mb-4">
+          group_off
+        </span>
+        <p className="text-gray-400 text-sm leading-relaxed">
+          No tienes ninguna solicitud de conversación
+        </p>
+        <p className="text-text-muted text-xs mt-2">
+          Puedes empezar tú mismo escribiendo como primero
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      {requests.map((request) => (
+        <div
+          key={request.id}
+          className="p-4 rounded-lg bg-forest-dark/40 border border-forest-dark/30"
+        >
+          {/* User info */}
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-neon-green/30">
+              <img 
+                src={request.avatar} 
+                alt={request.name}
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div className="flex-1">
+              <p className="text-gray-300 font-bold text-sm">{request.name}</p>
+              <p className="text-text-muted text-xs">{request.message}</p>
+            </div>
+          </div>
+
+          {/* Action buttons */}
+          <div className="flex gap-2">
+            <button
+              onClick={() => handleReject(request.id)}
+              className="flex-1 px-3 py-2 bg-red-900/30 hover:bg-red-900/50 text-red-400 rounded-lg text-xs font-bold transition-colors border border-red-900/30"
+            >
+              Rechazar
+            </button>
+            <button
+              onClick={() => handleSaveForLater(request.id)}
+              className="flex-1 px-3 py-2 bg-orange-900/30 hover:bg-orange-900/50 text-orange-400 rounded-lg text-xs font-bold transition-colors border border-orange-900/30"
+            >
+              Guardar
+            </button>
+            <button
+              onClick={() => handleAccept(request.id)}
+              className="flex-1 px-3 py-2 bg-neon-green/20 hover:bg-neon-green/30 text-neon-green rounded-lg text-xs font-bold transition-colors border border-neon-green/30"
+            >
+              Aceptar
+            </button>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function FloatingMessagesWindow() {
   const {
     isOpen,
@@ -676,79 +779,85 @@ export default function FloatingMessagesWindow() {
           </div>
 
           <div className="flex-1 overflow-y-auto p-2 space-y-1">
-            {conversations.map((conv) => (
-              <div
-                key={conv.id}
-                onClick={() => selectConversation(conv.id)}
-                className={`p-3 rounded-lg cursor-pointer transition-colors ${
-                  conv.id === currentConversation
-                    ? "bg-connect-bg-dark border border-neon-green/40 shadow-[0_0_15px_rgba(26,83,25,0.5)]"
-                    : "hover:bg-forest-dark/10 border border-transparent hover:border-forest-dark/20"
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  <div className="relative shrink-0">
-                    <div
-                      className={`size-12 rounded-full bg-connect-bg-dark border bg-center bg-cover ${
-                        conv.status === "online"
-                          ? "border-forest-dark"
-                          : "border-forest-dark/30 grayscale opacity-80"
-                      }`}
-                      style={{ backgroundImage: `url('${conv.avatar}')` }}
-                    ></div>
-                    {/* Status indicator: online=neon-green, away=orange, offline=gray */}
-                    {conv.status === "online" && (
-                      <div className="absolute -top-1 -right-1 size-2 rounded-full bg-neon-green border-2 border-forest-base shadow-[0_0_6px_rgba(80,250,123,0.5)]"></div>
-                    )}
-                    {conv.status === "away" && (
-                      <div className="absolute -top-1 -right-1 size-2 rounded-full bg-orange-400 border-2 border-forest-base shadow-[0_0_6px_rgba(251,146,60,0.5)]"></div>
-                    )}
-                    {conv.status === "offline" && (
-                      <div className="absolute -top-1 -right-1 size-2 rounded-full bg-gray-400 border-2 border-forest-base"></div>
+            {sidebarTab === "conversaciones" ? (
+              // CONVERSACIONES TAB - Show conversation list
+              conversations.map((conv) => (
+                <div
+                  key={conv.id}
+                  onClick={() => selectConversation(conv.id)}
+                  className={`p-3 rounded-lg cursor-pointer transition-colors ${
+                    conv.id === currentConversation
+                      ? "bg-connect-bg-dark border border-neon-green/40 shadow-[0_0_15px_rgba(26,83,25,0.5)]"
+                      : "hover:bg-forest-dark/10 border border-transparent hover:border-forest-dark/20"
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <div className="relative shrink-0">
+                      <div
+                        className={`size-12 rounded-full bg-connect-bg-dark border bg-center bg-cover ${
+                          conv.status === "online"
+                            ? "border-forest-dark"
+                            : "border-forest-dark/30 grayscale opacity-80"
+                        }`}
+                        style={{ backgroundImage: `url('${conv.avatar}')` }}
+                      ></div>
+                      {/* Status indicator: online=neon-green, away=orange, offline=gray */}
+                      {conv.status === "online" && (
+                        <div className="absolute -top-1 -right-1 size-2 rounded-full bg-neon-green border-2 border-forest-base shadow-[0_0_6px_rgba(80,250,123,0.5)]"></div>
+                      )}
+                      {conv.status === "away" && (
+                        <div className="absolute -top-1 -right-1 size-2 rounded-full bg-orange-400 border-2 border-forest-base shadow-[0_0_6px_rgba(251,146,60,0.5)]"></div>
+                      )}
+                      {conv.status === "offline" && (
+                        <div className="absolute -top-1 -right-1 size-2 rounded-full bg-gray-400 border-2 border-forest-base"></div>
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex justify-between items-baseline mb-0.5">
+                        <span className="font-bold text-gray-400 truncate">
+                          {conv.name}
+                        </span>
+                        <span
+                          className={`text-[10px] font-bold ${
+                            conv.unreadCount > 0
+                              ? "text-neon-green"
+                              : "text-text-muted/60"
+                          }`}
+                        >
+                          {conv.lastMessageTime}
+                        </span>
+                      </div>
+                      {typingUsers.includes(conv.userId) ? (
+                        <p className="text-[9px] text-neon-green font-medium truncate flex items-center gap-1">
+                          <span className="material-symbols-outlined text-[14px]">edit</span>
+                          Escribiendo...
+                        </p>
+                      ) : (
+                        <p
+                          className={`text-xs truncate ${
+                            conv.unreadCount > 0
+                              ? "text-gray-300 font-bold"
+                              : "text-text-muted opacity-70"
+                          }`}
+                        >
+                          {conv.lastMessage}
+                        </p>
+                      )}
+                    </div>
+                    {conv.unreadCount > 0 && (
+                      <div className="flex flex-col items-end gap-1">
+                        <span className="size-5 flex items-center justify-center bg-neon-green text-forest-dark text-[10px] font-bold rounded-full">
+                          {conv.unreadCount}
+                        </span>
+                      </div>
                     )}
                   </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex justify-between items-baseline mb-0.5">
-                      <span className="font-bold text-gray-400 truncate">
-                        {conv.name}
-                      </span>
-                      <span
-                        className={`text-[10px] font-bold ${
-                          conv.unreadCount > 0
-                            ? "text-neon-green"
-                            : "text-text-muted/60"
-                        }`}
-                      >
-                        {conv.lastMessageTime}
-                      </span>
-                    </div>
-                    {typingUsers.includes(conv.userId) ? (
-                      <p className="text-[9px] text-neon-green font-medium truncate flex items-center gap-1">
-                        <span className="material-symbols-outlined text-[14px]">edit</span>
-                        Escribiendo...
-                      </p>
-                    ) : (
-                      <p
-                        className={`text-xs truncate ${
-                          conv.unreadCount > 0
-                            ? "text-gray-300 font-bold"
-                            : "text-text-muted opacity-70"
-                        }`}
-                      >
-                        {conv.lastMessage}
-                      </p>
-                    )}
-                  </div>
-                  {conv.unreadCount > 0 && (
-                    <div className="flex flex-col items-end gap-1">
-                      <span className="size-5 flex items-center justify-center bg-neon-green text-forest-dark text-[10px] font-bold rounded-full">
-                        {conv.unreadCount}
-                      </span>
-                    </div>
-                  )}
                 </div>
-              </div>
-            ))}
+              ))
+            ) : (
+              // INVITACIONES TAB - Show conversation requests
+              <InvitacionesContent />
+            )}
           </div>
         </div>
 
