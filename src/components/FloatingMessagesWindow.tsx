@@ -249,16 +249,16 @@ export default function FloatingMessagesWindow() {
             
             <div className="flex flex-col gap-2">
               <div className="flex items-center gap-2">
-                <h2 className="font-heading font-bold text-[9px] text-gray-300 tracking-wide">
+                <h2 className="font-heading font-bold text-[13px] text-gray-300 tracking-wide">
                   {conversation.name}
                 </h2>
-                <span className="material-symbols-outlined text-[12px] text-neon-green" title="Amigo">
+                <span className="material-symbols-outlined text-[14px] text-neon-green" title="Amigo">
                   group
                 </span>
               </div>
-              <div className="flex items-center gap-3 text-[10px] font-medium text-text-muted">
+              <div className="flex items-center gap-3 text-[11px] font-medium text-text-muted">
                 <div className="flex items-center gap-2">
-                  <span className="material-symbols-outlined text-[10px]">location_on</span>
+                  <span className="material-symbols-outlined text-[11px]">location_on</span>
                   <span>Madrid, ES</span>
                 </div>
                 <div className="w-1.5 h-1.5 rounded-full bg-forest-light"></div>
