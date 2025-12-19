@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
+import Link from "next/link";
 import { useMessages, type Conversation } from "@/contexts/MessagesContext";
 import { Input } from "@/components/ui/input";
 
@@ -465,8 +466,8 @@ export default function FloatingMessagesWindow() {
                   const windowRect = windowRef.current?.getBoundingClientRect();
                   if (windowRect) {
                     setNotesModalPosition({
-                      top: rect.top - windowRect.top + rect.height / 2,
-                      left: rect.left - windowRect.left + rect.width + 10, // 10px spacing
+                      top: rect.bottom - windowRect.top + 10, // 10px below button
+                      left: rect.left - windowRect.left + rect.width / 2, // Centered horizontally
                     });
                   }
                 }
@@ -965,7 +966,7 @@ export default function FloatingMessagesWindow() {
           style={{
             top: `${notesModalPosition.top}px`,
             left: `${notesModalPosition.left}px`,
-            transform: 'translateY(-50%)', // Center vertically relative to button
+            transform: 'translateX(-50%)', // Center horizontally below button
           }}
           onMouseLeave={() => {
             // Auto-close with delay when mouse leaves
@@ -999,17 +1000,13 @@ export default function FloatingMessagesWindow() {
               <div className="text-center py-2">
                 <p className="text-gray-300 text-xs leading-relaxed mb-1">
                   Para anotar sobre esta persona, activa{" "}
-                  <a
+                  <Link
                     href="/connect/tutorial/la-cuenta#section-9"
-                    onClick={() => {
-                      setShowNotesModal(false);
-                      // Set flag to auto-open section on tutorial page
-                      sessionStorage.setItem('autoOpenSection', 'section-9');
-                    }}
+                    onClick={() => setShowNotesModal(false)}
                     className="font-bold text-blue-500 hover:text-blue-400 underline transition-colors cursor-pointer"
                   >
                     PLUS
-                  </a>
+                  </Link>
                 </p>
               </div>
             ) : (

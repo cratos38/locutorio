@@ -82,19 +82,19 @@ export default function LaCuentaPage() {
     file: null as File | null
   });
 
-  // Auto-open section from sessionStorage (triggered by PLUS link in notes)
+  // Auto-open section from URL hash (e.g., #section-9)
   useEffect(() => {
-    const autoOpenSection = sessionStorage.getItem('autoOpenSection');
-    if (autoOpenSection) {
-      sessionStorage.removeItem('autoOpenSection');
+    // Check for hash in URL
+    const hash = window.location.hash;
+    if (hash && hash.startsWith('#section-')) {
+      const sectionId = parseInt(hash.replace('#section-', ''));
       
       setTimeout(() => {
-        const sectionId = parseInt(autoOpenSection.replace('section-', ''));
         setOpenQuestion(sectionId);
         
         // Scroll to section after it opens
         setTimeout(() => {
-          const element = document.getElementById(autoOpenSection);
+          const element = document.getElementById(hash.substring(1));
           if (element) {
             const headerOffset = 100;
             const elementPosition = element.getBoundingClientRect().top;
