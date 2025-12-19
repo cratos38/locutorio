@@ -312,7 +312,7 @@ export default function ChatRoomsPage() {
                       if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
                       setHoveredUser(user.id);
                       const rect = e.currentTarget.getBoundingClientRect();
-                      setHoveredPosition({ x: rect.right + 10, y: rect.top });
+                      setHoveredPosition({ x: rect.left + rect.width + 5, y: rect.top });
                     }
                   }}
                   onMouseLeave={() => {
@@ -522,7 +522,7 @@ export default function ChatRoomsPage() {
 
                 {showEmojiPicker && (
                   <div
-                    className="absolute bottom-full right-0 mb-2 bg-connect-card border border-connect-border rounded-xl shadow-xl p-6 grid grid-cols-7 gap-4 w-[380px]"
+                    className="absolute bottom-full right-0 mb-2 bg-connect-card border border-connect-border rounded-xl shadow-xl p-6 grid grid-cols-8 gap-3 w-[480px]"
                     onMouseEnter={() => setShowEmojiPicker(true)}
                     onMouseLeave={() => setShowEmojiPicker(false)}
                   >
@@ -533,7 +533,7 @@ export default function ChatRoomsPage() {
                           setMessageText(messageText + emoji);
                           setShowEmojiPicker(false);
                         }}
-                        className="text-3xl hover:scale-125 transition-transform p-3 hover:bg-white/10 rounded"
+                        className="text-4xl hover:scale-125 transition-transform p-2 hover:bg-white/10 rounded"
                       >
                         {emoji}
                       </button>

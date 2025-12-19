@@ -44,13 +44,18 @@ export default function InicioPage() {
 
   // Animación de confetti
   const triggerConfetti = async () => {
-    const confetti = (await import('canvas-confetti')).default;
-    confetti({
-      particleCount: 100,
-      spread: 70,
-      origin: { y: 0.6 },
-      colors: ['#2bee79', '#4ade80', '#22c55e', '#86efac']
-    });
+    try {
+      const confetti = (await import('canvas-confetti')).default;
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: ['#2bee79', '#4ade80', '#22c55e', '#86efac']
+      });
+    } catch (error) {
+      // Confetti no disponible, continuar sin animación
+      console.log('Confetti not available');
+    }
   };
 
   // Manejar aceptar invitación
