@@ -95,10 +95,10 @@ export const MessagesProvider: React.FC<MessagesProviderProps> = ({ children }) 
   const [isOpen, setIsOpen] = useState(false);
   const [windowState, setWindowState] = useState<WindowState>("normal");
   const [windowPosition, setWindowPosition] = useState({ x: 100, y: 100 });
-  const [windowSize, setWindowSize] = useState({ width: 900, height: 650 });
+  const [windowSize, setWindowSize] = useState({ width: 500, height: 600 });
   const [savedNormalState, setSavedNormalState] = useState({ 
     position: { x: 100, y: 100 }, 
-    size: { width: 900, height: 650 } 
+    size: { width: 500, height: 600 } 
   });
   
   // Conversaciones

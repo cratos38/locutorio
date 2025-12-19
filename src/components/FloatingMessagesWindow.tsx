@@ -74,8 +74,8 @@ export default function FloatingMessagesWindow() {
       }
 
       if (isResizing && windowState === "normal") {
-        const newWidth = Math.max(800, Math.min(1600, e.clientX - windowPosition.x));
-        const newHeight = Math.max(600, Math.min(1000, e.clientY - windowPosition.y));
+        const newWidth = Math.max(450, Math.min(1600, e.clientX - windowPosition.x));
+        const newHeight = Math.max(500, Math.min(1000, e.clientY - windowPosition.y));
         
         setWindowSize({
           width: newWidth,
@@ -498,7 +498,7 @@ export default function FloatingMessagesWindow() {
         {/* Input Area (8 columns) */}
         <div className="col-span-1 lg:col-span-8 bg-forest-panel rounded-xl border border-forest-light/20 flex items-center p-2 shadow-lg order-4 lg:order-3">
           <button className="size-12 rounded-lg text-text-muted hover:text-white hover:bg-white/5 flex items-center justify-center transition-colors">
-            <span className="material-symbols-outlined">add_circle</span>
+            <span className="material-symbols-outlined">photo_camera</span>
           </button>
           <button className="size-12 rounded-lg text-text-muted hover:text-white hover:bg-white/5 flex items-center justify-center transition-colors">
             <span className="material-symbols-outlined">sentiment_satisfied</span>
