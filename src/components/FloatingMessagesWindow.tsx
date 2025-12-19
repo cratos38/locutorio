@@ -586,19 +586,19 @@ export default function FloatingMessagesWindow() {
           {/* Tab buttons CENTRO */}
           <div className="flex items-center gap-2">
             <button
-              className="px-4 py-1.5 text-[12px] font-heading font-bold text-neon-green bg-neon-green/10 rounded-md border border-neon-green/30 transition-all"
-              title="Mensajes Privados"
+              className="px-4 py-1.5 text-[12px] font-heading font-bold text-neon-green bg-neon-green/20 rounded-md border border-neon-green/50 shadow-[0_0_10px_rgba(80,250,123,0.3)] transition-all"
+              title="Mensajes Privados (Activo)"
             >
               MENSAJES PRIVADOS
             </button>
             <button
-              className="px-4 py-1.5 text-[12px] font-heading font-bold text-gray-400 hover:text-neon-green hover:bg-neon-green/10 rounded-md transition-all"
+              className="px-4 py-1.5 text-[12px] font-heading font-bold text-gray-500 bg-gray-500/5 hover:text-neon-green hover:bg-neon-green/20 hover:border-neon-green/50 hover:shadow-[0_0_10px_rgba(80,250,123,0.3)] rounded-md border border-gray-500/20 transition-all"
               title="Archivo"
             >
               ARCHIVO
             </button>
             <button
-              className="px-4 py-1.5 text-[12px] font-heading font-bold text-gray-400 hover:text-neon-green hover:bg-neon-green/10 rounded-md transition-all"
+              className="px-4 py-1.5 text-[12px] font-heading font-bold text-gray-500 bg-gray-500/5 hover:text-neon-green hover:bg-neon-green/20 hover:border-neon-green/50 hover:shadow-[0_0_10px_rgba(80,250,123,0.3)] rounded-md border border-gray-500/20 transition-all"
               title="Ajustes"
             >
               AJUSTES
