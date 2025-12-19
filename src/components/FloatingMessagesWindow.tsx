@@ -475,9 +475,11 @@ export default function FloatingMessagesWindow() {
                 setShowNotesModal(true);
               }}
               className="w-14 flex flex-col items-center justify-center gap-1 rounded-lg bg-forest-dark hover:bg-forest-dark/40 border border-forest-dark/20 hover:border-neon-green transition-all group relative">
-              {/* Badge indicator if note exists for this user */}
+              {/* Post-it sticker if note exists for this user */}
               {conversation && userNotes[conversation.id] && (
-                <div className="absolute -top-1 -right-1 size-3 bg-yellow-400 rounded-full border-2 border-forest-dark shadow-lg"></div>
+                <div className="absolute -top-1 -right-1 size-5 bg-yellow-100 border border-yellow-400 rounded shadow-md transform rotate-12 pointer-events-none">
+                  <div className="absolute -top-0.5 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-red-500 rounded-full"></div>
+                </div>
               )}
               <span className="material-symbols-outlined text-[9px] text-text-muted group-hover:text-neon-green transition-colors">
                 edit_note
