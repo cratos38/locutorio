@@ -54,6 +54,10 @@ export default function FloatingMessagesWindow() {
   const [photosModalPosition, setPhotosModalPosition] = useState({ top: 0, left: 0 });
   const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
   
+  // Add friend modal state
+  const [showAddFriendModal, setShowAddFriendModal] = useState(false);
+  const [selectedGroup, setSelectedGroup] = useState('mis-amigos');
+  
   // Demo photos (TODO: Replace with actual conversation photos)
   const demoPhotos = [
     { url: 'https://picsum.photos/400/300?random=1', x: 10, y: 15 },
@@ -457,7 +461,10 @@ export default function FloatingMessagesWindow() {
           </div>
           
           <div className="flex items-stretch gap-3 z-10 h-14">
-            <button className="w-14 flex flex-col items-center justify-center gap-1 rounded-lg bg-forest-dark hover:bg-forest-dark/40 border border-forest-dark/20 hover:border-neon-green transition-all group">
+            <button 
+              onClick={() => setShowAddFriendModal(true)}
+              className="w-14 flex flex-col items-center justify-center gap-1 rounded-lg bg-forest-dark hover:bg-forest-dark/40 border border-forest-dark/20 hover:border-neon-green transition-all group"
+            >
               <span className="material-symbols-outlined text-[9px] text-text-muted group-hover:text-neon-green transition-colors">
                 person
               </span>
@@ -1212,6 +1219,133 @@ export default function FloatingMessagesWindow() {
                   PLUS
                 </Link>
               </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add Friend Modal */}
+      {showAddFriendModal && conversation && (
+        <div 
+          className="absolute inset-0 bg-black/60 backdrop-blur-sm z-50 rounded-xl flex items-center justify-center"
+          onClick={() => setShowAddFriendModal(false)}
+        >
+          <div 
+            className="bg-forest-dark border-2 border-neon-green rounded-xl p-6 w-[90%] max-w-md shadow-[0_0_30px_rgba(80,250,123,0.3)]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center gap-4 mb-6 pb-4 border-b border-neon-green/30">
+              {/* Avatar */}
+              <div className="relative">
+                <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-neon-green/50">
+                  <img 
+                    src={conversation.avatar} 
+                    alt={conversation.name}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              </div>
+              
+              {/* Name and title */}
+              <div>
+                <h3 className="text-xl font-bold text-neon-green mb-1">
+                  Añadir amigo
+                </h3>
+                <p className="text-gray-300 text-sm">
+                  {conversation.name}
+                </p>
+              </div>
+            </div>
+
+            {/* Groups selection */}
+            <div className="mb-6">
+              <label className="block text-gray-300 text-sm font-semibold mb-3">
+                Añadir a grupo:
+              </label>
+              
+              <div className="space-y-2">
+                {/* Mis Amigos */}
+                <label className="flex items-center gap-3 p-3 rounded-lg bg-forest-light/20 hover:bg-forest-light/30 cursor-pointer transition-colors">
+                  <input
+                    type="radio"
+                    name="friend-group"
+                    value="mis-amigos"
+                    checked={selectedGroup === 'mis-amigos'}
+                    onChange={(e) => setSelectedGroup(e.target.value)}
+                    className="w-4 h-4 accent-neon-green"
+                  />
+                  <span className="text-gray-300 text-sm">Mis Amigos</span>
+                </label>
+
+                {/* Familia */}
+                <label className="flex items-center gap-3 p-3 rounded-lg bg-forest-light/20 hover:bg-forest-light/30 cursor-pointer transition-colors">
+                  <input
+                    type="radio"
+                    name="friend-group"
+                    value="familia"
+                    checked={selectedGroup === 'familia'}
+                    onChange={(e) => setSelectedGroup(e.target.value)}
+                    className="w-4 h-4 accent-neon-green"
+                  />
+                  <span className="text-gray-300 text-sm">Familia</span>
+                </label>
+
+                {/* Trabajo */}
+                <label className="flex items-center gap-3 p-3 rounded-lg bg-forest-light/20 hover:bg-forest-light/30 cursor-pointer transition-colors">
+                  <input
+                    type="radio"
+                    name="friend-group"
+                    value="trabajo"
+                    checked={selectedGroup === 'trabajo'}
+                    onChange={(e) => setSelectedGroup(e.target.value)}
+                    className="w-4 h-4 accent-neon-green"
+                  />
+                  <span className="text-gray-300 text-sm">Trabajo</span>
+                </label>
+
+                {/* Clase */}
+                <label className="flex items-center gap-3 p-3 rounded-lg bg-forest-light/20 hover:bg-forest-light/30 cursor-pointer transition-colors">
+                  <input
+                    type="radio"
+                    name="friend-group"
+                    value="clase"
+                    checked={selectedGroup === 'clase'}
+                    onChange={(e) => setSelectedGroup(e.target.value)}
+                    className="w-4 h-4 accent-neon-green"
+                  />
+                  <span className="text-gray-300 text-sm">Clase</span>
+                </label>
+              </div>
+            </div>
+
+            {/* Info message */}
+            <div className="bg-forest-light/20 rounded-lg p-3 mb-6">
+              <p className="text-xs text-gray-400 leading-relaxed">
+                <span className="material-symbols-outlined text-sm align-middle mr-1">info</span>
+                Esta persona no recibirá notificación. Podrá ver tus álbumes protegidos "solo para amigos".
+              </p>
+            </div>
+
+            {/* Action buttons */}
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowAddFriendModal(false)}
+                className="flex-1 px-4 py-2.5 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg font-medium transition-colors"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={() => {
+                  // TODO: Save friend to database
+                  console.log(`Adding ${conversation.name} to group: ${selectedGroup}`);
+                  setShowAddFriendModal(false);
+                  setSelectedGroup('mis-amigos'); // Reset
+                }}
+                className="flex-1 px-4 py-2.5 bg-neon-green hover:bg-neon-green/80 text-forest-dark rounded-lg font-bold transition-colors shadow-lg shadow-neon-green/30"
+              >
+                Añadir amigo
+              </button>
             </div>
           </div>
         </div>
