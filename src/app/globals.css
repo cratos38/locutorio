@@ -104,3 +104,37 @@ a:hover {
   transform: translateY(-4px);
   box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
 }
+
+/* Forest theme custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #2e7d32;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #50fa7b;
+}
+
+/* Forest theme custom pattern */
+.custom-pattern {
+  background-image: radial-gradient(#2e7d32 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+/* Material Symbols styling */
+.material-symbols-outlined {
+  font-variation-settings:
+  'FILL' 0,
+  'wght' 400,
+  'GRAD' 0,
+  'opsz' 24;
+}

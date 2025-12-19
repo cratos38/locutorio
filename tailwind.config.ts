@@ -22,6 +22,18 @@ const config: Config = {
         "connect-card": "#1c2720",
         "connect-border": "#28392f",
         "connect-muted": "#9db9a8",
+        // Forest theme colors (for messages window)
+        "forest-base": "#1A5319",
+        "forest-dark": "#0d2b0d",
+        "forest-panel": "#144214",
+        "forest-light": "#2e7d32",
+        "forest-accent": "#388e3c",
+        "neon-green": "#50fa7b",
+        "neon-hover": "#69ff94",
+        "text-light": "#e2e8f0",
+        "text-muted": "#86efac",
+        "bubble-sent": "#1b4d1b",
+        "bubble-received": "#2e7d32",
         // Original theme colors
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
@@ -60,6 +72,8 @@ const config: Config = {
       },
       fontFamily: {
         display: ["Spline Sans", "sans-serif"],
+        sans: ["Lato", "sans-serif"],
+        heading: ["Montserrat", "sans-serif"],
       },
     },
   },
