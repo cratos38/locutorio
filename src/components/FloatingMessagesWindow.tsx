@@ -161,6 +161,21 @@ export default function FloatingMessagesWindow() {
   const [showAddFriendModal, setShowAddFriendModal] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState('mis-amigos');
   
+  // New conversation modal state
+  const [showNewConversationModal, setShowNewConversationModal] = useState(false);
+  const [searchNick, setSearchNick] = useState('');
+  
+  // Demo saved conversations (TODO: Replace with real data)
+  const savedConversations = [
+    // Empty for now - will show when user clicks "Guardar para luego"
+  ];
+  
+  // Demo online friends (TODO: Replace with real friends data)
+  const onlineFriends = [
+    // Empty for now - will populate from "Añadir amigo" feature
+  ];
+
+  
   // Demo photos (TODO: Replace with actual conversation photos)
   const demoPhotos = [
     { url: 'https://picsum.photos/400/300?random=1', x: 10, y: 15 },
@@ -888,7 +903,10 @@ export default function FloatingMessagesWindow() {
 
         {/* New Conversation Button (4 columns) */}
         <div className="col-span-4 rounded-xl flex items-stretch order-4">
-          <button className="w-full bg-forest-dark border border-neon-green/30 rounded-xl flex items-center justify-center gap-3 text-neon-green font-heading font-bold text-[10px] hover:bg-neon-green hover:text-forest-dark transition-all shadow-lg hover:shadow-neon-green/20 group uppercase tracking-widest p-4">
+          <button 
+            onClick={() => setShowNewConversationModal(true)}
+            className="w-full bg-forest-dark border border-neon-green/30 rounded-xl flex items-center justify-center gap-3 text-neon-green font-heading font-bold text-[10px] hover:bg-neon-green hover:text-forest-dark transition-all shadow-lg hover:shadow-neon-green/20 group uppercase tracking-widest p-4"
+          >
             <span className="material-symbols-outlined text-[10px] group-hover:scale-110 transition-transform">
               add_comment
             </span>
@@ -1455,6 +1473,136 @@ export default function FloatingMessagesWindow() {
               >
                 Añadir amigo
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* New Conversation Modal */}
+      {showNewConversationModal && (
+        <div 
+          className="absolute inset-0 bg-black/60 backdrop-blur-sm z-50 rounded-xl flex items-center justify-center"
+          onClick={() => setShowNewConversationModal(false)}
+        >
+          <div 
+            className="bg-forest-dark border-2 border-neon-green rounded-xl p-6 w-[90%] max-w-2xl shadow-[0_0_30px_rgba(80,250,123,0.3)]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header with close button */}
+            <div className="flex items-center justify-between mb-6 pb-4 border-b border-neon-green/30">
+              <h3 className="text-xl font-bold text-neon-green">
+                Nueva Conversación
+              </h3>
+              <button
+                onClick={() => setShowNewConversationModal(false)}
+                className="text-gray-400 hover:text-neon-green transition-colors"
+              >
+                <span className="material-symbols-outlined text-2xl">close</span>
+              </button>
+            </div>
+
+            {/* Search by nick */}
+            <div className="mb-6">
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={searchNick}
+                  onChange={(e) => setSearchNick(e.target.value)}
+                  placeholder="Buscar por nick..."
+                  className="flex-1 px-4 py-2.5 bg-forest-light/20 border border-forest-light/30 rounded-lg text-gray-300 placeholder-text-muted/60 focus:outline-none focus:border-neon-green/50 transition-colors"
+                />
+                <button
+                  onClick={() => {
+                    if (searchNick.trim()) {
+                      console.log(`Searching for user: ${searchNick}`);
+                      // TODO: Search user and start conversation
+                      setSearchNick('');
+                      setShowNewConversationModal(false);
+                    }
+                  }}
+                  className="px-6 py-2.5 bg-neon-green hover:bg-neon-green/80 text-forest-dark rounded-lg font-bold transition-colors shadow-lg shadow-neon-green/30"
+                >
+                  Escribir RP
+                </button>
+              </div>
+            </div>
+
+            {/* Two sections: Saved conversations and Online friends */}
+            <div className="grid grid-cols-2 gap-4">
+              {/* ODLOŽENÉ ROZHOVORY (Saved conversations) */}
+              <div className="border border-forest-light/30 rounded-lg p-4">
+                <h4 className="text-gray-400 font-bold text-sm mb-3 uppercase tracking-wider">
+                  Conversaciones Guardadas ({savedConversations.length})
+                </h4>
+                {savedConversations.length === 0 ? (
+                  <div className="text-center py-8">
+                    <span className="material-symbols-outlined text-4xl text-text-muted/30 mb-2">
+                      bookmark_border
+                    </span>
+                    <p className="text-text-muted text-xs">
+                      Sin conversaciones guardadas
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {savedConversations.map((conv: any) => (
+                      <div
+                        key={conv.id}
+                        className="flex items-center gap-2 p-2 rounded-lg bg-forest-light/20 hover:bg-forest-light/30 cursor-pointer transition-colors"
+                        onClick={() => {
+                          console.log(`Opening saved conversation with ${conv.name}`);
+                          // TODO: Open saved conversation
+                          setShowNewConversationModal(false);
+                        }}
+                      >
+                        <div className="w-10 h-10 rounded-full overflow-hidden border border-neon-green/30">
+                          <img src={conv.avatar} alt={conv.name} className="w-full h-full object-cover" />
+                        </div>
+                        <span className="text-gray-300 text-sm font-medium">{conv.name}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* ONLINE PRIATELIA (Online friends) */}
+              <div className="border border-forest-light/30 rounded-lg p-4">
+                <h4 className="text-gray-400 font-bold text-sm mb-3 uppercase tracking-wider">
+                  Amigos Online ({onlineFriends.length})
+                </h4>
+                {onlineFriends.length === 0 ? (
+                  <div className="text-center py-8">
+                    <span className="material-symbols-outlined text-4xl text-text-muted/30 mb-2">
+                      person_off
+                    </span>
+                    <p className="text-text-muted text-xs">
+                      Sin amigos online
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {onlineFriends.map((friend: any) => (
+                      <div
+                        key={friend.id}
+                        className="flex items-center gap-2 p-2 rounded-lg bg-forest-light/20 hover:bg-forest-light/30 cursor-pointer transition-colors"
+                        onClick={() => {
+                          console.log(`Starting conversation with ${friend.name}`);
+                          // TODO: Start conversation with friend
+                          setShowNewConversationModal(false);
+                        }}
+                      >
+                        <div className="relative">
+                          <div className="w-10 h-10 rounded-full overflow-hidden border border-neon-green/30">
+                            <img src={friend.avatar} alt={friend.name} className="w-full h-full object-cover" />
+                          </div>
+                          <div className="absolute -top-1 -right-1 size-3 rounded-full bg-neon-green border-2 border-forest-dark"></div>
+                        </div>
+                        <span className="text-gray-300 text-sm font-medium">{friend.name}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
