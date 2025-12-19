@@ -586,19 +586,19 @@ export default function FloatingMessagesWindow() {
           {/* Tab buttons CENTRO */}
           <div className="flex items-center gap-2">
             <button
-              className="px-3 py-1 text-[9px] font-heading font-bold text-neon-green bg-neon-green/10 rounded-md border border-neon-green/30 transition-all"
+              className="px-4 py-1.5 text-[12px] font-heading font-bold text-neon-green bg-neon-green/10 rounded-md border border-neon-green/30 transition-all"
               title="Mensajes Privados"
             >
-              MP
+              MENSAJES PRIVADOS
             </button>
             <button
-              className="px-3 py-1 text-[9px] font-heading font-bold text-gray-400 hover:text-neon-green hover:bg-neon-green/10 rounded-md transition-all"
+              className="px-4 py-1.5 text-[12px] font-heading font-bold text-gray-400 hover:text-neon-green hover:bg-neon-green/10 rounded-md transition-all"
               title="Archivo"
             >
               ARCHIVO
             </button>
             <button
-              className="px-3 py-1 text-[9px] font-heading font-bold text-gray-400 hover:text-neon-green hover:bg-neon-green/10 rounded-md transition-all"
+              className="px-4 py-1.5 text-[12px] font-heading font-bold text-gray-400 hover:text-neon-green hover:bg-neon-green/10 rounded-md transition-all"
               title="Ajustes"
             >
               AJUSTES
