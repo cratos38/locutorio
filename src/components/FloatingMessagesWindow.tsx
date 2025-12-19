@@ -412,15 +412,20 @@ export default function FloatingMessagesWindow() {
                 <div className="absolute -top-1 -right-1 z-20">
                   <div className="relative group/note">
                     {/* Mini Post-it */}
-                    <div className="size-6 bg-yellow-100 border border-yellow-400 rounded shadow-lg cursor-pointer transform rotate-12 group-hover/note:rotate-0 transition-all duration-300">
-                      <div className="absolute -top-0.5 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-red-500 rounded-full border border-red-600"></div>
+                    <div className="size-7 bg-yellow-100 border border-yellow-400 rounded shadow-lg cursor-pointer transform rotate-12 group-hover/note:rotate-0 transition-all duration-300 hover:scale-110">
+                      <div className="absolute -top-0.5 left-1/2 -translate-x-1/2 w-2 h-2 bg-red-500 rounded-full border border-red-600"></div>
+                      <div className="flex items-center justify-center h-full">
+                        <span className="material-symbols-outlined text-yellow-600 text-xs">
+                          description
+                        </span>
+                      </div>
                     </div>
                     
                     {/* Expanded note on hover */}
                     <div className="absolute top-full right-0 mt-2 opacity-0 group-hover/note:opacity-100 pointer-events-none group-hover/note:pointer-events-auto transition-opacity duration-300 z-30">
-                      <div className="bg-yellow-100 border-2 border-yellow-400 rounded-lg p-3 w-40 shadow-xl transform rotate-2">
-                        <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-3 h-3 bg-red-500 rounded-full border border-red-600"></div>
-                        <p className="text-gray-800 text-xs leading-relaxed" style={{ fontFamily: 'Comic Sans MS, cursive' }}>
+                      <div className="bg-yellow-100 border-2 border-yellow-400 rounded-lg p-4 w-56 shadow-2xl transform rotate-2">
+                        <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-4 h-4 bg-red-500 rounded-full border-2 border-red-600 shadow-lg"></div>
+                        <p className="text-gray-900 text-sm font-medium leading-relaxed break-words" style={{ fontFamily: 'Comic Sans MS, cursive' }}>
                           {savedNote}
                         </p>
                       </div>
@@ -1097,7 +1102,27 @@ export default function FloatingMessagesWindow() {
                         setIsNoteSaving(false);
                         setShowNotesModal(false);
                         console.log('Note saved for', conversation.username, ':', userNote);
-                      }, 800); // Duration of animation
+                        
+                        // Play "plop" sound when note sticks to avatar
+                        const audio = new Audio();
+                        audio.volume = 0.3;
+                        // Simple "plop" sound using Web Audio API
+                        const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+                        const oscillator = audioContext.createOscillator();
+                        const gainNode = audioContext.createGain();
+                        
+                        oscillator.connect(gainNode);
+                        gainNode.connect(audioContext.destination);
+                        
+                        oscillator.frequency.value = 200;
+                        oscillator.type = 'sine';
+                        
+                        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
+                        
+                        oscillator.start(audioContext.currentTime);
+                        oscillator.stop(audioContext.currentTime + 0.15);
+                      }, 1500); // Duration of animation (1.5 seconds)
                     }}
                     disabled={!userNote.trim()}
                     className="flex-1 px-2 py-1 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-heading font-bold text-xs rounded transition-all"
@@ -1113,21 +1138,32 @@ export default function FloatingMessagesWindow() {
 
       {/* Flying note animation */}
       {isNoteSaving && (
-        <div
-          className="absolute z-[60] pointer-events-none transition-all duration-700 ease-out"
-          style={{
-            top: `${notesModalPosition.top}px`,
-            left: `${notesModalPosition.left}px`,
-            transform: `translate(${flyingNotePosition.x - notesModalPosition.left}px, ${flyingNotePosition.y - notesModalPosition.top}px) scale(0.3) rotate(720deg)`,
-          }}
-        >
-          <div className="bg-yellow-100 border-2 border-yellow-400 rounded-lg p-3 w-40 shadow-2xl">
-            <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-3 h-3 bg-red-500 rounded-full border border-red-600"></div>
-            <p className="text-gray-800 text-xs leading-relaxed truncate" style={{ fontFamily: 'Comic Sans MS, cursive' }}>
-              {userNote}
-            </p>
+        <>
+          <style>{`
+            @keyframes squish {
+              0% { transform: translate(${flyingNotePosition.x - notesModalPosition.left}px, ${flyingNotePosition.y - notesModalPosition.top}px) scale(0.3) rotate(720deg); }
+              50% { transform: translate(${flyingNotePosition.x - notesModalPosition.left}px, ${flyingNotePosition.y - notesModalPosition.top}px) scale(0.4, 0.2) rotate(720deg); }
+              100% { transform: translate(${flyingNotePosition.x - notesModalPosition.left}px, ${flyingNotePosition.y - notesModalPosition.top}px) scale(0.3) rotate(720deg); }
+            }
+          `}</style>
+          <div
+            className="absolute z-[60] pointer-events-none"
+            style={{
+              top: `${notesModalPosition.top}px`,
+              left: `${notesModalPosition.left}px`,
+              transform: `translate(${flyingNotePosition.x - notesModalPosition.left}px, ${flyingNotePosition.y - notesModalPosition.top}px) scale(0.3) rotate(720deg)`,
+              transition: 'transform 1.5s cubic-bezier(0.34, 1.56, 0.64, 1)', // Bounce effect
+              animation: 'squish 0.2s ease-out 1.3s', // Squish at the end
+            }}
+          >
+            <div className="bg-yellow-100 border-2 border-yellow-400 rounded-lg p-3 w-40 shadow-2xl">
+              <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-3 h-3 bg-red-500 rounded-full border border-red-600"></div>
+              <p className="text-gray-800 text-xs leading-relaxed" style={{ fontFamily: 'Comic Sans MS, cursive' }}>
+                {userNote}
+              </p>
+            </div>
           </div>
-        </div>
+        </>
       )}
     </div>
   );
