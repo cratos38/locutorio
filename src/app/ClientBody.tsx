@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect } from "react";
+import { MessagesProvider } from "@/contexts/MessagesContext";
+import FloatingMessagesWindow from "@/components/FloatingMessagesWindow";
 
 export default function ClientBody({
   children,
@@ -13,5 +15,12 @@ export default function ClientBody({
     document.body.className = "antialiased";
   }, []);
 
-  return <div className="antialiased">{children}</div>;
+  return (
+    <MessagesProvider>
+      <div className="antialiased">
+        {children}
+        <FloatingMessagesWindow />
+      </div>
+    </MessagesProvider>
+  );
 }

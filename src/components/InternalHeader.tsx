@@ -5,11 +5,13 @@ import { Button } from "@/components/ui/button";
 import NotificationBell from "./NotificationBell";
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { useMessages } from "@/contexts/MessagesContext";
 
 export default function InternalHeader() {
   const [showMenu, setShowMenu] = useState(false);
   const router = useRouter();
   const menuRef = useRef<HTMLDivElement>(null);
+  const { openMessages, getUnreadCount } = useMessages();
 
   const handleLogout = () => {
     // Aquí iría la lógica de logout (limpiar sesión, tokens, etc.)
@@ -63,9 +65,17 @@ export default function InternalHeader() {
             <Link href="/personas" className="px-4 py-2 text-sm font-medium text-white hover:text-primary hover:bg-white/5 rounded-lg transition-colors">
               Personas
             </Link>
-            <Link href="/mensajes" className="px-4 py-2 text-sm font-medium text-white hover:text-primary hover:bg-white/5 rounded-lg transition-colors">
+            <button 
+              onClick={() => openMessages()} 
+              className="px-4 py-2 text-sm font-medium text-white hover:text-primary hover:bg-white/5 rounded-lg transition-colors relative"
+            >
               Mensajes
-            </Link>
+              {getUnreadCount() > 0 && (
+                <span className="absolute -top-1 -right-1 bg-primary text-connect-bg-dark text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                  {getUnreadCount()}
+                </span>
+              )}
+            </button>
             <Link href="/chat" className="px-4 py-2 text-sm font-medium text-white hover:text-primary hover:bg-white/5 rounded-lg transition-colors">
               Chat
             </Link>
