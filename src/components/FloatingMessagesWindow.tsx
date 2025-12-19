@@ -458,9 +458,9 @@ export default function FloatingMessagesWindow() {
                       }`}
                       style={{ backgroundImage: `url('${conv.avatar}')` }}
                     ></div>
-                    {/* Status indicator: online=cyan, away=orange, offline=gray */}
+                    {/* Status indicator: online=neon-green, away=orange, offline=gray */}
                     {conv.status === "online" && (
-                      <div className="absolute -top-1 -right-1 size-2 rounded-full bg-cyan-400 border-2 border-forest-base shadow-[0_0_6px_rgba(34,211,238,0.5)]"></div>
+                      <div className="absolute -top-1 -right-1 size-2 rounded-full bg-neon-green border-2 border-forest-base shadow-[0_0_6px_rgba(80,250,123,0.5)]"></div>
                     )}
                     {conv.status === "away" && (
                       <div className="absolute -top-1 -right-1 size-2 rounded-full bg-orange-400 border-2 border-forest-base shadow-[0_0_6px_rgba(251,146,60,0.5)]"></div>
