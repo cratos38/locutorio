@@ -21,7 +21,7 @@ export type Conversation = {
   lastMessage: string;
   lastMessageTime: string;
   unreadCount: number;
-  online: boolean;
+  status: "online" | "away" | "offline"; // online = cyan, away = orange, offline = gray
   messages: Message[];
   isBlocked?: boolean;
   notes?: string;
@@ -136,10 +136,40 @@ export const MessagesProvider: React.FC<MessagesProviderProps> = ({ children }) 
             lastMessage: "Hola, ¿cómo estás?",
             lastMessageTime: "12:30",
             unreadCount: 2,
-            online: true,
+            status: "online", // cyan dot
             messages: [
               { id: 1, text: "Hola Ana! ¿Cómo estás?", time: "10:15", isOwn: false, read: true, delivered: true },
               { id: 2, text: "¡Hola Javier! Todo bien, ¿y tú?", time: "10:17", isOwn: true, read: true, delivered: true },
+            ]
+          },
+          {
+            id: 2,
+            userId: 2,
+            username: "laura_g",
+            name: "Laura García",
+            avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&h=200&fit=crop",
+            lastMessage: "Nos vemos luego",
+            lastMessageTime: "11:45",
+            unreadCount: 0,
+            status: "away", // orange dot - ausente
+            messages: [
+              { id: 1, text: "¿Nos vemos hoy?", time: "11:30", isOwn: true, read: true, delivered: true },
+              { id: 2, text: "Nos vemos luego", time: "11:45", isOwn: false, read: true, delivered: true },
+            ]
+          },
+          {
+            id: 3,
+            userId: 3,
+            username: "carlos_m",
+            name: "Carlos Martínez",
+            avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop",
+            lastMessage: "Hasta mañana",
+            lastMessageTime: "Ayer",
+            unreadCount: 0,
+            status: "offline", // gray dot - desconectado
+            messages: [
+              { id: 1, text: "Gracias por todo", time: "20:15", isOwn: false, read: true, delivered: true },
+              { id: 2, text: "De nada! Hasta mañana", time: "20:17", isOwn: true, read: true, delivered: true },
             ]
           }
         ];

@@ -229,9 +229,20 @@ export default function FloatingMessagesWindow() {
                 className="size-12 rounded-lg bg-forest-dark border-2 border-forest-panel shadow-2xl bg-center bg-cover"
                 style={{ backgroundImage: `url('${conversation.avatar}')` }}
               ></div>
-              {conversation.online && (
+              {/* Status indicator: online=cyan, away=orange, offline=gray */}
+              {conversation.status === "online" && (
                 <div className="absolute -bottom-1 -right-1">
                   <span className="block size-2.5 bg-cyan-400 rounded-full border-2 border-forest-dark shadow-[0_0_8px_rgba(34,211,238,0.6)]"></span>
+                </div>
+              )}
+              {conversation.status === "away" && (
+                <div className="absolute -bottom-1 -right-1">
+                  <span className="block size-2.5 bg-orange-400 rounded-full border-2 border-forest-dark shadow-[0_0_8px_rgba(251,146,60,0.6)]"></span>
+                </div>
+              )}
+              {conversation.status === "offline" && (
+                <div className="absolute -bottom-1 -right-1">
+                  <span className="block size-2.5 bg-gray-400 rounded-full border-2 border-forest-dark"></span>
                 </div>
               )}
             </div>
@@ -441,14 +452,21 @@ export default function FloatingMessagesWindow() {
                   <div className="relative shrink-0">
                     <div
                       className={`size-12 rounded-full bg-forest-dark border bg-center bg-cover ${
-                        conv.online
+                        conv.status === "online"
                           ? "border-forest-light"
                           : "border-forest-light/30 grayscale opacity-80"
                       }`}
                       style={{ backgroundImage: `url('${conv.avatar}')` }}
                     ></div>
-                    {conv.online && (
+                    {/* Status indicator: online=cyan, away=orange, offline=gray */}
+                    {conv.status === "online" && (
                       <div className="absolute -top-1 -right-1 size-2 rounded-full bg-cyan-400 border-2 border-forest-base shadow-[0_0_6px_rgba(34,211,238,0.5)]"></div>
+                    )}
+                    {conv.status === "away" && (
+                      <div className="absolute -top-1 -right-1 size-2 rounded-full bg-orange-400 border-2 border-forest-base shadow-[0_0_6px_rgba(251,146,60,0.5)]"></div>
+                    )}
+                    {conv.status === "offline" && (
+                      <div className="absolute -top-1 -right-1 size-2 rounded-full bg-gray-400 border-2 border-forest-base"></div>
                     )}
                     {!conv.online && conv.unreadCount > 0 && (
                       <div className="absolute -top-1 -right-1 size-3.5 rounded-full bg-orange-400 border-2 border-forest-panel"></div>
