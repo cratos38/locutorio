@@ -48,11 +48,17 @@ export default function FloatingMessagesWindow() {
   const [notesModalTimer, setNotesModalTimer] = useState<NodeJS.Timeout | null>(null);
   const [notesModalPosition, setNotesModalPosition] = useState({ top: 0, left: 0 });
   
+  // Photos modal state
+  const [showPhotosModal, setShowPhotosModal] = useState(false);
+  const [photosModalTimer, setPhotosModalTimer] = useState<NodeJS.Timeout | null>(null);
+  const [photosModalPosition, setPhotosModalPosition] = useState({ top: 0, left: 0 });
+  
   const [isResizing, setIsResizing] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const windowRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const notesButtonRef = useRef<HTMLButtonElement>(null);
+  const photosButtonRef = useRef<HTMLButtonElement>(null);
 
   // Get current conversation
   const conversation = conversations.find((c) => c.id === currentConversation);
@@ -451,7 +457,28 @@ export default function FloatingMessagesWindow() {
                 Amigos
               </span>
             </button>
-            <button className="w-14 flex flex-col items-center justify-center gap-1 rounded-lg bg-forest-dark hover:bg-forest-dark/40 border border-forest-dark/20 hover:border-neon-green transition-all group">
+            <button 
+              ref={photosButtonRef}
+              onClick={() => {
+                if (hasPlus) {
+                  // With PLUS: show fullscreen gallery
+                  setShowPhotosModal(true);
+                } else {
+                  // Without PLUS: show bubble below button
+                  if (photosButtonRef.current) {
+                    const rect = photosButtonRef.current.getBoundingClientRect();
+                    const windowRect = windowRef.current?.getBoundingClientRect();
+                    if (windowRect) {
+                      setPhotosModalPosition({
+                        top: rect.bottom - windowRect.top + 10,
+                        left: rect.left - windowRect.left + rect.width / 2,
+                      });
+                    }
+                  }
+                  setShowPhotosModal(true);
+                }
+              }}
+              className="w-14 flex flex-col items-center justify-center gap-1 rounded-lg bg-forest-dark hover:bg-forest-dark/40 border border-forest-dark/20 hover:border-neon-green transition-all group">
               <span className="material-symbols-outlined text-[9px] text-text-muted group-hover:text-neon-green transition-colors">
                 photo_library
               </span>
@@ -1073,6 +1100,108 @@ export default function FloatingMessagesWindow() {
             )}
           </div>
         </div>
+      )}
+
+      {/* Photos Modal */}
+      {showPhotosModal && conversation && (
+        <>
+          {hasPlus ? (
+            // WITH PLUS: Fullscreen overlay with photo gallery
+            <div className="absolute inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 rounded-xl">
+              <div className="bg-connect-bg-dark border-2 border-neon-green/30 rounded-xl p-6 w-[90%] max-w-3xl max-h-[80%] shadow-[0_0_40px_rgba(80,250,123,0.3)] flex flex-col">
+                {/* Header */}
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-3">
+                    <span className="material-symbols-outlined text-3xl text-neon-green">
+                      photo_library
+                    </span>
+                    <div>
+                      <h3 className="font-heading font-bold text-lg text-gray-100">
+                        Fotos compartidas
+                      </h3>
+                      <p className="text-sm text-text-muted">
+                        Con <span className="text-neon-green">{conversation.username}</span>
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setShowPhotosModal(false)}
+                    className="text-gray-400 hover:text-gray-200 transition-colors"
+                  >
+                    <span className="material-symbols-outlined text-3xl">close</span>
+                  </button>
+                </div>
+
+                {/* Photo grid or empty state */}
+                <div className="flex-1 overflow-y-auto">
+                  {/* TODO: Replace with actual photos */}
+                  <div className="flex items-center justify-center h-full">
+                    <div className="text-center">
+                      <span className="material-symbols-outlined text-6xl text-text-muted mb-4 block">
+                        photo_library
+                      </span>
+                      <h4 className="font-heading font-bold text-base text-gray-300 mb-2">
+                        No han intercambiado fotos aún
+                      </h4>
+                      <p className="text-text-muted text-sm">
+                        Las fotos que envíes y recibas aparecerán aquí
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            // WITHOUT PLUS: Small bubble below button
+            <div
+              className="absolute z-50 pointer-events-none"
+              style={{
+                top: `${photosModalPosition.top}px`,
+                left: `${photosModalPosition.left}px`,
+                transform: 'translateX(-50%)',
+              }}
+              onMouseLeave={() => {
+                const timer = setTimeout(() => {
+                  setShowPhotosModal(false);
+                }, 800);
+                setPhotosModalTimer(timer);
+              }}
+              onMouseEnter={() => {
+                if (photosModalTimer) {
+                  clearTimeout(photosModalTimer);
+                  setPhotosModalTimer(null);
+                }
+              }}
+            >
+              <div className="bg-connect-bg-dark border-2 border-blue-500/30 rounded-xl p-3 w-40 shadow-[0_0_40px_rgba(59,130,246,0.3)] pointer-events-auto">
+                <div className="flex items-center gap-1 mb-2">
+                  <span className="material-symbols-outlined text-lg text-blue-500">
+                    photo_library
+                  </span>
+                  <h3 className="font-heading font-bold text-xs text-gray-100">
+                    Fotos compartidas
+                  </h3>
+                </div>
+
+                <div className="text-center py-2">
+                  <p className="text-gray-300 text-xs leading-relaxed mb-1">
+                    Para ver fotos intercambiadas con esta persona, activa{" "}
+                    <Link
+                      href="/connect/tutorial/la-cuenta#section-9"
+                      onClick={() => {
+                        setShowPhotosModal(false);
+                        closeMessages();
+                      }}
+                      className="font-bold text-blue-500 hover:text-blue-400 underline transition-colors cursor-pointer"
+                    >
+                      PLUS
+                    </Link>
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+        </>
       )}
 
     </div>
