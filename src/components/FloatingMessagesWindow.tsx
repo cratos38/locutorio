@@ -44,6 +44,7 @@ export default function FloatingMessagesWindow() {
   const [showNotesModal, setShowNotesModal] = useState(false);
   const [userNote, setUserNote] = useState("");
   const [hasPlus, setHasPlus] = useState(false); // TODO: Connect to real user subscription
+  const [notesModalTimer, setNotesModalTimer] = useState<NodeJS.Timeout | null>(null);
   
   const [isResizing, setIsResizing] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
@@ -944,82 +945,76 @@ export default function FloatingMessagesWindow() {
 
       {/* Notes Modal */}
       {showNotesModal && conversation && (
-        <div className="absolute inset-0 flex items-center justify-center z-50 rounded-xl pointer-events-none">
-          <div className="bg-connect-bg-dark border-2 border-blue-500/30 rounded-xl p-5 w-80 shadow-[0_0_40px_rgba(59,130,246,0.3)] pointer-events-auto">
+        <div 
+          className="absolute inset-0 flex items-center justify-center z-50 rounded-xl pointer-events-none"
+          onMouseLeave={() => {
+            // Auto-close with delay when mouse leaves
+            const timer = setTimeout(() => {
+              setShowNotesModal(false);
+            }, 800);
+            setNotesModalTimer(timer);
+          }}
+          onMouseEnter={() => {
+            // Cancel auto-close if mouse re-enters
+            if (notesModalTimer) {
+              clearTimeout(notesModalTimer);
+              setNotesModalTimer(null);
+            }
+          }}
+        >
+          <div className="bg-connect-bg-dark border-2 border-blue-500/30 rounded-xl p-3 w-40 shadow-[0_0_40px_rgba(59,130,246,0.3)] pointer-events-auto">
             {/* Header */}
-            <div className="flex items-center gap-2 mb-4">
-              <span className="material-symbols-outlined text-2xl text-blue-500">
+            <div className="flex items-center gap-1 mb-2">
+              <span className="material-symbols-outlined text-lg text-blue-500">
                 edit_note
               </span>
-              <div>
-                <h3 className="font-heading font-bold text-sm text-gray-100">
-                  Tus anotaciones para perfiles
-                </h3>
-              </div>
+              <h3 className="font-heading font-bold text-xs text-gray-100">
+                Tus anotaciones
+              </h3>
             </div>
 
             {/* Content based on PLUS status */}
             {!hasPlus ? (
               // User WITHOUT PLUS
-              <div className="text-center py-4">
-                <div className="mb-4">
-                  <p className="text-gray-300 text-sm leading-relaxed mb-1">
-                    Para que puedas poner anotación para esta persona,
-                  </p>
-                  <p className="text-gray-300 text-sm leading-relaxed">
-                    tienes que activar <span className="font-bold text-blue-500">PLUS</span>
-                  </p>
-                </div>
-                
-                <a
-                  href="/connect/tutorial"
-                  onClick={() => setShowNotesModal(false)}
-                  className="inline-flex items-center gap-2 px-5 py-2 bg-blue-500 hover:bg-blue-600 text-white font-heading font-bold text-sm rounded-lg transition-all shadow-lg"
-                >
-                  Activar PLUS
-                  <span className="material-symbols-outlined text-lg">
-                    arrow_forward
-                  </span>
-                </a>
-                
-                <button
-                  onClick={() => setShowNotesModal(false)}
-                  className="mt-3 text-xs text-gray-400 hover:text-gray-200 transition-colors"
-                >
-                  Cerrar
-                </button>
+              <div className="text-center py-2">
+                <p className="text-gray-300 text-xs leading-relaxed mb-1">
+                  Para anotar sobre esta persona, activa{" "}
+                  <a
+                    href="/connect/tutorial/la-cuenta#section-9"
+                    onClick={() => setShowNotesModal(false)}
+                    className="font-bold text-blue-500 hover:text-blue-400 underline transition-colors"
+                  >
+                    PLUS
+                  </a>
+                </p>
               </div>
             ) : (
-              // User WITH PLUS - Post-it style note
+              // User WITH PLUS - Post-it style note (compact)
               <div>
-                <div className="relative mb-4">
+                <div className="relative mb-2">
                   {/* Post-it note */}
-                  <div className="bg-yellow-100 border-t-4 border-yellow-400 rounded-lg p-3 shadow-lg transform rotate-1 hover:rotate-0 transition-transform">
+                  <div className="bg-yellow-100 border-t-2 border-yellow-400 rounded p-2 shadow-lg transform rotate-1 hover:rotate-0 transition-transform">
                     <textarea
                       value={userNote}
                       onChange={(e) => setUserNote(e.target.value)}
-                      placeholder="Escribe tu nota aquí..."
-                      className="w-full h-24 bg-transparent text-gray-800 placeholder:text-gray-500 text-sm resize-none focus:outline-none"
+                      placeholder="Nota..."
+                      className="w-full h-16 bg-transparent text-gray-800 placeholder:text-gray-500 text-xs resize-none focus:outline-none"
                       style={{ fontFamily: 'Comic Sans MS, cursive' }}
                     />
                   </div>
                   
                   {/* Pin effect */}
-                  <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-5 h-5 bg-red-500 rounded-full shadow-lg border-2 border-red-600"></div>
+                  <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-3 h-3 bg-red-500 rounded-full shadow-lg border border-red-600"></div>
                 </div>
 
-                <p className="text-xs text-text-muted text-center mb-4">
-                  💡 Esta nota solo la ves tú. Al pasar el ratón sobre el avatar se agrandará.
-                </p>
-
                 {/* Action buttons */}
-                <div className="flex gap-2">
+                <div className="flex gap-1">
                   <button
                     onClick={() => {
                       setShowNotesModal(false);
                       setUserNote("");
                     }}
-                    className="flex-1 px-3 py-2 bg-forest-dark/50 hover:bg-forest-dark text-gray-300 font-heading font-bold text-sm rounded-lg transition-all border border-forest-dark/50"
+                    className="flex-1 px-2 py-1 bg-forest-dark/50 hover:bg-forest-dark text-gray-300 font-heading font-bold text-xs rounded transition-all border border-forest-dark/50"
                   >
                     Cancelar
                   </button>
@@ -1028,9 +1023,8 @@ export default function FloatingMessagesWindow() {
                       // TODO: Save note to database
                       console.log('Note saved for', conversation.username, ':', userNote);
                       setShowNotesModal(false);
-                      // Show success message
                     }}
-                    className="flex-1 px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white font-heading font-bold text-sm rounded-lg transition-all"
+                    className="flex-1 px-2 py-1 bg-blue-500 hover:bg-blue-600 text-white font-heading font-bold text-xs rounded transition-all"
                   >
                     Guardar
                   </button>
