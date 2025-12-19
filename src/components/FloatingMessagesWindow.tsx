@@ -16,6 +16,7 @@ export default function FloatingMessagesWindow() {
     conversations,
     currentConversation,
     typingUsers,
+    settings,
     closeMessages,
     minimizeMessages,
     maximizeMessages,
@@ -24,6 +25,7 @@ export default function FloatingMessagesWindow() {
     setWindowSize,
     selectConversation,
     sendMessage,
+    updateSettings,
   } = useMessages();
 
   const [activeView, setActiveView] = useState<ActiveViewType>("mensajes");
@@ -267,17 +269,88 @@ export default function FloatingMessagesWindow() {
     // AJUSTES view
     if (activeView === "ajustes") {
       return (
-        <div className="h-full flex items-center justify-center bg-connect-bg-dark rounded-xl border border-forest-dark/20">
-          <div className="text-center">
-            <span className="material-symbols-outlined text-6xl text-text-muted mb-4 block">
+        <div className="h-full flex flex-col gap-4 p-6 bg-connect-bg-dark rounded-xl border border-forest-dark/30">
+          <div className="text-center mb-6">
+            <span className="material-symbols-outlined text-5xl text-neon-green mb-3 block">
               settings
             </span>
-            <h3 className="font-heading font-bold text-sm text-gray-300 mb-2">
-              Ajustes
-            </h3>
+            <h2 className="font-heading font-bold text-xl text-gray-300 mb-2">
+              Ajustes de Mensajes
+            </h2>
             <p className="text-text-muted text-sm">
-              Configuración de mensajes privados
+              Configura tu experiencia de mensajería
             </p>
+          </div>
+
+          {/* Setting 1: Sound */}
+          <div className="bg-forest-dark/50 rounded-lg p-6 border border-forest-dark/50">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-3">
+                <span className="material-symbols-outlined text-neon-green text-2xl">
+                  volume_up
+                </span>
+                <div>
+                  <h3 className="font-heading font-bold text-gray-300 text-base mb-1">
+                    Sonido de mensaje nuevo
+                  </h3>
+                  <p className="text-text-muted text-sm">
+                    Reproducir un sonido suave (ding-dong) cuando recibes un mensaje nuevo
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => updateSettings({ sound: !settings.sound })}
+                className={`relative w-14 h-8 rounded-full transition-all ${
+                  settings.sound
+                    ? "bg-neon-green"
+                    : "bg-gray-600"
+                }`}
+              >
+                <div
+                  className={`absolute top-1 w-6 h-6 bg-white rounded-full shadow-md transition-transform ${
+                    settings.sound ? "translate-x-7" : "translate-x-1"
+                  }`}
+                ></div>
+              </button>
+            </div>
+          </div>
+
+          {/* Setting 2: Auto-open */}
+          <div className="bg-forest-dark/50 rounded-lg p-6 border border-forest-dark/50">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-3">
+                <span className="material-symbols-outlined text-neon-green text-2xl">
+                  open_in_new
+                </span>
+                <div>
+                  <h3 className="font-heading font-bold text-gray-300 text-base mb-1">
+                    Abrir ventana automáticamente
+                  </h3>
+                  <p className="text-text-muted text-sm">
+                    La ventana de mensajes se abrirá automáticamente al recibir un nuevo mensaje
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => updateSettings({ autoOpen: !settings.autoOpen })}
+                className={`relative w-14 h-8 rounded-full transition-all ${
+                  settings.autoOpen
+                    ? "bg-neon-green"
+                    : "bg-gray-600"
+                }`}
+              >
+                <div
+                  className={`absolute top-1 w-6 h-6 bg-white rounded-full shadow-md transition-transform ${
+                    settings.autoOpen ? "translate-x-7" : "translate-x-1"
+                  }`}
+                ></div>
+              </button>
+            </div>
+          </div>
+
+          {/* Status info */}
+          <div className="mt-auto text-center text-text-muted text-sm">
+            <p>Los cambios se guardan automáticamente</p>
           </div>
         </div>
       );
