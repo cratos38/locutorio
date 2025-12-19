@@ -1,7 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: false,
-  allowedDevOrigins: ["*.preview.same-app.com"],
+  allowedDevOrigins: [
+    "*.preview.same-app.com",
+    "*.sandbox.novita.ai"
+  ],
   images: {
     unoptimized: true,
     domains: [

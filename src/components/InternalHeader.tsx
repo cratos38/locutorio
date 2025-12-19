@@ -40,11 +40,11 @@ export default function InternalHeader() {
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <Link
-            href="/inicio"
+            href="/connect"
             className="flex items-center gap-2 hover:opacity-80 transition-opacity"
             onClick={(e) => {
               e.preventDefault();
-              router.push("/inicio");
+              router.push("/connect");
             }}
           >
             <div className="size-8 text-primary bg-primary/20 rounded-full flex items-center justify-center">

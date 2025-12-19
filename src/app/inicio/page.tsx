@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import InternalHeader from "@/components/InternalHeader";
-import confetti from "canvas-confetti";
 
 type CoffeeUser = {
   id: number;
@@ -44,7 +43,8 @@ export default function InicioPage() {
   };
 
   // Animación de confetti
-  const triggerConfetti = () => {
+  const triggerConfetti = async () => {
+    const confetti = (await import('canvas-confetti')).default;
     confetti({
       particleCount: 100,
       spread: 70,

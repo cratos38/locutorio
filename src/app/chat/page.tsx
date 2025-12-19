@@ -311,7 +311,8 @@ export default function ChatRoomsPage() {
                     if (user) {
                       if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
                       setHoveredUser(user.id);
-                      setHoveredPosition({ x: e.clientX, y: e.clientY });
+                      const rect = e.currentTarget.getBoundingClientRect();
+                      setHoveredPosition({ x: rect.right + 10, y: rect.top });
                     }
                   }}
                   onMouseLeave={() => {
@@ -521,7 +522,7 @@ export default function ChatRoomsPage() {
 
                 {showEmojiPicker && (
                   <div
-                    className="absolute bottom-full right-0 mb-2 bg-connect-card border border-connect-border rounded-xl shadow-xl p-4 grid grid-cols-7 gap-3"
+                    className="absolute bottom-full right-0 mb-2 bg-connect-card border border-connect-border rounded-xl shadow-xl p-6 grid grid-cols-7 gap-4 w-[380px]"
                     onMouseEnter={() => setShowEmojiPicker(true)}
                     onMouseLeave={() => setShowEmojiPicker(false)}
                   >
@@ -532,7 +533,7 @@ export default function ChatRoomsPage() {
                           setMessageText(messageText + emoji);
                           setShowEmojiPicker(false);
                         }}
-                        className="text-2xl hover:scale-125 transition-transform p-2 hover:bg-white/10 rounded"
+                        className="text-3xl hover:scale-125 transition-transform p-3 hover:bg-white/10 rounded"
                       >
                         {emoji}
                       </button>
@@ -778,7 +779,7 @@ export default function ChatRoomsPage() {
         <div
           className="fixed z-50 bg-connect-card border-2 border-primary rounded-xl shadow-2xl p-3 w-64"
           style={{
-            right: '340px',
+            left: `${hoveredPosition.x}px`,
             top: `${Math.min(Math.max(hoveredPosition.y, 100), window.innerHeight - 250)}px`,
             pointerEvents: 'auto'
           }}
