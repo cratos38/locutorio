@@ -571,6 +571,7 @@ export default function FloatingMessagesWindow() {
         onMouseDown={handleMouseDown}
       >
         <div className="flex items-center justify-between">
+          {/* Logo izquierda */}
           <div className="flex items-center gap-3">
             <div className="size-5 text-neon-green bg-neon-green/20 rounded-full flex items-center justify-center flex-shrink-0">
               <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
@@ -582,31 +583,30 @@ export default function FloatingMessagesWindow() {
             </h2>
           </div>
 
+          {/* Tab buttons CENTRO */}
           <div className="flex items-center gap-2">
-            {/* Tab buttons: MP/Archivo/Ajustes */}
             <button
-              className="text-neon-green hover:text-white transition-colors p-1"
+              className="px-3 py-1 text-[9px] font-heading font-bold text-neon-green bg-neon-green/10 rounded-md border border-neon-green/30 transition-all"
               title="Mensajes Privados"
             >
-              <span className="material-symbols-outlined text-[18px]">chat</span>
+              MP
             </button>
             <button
-              className="text-text-muted hover:text-gray-300 transition-colors p-1"
+              className="px-3 py-1 text-[9px] font-heading font-bold text-gray-400 hover:text-neon-green hover:bg-neon-green/10 rounded-md transition-all"
               title="Archivo"
             >
-              <span className="material-symbols-outlined text-[18px]">inventory_2</span>
+              ARCHIVO
             </button>
             <button
-              className="text-text-muted hover:text-gray-300 transition-colors p-1"
+              className="px-3 py-1 text-[9px] font-heading font-bold text-gray-400 hover:text-neon-green hover:bg-neon-green/10 rounded-md transition-all"
               title="Ajustes"
             >
-              <span className="material-symbols-outlined text-[18px]">settings</span>
+              AJUSTES
             </button>
-            
-            {/* Separator */}
-            <div className="w-px h-4 bg-forest-dark/50"></div>
-            
-            {/* Window controls */}
+          </div>
+
+          {/* Window controls derecha */}
+          <div className="flex items-center gap-2">
             <button
               onClick={(e) => {
                 e.stopPropagation();
