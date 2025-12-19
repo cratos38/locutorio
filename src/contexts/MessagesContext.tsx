@@ -122,7 +122,21 @@ export const MessagesProvider: React.FC<MessagesProviderProps> = ({ children }) 
       const savedSettings = localStorage.getItem('messagesSettings');
       const savedWindowState = localStorage.getItem('messagesWindowState');
       
+      // Check if we need to migrate old data format (online: boolean → status: string)
+      let needsMigration = false;
       if (savedConversations) {
+        try {
+          const parsed = JSON.parse(savedConversations);
+          if (parsed.length > 0 && 'online' in parsed[0]) {
+            needsMigration = true;
+            console.log('Migrating old conversation data format...');
+          }
+        } catch (e) {
+          needsMigration = true;
+        }
+      }
+      
+      if (savedConversations && !needsMigration) {
         setConversations(JSON.parse(savedConversations));
       } else {
         // Datos iniciales de ejemplo
