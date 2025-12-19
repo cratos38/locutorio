@@ -1113,7 +1113,7 @@ export default function FloatingMessagesWindow() {
       {/* Photos Modal */}
       {showPhotosModal && conversation && hasPlus && (
         <div 
-          className="absolute inset-0 bg-black/90 backdrop-blur-md z-50 rounded-xl cursor-pointer"
+          className="absolute inset-0 bg-black/60 backdrop-blur-sm z-50 rounded-xl cursor-pointer"
           onClick={() => {
             setSelectedPhoto(null);
             setShowPhotosModal(false);
@@ -1144,12 +1144,13 @@ export default function FloatingMessagesWindow() {
                   key={index}
                   src={photo.url}
                   alt={`Foto ${index + 1}`}
-                  className="absolute w-32 h-32 object-cover rounded-lg shadow-2xl cursor-pointer hover:scale-110 hover:z-10 transition-all border-2 border-white/20"
+                  className="absolute w-32 h-32 object-cover rounded-lg cursor-pointer hover:scale-110 hover:z-10 transition-all border-2 border-white/20"
                   style={{
                     top: `${photo.y}%`,
                     left: `${photo.x}%`,
                     animation: `float ${3 + index * 0.5}s ease-in-out infinite`,
                     animationDelay: `${index * 0.2}s`,
+                    boxShadow: '0 8px 32px rgba(80, 250, 123, 0.4), 0 4px 16px rgba(80, 250, 123, 0.3)',
                   }}
                   onClick={(e) => {
                     e.stopPropagation();
