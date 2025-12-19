@@ -44,15 +44,19 @@ export default function FloatingMessagesWindow() {
   // Notes modal state
   const [showNotesModal, setShowNotesModal] = useState(false);
   const [userNote, setUserNote] = useState("");
+  const [savedNote, setSavedNote] = useState(""); // The saved note to display on avatar
   const [hasPlus, setHasPlus] = useState(true); // TODO: Connect to real user subscription (temporarily true for testing)
   const [notesModalTimer, setNotesModalTimer] = useState<NodeJS.Timeout | null>(null);
   const [notesModalPosition, setNotesModalPosition] = useState({ top: 0, left: 0 });
+  const [isNoteSaving, setIsNoteSaving] = useState(false); // Animation state
+  const [flyingNotePosition, setFlyingNotePosition] = useState({ x: 0, y: 0 });
   
   const [isResizing, setIsResizing] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const windowRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const notesButtonRef = useRef<HTMLButtonElement>(null);
+  const avatarRef = useRef<HTMLDivElement>(null);
 
   // Get current conversation
   const conversation = conversations.find((c) => c.id === currentConversation);
@@ -396,11 +400,35 @@ export default function FloatingMessagesWindow() {
           <div className="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-neon-green/5 to-transparent pointer-events-none"></div>
           
           <div className="flex items-center gap-3 z-10">
-            <div className="relative">
+            <div className="relative group/avatar">
               <div
+                ref={avatarRef}
                 className="size-12 rounded-lg bg-connect-bg-dark border-2 border-forest-dark shadow-2xl bg-center bg-cover"
                 style={{ backgroundImage: `url('${conversation.avatar}')` }}
               ></div>
+              
+              {/* Saved note sticker on avatar */}
+              {savedNote && (
+                <div className="absolute -top-1 -right-1 z-20">
+                  <div className="relative group/note">
+                    {/* Mini Post-it */}
+                    <div className="size-6 bg-yellow-100 border border-yellow-400 rounded shadow-lg cursor-pointer transform rotate-12 group-hover/note:rotate-0 transition-all duration-300">
+                      <div className="absolute -top-0.5 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-red-500 rounded-full border border-red-600"></div>
+                    </div>
+                    
+                    {/* Expanded note on hover */}
+                    <div className="absolute top-full right-0 mt-2 opacity-0 group-hover/note:opacity-100 pointer-events-none group-hover/note:pointer-events-auto transition-opacity duration-300 z-30">
+                      <div className="bg-yellow-100 border-2 border-yellow-400 rounded-lg p-3 w-40 shadow-xl transform rotate-2">
+                        <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-3 h-3 bg-red-500 rounded-full border border-red-600"></div>
+                        <p className="text-gray-800 text-xs leading-relaxed" style={{ fontFamily: 'Comic Sans MS, cursive' }}>
+                          {savedNote}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
               {/* Status indicator: online=neon-green, away=orange, offline=gray */}
               {conversation.status === "online" && (
                 <div className="absolute -bottom-1 -right-1">
@@ -1044,17 +1072,60 @@ export default function FloatingMessagesWindow() {
                   </button>
                   <button
                     onClick={() => {
-                      // TODO: Save note to database
-                      console.log('Note saved for', conversation.username, ':', userNote);
-                      setShowNotesModal(false);
+                      if (!userNote.trim()) return;
+                      
+                      // Start flying animation
+                      setIsNoteSaving(true);
+                      
+                      // Calculate flying path positions
+                      if (avatarRef.current) {
+                        const avatarRect = avatarRef.current.getBoundingClientRect();
+                        const windowRect = windowRef.current?.getBoundingClientRect();
+                        
+                        if (windowRect) {
+                          setFlyingNotePosition({
+                            x: avatarRect.left - windowRect.left,
+                            y: avatarRect.top - windowRect.top,
+                          });
+                        }
+                      }
+                      
+                      // After animation completes, save note
+                      setTimeout(() => {
+                        setSavedNote(userNote);
+                        setUserNote("");
+                        setIsNoteSaving(false);
+                        setShowNotesModal(false);
+                        console.log('Note saved for', conversation.username, ':', userNote);
+                      }, 800); // Duration of animation
                     }}
-                    className="flex-1 px-2 py-1 bg-blue-500 hover:bg-blue-600 text-white font-heading font-bold text-xs rounded transition-all"
+                    disabled={!userNote.trim()}
+                    className="flex-1 px-2 py-1 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-heading font-bold text-xs rounded transition-all"
                   >
                     Guardar
                   </button>
                 </div>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Flying note animation */}
+      {isNoteSaving && (
+        <div
+          className="absolute z-[60] pointer-events-none transition-all duration-700 ease-out"
+          style={{
+            top: `${notesModalPosition.top}px`,
+            left: `${notesModalPosition.left}px`,
+            transform: `translate(${flyingNotePosition.x - notesModalPosition.left}px, ${flyingNotePosition.y - notesModalPosition.top}px) scale(0.3) rotate(720deg)`,
+          }}
+        >
+          <div className="bg-yellow-100 border-2 border-yellow-400 rounded-lg p-3 w-40 shadow-2xl">
+            <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-3 h-3 bg-red-500 rounded-full border border-red-600"></div>
+            <p className="text-gray-800 text-xs leading-relaxed truncate" style={{ fontFamily: 'Comic Sans MS, cursive' }}>
+              {userNote}
+            </p>
           </div>
         </div>
       )}
