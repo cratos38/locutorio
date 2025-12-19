@@ -944,78 +944,82 @@ export default function FloatingMessagesWindow() {
 
       {/* Notes Modal */}
       {showNotesModal && conversation && (
-        <div className="absolute inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 rounded-xl">
-          <div className="bg-connect-bg-dark border-2 border-blue-500/30 rounded-xl p-6 w-[90%] max-w-md shadow-[0_0_40px_rgba(59,130,246,0.3)]">
+        <div className="absolute inset-0 flex items-center justify-center z-50 rounded-xl pointer-events-none">
+          <div className="bg-connect-bg-dark border-2 border-blue-500/30 rounded-xl p-5 w-80 shadow-[0_0_40px_rgba(59,130,246,0.3)] pointer-events-auto">
             {/* Header */}
-            <div className="flex items-center gap-3 mb-6">
-              <span className="material-symbols-outlined text-4xl text-blue-500">
+            <div className="flex items-center gap-2 mb-4">
+              <span className="material-symbols-outlined text-2xl text-blue-500">
                 edit_note
               </span>
               <div>
-                <h3 className="font-heading font-bold text-lg text-gray-100">
+                <h3 className="font-heading font-bold text-sm text-gray-100">
                   Tus anotaciones para perfiles
                 </h3>
-                <p className="text-sm text-text-muted">
-                  Notas sobre <span className="text-neon-green">{conversation.username}</span>
-                </p>
               </div>
             </div>
 
             {/* Content based on PLUS status */}
             {!hasPlus ? (
               // User WITHOUT PLUS
-              <div className="text-center py-8">
-                <div className="mb-6">
-                  <p className="text-gray-300 text-base leading-relaxed mb-2">
+              <div className="text-center py-4">
+                <div className="mb-4">
+                  <p className="text-gray-300 text-sm leading-relaxed mb-1">
                     Para que puedas poner anotación para esta persona,
                   </p>
-                  <p className="text-gray-300 text-base leading-relaxed">
+                  <p className="text-gray-300 text-sm leading-relaxed">
                     tienes que activar <span className="font-bold text-blue-500">PLUS</span>
                   </p>
                 </div>
                 
                 <a
-                  href="/tutorial"
+                  href="/connect/tutorial"
                   onClick={() => setShowNotesModal(false)}
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white font-heading font-bold rounded-lg transition-all shadow-lg"
+                  className="inline-flex items-center gap-2 px-5 py-2 bg-blue-500 hover:bg-blue-600 text-white font-heading font-bold text-sm rounded-lg transition-all shadow-lg"
                 >
                   Activar PLUS
-                  <span className="material-symbols-outlined text-xl">
+                  <span className="material-symbols-outlined text-lg">
                     arrow_forward
                   </span>
                 </a>
+                
+                <button
+                  onClick={() => setShowNotesModal(false)}
+                  className="mt-3 text-xs text-gray-400 hover:text-gray-200 transition-colors"
+                >
+                  Cerrar
+                </button>
               </div>
             ) : (
               // User WITH PLUS - Post-it style note
               <div>
-                <div className="relative mb-6">
+                <div className="relative mb-4">
                   {/* Post-it note */}
-                  <div className="bg-yellow-100 border-t-4 border-yellow-400 rounded-lg p-4 shadow-lg transform rotate-1 hover:rotate-0 transition-transform">
+                  <div className="bg-yellow-100 border-t-4 border-yellow-400 rounded-lg p-3 shadow-lg transform rotate-1 hover:rotate-0 transition-transform">
                     <textarea
                       value={userNote}
                       onChange={(e) => setUserNote(e.target.value)}
                       placeholder="Escribe tu nota aquí..."
-                      className="w-full h-32 bg-transparent text-gray-800 placeholder:text-gray-500 font-handwriting text-base resize-none focus:outline-none"
+                      className="w-full h-24 bg-transparent text-gray-800 placeholder:text-gray-500 text-sm resize-none focus:outline-none"
                       style={{ fontFamily: 'Comic Sans MS, cursive' }}
                     />
                   </div>
                   
                   {/* Pin effect */}
-                  <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-6 h-6 bg-red-500 rounded-full shadow-lg border-2 border-red-600"></div>
+                  <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-5 h-5 bg-red-500 rounded-full shadow-lg border-2 border-red-600"></div>
                 </div>
 
-                <p className="text-xs text-text-muted text-center mb-6">
+                <p className="text-xs text-text-muted text-center mb-4">
                   💡 Esta nota solo la ves tú. Al pasar el ratón sobre el avatar se agrandará.
                 </p>
 
                 {/* Action buttons */}
-                <div className="flex gap-3">
+                <div className="flex gap-2">
                   <button
                     onClick={() => {
                       setShowNotesModal(false);
                       setUserNote("");
                     }}
-                    className="flex-1 px-4 py-3 bg-forest-dark/50 hover:bg-forest-dark text-gray-300 font-heading font-bold rounded-lg transition-all border border-forest-dark/50"
+                    className="flex-1 px-3 py-2 bg-forest-dark/50 hover:bg-forest-dark text-gray-300 font-heading font-bold text-sm rounded-lg transition-all border border-forest-dark/50"
                   >
                     Cancelar
                   </button>
@@ -1026,22 +1030,12 @@ export default function FloatingMessagesWindow() {
                       setShowNotesModal(false);
                       // Show success message
                     }}
-                    className="flex-1 px-4 py-3 bg-blue-500 hover:bg-blue-600 text-white font-heading font-bold rounded-lg transition-all"
+                    className="flex-1 px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white font-heading font-bold text-sm rounded-lg transition-all"
                   >
                     Guardar
                   </button>
                 </div>
               </div>
-            )}
-
-            {/* Close button (only for non-PLUS users) */}
-            {!hasPlus && (
-              <button
-                onClick={() => setShowNotesModal(false)}
-                className="absolute top-4 right-4 text-gray-400 hover:text-gray-200 transition-colors"
-              >
-                <span className="material-symbols-outlined text-2xl">close</span>
-              </button>
             )}
           </div>
         </div>
