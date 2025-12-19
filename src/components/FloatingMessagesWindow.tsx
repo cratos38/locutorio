@@ -556,7 +556,7 @@ export default function FloatingMessagesWindow() {
   return (
     <div
       ref={windowRef}
-      className="fixed z-50 bg-connect-bg-dark rounded-xl shadow-2xl border border-forest-dark/30 flex flex-col overflow-hidden"
+      className="fixed z-50 bg-connect-bg-dark rounded-xl shadow-2xl border-2 border-neon-green/40 shadow-[0_0_20px_rgba(80,250,123,0.3)] flex flex-col overflow-hidden"
       style={{
         left: windowPosition.x,
         top: windowPosition.y,
