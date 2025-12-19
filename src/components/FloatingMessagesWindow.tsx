@@ -229,10 +229,10 @@ export default function FloatingMessagesWindow() {
                 className="size-12 rounded-lg bg-connect-bg-dark border-2 border-forest-dark shadow-2xl bg-center bg-cover"
                 style={{ backgroundImage: `url('${conversation.avatar}')` }}
               ></div>
-              {/* Status indicator: online=cyan, away=orange, offline=gray */}
+              {/* Status indicator: online=neon-green, away=orange, offline=gray */}
               {conversation.status === "online" && (
                 <div className="absolute -bottom-1 -right-1">
-                  <span className="block size-2.5 bg-cyan-400 rounded-full border-2 border-connect-bg-dark shadow-[0_0_8px_rgba(34,211,238,0.6)]"></span>
+                  <span className="block size-2.5 bg-neon-green rounded-full border-2 border-connect-bg-dark shadow-[0_0_8px_rgba(80,250,123,0.6)]"></span>
                 </div>
               )}
               {conversation.status === "away" && (
@@ -252,8 +252,8 @@ export default function FloatingMessagesWindow() {
                 <h2 className="font-heading font-bold text-[9px] text-gray-300 tracking-wide">
                   {conversation.name}
                 </h2>
-                <span className="px-3 py-1 rounded-lg text-xs font-bold bg-neon-green text-forest-dark tracking-wider shadow-lg shadow-neon-green/20">
-                  AMIGO
+                <span className="material-symbols-outlined text-[12px] text-neon-green" title="Amigo">
+                  group
                 </span>
               </div>
               <div className="flex items-center gap-3 text-[10px] font-medium text-text-muted">
