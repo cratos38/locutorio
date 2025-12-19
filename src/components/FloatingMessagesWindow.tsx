@@ -823,7 +823,7 @@ export default function FloatingMessagesWindow() {
                 }`}
               >
                 <span className="material-symbols-outlined text-xs">mark_email_unread</span>
-                Invitaciones
+                Solicitudes
               </button>
             </div>
           </div>
