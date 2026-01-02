@@ -11,492 +11,208 @@ function CrearPerfilForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect");
-  const [step, setStep] = useState(1);
+  
   const [profileData, setProfileData] = useState({
-    // Datos básicos
+    nombre: "",
+    sexo: "",
     fechaNacimiento: "",
-    genero: "",
     pais: "Venezuela",
     ciudad: "",
-
-    // Apariencia física
-    altura: "",
-    peso: "",
-    complexion: "",
-    colorCabello: "",
-    colorOjos: "",
-
-    // Intereses
-    sobreMi: "",
-    meGusta: "",
-    noMeGusta: "",
-    hobbies: "",
-
-    // Qué busca
-    buscando: "",
-    rangoEdad: "",
-
-    // Foto
-    fotoPerfil: null as File | null,
+    queBusca: "",
+    sobreTi: "",
   });
 
-  const totalSteps = 5;
-
-  const handleNext = () => {
-    if (step < totalSteps) {
-      setStep(step + 1);
-    }
-  };
-
-  const handleBack = () => {
-    if (step > 1) {
-      setStep(step - 1);
-    }
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleContinue = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Guardar datos básicos en la base de datos
+    console.log("Datos básicos guardados:", profileData);
+    
+    // Redirigir a perfil detallado
+    router.push("/ajustes/perfil?from=registro");
+  };
 
-    // Aquí se guardaría el perfil en la base de datos
-    console.log("Perfil creado:", profileData);
-
-    // Redirigir a la página solicitada o a inicio
-    // Usamos replace para no dejar crear-perfil en el historial
+  const handleSkip = () => {
+    // Guardar datos básicos mínimos si los hay
+    console.log("Saltando al inicio:", profileData);
+    
+    // Redirigir a inicio
     if (redirect) {
       router.replace(redirect);
     } else {
-      router.replace("/inicio");
-    }
-  };
-
-  const renderStep = () => {
-    switch (step) {
-      case 1:
-        return (
-          <div className="space-y-6">
-            <div className="text-center mb-6">
-              <h2 className="text-2xl font-bold text-white mb-2">Datos Básicos</h2>
-              <p className="text-connect-muted">Cuéntanos un poco sobre ti</p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-white mb-2">
-                  Fecha de Nacimiento <span className="text-red-500">*</span>
-                </label>
-                <Input
-                  type="date"
-                  value={profileData.fechaNacimiento}
-                  onChange={(e) => setProfileData({ ...profileData, fechaNacimiento: e.target.value })}
-                  className="bg-connect-bg-dark border-connect-border text-white"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-white mb-2">
-                  Género <span className="text-red-500">*</span>
-                </label>
-                <select
-                  value={profileData.genero}
-                  onChange={(e) => setProfileData({ ...profileData, genero: e.target.value })}
-                  className="w-full h-10 px-3 rounded-md bg-connect-bg-dark border border-connect-border text-white focus:border-primary focus:outline-none"
-                  required
-                >
-                  <option value="">Seleccionar...</option>
-                  <option value="masculino">Masculino</option>
-                  <option value="femenino">Femenino</option>
-                  <option value="otro">Otro</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-white mb-2">
-                  País <span className="text-red-500">*</span>
-                </label>
-                <Input
-                  type="text"
-                  value={profileData.pais}
-                  onChange={(e) => setProfileData({ ...profileData, pais: e.target.value })}
-                  className="bg-connect-bg-dark border-connect-border text-white"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-white mb-2">
-                  Ciudad <span className="text-red-500">*</span>
-                </label>
-                <Input
-                  type="text"
-                  placeholder="Tu ciudad"
-                  value={profileData.ciudad}
-                  onChange={(e) => setProfileData({ ...profileData, ciudad: e.target.value })}
-                  className="bg-connect-bg-dark border-connect-border text-white placeholder:text-connect-muted"
-                  required
-                />
-              </div>
-            </div>
-          </div>
-        );
-
-      case 2:
-        return (
-          <div className="space-y-6">
-            <div className="text-center mb-6">
-              <h2 className="text-2xl font-bold text-white mb-2">Apariencia Física</h2>
-              <p className="text-connect-muted">Describe cómo eres físicamente</p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-white mb-2">
-                  Altura (cm)
-                </label>
-                <Input
-                  type="number"
-                  placeholder="Ej: 170"
-                  value={profileData.altura}
-                  onChange={(e) => setProfileData({ ...profileData, altura: e.target.value })}
-                  className="bg-connect-bg-dark border-connect-border text-white placeholder:text-connect-muted"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-white mb-2">
-                  Peso (kg)
-                </label>
-                <Input
-                  type="number"
-                  placeholder="Ej: 70"
-                  value={profileData.peso}
-                  onChange={(e) => setProfileData({ ...profileData, peso: e.target.value })}
-                  className="bg-connect-bg-dark border-connect-border text-white placeholder:text-connect-muted"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-white mb-2">
-                  Complexión
-                </label>
-                <select
-                  value={profileData.complexion}
-                  onChange={(e) => setProfileData({ ...profileData, complexion: e.target.value })}
-                  className="w-full h-10 px-3 rounded-md bg-connect-bg-dark border border-connect-border text-white focus:border-primary focus:outline-none"
-                >
-                  <option value="">Seleccionar...</option>
-                  <option value="delgada">Delgada</option>
-                  <option value="atletica">Atlética</option>
-                  <option value="normal">Normal</option>
-                  <option value="robusta">Robusta</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-white mb-2">
-                  Color de Cabello
-                </label>
-                <select
-                  value={profileData.colorCabello}
-                  onChange={(e) => setProfileData({ ...profileData, colorCabello: e.target.value })}
-                  className="w-full h-10 px-3 rounded-md bg-connect-bg-dark border border-connect-border text-white focus:border-primary focus:outline-none"
-                >
-                  <option value="">Seleccionar...</option>
-                  <option value="negro">Negro</option>
-                  <option value="castano">Castaño</option>
-                  <option value="rubio">Rubio</option>
-                  <option value="pelirrojo">Pelirrojo</option>
-                  <option value="gris">Gris/Blanco</option>
-                  <option value="otro">Otro</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-white mb-2">
-                  Color de Ojos
-                </label>
-                <select
-                  value={profileData.colorOjos}
-                  onChange={(e) => setProfileData({ ...profileData, colorOjos: e.target.value })}
-                  className="w-full h-10 px-3 rounded-md bg-connect-bg-dark border border-connect-border text-white focus:border-primary focus:outline-none"
-                >
-                  <option value="">Seleccionar...</option>
-                  <option value="marrones">Marrones</option>
-                  <option value="negros">Negros</option>
-                  <option value="verdes">Verdes</option>
-                  <option value="azules">Azules</option>
-                  <option value="grises">Grises</option>
-                  <option value="otro">Otro</option>
-                </select>
-              </div>
-            </div>
-          </div>
-        );
-
-      case 3:
-        return (
-          <div className="space-y-6">
-            <div className="text-center mb-6">
-              <h2 className="text-2xl font-bold text-white mb-2">Sobre Ti</h2>
-              <p className="text-connect-muted">Cuéntanos tus intereses y personalidad</p>
-            </div>
-
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-white mb-2">
-                  Descripción Personal <span className="text-red-500">*</span>
-                </label>
-                <Textarea
-                  placeholder="Escribe algo sobre ti..."
-                  value={profileData.sobreMi}
-                  onChange={(e) => setProfileData({ ...profileData, sobreMi: e.target.value })}
-                  className="bg-connect-bg-dark border-connect-border text-white placeholder:text-connect-muted min-h-[100px]"
-                  required
-                />
-                <p className="text-xs text-connect-muted mt-1">
-                  Sé auténtico y describe tu personalidad
-                </p>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-white mb-2">
-                  Me Gusta
-                </label>
-                <Textarea
-                  placeholder="Cosas que disfrutas hacer..."
-                  value={profileData.meGusta}
-                  onChange={(e) => setProfileData({ ...profileData, meGusta: e.target.value })}
-                  className="bg-connect-bg-dark border-connect-border text-white placeholder:text-connect-muted min-h-[80px]"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-white mb-2">
-                  No Me Gusta
-                </label>
-                <Textarea
-                  placeholder="Cosas que no te gustan..."
-                  value={profileData.noMeGusta}
-                  onChange={(e) => setProfileData({ ...profileData, noMeGusta: e.target.value })}
-                  className="bg-connect-bg-dark border-connect-border text-white placeholder:text-connect-muted min-h-[80px]"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-white mb-2">
-                  Hobbies e Intereses
-                </label>
-                <Input
-                  type="text"
-                  placeholder="Ej: Música, deportes, lectura..."
-                  value={profileData.hobbies}
-                  onChange={(e) => setProfileData({ ...profileData, hobbies: e.target.value })}
-                  className="bg-connect-bg-dark border-connect-border text-white placeholder:text-connect-muted"
-                />
-              </div>
-            </div>
-          </div>
-        );
-
-      case 4:
-        return (
-          <div className="space-y-6">
-            <div className="text-center mb-6">
-              <h2 className="text-2xl font-bold text-white mb-2">¿Qué Buscas?</h2>
-              <p className="text-connect-muted">Ayúdanos a conectarte con las personas adecuadas</p>
-            </div>
-
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-white mb-2">
-                  ¿Qué buscas en LoCuToRiO? <span className="text-red-500">*</span>
-                </label>
-                <select
-                  value={profileData.buscando}
-                  onChange={(e) => setProfileData({ ...profileData, buscando: e.target.value })}
-                  className="w-full h-10 px-3 rounded-md bg-connect-bg-dark border border-connect-border text-white focus:border-primary focus:outline-none"
-                  required
-                >
-                  <option value="">Seleccionar...</option>
-                  <option value="amor">Amor / Pareja</option>
-                  <option value="amistad">Amistad</option>
-                  <option value="charla">Conversar / Chatear</option>
-                  <option value="encuentros">Encuentros casuales</option>
-                  <option value="noseaun">No sé aún</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-white mb-2">
-                  Rango de Edad Preferido
-                </label>
-                <Input
-                  type="text"
-                  placeholder="Ej: 25-35"
-                  value={profileData.rangoEdad}
-                  onChange={(e) => setProfileData({ ...profileData, rangoEdad: e.target.value })}
-                  className="bg-connect-bg-dark border-connect-border text-white placeholder:text-connect-muted"
-                />
-              </div>
-            </div>
-          </div>
-        );
-
-      case 5:
-        return (
-          <div className="space-y-6">
-            <div className="text-center mb-6">
-              <h2 className="text-2xl font-bold text-white mb-2">Foto de Perfil</h2>
-              <p className="text-connect-muted">Una foto real y actual tuya</p>
-            </div>
-
-            <div className="space-y-4">
-              <div className="border-2 border-dashed border-connect-border rounded-lg p-8 text-center">
-                <div className="mb-4">
-                  <svg className="w-16 h-16 mx-auto text-connect-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                </div>
-                <label htmlFor="fotoPerfil" className="cursor-pointer">
-                  <span className="text-primary hover:brightness-125 font-semibold">Subir foto</span>
-                  <span className="text-connect-muted"> o arrastra y suelta</span>
-                  <Input
-                    id="fotoPerfil"
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => setProfileData({ ...profileData, fotoPerfil: e.target.files?.[0] || null })}
-                    className="hidden"
-                  />
-                </label>
-                <p className="text-xs text-connect-muted mt-2">
-                  PNG, JPG o GIF (máx. 5MB)
-                </p>
-              </div>
-
-              {profileData.fotoPerfil && (
-                <div className="bg-connect-card border border-connect-border rounded-lg p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="size-12 bg-primary/20 rounded-full flex items-center justify-center">
-                      <svg className="w-6 h-6 text-primary" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                      </svg>
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-white font-medium">{profileData.fotoPerfil.name}</p>
-                      <p className="text-xs text-connect-muted">
-                        {(profileData.fotoPerfil.size / 1024 / 1024).toFixed(2)} MB
-                      </p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setProfileData({ ...profileData, fotoPerfil: null })}
-                      className="text-red-500 hover:text-red-400"
-                    >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              <div className="bg-primary/10 border border-primary/30 rounded-lg p-4">
-                <h3 className="text-white font-semibold mb-2 flex items-center gap-2">
-                  <svg className="w-5 h-5 text-primary" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
-                  </svg>
-                  Requisitos para foto de perfil:
-                </h3>
-                <ul className="text-sm text-connect-muted space-y-1 ml-7">
-                  <li>• Foto real y actual</li>
-                  <li>• Solo una persona en la foto</li>
-                  <li>• Cara claramente visible (más del 50%)</li>
-                  <li>• Sin filtros que distorsionen el rostro</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        );
-
-      default:
-        return null;
+      router.replace("/mi-espacio");
     }
   };
 
   return (
-    <div className="min-h-screen bg-connect-bg-dark flex items-center justify-center px-4 py-12 font-display">
+    <div className="min-h-screen bg-forest-dark flex items-center justify-center px-4 py-12">
       {/* Background decorative elements */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-neon-green/5 rounded-full blur-[100px] pointer-events-none" />
 
-      <div className="w-full max-w-3xl z-10">
+      <div className="w-full max-w-2xl z-10">
         {/* Logo/Header */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-2 mb-4">
-            <div className="size-12 text-primary bg-primary/20 rounded-full flex items-center justify-center">
+            <div className="size-12 text-neon-green bg-neon-green/20 rounded-full flex items-center justify-center">
               <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
               </svg>
             </div>
             <span className="text-3xl font-bold tracking-tight text-white">LoCuToRiO</span>
           </Link>
-          <h1 className="text-3xl font-bold text-white mb-2">Crear Tu Perfil</h1>
-          <p className="text-connect-muted">Paso {step} de {totalSteps}</p>
+          <h1 className="text-3xl font-bold text-white mb-2">¡Bienvenido!</h1>
+          <p className="text-gray-400">Cuéntanos un poco sobre ti para empezar</p>
         </div>
 
-        {/* Progress Bar */}
-        <div className="mb-8">
-          <div className="h-2 bg-connect-card rounded-full overflow-hidden">
-            <div
-              className="h-full bg-primary transition-all duration-300"
-              style={{ width: `${(step / totalSteps) * 100}%` }}
-            />
-          </div>
-        </div>
+        {/* Form Card */}
+        <div className="bg-forest-dark/60 backdrop-blur-sm border border-neon-green/20 rounded-2xl p-8 shadow-xl shadow-neon-green/5">
+          <form onSubmit={handleContinue} className="space-y-6">
+            {/* Nombre */}
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Nombre <span className="text-red-400">*</span>
+              </label>
+              <Input
+                type="text"
+                placeholder="Tu nombre"
+                value={profileData.nombre}
+                onChange={(e) => setProfileData({ ...profileData, nombre: e.target.value })}
+                className="bg-forest-dark/80 border-forest-light text-white placeholder:text-gray-500"
+                required
+              />
+            </div>
 
-        {/* Form */}
-        <div className="bg-connect-card border border-connect-border rounded-2xl p-8 shadow-xl">
-          <form onSubmit={handleSubmit}>
-            {renderStep()}
+            {/* Sexo */}
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-3">
+                Sexo <span className="text-red-400">*</span>
+              </label>
+              <div className="grid grid-cols-3 gap-3">
+                {["Hombre", "Mujer", "Otro"].map((option) => (
+                  <label
+                    key={option}
+                    className={`flex items-center justify-center gap-2 p-3 rounded-lg border cursor-pointer transition-all ${
+                      profileData.sexo === option.toLowerCase()
+                        ? "bg-neon-green/20 border-neon-green text-neon-green"
+                        : "bg-forest-dark/60 border-forest-light text-gray-400 hover:border-neon-green/50"
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="sexo"
+                      value={option.toLowerCase()}
+                      checked={profileData.sexo === option.toLowerCase()}
+                      onChange={(e) => setProfileData({ ...profileData, sexo: e.target.value })}
+                      className="sr-only"
+                      required
+                    />
+                    <span className="text-sm font-medium">{option}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
 
-            {/* Navigation Buttons */}
-            <div className="flex items-center justify-between mt-8 pt-6 border-t border-connect-border">
+            {/* Fecha de Nacimiento */}
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Fecha de Nacimiento <span className="text-red-400">*</span>
+              </label>
+              <Input
+                type="date"
+                value={profileData.fechaNacimiento}
+                onChange={(e) => setProfileData({ ...profileData, fechaNacimiento: e.target.value })}
+                className="bg-forest-dark/80 border-forest-light text-white"
+                required
+              />
+            </div>
+
+            {/* De dónde */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  País <span className="text-red-400">*</span>
+                </label>
+                <Input
+                  type="text"
+                  value={profileData.pais}
+                  onChange={(e) => setProfileData({ ...profileData, pais: e.target.value })}
+                  className="bg-forest-dark/80 border-forest-light text-white"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Ciudad <span className="text-red-400">*</span>
+                </label>
+                <Input
+                  type="text"
+                  placeholder="Tu ciudad"
+                  value={profileData.ciudad}
+                  onChange={(e) => setProfileData({ ...profileData, ciudad: e.target.value })}
+                  className="bg-forest-dark/80 border-forest-light text-white placeholder:text-gray-500"
+                  required
+                />
+              </div>
+            </div>
+
+            {/* ¿Qué buscas? */}
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                ¿Qué buscas? <span className="text-red-400">*</span>
+              </label>
+              <select
+                value={profileData.queBusca}
+                onChange={(e) => setProfileData({ ...profileData, queBusca: e.target.value })}
+                className="w-full px-4 py-2 rounded-lg bg-forest-dark/80 border border-forest-light text-white focus:border-neon-green focus:outline-none"
+                required
+              >
+                <option value="">Seleccionar...</option>
+                <option value="pareja">Encontrar pareja</option>
+                <option value="amistad">Amistad</option>
+                <option value="conversar">Conversar / Chatear</option>
+                <option value="aventuras">Aventuras sin compromiso</option>
+                <option value="nosé">No sé aún</option>
+              </select>
+            </div>
+
+            {/* Algo sobre ti */}
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Algo sobre ti
+              </label>
+              <Textarea
+                placeholder="Cuéntanos un poco sobre ti, tus intereses, qué te gusta hacer..."
+                value={profileData.sobreTi}
+                onChange={(e) => setProfileData({ ...profileData, sobreTi: e.target.value })}
+                className="bg-forest-dark/80 border-forest-light text-white placeholder:text-gray-500 min-h-[100px]"
+              />
+            </div>
+
+            {/* Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-forest-light">
+              <Button
+                type="submit"
+                className="flex-1 bg-neon-green text-forest-dark hover:brightness-110 hover:shadow-lg hover:shadow-neon-green/30 font-bold py-6 text-base"
+              >
+                Continuar - Perfil Detallado →
+              </Button>
+              
               <Button
                 type="button"
-                onClick={handleBack}
-                disabled={step === 1}
+                onClick={handleSkip}
                 variant="ghost"
-                className="text-connect-muted hover:text-white disabled:opacity-30"
+                className="flex-1 bg-forest-light/30 text-gray-300 hover:bg-forest-light/50 hover:text-white border border-forest-light py-6 text-base"
               >
-                ← Anterior
+                Saltar - Llenar luego
               </Button>
-
-              {step < totalSteps ? (
-                <Button
-                  type="button"
-                  onClick={handleNext}
-                  className="bg-primary text-connect-bg-dark hover:brightness-110 font-bold"
-                >
-                  Siguiente →
-                </Button>
-              ) : (
-                <Button
-                  type="submit"
-                  className="bg-primary text-connect-bg-dark hover:brightness-110 hover:shadow-[0_0_20px_rgba(43,238,121,0.3)] font-bold"
-                >
-                  Crear Perfil →
-                </Button>
-              )}
             </div>
           </form>
 
-          {/* Skip option */}
-          <div className="text-center mt-6">
-            <Link
-              href="/inicio"
-              className="text-sm text-connect-muted hover:text-primary transition-colors"
-            >
-              Omitir por ahora (puedes completarlo después)
-            </Link>
+          {/* Info */}
+          <div className="mt-6 p-4 bg-neon-green/10 border border-neon-green/30 rounded-lg">
+            <p className="text-xs text-gray-300 text-center">
+              💡 Puedes completar tu perfil detallado más tarde desde tu espacio personal
+            </p>
           </div>
         </div>
       </div>
@@ -506,7 +222,11 @@ function CrearPerfilForm() {
 
 export default function CrearPerfilPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-connect-bg-dark flex items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div></div>}>
+    <Suspense fallback={
+      <div className="min-h-screen bg-forest-dark flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-neon-green"></div>
+      </div>
+    }>
       <CrearPerfilForm />
     </Suspense>
   );
