@@ -48,23 +48,28 @@ export default function AjustesPerfilPage() {
     quiereTenerHijos: "", // "no" | "si" | "no-seguro" | "lo-pensaria" | "adoptados" | "no-puedo"
     
     estadoCivil: "",
-    queBuscas: [] as string[],
+    queBuscas: [] as string[], // + "charlar-alguien"
     razonPrincipal: "",
     tiempoEnPareja: "",
     casarseImportante: "",
+    duracionRelacionLarga: "", // NUEVO
     
     // Vehículo
     tieneVehiculo: "" as YesNoResponse,
     
-    // Saldrías con fumador
-    saldriasFumador: "",
+    // Mascotas - NUEVO
+    tieneMascota: "", // "no" | "perro" | "gato" | "perro-gato" | "pajaro" | "otro"
+    
+    // Idiomas - NUEVO
+    hablaOtroIdioma: [] as string[],
     
     // ===== CULTURA =====
-    // Pasatiempos (checkboxes múltiples)
-    pasatiempos: [] as string[], // ["peliculas", "musica", "leer", etc.]
-    generosPeliculas: [] as string[],
-    generosMusica: [] as string[],
-    generosLibros: [] as string[],
+    // Pasatiempos (checkboxes múltiples) - AMPLIADO
+    pasatiempos: [] as string[], // 30+ actividades
+    generosPeliculas: [] as string[], // 16 géneros
+    generosMusica: [] as string[], // 30 géneros
+    generosLibros: [] as string[], // 18 tipos
+    deportesPractica: [] as string[], // 30 deportes (MOVIDO AQUÍ desde estilo de vida)
     
     ideasPoliticas: "",
     valoresTradicionales: "",
@@ -77,24 +82,31 @@ export default function AjustesPerfilPage() {
     // Qué haces normalmente
     queHaces: [] as string[], // ["cocinar", "deporte", "bailar", etc.]
     nivelCocinar: "", // Solo si marcó "cocinar"
-    deportesPractica: [] as string[], // Solo si marcó "deporte"
     nivelBailar: "", // Solo si marcó "bailar"
     
     teEjercitas: "",
+    eresAmbicioso: "", // NUEVO: super-ambicioso | ambicioso | algo-ambicioso | no-ambicioso
     
     // Fumas
     fumas: "" as YesNoResponse,
     frecuenciaFumar: "", // Solo si "fumas" = "si"
     
+    // Saldrías con fumador - MOVIDO AQUÍ
+    saldriasFumador: "",
+    
     // Bebes alcohol
     bebesAlcohol: "" as YesNoResponse,
     frecuenciaBeber: "", // Solo si "bebesAlcohol" = "si"
+    
+    // Saldrías con bebedor - NUEVO
+    saldriasBebedor: "",
     
     // Usas drogas
     usasDrogas: "" as YesNoResponse,
     frecuenciaDrogas: "", // Solo si "usasDrogas" = "si"
     
-    dietaEspecial: "",
+    dietaEspecial: "", // ACTUALIZADO: separar alimentación vs dietas
+    dietaEspecialOtra: "", // Si selecciona "otro"
     tiempoConFamilia: "",
     personalidadSociable: "",
     ordenMantenimiento: "",
@@ -152,8 +164,8 @@ export default function AjustesPerfilPage() {
           ...(field === "pasatiempos" && value === "peliculas" && { generosPeliculas: [] }),
           ...(field === "pasatiempos" && value === "musica" && { generosMusica: [] }),
           ...(field === "pasatiempos" && value === "leer" && { generosLibros: [] }),
+          ...(field === "pasatiempos" && value === "deporte" && { deportesPractica: [] }),
           ...(field === "queHaces" && value === "cocinar" && { nivelCocinar: "" }),
-          ...(field === "queHaces" && value === "deporte" && { deportesPractica: [] }),
           ...(field === "queHaces" && value === "bailar" && { nivelBailar: "" }),
         };
       }
