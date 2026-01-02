@@ -37,17 +37,19 @@ function CrearPerfilForm() {
       // Reset ciudad y estado al cambiar país
       setProfileData(prev => ({ ...prev, ciudad: "", estado: "" }));
     }
-  }, [profileData.paisCodigo, getCities]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profileData.paisCodigo]);
 
   // Detectar estado cuando se selecciona una ciudad
   useEffect(() => {
     if (profileData.paisCodigo && profileData.ciudad) {
       const state = getStateByCity(profileData.paisCodigo, profileData.ciudad);
-      if (state) {
+      if (state && state !== profileData.estado) {
         setProfileData(prev => ({ ...prev, estado: state }));
       }
     }
-  }, [profileData.paisCodigo, profileData.ciudad, getStateByCity]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profileData.paisCodigo, profileData.ciudad]);
 
   const handleCountryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedCode = e.target.value;
