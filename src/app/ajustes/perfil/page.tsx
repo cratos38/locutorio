@@ -67,6 +67,7 @@ export default function AjustesPerfilPage() {
     
     // Mascotas - NUEVO
     tieneMascota: "", // "no" | "perro" | "gato" | "perro-gato" | "pajaro" | "otro"
+    tieneMascotaOtra: "", // Si selecciona "otro"
     
     // Idiomas - NUEVO
     hablaOtroIdioma: [] as string[],
@@ -349,6 +350,56 @@ export default function AjustesPerfilPage() {
     );
   };
 
+  // TIPO E: Multi-select (selector con múltiples opciones usando Ctrl/Cmd)
+  const renderMultiSelect = (
+    label: string,
+    field: keyof typeof formData,
+    options: { value: string; label: string }[]
+  ) => {
+    const values = formData[field] as string[];
+    
+    return (
+      <div className="mb-6">
+        <label className="block text-sm font-medium text-gray-300 mb-3">
+          {label}
+        </label>
+        <select
+          multiple
+          value={values}
+          onChange={(e) => {
+            const selectedOptions = Array.from(e.target.selectedOptions, option => option.value);
+            handleInputChange(field, selectedOptions);
+          }}
+          className="w-full px-4 py-2 bg-forest-dark border border-gray-600 rounded-lg text-gray-200 focus:border-neon-green min-h-[200px]"
+        >
+          {options.map(opt => (
+            <option key={opt.value} value={opt.value}>{opt.label}</option>
+          ))}
+        </select>
+        <p className="text-xs text-gray-400 mt-2">
+          💡 Mantén presionado Ctrl (Windows) o Cmd (Mac) para seleccionar varios idiomas
+        </p>
+        
+        {/* Mostrar seleccionados */}
+        {values.length > 0 && (
+          <div className="mt-3">
+            <p className="text-sm text-gray-400 mb-2">Idiomas seleccionados:</p>
+            <div className="flex flex-wrap gap-2">
+              {values.map(val => {
+                const option = options.find(opt => opt.value === val);
+                return option ? (
+                  <span key={val} className="px-3 py-1 bg-neon-green/20 text-neon-green rounded-full text-sm border border-neon-green/30">
+                    {option.label}
+                  </span>
+                ) : null;
+              })}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   // ===== RENDER CONTENT POR CATEGORÍA =====
 
   const renderContent = () => {
@@ -500,14 +551,6 @@ export default function AjustesPerfilPage() {
                     <option value="ya-adultos">Sí, pero ya son adultos</option>
                     <option value="no-seguro">No estoy seguro</option>
                   </select>
-                  {formData.situacionHijos && (
-                    <div className="mt-3 text-sm text-gray-400">
-                      → {formData.situacionHijos === "no-viven" && "Sí, pero no viven en mi casa"}
-                      {formData.situacionHijos === "viven-conmigo" && "Sí, y viven conmigo en la casa"}
-                      {formData.situacionHijos === "ya-adultos" && "Sí, pero ya son adultos"}
-                      {formData.situacionHijos === "no-seguro" && "No estoy seguro"}
-                    </div>
-                  )}
                 </>
               )}
 
@@ -599,9 +642,9 @@ export default function AjustesPerfilPage() {
                 { value: "perro-gato", label: "Perro y gato" },
                 { value: "pajaro", label: "Pájaro" },
                 { value: "otro", label: "Otro" },
-              ])}
+              ], "tieneMascotaOtra")}
 
-              {renderCheckboxes("¿Hablas otro idioma? (puedes marcar varios)", "hablaOtroIdioma", [
+              {renderMultiSelect("¿Hablas otro idioma?", "hablaOtroIdioma", [
                 { value: "ninguno", label: "Ningún otro idioma" },
                 { value: "arabe", label: "Árabe" },
                 { value: "chino", label: "Chino" },
@@ -795,16 +838,6 @@ export default function AjustesPerfilPage() {
             <div className="bg-forest-dark/60 backdrop-blur-sm border border-neon-green/20 rounded-xl p-6 shadow-lg">
               <h3 className="text-xl font-bold text-neon-green mb-6">Ideas y valores</h3>
 
-              {renderSelectField("Ideas políticas", "ideasPoliticas", [
-                { value: "prefiero-no-decir", label: "Prefiero no decir" },
-                { value: "ultra-conservador", label: "Ultra Conservador" },
-                { value: "conservador", label: "Conservador" },
-                { value: "centro", label: "Centro" },
-                { value: "liberal", label: "Liberal" },
-                { value: "muy-liberal", label: "Muy Liberal" },
-                { value: "otro", label: "Otro punto de vista" },
-              ])}
-
               {renderSelectField("¿Eres una persona de valores tradicionales?", "valoresTradicionales", [
                 { value: "bastante", label: "Bastante, me gusta aferrarme a las tradiciones" },
                 { value: "tradicional-abierto", label: "Soy tradicional, pero de mente abierta" },
@@ -823,17 +856,32 @@ export default function AjustesPerfilPage() {
               <h3 className="text-xl font-bold text-neon-green mb-6">Religión</h3>
 
               {renderSelectField("Religión", "religion", [
-                { value: "sin-religion", label: "Sin religión o ateo" },
-                { value: "catolico", label: "Católico" },
                 { value: "cristiano", label: "Cristiano" },
-                { value: "protestante", label: "Protestante" },
-                { value: "ortodoxo", label: "Ortodoxo" },
-                { value: "musulman", label: "Musulmán" },
-                { value: "judio", label: "Judío" },
                 { value: "budista", label: "Budista" },
+                { value: "catolico", label: "Católico" },
+                { value: "protestante", label: "Protestante" },
+                { value: "evangelista", label: "Evangelista" },
+                { value: "judio", label: "Judío" },
+                { value: "musulman", label: "Musulmán" },
                 { value: "hindu", label: "Hindú" },
-                { value: "agnostico", label: "Agnóstico" },
-                { value: "otro", label: "Otro" },
+                { value: "taoismo", label: "Taoísmo" },
+                { value: "wiccan", label: "Wiccan" },
+                { value: "satanista", label: "Satanista" },
+                { value: "no-religioso", label: "No religioso/a" },
+                { value: "mormon", label: "Mormón" },
+                { value: "espiritualista", label: "Espiritualista" },
+                { value: "bautista", label: "Bautista" },
+                { value: "metodista", label: "Metodista" },
+                { value: "ortodoxo", label: "Ortodoxo" },
+                { value: "pentecostes", label: "Pentecostés" },
+                { value: "quaquero", label: "Quáquero" },
+                { value: "adventista", label: "Adventista" },
+                { value: "jainismo", label: "Jainismo" },
+                { value: "iskcon", label: "Iskcon" },
+                { value: "sintoismo", label: "Sintoísmo" },
+                { value: "sijista", label: "Sijista" },
+                { value: "caodaismo", label: "Caodaismo" },
+                { value: "otra", label: "Otra religión" },
               ], "religionOtra")}
 
               {renderSelectField("Convicciones religiosas", "conviccionesReligiosas", [
@@ -922,13 +970,6 @@ export default function AjustesPerfilPage() {
                     <option value="ocasionalmente">Ocasionalmente</option>
                     <option value="socialmente">Socialmente</option>
                   </select>
-                  {formData.frecuenciaFumar && (
-                    <div className="mt-3 text-sm text-gray-400">
-                      → {formData.frecuenciaFumar === "diariamente" && "Diariamente"}
-                      {formData.frecuenciaFumar === "ocasionalmente" && "Ocasionalmente"}
-                      {formData.frecuenciaFumar === "socialmente" && "Socialmente"}
-                    </div>
-                  )}
                 </>
               )}
 
@@ -948,14 +989,6 @@ export default function AjustesPerfilPage() {
                     <option value="ocasionalmente">Ocasionalmente</option>
                     <option value="socialmente">Socialmente</option>
                   </select>
-                  {formData.frecuenciaBeber && (
-                    <div className="mt-3 text-sm text-gray-400">
-                      → {formData.frecuenciaBeber === "diariamente" && "Diariamente"}
-                      {formData.frecuenciaBeber === "semanalmente" && "Semanalmente"}
-                      {formData.frecuenciaBeber === "ocasionalmente" && "Ocasionalmente"}
-                      {formData.frecuenciaBeber === "socialmente" && "Socialmente"}
-                    </div>
-                  )}
                 </>
               )}
 
@@ -973,12 +1006,6 @@ export default function AjustesPerfilPage() {
                     <option value="ocasionalmente">Ocasionalmente</option>
                     <option value="regularmente">Regularmente</option>
                   </select>
-                  {formData.frecuenciaDrogas && (
-                    <div className="mt-3 text-sm text-gray-400">
-                      → {formData.frecuenciaDrogas === "ocasionalmente" && "Ocasionalmente"}
-                      {formData.frecuenciaDrogas === "regularmente" && "Regularmente"}
-                    </div>
-                  )}
                 </>
               )}
 
@@ -1065,6 +1092,24 @@ export default function AjustesPerfilPage() {
                   </div>
                 </div>
               </div>
+            </div>
+
+            {/* Ideas políticas */}
+            <div className="bg-forest-dark/60 backdrop-blur-sm border border-neon-green/20 rounded-xl p-6 shadow-lg">
+              <div className="flex items-center gap-2 mb-6">
+                <span className="text-gray-400">🔒</span>
+                <h3 className="text-xl font-bold text-neon-green">Ideas políticas</h3>
+              </div>
+
+              {renderSelectField("Ideas políticas", "ideasPoliticas", [
+                { value: "prefiero-no-decir", label: "Prefiero no decir" },
+                { value: "ultra-conservador", label: "Ultra Conservador" },
+                { value: "conservador", label: "Conservador" },
+                { value: "centro", label: "Centro" },
+                { value: "liberal", label: "Liberal" },
+                { value: "muy-liberal", label: "Muy Liberal" },
+                { value: "otro", label: "Otro punto de vista" },
+              ])}
             </div>
 
             {/* Educación */}
