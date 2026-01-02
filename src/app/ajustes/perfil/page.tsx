@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,7 +13,20 @@ type CategoryType = "algo-sobre-mi" | "relaciones" | "cultura" | "estilo-vida" |
 type YesNoResponse = "no-respondo" | "no" | "si" | "";
 
 export default function AjustesPerfilPage() {
-  const [activeCategory, setActiveCategory] = useState<CategoryType>("algo-sobre-mi");
+  const searchParams = useSearchParams();
+  const tabParam = searchParams.get("tab") as CategoryType | null;
+  
+  const [activeCategory, setActiveCategory] = useState<CategoryType>(
+    tabParam || "algo-sobre-mi"
+  );
+  
+  // Cambiar categoría si cambia el parámetro tab
+  useEffect(() => {
+    if (tabParam && tabParam !== activeCategory) {
+      setActiveCategory(tabParam);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [tabParam, activeCategory]);
   
   // Función para cambiar de categoría y hacer scroll al inicio
   const handleCategoryChange = (category: CategoryType) => {
@@ -1277,6 +1291,15 @@ export default function AjustesPerfilPage() {
           <div className="lg:col-span-1">
             <div className="bg-forest-dark/60 backdrop-blur-sm border border-neon-green/20 rounded-xl p-4 shadow-lg sticky top-24">
               <nav className="space-y-2">
+                {/* Botón Datos básicos - Redirige a /crear-perfil */}
+                <Link
+                  href="/crear-perfil"
+                  className="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all bg-forest-dark/40 border border-transparent text-gray-400 hover:border-neon-green/50 hover:text-gray-300"
+                >
+                  <span className="text-xl">📝</span>
+                  <span className="text-sm font-medium">Datos básicos</span>
+                </Link>
+                
                 {categories.map((category) => (
                   <button
                     key={category.id}

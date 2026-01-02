@@ -64,6 +64,45 @@ function CrearPerfilForm() {
           <p className="text-gray-400">Cuéntanos un poco sobre ti para empezar</p>
         </div>
 
+        {/* Navegación entre secciones */}
+        <div className="mb-6 bg-forest-dark/60 backdrop-blur-sm border border-neon-green/20 rounded-xl p-3 shadow-lg">
+          <div className="flex flex-wrap gap-2 justify-center">
+            <button className="px-4 py-2 rounded-lg bg-neon-green/20 border border-neon-green text-neon-green text-sm font-medium">
+              📝 Datos básicos
+            </button>
+            <Link
+              href="/ajustes/perfil?tab=algo-sobre-mi"
+              className="px-4 py-2 rounded-lg bg-forest-dark/40 border border-transparent text-gray-400 hover:border-neon-green/50 hover:text-gray-300 text-sm font-medium transition-all"
+            >
+              👤 Algo sobre mí
+            </Link>
+            <Link
+              href="/ajustes/perfil?tab=relaciones"
+              className="px-4 py-2 rounded-lg bg-forest-dark/40 border border-transparent text-gray-400 hover:border-neon-green/50 hover:text-gray-300 text-sm font-medium transition-all"
+            >
+              💑 Relaciones
+            </Link>
+            <Link
+              href="/ajustes/perfil?tab=cultura"
+              className="px-4 py-2 rounded-lg bg-forest-dark/40 border border-transparent text-gray-400 hover:border-neon-green/50 hover:text-gray-300 text-sm font-medium transition-all"
+            >
+              🎭 Cultura
+            </Link>
+            <Link
+              href="/ajustes/perfil?tab=estilo-vida"
+              className="px-4 py-2 rounded-lg bg-forest-dark/40 border border-transparent text-gray-400 hover:border-neon-green/50 hover:text-gray-300 text-sm font-medium transition-all"
+            >
+              🏃 Estilo de vida
+            </Link>
+            <Link
+              href="/ajustes/perfil?tab=informacion-privada"
+              className="px-4 py-2 rounded-lg bg-forest-dark/40 border border-transparent text-gray-400 hover:border-neon-green/50 hover:text-gray-300 text-sm font-medium transition-all"
+            >
+              🔒 Información privada
+            </Link>
+          </div>
+        </div>
+
         {/* Form Card */}
         <div className="bg-forest-dark/60 backdrop-blur-sm border border-neon-green/20 rounded-2xl p-8 shadow-xl shadow-neon-green/5">
           <form onSubmit={handleContinue} className="space-y-6">
