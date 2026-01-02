@@ -8,109 +8,99 @@ import { Textarea } from "@/components/ui/textarea";
 
 type CategoryType = "algo-sobre-mi" | "relaciones" | "cultura" | "estilo-vida" | "informacion-privada";
 
-type EditModalType = 
-  | "altura-peso"
-  | "tipo-cuerpo"
-  | "color-ojos"
-  | "color-cabello"
-  | "educacion"
-  | "etnia"
-  | "origen-geografico"
-  | "definete-frase"
-  | "cuentanos-algo"
-  | "intereses"
-  | "primera-cita"
-  | "estado-civil"
-  | "hijos"
-  | "que-buscas"
-  | "razon-principal"
-  | "tiempo-pareja"
-  | "casarse-importante"
-  | "vehiculo-propio"
-  | "saldrias-fumador"
-  | "ideas-politicas"
-  | "valores-tradicionales"
-  | "espiritualidad"
-  | "religion"
-  | "convicciones-religiosas"
-  | "te-ejercitas"
-  | "usas-drogas"
-  | "dieta-especial"
-  | "tiempo-familia"
-  | "personalidad-sociable"
-  | "te-gusta-bailar"
-  | "te-gusta-cocinar"
-  | "orden-mantenimiento"
-  | "escuelas-privadas-publicas"
-  | "tus-padres"
-  | "economicamente-independiente"
-  | "pareja-mismo-nivel-ingresos"
-  | "nivel-ingresos-actual"
-  | "origenes-socioeconomicos"
-  | "saldrias-kilos-mas"
-  | "saldrias-con-hijos"
-  | null;
+// Tipo para respuestas Sí/No/No respondo
+type YesNoResponse = "no-respondo" | "no" | "si" | "";
 
 export default function AjustesPerfilPage() {
   const [activeCategory, setActiveCategory] = useState<CategoryType>("algo-sobre-mi");
-  const [editingField, setEditingField] = useState<EditModalType>(null);
   
   // Estado para todos los campos del formulario
   const [formData, setFormData] = useState({
-    // Algo sobre mí
-    altura: "178",
-    peso: "75",
+    // ===== ALGO SOBRE MÍ =====
+    altura: "175",
+    peso: "70",
     tipoCuerpo: "atletico",
     colorOjos: "marrones",
     colorCabello: "negro",
     educacion: "universitaria",
     etnia: "mestizo",
-    origenGeografico: "ciudad",
-    defineteEnFrase: "un hombre normal, sincero y simple",
-    cuentanosAlgoTuyo: "¡Hola! Gracias por visitar mi perfil. Déjame contarte un poco sobre mí. Me considero una persona honesta, amable, educada e inteligente...",
+    idiomas: [] as string[],
+    vivesEn: "ciudad",
+    defineteEnFrase: "",
+    cuentanosAlgoTuyo: "",
     intereses: "",
-    primeraCitaIdeal: "En un lugar donde estemos cómodos al aire libre",
+    primeraCitaIdeal: "",
     
-    // Relaciones
-    estadoCivil: "soltero",
-    hijos: "no",
-    queBuscas: "formar-pareja",
-    razonPrincipal: "acompanado-bien",
-    tiempoEnPareja: "equilibrio",
-    casarseImportante: "no-tan-importante",
-    vehiculoPropio: "si",
-    saldriasFumador: "no",
+    // ===== RELACIONES =====
+    // Hijos
+    tieneHijos: "" as YesNoResponse,
+    situacionHijos: "", // "no-viven" | "viven-conmigo" | "ya-adultos" | "no-seguro"
+    quiereTenerHijos: "", // "no" | "si" | "no-seguro" | "lo-pensaria" | "adoptados" | "no-puedo"
     
-    // Cultura
-    ideasPoliticas: "otro-punto-vista",
-    valoresTradicionales: "tradicional-abierto",
-    espiritualidad: "muy-poco",
-    religion: "catolico",
-    conviccionesReligiosas: "no-creyente",
+    estadoCivil: "",
+    queBuscas: [] as string[],
+    razonPrincipal: "",
+    tiempoEnPareja: "",
+    casarseImportante: "",
     
-    // Estilo de vida
-    teEjercitas: "algunas-veces",
-    usasDrogas: "nunca",
-    dietaEspecial: "ninguna",
-    tiempoConFamilia: "ocasionalmente",
-    personalidadSociable: "algo-timido",
-    teGustaBailar: "no-me-gusta",
-    teGustaCocinar: "si-me-gusta",
-    ordenMantenimiento: "orden-sin-exagerar",
+    // Vehículo
+    tieneVehiculo: "" as YesNoResponse,
     
-    // Información privada
-    escuelasPrivadasPublicas: "alternativa",
-    tusPadresEstan: "ambos-murieron",
-    economicamenteIndependiente: "si",
-    parejaMismoNivelIngresos: "no-importante",
-    nivelIngresosActual: "mucho-mayores",
-    origenesSocioeconomicos: "clase-media",
-    saldriasMasKilos: "no",
-    saldriasConHijos: "si",
+    // Saldrías con fumador
+    saldriasFumador: "",
+    
+    // ===== CULTURA =====
+    // Pasatiempos (checkboxes múltiples)
+    pasatiempos: [] as string[], // ["peliculas", "musica", "leer", etc.]
+    generosP eliculas: [] as string[],
+    generosMusica: [] as string[],
+    generosLibros: [] as string[],
+    
+    ideasPoliticas: "",
+    valoresTradicionales: "",
+    espiritualidad: "",
+    religion: "",
+    conviccionesReligiosas: "",
+    
+    // ===== ESTILO DE VIDA =====
+    // Qué haces normalmente
+    queHaces: [] as string[], // ["cocinar", "deporte", "bailar", etc.]
+    nivelCocinar: "", // Solo si marcó "cocinar"
+    deportesPractica: [] as string[], // Solo si marcó "deporte"
+    nivelBailar: "", // Solo si marcó "bailar"
+    
+    teEjercitas: "",
+    
+    // Fumas
+    fumas: "" as YesNoResponse,
+    frecuenciaFumar: "", // Solo si "fumas" = "si"
+    
+    // Bebes alcohol
+    bebesAlcohol: "" as YesNoResponse,
+    frecuenciaBeber: "", // Solo si "bebesAlcohol" = "si"
+    
+    // Usas drogas
+    usasDrogas: "" as YesNoResponse,
+    frecuenciaDrogas: "", // Solo si "usasDrogas" = "si"
+    
+    dietaEspecial: "",
+    tiempoConFamilia: "",
+    personalidadSociable: "",
+    ordenMantenimiento: "",
+    
+    // ===== INFORMACIÓN PRIVADA =====
+    escuelasPrivadasPublicas: "",
+    tusPadresEstan: "",
+    economicamenteIndependiente: "",
+    nivelIngresos: "",
+    importaNivelIngresosPareja: "",
+    origenGeograficoPrivado: "", // "pueblo" | "ciudad"
+    claseSocioeconomica: "", // "humilde" | "media" | "media-alta" | "alta"
+    numeroHijos: "",
+    ordenNacimiento: "",
+    saldriasMasKilos: "",
+    saldriasConHijos: "",
   });
-
-  // Temporal state for modal editing
-  const [tempValue, setTempValue] = useState<any>(null);
 
   const categories = [
     { id: "algo-sobre-mi" as CategoryType, label: "Algo sobre mí", icon: "👤" },
@@ -120,299 +110,204 @@ export default function AjustesPerfilPage() {
     { id: "informacion-privada" as CategoryType, label: "Información privada", icon: "🔒" },
   ];
 
-  const openEditModal = (field: EditModalType) => {
-    setEditingField(field);
-    // Initialize temp value based on field
-    switch (field) {
-      case "altura-peso":
-        setTempValue({ altura: formData.altura, peso: formData.peso });
-        break;
-      default:
-        setTempValue(null);
-    }
+  // ===== HANDLERS =====
+  
+  const handleYesNoChange = (field: keyof typeof formData, value: YesNoResponse) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value,
+      // Reset dependent fields if changing to "no" or "no-respondo"
+      ...(value !== "si" && {
+        // Reset related fields based on the field being changed
+        ...(field === "tieneHijos" && { situacionHijos: "" }),
+        ...(field === "fumas" && { frecuenciaFumar: "" }),
+        ...(field === "bebesAlcohol" && { frecuenciaBeber: "" }),
+        ...(field === "usasDrogas" && { frecuenciaDrogas: "" }),
+      })
+    }));
   };
 
-  const closeEditModal = () => {
-    setEditingField(null);
-    setTempValue(null);
+  const handleCheckboxChange = (field: keyof typeof formData, value: string, checked: boolean) => {
+    setFormData(prev => {
+      const currentArray = prev[field] as string[];
+      if (checked) {
+        return { ...prev, [field]: [...currentArray, value] };
+      } else {
+        return {
+          ...prev,
+          [field]: currentArray.filter(item => item !== value),
+          // Reset dependent fields when unchecking
+          ...(field === "pasatiempos" && value === "peliculas" && { generosPeliculas: [] }),
+          ...(field === "pasatiempos" && value === "musica" && { generosMusica: [] }),
+          ...(field === "pasatiempos" && value === "leer" && { generosLibros: [] }),
+          ...(field === "queHaces" && value === "cocinar" && { nivelCocinar: "" }),
+          ...(field === "queHaces" && value === "deporte" && { deportesPractica: [] }),
+          ...(field === "queHaces" && value === "bailar" && { nivelBailar: "" }),
+        };
+      }
+    });
   };
 
-  const saveEditModal = () => {
-    // Save logic here based on editingField
-    console.log("Saving:", editingField, tempValue);
-    closeEditModal();
+  const handleInputChange = (field: keyof typeof formData, value: any) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const getLabelForValue = (field: string, value: string): string => {
-    const labels: Record<string, Record<string, string>> = {
-      tipoCuerpo: {
-        "delgado": "Delgado/a",
-        "atletico": "Atlético/a",
-        "promedio": "Promedio",
-        "voluminoso": "Voluminoso/a",
-        "robusto": "Robusto/a",
-      },
-      colorOjos: {
-        "negros": "Negros",
-        "marrones": "Marrones",
-        "azules": "Azules",
-        "verdes": "Verdes",
-        "grises": "Grises",
-        "otro": "Otro",
-      },
-      colorCabello: {
-        "negro": "Negro",
-        "castaño": "Castaño",
-        "rubio": "Rubio",
-        "pelirrojo": "Pelirrojo",
-        "gris": "Gris/Blanco",
-        "otro": "Otro",
-      },
-      educacion: {
-        "basica": "Básica",
-        "secundaria": "Secundaria",
-        "tecnica": "Técnica",
-        "universitaria": "Universitaria",
-        "postgrado": "Postgrado",
-      },
-      etnia: {
-        "afro": "Afro/Negro/a",
-        "arabe": "Árabe/Turco/a",
-        "asiatico": "Asiático/a",
-        "blanco": "Blanco/a (Caucásico/a)",
-        "indigena": "Indígena",
-        "mestizo": "Mestizo/a",
-        "otro": "Otro",
-      },
-      origenGeografico: {
-        "campo": "Vida de campo",
-        "pueblo": "Vida de pueblo",
-        "ciudad": "Vida de ciudad",
-      },
-      estadoCivil: {
-        "soltero": "Soltero/a",
-        "casado": "Casado/a",
-        "divorciado": "Divorciado/a",
-        "viudo": "Viudo/a",
-      },
-      hijos: {
-        "prefiero-no-decir": "Prefiero no decir",
-        "si-no-viven": "Sí, pero no viven en mi casa",
-        "si-viven": "Sí, y viven en mi casa",
-        "no": "No",
-        "no-me-acuerdo": "No me acuerdo...",
-      },
-      queBuscas: {
-        "formar-pareja": "Encontrar a alguien para formar pareja",
-        "aventuras": "Aventuras sin compromiso",
-      },
-      razonPrincipal: {
-        "familia-futuro": "Para formar una familia y planear un futuro",
-        "acompanado-bien": "Para sentirme acompañado/a y pasarla bien",
-        "no-seguro": "No estoy seguro / No sé muy bien para qué",
-      },
-      tiempoEnPareja: {
-        "mayoria-compania": "Me encanta pasar la mayoría del tiempo en compañía de mi pareja",
-        "equilibrio": "Necesito mi espacio y que negociemos un equilibrio",
-      },
-      casarseImportante: {
-        "si-importante": "Sí, es importante, me gustaría casarme en el futuro",
-        "no-tan-importante": "No es tan importante, vivir juntos sería suficiente",
-        "no-estoy-seguro": "No estoy seguro",
-      },
-      vehiculoPropio: {
-        "si": "Sí",
-        "no": "No",
-      },
-      saldriasFumador: {
-        "no": "No",
-        "si": "Sí",
-        "si-prefiero": "Sí, y prefiero que fume",
-      },
-      ideasPoliticas: {
-        "prefiero-no-decir": "Prefiero no decir",
-        "ultra-conservador": "Ultra Conservador",
-        "conservador": "Conservador",
-        "indiferente": "Indiferente",
-        "liberal": "Liberal",
-        "muy-liberal": "Muy Liberal",
-        "inconformista": "Inconformista",
-        "otro-punto-vista": "Otro punto de vista",
-      },
-      valoresTradicionales: {
-        "bastante": "Bastante, me gusta aferrarme a las tradiciones",
-        "tradicional-abierto": "Soy tradicional, pero de mente abierta hacia lo diferente",
-        "poco-tradicional": "Poco tradicional... casi siempre prefiero inventar mi propio camino",
-      },
-      espiritualidad: {
-        "si-bastante": "Sí, bastante",
-        "mas-o-menos": "Más o menos",
-        "muy-poco": "Muy poco",
-      },
-      religion: {
-        "cristiano": "Cristiano",
-        "budista": "Budista",
-        "catolico": "Católico",
-        "protestante": "Protestante",
-        "ortodoxo": "Ortodoxo",
-        "musulman": "Musulmán",
-        "judio": "Judío",
-        "hindu": "Hindú",
-        "ateo": "Ateo",
-        "agnostico": "Agnóstico",
-        "espiritualista": "Espiritualista",
-        "otro": "Otro",
-      },
-      conviccionesReligiosas: {
-        "bastante-religioso": "Me considero una persona bastante religiosa",
-        "creyente-relajado": "Me considero creyente... pero relajado",
-        "no-creyente": "No soy creyente, ni religioso",
-      },
-      teEjercitas: {
-        "si-regularmente": "Sí, regularmente",
-        "algunas-veces": "Algunas veces",
-        "no-lo-hago": "No lo hago",
-      },
-      usasDrogas: {
-        "prefiero-no-decir": "Prefiero no decir",
-        "nunca": "Nunca",
-        "alguna-vez": "Alguna vez",
-        "seguido": "Seguido (más de 3 veces a la semana)",
-      },
-      dietaEspecial: {
-        "ninguna": "Ninguna alimentación en especial",
-        "vegetariana": "Vegetariana",
-        "vegana": "Vegana",
-        "kosher": "Kosher",
-        "halal": "Halal",
-        "otra": "Otra",
-      },
-      tiempoConFamilia: {
-        "si-me-encanta": "Sí, me encanta, soy súper familiero/a",
-        "ocasionalmente": "Ocasionalmente, de vez en cuando",
-        "francamente-no": "Francamente... no soy muy familiero",
-      },
-      personalidadSociable: {
-        "bastante-extrovertido": "Sí, soy bastante extrovertido y sociable",
-        "algo-timido": "Soy algo tímido/a, pero igual me gusta socializar",
-        "desgastante": "Me resulta desgastante... odio hacer sociales",
-      },
-      teGustaBailar: {
-        "si-me-gusta": "Sí, me gusta",
-        "mas-o-menos": "Más o menos",
-        "no-me-gusta": "No me gusta",
-      },
-      teGustaCocinar: {
-        "si-me-gusta": "Sí, me gusta",
-        "mas-o-menos": "Más o menos",
-        "no-me-gusta": "No me gusta",
-      },
-      ordenMantenimiento: {
-        "impecable": "Me encanta mantener todo lo más impecable posible",
-        "orden-sin-exagerar": "Me gusta mantener el orden, pero sin exagerar",
-        "relajado": "Soy relajado, ordeno ocasionalmente",
-        "muy-relajado": "Soy muy relajado, no ordeno casi nunca",
-      },
-      escuelasPrivadasPublicas: {
-        "publicas": "Escuelas públicas",
-        "privadas": "Escuelas privadas",
-        "mezcla": "Mezcla de públicas y privadas",
-        "en-casa": "Educación en casa",
-        "alternativa": "Educación alternativa",
-      },
-      tusPadresEstan: {
-        "aun-casados": "Aún casados",
-        "divorciados": "Divorciados",
-        "separados": "Separados",
-        "uno-muerto": "Uno ha muerto",
-        "ambos-murieron": "Ambos murieron",
-        "no-estan-juntos": "No están juntos",
-      },
-      economicamenteIndependiente: {
-        "si": "Sí",
-        "no": "No",
-        "mas-o-menos": "Más o menos",
-      },
-      parejaMismoNivelIngresos: {
-        "no-importante": "No es importante",
-        "escalon-cercano": "Es importante que al menos esté en un escalón cercano",
-        "mismo-nivel": "Tiene que estar en el mismo nivel o más que yo",
-      },
-      nivelIngresosActual: {
-        "no-tengo": "No tengo ingresos",
-        "menores": "Ingresos menores que un salario básico",
-        "similares": "Ingresos similares que un salario básico",
-        "mayores": "Ingresos mayores que un salario básico",
-        "mucho-mayores": "Ingresos mucho mayores que un salario básico",
-      },
-      origenesSocioeconomicos: {
-        "clase-humilde": "Provengo de una familia de clase humilde",
-        "clase-media": "Provengo de una familia de clase media",
-        "clase-media-alta": "Provengo de una familia de clase media-alta",
-        "clase-alta": "Provengo de una familia de clase alta",
-      },
-      saldriasMasKilos: {
-        "no": "No",
-        "si": "Sí",
-        "si-prefiero": "Sí, y prefiero que sea así",
-      },
-      saldriasConHijos: {
-        "no": "No",
-        "si": "Sí",
-        "si-prefiero": "Sí, y prefiero que tenga hijos",
-      },
-    };
+  // ===== RENDER HELPERS =====
 
-    return labels[field]?.[value] || value;
-  };
-
-  const renderFieldValue = (label: string, value: string, field: string, isPrivate: boolean = false) => {
-    if (!value) return null;
-
+  // TIPO A: Pregunta Sí/No/No respondo + Selector condicional
+  const renderYesNoField = (
+    label: string,
+    field: keyof typeof formData,
+    selectorContent?: React.ReactNode
+  ) => {
+    const value = formData[field] as YesNoResponse;
+    
     return (
-      <div className="bg-white/5 border border-forest-light rounded-lg p-4 mb-4">
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex-1">
-            <div className="flex items-center gap-2 mb-2">
-              {isPrivate && <span className="text-gray-500 text-sm">🔒</span>}
-              <p className="text-sm font-medium text-gray-400">{label}</p>
-            </div>
-            <p className="text-gray-200">{getLabelForValue(field, value)}</p>
+      <div className="mb-6">
+        <p className="text-sm font-medium text-gray-300 mb-3">{label}</p>
+        <div className="flex gap-3 mb-4">
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="radio"
+              name={field}
+              checked={value === "no-respondo"}
+              onChange={() => handleYesNoChange(field, "no-respondo")}
+              className="w-4 h-4 text-neon-green bg-forest-dark border-gray-600 focus:ring-neon-green"
+            />
+            <span className="text-sm text-gray-300">No respondo</span>
+          </label>
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="radio"
+              name={field}
+              checked={value === "no"}
+              onChange={() => handleYesNoChange(field, "no")}
+              className="w-4 h-4 text-neon-green bg-forest-dark border-gray-600 focus:ring-neon-green"
+            />
+            <span className="text-sm text-gray-300">No</span>
+          </label>
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="radio"
+              name={field}
+              checked={value === "si"}
+              onChange={() => handleYesNoChange(field, "si")}
+              className="w-4 h-4 text-neon-green bg-forest-dark border-gray-600 focus:ring-neon-green"
+            />
+            <span className="text-sm text-gray-300">Sí</span>
+          </label>
+        </div>
+        
+        {/* Selector condicional aparece solo si "Sí" */}
+        {value === "si" && selectorContent && (
+          <div className="bg-white/5 border border-neon-green/30 rounded-lg p-4 mt-3">
+            {selectorContent}
           </div>
-          <button
-            onClick={() => openEditModal(field as EditModalType)}
-            className="text-sm text-gray-400 hover:text-neon-green border border-forest-light hover:border-neon-green px-4 py-2 rounded-lg transition-all"
-          >
-            Modificar
-          </button>
+        )}
+      </div>
+    );
+  };
+
+  // TIPO B: Selector directo (sin Sí/No)
+  const renderSelectField = (
+    label: string,
+    field: keyof typeof formData,
+    options: { value: string; label: string }[]
+  ) => {
+    const value = formData[field] as string;
+    
+    return (
+      <div className="mb-6">
+        <label className="block text-sm font-medium text-gray-300 mb-3">
+          {label}
+        </label>
+        <select
+          value={value}
+          onChange={(e) => handleInputChange(field, e.target.value)}
+          className="w-full px-4 py-2 bg-forest-dark border border-gray-600 rounded-lg text-gray-200 focus:border-neon-green focus:ring-1 focus:ring-neon-green"
+        >
+          <option value="">Selecciona una opción</option>
+          {options.map(opt => (
+            <option key={opt.value} value={opt.value}>{opt.label}</option>
+          ))}
+        </select>
+        {value && (
+          <div className="mt-3 text-sm text-gray-400">
+            → {options.find(o => o.value === value)?.label}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // TIPO C: Checkboxes múltiples
+  const renderCheckboxes = (
+    label: string,
+    field: keyof typeof formData,
+    options: { value: string; label: string }[]
+  ) => {
+    const values = formData[field] as string[];
+    
+    return (
+      <div className="mb-6">
+        <p className="text-sm font-medium text-gray-300 mb-3">{label}</p>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+          {options.map(opt => (
+            <label key={opt.value} className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={values.includes(opt.value)}
+                onChange={(e) => handleCheckboxChange(field, opt.value, e.target.checked)}
+                className="w-4 h-4 text-neon-green bg-forest-dark border-gray-600 rounded focus:ring-neon-green"
+              />
+              <span className="text-sm text-gray-300">{opt.label}</span>
+            </label>
+          ))}
         </div>
       </div>
     );
   };
 
-  const renderTextFieldValue = (label: string, value: string, fieldKey: EditModalType, isPrivate: boolean = false) => {
-    if (!value) return null;
-
+  // TIPO D: Input numérico o textarea
+  const renderInputField = (
+    label: string,
+    field: keyof typeof formData,
+    type: "number" | "text" | "textarea" = "text",
+    placeholder?: string,
+    suffix?: string
+  ) => {
+    const value = formData[field] as string;
+    
     return (
-      <div className="bg-white/5 border border-forest-light rounded-lg p-4 mb-4">
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex-1">
-            <div className="flex items-center gap-2 mb-2">
-              {isPrivate && <span className="text-gray-500 text-sm">🔒</span>}
-              <p className="text-sm font-medium text-gray-400">{label}</p>
-            </div>
-            <p className="text-gray-200 whitespace-pre-wrap">{value}</p>
+      <div className="mb-6">
+        <label className="block text-sm font-medium text-gray-300 mb-3">
+          {label}
+        </label>
+        {type === "textarea" ? (
+          <Textarea
+            value={value}
+            onChange={(e) => handleInputChange(field, e.target.value)}
+            placeholder={placeholder}
+            className="w-full min-h-[100px] bg-forest-dark border border-gray-600 text-gray-200 focus:border-neon-green"
+            rows={4}
+          />
+        ) : (
+          <div className="flex gap-2 items-center">
+            <Input
+              type={type}
+              value={value}
+              onChange={(e) => handleInputChange(field, e.target.value)}
+              placeholder={placeholder}
+              className="flex-1 bg-forest-dark border border-gray-600 text-gray-200 focus:border-neon-green"
+            />
+            {suffix && <span className="text-gray-400 text-sm">{suffix}</span>}
           </div>
-          <button
-            onClick={() => openEditModal(fieldKey)}
-            className="text-sm text-gray-400 hover:text-neon-green border border-forest-light hover:border-neon-green px-4 py-2 rounded-lg transition-all flex-shrink-0"
-          >
-            Modificar
-          </button>
-        </div>
+        )}
       </div>
     );
   };
+
+  // ===== RENDER CONTENT POR CATEGORÍA =====
 
   const renderContent = () => {
     switch (activeCategory) {
@@ -421,45 +316,75 @@ export default function AjustesPerfilPage() {
           <div className="space-y-6">
             {/* Apariencia física */}
             <div className="bg-forest-dark/60 backdrop-blur-sm border border-neon-green/20 rounded-xl p-6 shadow-lg">
-              <h3 className="text-xl font-bold text-neon-green mb-4">Apariencia física</h3>
+              <h3 className="text-xl font-bold text-neon-green mb-6">Apariencia física</h3>
               
-              {formData.altura && formData.peso && (
-                <div className="bg-white/5 border border-forest-light rounded-lg p-4 mb-4">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-400 mb-2">Altura y Peso</p>
-                      <p className="text-gray-200">{formData.altura} cm / {formData.peso} kg</p>
-                    </div>
-                    <button
-                      onClick={() => openEditModal("altura-peso")}
-                      className="text-sm text-gray-400 hover:text-neon-green border border-forest-light hover:border-neon-green px-4 py-2 rounded-lg transition-all"
-                    >
-                      Modificar
-                    </button>
-                  </div>
-                </div>
-              )}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {renderInputField("Altura", "altura", "number", "175", "cm")}
+                {renderInputField("Peso", "peso", "number", "70", "kg")}
+              </div>
 
-              {renderFieldValue("Tipo de cuerpo", formData.tipoCuerpo, "tipoCuerpo")}
-              {renderFieldValue("Color de ojos", formData.colorOjos, "colorOjos")}
-              {renderFieldValue("Color de cabello", formData.colorCabello, "colorCabello")}
+              {renderSelectField("Tipo de cuerpo", "tipoCuerpo", [
+                { value: "delgado", label: "Delgado/a" },
+                { value: "atletico", label: "Atlético/a" },
+                { value: "promedio", label: "Promedio" },
+                { value: "robusto", label: "Robusto/a" },
+              ])}
+
+              {renderSelectField("Color de ojos", "colorOjos", [
+                { value: "negros", label: "Negros" },
+                { value: "marrones", label: "Marrones" },
+                { value: "azules", label: "Azules" },
+                { value: "verdes", label: "Verdes" },
+                { value: "grises", label: "Grises" },
+                { value: "otro", label: "Otro" },
+              ])}
+
+              {renderSelectField("Color de cabello", "colorCabello", [
+                { value: "negro", label: "Negro" },
+                { value: "castano", label: "Castaño" },
+                { value: "rubio", label: "Rubio" },
+                { value: "pelirrojo", label: "Pelirrojo" },
+                { value: "gris", label: "Gris/Blanco" },
+                { value: "otro", label: "Otro" },
+              ])}
             </div>
 
             {/* Educación y origen */}
             <div className="bg-forest-dark/60 backdrop-blur-sm border border-neon-green/20 rounded-xl p-6 shadow-lg">
-              <h3 className="text-xl font-bold text-neon-green mb-4">Educación y origen</h3>
-              {renderFieldValue("Educación", formData.educacion, "educacion")}
-              {renderFieldValue("Tu etnia", formData.etnia, "etnia")}
-              {renderFieldValue("Origen geográfico", formData.origenGeografico, "origenGeografico")}
+              <h3 className="text-xl font-bold text-neon-green mb-6">Educación y origen</h3>
+
+              {renderSelectField("Educación", "educacion", [
+                { value: "basica", label: "Básica" },
+                { value: "secundaria", label: "Secundaria" },
+                { value: "tecnica", label: "Técnica" },
+                { value: "universitaria", label: "Universitaria" },
+                { value: "postgrado", label: "Postgrado" },
+              ])}
+
+              {renderSelectField("Etnia", "etnia", [
+                { value: "blanco", label: "Blanco/a (Caucásico/a)" },
+                { value: "afro", label: "Afro/Negro/a" },
+                { value: "asiatico", label: "Asiático/a" },
+                { value: "mestizo", label: "Mestizo/a" },
+                { value: "indigena", label: "Indígena" },
+                { value: "arabe", label: "Árabe/Turco/a" },
+                { value: "otro", label: "Otro" },
+              ])}
+
+              {renderSelectField("¿Vives en ciudad o campo?", "vivesEn", [
+                { value: "ciudad", label: "Ciudad" },
+                { value: "campo", label: "Campo" },
+              ])}
             </div>
 
             {/* Presentación personal */}
             <div className="bg-forest-dark/60 backdrop-blur-sm border border-neon-green/20 rounded-xl p-6 shadow-lg">
-              <h3 className="text-xl font-bold text-neon-green mb-4">Presentación personal</h3>
-              {renderTextFieldValue("Defínete en una frase", formData.defineteEnFrase, "definete-frase")}
-              {renderTextFieldValue("Cuéntanos algo tuyo", formData.cuentanosAlgoTuyo, "cuentanos-algo")}
-              {renderTextFieldValue("Intereses (separados con una coma)", formData.intereses, "intereses")}
-              {renderTextFieldValue("¿Cómo sería tu primera cita ideal?", formData.primeraCitaIdeal, "primera-cita")}
+              <h3 className="text-xl font-bold text-neon-green mb-6">Presentación personal</h3>
+
+              {renderInputField("Defínete en una frase", "defineteEnFrase", "textarea", "Ej: Una persona sincera, alegre y aventurera")}
+              {renderInputField("Cuéntanos algo tuyo", "cuentanosAlgoTuyo", "textarea", "Comparte algo interesante sobre ti...")}
+              {renderInputField("Intereses (separados con una coma)", "intereses", "text", "Ej: Fotografía, viajar, cocina italiana")}
+              {renderInputField("¿Cómo sería tu primera cita ideal?", "primeraCitaIdeal", "textarea", "Describe tu cita ideal...")}
             </div>
           </div>
         );
@@ -467,32 +392,109 @@ export default function AjustesPerfilPage() {
       case "relaciones":
         return (
           <div className="space-y-6">
-            {/* Estado civil e hijos */}
+            {/* Hijos */}
             <div className="bg-forest-dark/60 backdrop-blur-sm border border-neon-green/20 rounded-xl p-6 shadow-lg">
-              <h3 className="text-xl font-bold text-neon-green mb-4">Estado civil e hijos</h3>
-              {renderFieldValue("Estado civil", formData.estadoCivil, "estadoCivil")}
-              {renderFieldValue("¿Tienes hijos?", formData.hijos, "hijos")}
+              <h3 className="text-xl font-bold text-neon-green mb-6">Hijos</h3>
+
+              {renderYesNoField(
+                "¿Tienes hijos?",
+                "tieneHijos",
+                <>
+                  <p className="text-sm font-medium text-gray-300 mb-3">Especifica tu situación:</p>
+                  <select
+                    value={formData.situacionHijos}
+                    onChange={(e) => handleInputChange("situacionHijos", e.target.value)}
+                    className="w-full px-4 py-2 bg-forest-dark border border-gray-600 rounded-lg text-gray-200 focus:border-neon-green"
+                  >
+                    <option value="">Selecciona...</option>
+                    <option value="no-viven">Sí, pero no viven en mi casa</option>
+                    <option value="viven-conmigo">Sí, y viven conmigo en la casa</option>
+                    <option value="ya-adultos">Sí, pero ya son adultos</option>
+                    <option value="no-seguro">No estoy seguro</option>
+                  </select>
+                  {formData.situacionHijos && (
+                    <div className="mt-3 text-sm text-gray-400">
+                      → {formData.situacionHijos === "no-viven" && "Sí, pero no viven en mi casa"}
+                      {formData.situacionHijos === "viven-conmigo" && "Sí, y viven conmigo en la casa"}
+                      {formData.situacionHijos === "ya-adultos" && "Sí, pero ya son adultos"}
+                      {formData.situacionHijos === "no-seguro" && "No estoy seguro"}
+                    </div>
+                  )}
+                </>
+              )}
+
+              {renderSelectField(
+                formData.tieneHijos === "si" ? "¿Quieres tener más hijos?" : "¿Quieres tener hijos?",
+                "quiereTenerHijos",
+                [
+                  { value: "no", label: "No" },
+                  { value: "si", label: "Sí" },
+                  { value: "no-seguro", label: "No estoy seguro" },
+                  { value: "lo-pensaria", label: "Lo pensaría / Abierto a futuro" },
+                  { value: "adoptados", label: "Sí, aunque serían adoptados" },
+                  { value: "no-puedo", label: "No puedo tener hijos" },
+                ]
+              )}
+            </div>
+
+            {/* Estado civil */}
+            <div className="bg-forest-dark/60 backdrop-blur-sm border border-neon-green/20 rounded-xl p-6 shadow-lg">
+              <h3 className="text-xl font-bold text-neon-green mb-6">Estado civil</h3>
+
+              {renderSelectField("Estado civil", "estadoCivil", [
+                { value: "no-respondo", label: "Prefiero no responder" },
+                { value: "soltero", label: "Soltero/a" },
+                { value: "divorciado", label: "Divorciado/a" },
+                { value: "separado", label: "Separado/a" },
+                { value: "viudo", label: "Viudo/a" },
+                { value: "en-relacion", label: "En relación" },
+                { value: "viviendo-pareja", label: "Viviendo en pareja" },
+                { value: "casado", label: "Casado/a" },
+              ])}
             </div>
 
             {/* Expectativas */}
             <div className="bg-forest-dark/60 backdrop-blur-sm border border-neon-green/20 rounded-xl p-6 shadow-lg">
-              <h3 className="text-xl font-bold text-neon-green mb-4">Expectativas</h3>
-              {renderFieldValue("¿Qué estás buscando en nuestra web?", formData.queBuscas, "queBuscas")}
-              {renderFieldValue("¿Razón PRINCIPAL por la que quieres tener pareja?", formData.razonPrincipal, "razonPrincipal")}
+              <h3 className="text-xl font-bold text-neon-green mb-6">Expectativas</h3>
+
+              {renderCheckboxes("¿Qué estás buscando? (puedes marcar varios)", "queBuscas", [
+                { value: "pareja-seria", label: "Pareja seria" },
+                { value: "aventuras", label: "Aventuras sin compromiso" },
+                { value: "amistad", label: "Amistad" },
+                { value: "conocer-gente", label: "Conocer gente nueva" },
+                { value: "no-seguro", label: "No estoy seguro" },
+              ])}
+
+              {renderSelectField("¿Razón PRINCIPAL por la que quieres tener pareja?", "razonPrincipal", [
+                { value: "familia-futuro", label: "Para formar una familia y planear un futuro" },
+                { value: "acompanado", label: "Para sentirme acompañado/a y pasarla bien" },
+                { value: "no-seguro", label: "No estoy seguro / No sé muy bien para qué" },
+              ])}
+
+              {renderSelectField("¿Cómo te gusta administrar tu tiempo en pareja?", "tiempoEnPareja", [
+                { value: "mayoria-compania", label: "Me encanta pasar la mayoría del tiempo en compañía" },
+                { value: "equilibrio", label: "Necesito mi espacio y negociar un equilibrio" },
+              ])}
+
+              {renderSelectField("¿Casarse es importante?", "casarseImportante", [
+                { value: "si-importante", label: "Sí, es importante, me gustaría casarme en el futuro" },
+                { value: "no-tan-importante", label: "No es tan importante, vivir juntos sería suficiente" },
+                { value: "no-seguro", label: "No estoy seguro" },
+              ])}
             </div>
 
-            {/* Preferencias */}
+            {/* Otros */}
             <div className="bg-forest-dark/60 backdrop-blur-sm border border-neon-green/20 rounded-xl p-6 shadow-lg">
-              <h3 className="text-xl font-bold text-neon-green mb-4">Preferencias</h3>
-              {renderFieldValue("¿Cómo te gusta administrar tu tiempo en pareja?", formData.tiempoEnPareja, "tiempoEnPareja")}
-              {renderFieldValue("¿Casarse es importante?", formData.casarseImportante, "casarseImportante")}
-              {renderFieldValue("¿Tienes vehículo propio?", formData.vehiculoPropio, "vehiculoPropio")}
-            </div>
+              <h3 className="text-xl font-bold text-neon-green mb-6">Otros</h3>
 
-            {/* Saldrías con alguien que... */}
-            <div className="bg-forest-dark/60 backdrop-blur-sm border border-neon-green/20 rounded-xl p-6 shadow-lg">
-              <h3 className="text-xl font-bold text-neon-green mb-4">Saldrías con alguien que...</h3>
-              {renderFieldValue("¿Saldrías con alguien que fuma?", formData.saldriasFumador, "saldriasFumador")}
+              {renderYesNoField("¿Tienes vehículo propio?", "tieneVehiculo")}
+
+              {renderSelectField("¿Saldrías con alguien que fuma?", "saldriasFumador", [
+                { value: "no", label: "No" },
+                { value: "si", label: "Sí" },
+                { value: "si-prefiero", label: "Sí, y prefiero que fume" },
+                { value: "me-da-igual", label: "Me da igual" },
+              ])}
             </div>
           </div>
         );
@@ -500,19 +502,118 @@ export default function AjustesPerfilPage() {
       case "cultura":
         return (
           <div className="space-y-6">
+            {/* Pasatiempos */}
+            <div className="bg-forest-dark/60 backdrop-blur-sm border border-neon-green/20 rounded-xl p-6 shadow-lg">
+              <h3 className="text-xl font-bold text-neon-green mb-6">¿Cuáles son tus pasatiempos?</h3>
+
+              {renderCheckboxes("Marca los que te gusten:", "pasatiempos", [
+                { value: "peliculas", label: "Películas" },
+                { value: "musica", label: "Música" },
+                { value: "leer", label: "Leer" },
+                { value: "deporte", label: "Deporte" },
+                { value: "viajar", label: "Viajar" },
+                { value: "fotografia", label: "Fotografía" },
+              ])}
+
+              {/* Expansión para Películas */}
+              {formData.pasatiempos.includes("peliculas") && (
+                <div className="bg-white/5 border border-neon-green/30 rounded-lg p-4 mt-4">
+                  <p className="text-sm font-medium text-gray-300 mb-3">¿Qué tipo de películas te gustan?</p>
+                  {renderCheckboxes("", "generosPeliculas", [
+                    { value: "accion", label: "Acción" },
+                    { value: "comedia", label: "Comedia" },
+                    { value: "drama", label: "Drama" },
+                    { value: "horror", label: "Horror" },
+                    { value: "scifi", label: "Ciencia ficción" },
+                    { value: "romance", label: "Romance" },
+                    { value: "documentales", label: "Documentales" },
+                  ])}
+                </div>
+              )}
+
+              {/* Expansión para Música */}
+              {formData.pasatiempos.includes("musica") && (
+                <div className="bg-white/5 border border-neon-green/30 rounded-lg p-4 mt-4">
+                  <p className="text-sm font-medium text-gray-300 mb-3">¿Qué géneros musicales te gustan?</p>
+                  {renderCheckboxes("", "generosMusica", [
+                    { value: "rock", label: "Rock" },
+                    { value: "pop", label: "Pop" },
+                    { value: "jazz", label: "Jazz" },
+                    { value: "blues", label: "Blues" },
+                    { value: "clasica", label: "Clásica" },
+                    { value: "electronica", label: "Electrónica" },
+                    { value: "reggaeton", label: "Reggaetón" },
+                    { value: "salsa", label: "Salsa" },
+                  ])}
+                </div>
+              )}
+
+              {/* Expansión para Leer */}
+              {formData.pasatiempos.includes("leer") && (
+                <div className="bg-white/5 border border-neon-green/30 rounded-lg p-4 mt-4">
+                  <p className="text-sm font-medium text-gray-300 mb-3">¿Qué tipo de libros lees?</p>
+                  {renderCheckboxes("", "generosLibros", [
+                    { value: "fantasia", label: "Fantasía" },
+                    { value: "ciencia-ficcion", label: "Ciencia ficción" },
+                    { value: "historico", label: "Histórico" },
+                    { value: "biografias", label: "Biografías" },
+                    { value: "autoayuda", label: "Autoayuda" },
+                    { value: "novelas", label: "Novelas" },
+                  ])}
+                </div>
+              )}
+            </div>
+
             {/* Ideas y valores */}
             <div className="bg-forest-dark/60 backdrop-blur-sm border border-neon-green/20 rounded-xl p-6 shadow-lg">
-              <h3 className="text-xl font-bold text-neon-green mb-4">Ideas y valores</h3>
-              {renderFieldValue("Ideas políticas", formData.ideasPoliticas, "ideasPoliticas")}
-              {renderFieldValue("¿Eres una persona de valores tradicionales?", formData.valoresTradicionales, "valoresTradicionales")}
-              {renderFieldValue("Te interesa la espiritualidad?", formData.espiritualidad, "espiritualidad")}
+              <h3 className="text-xl font-bold text-neon-green mb-6">Ideas y valores</h3>
+
+              {renderSelectField("Ideas políticas", "ideasPoliticas", [
+                { value: "prefiero-no-decir", label: "Prefiero no decir" },
+                { value: "ultra-conservador", label: "Ultra Conservador" },
+                { value: "conservador", label: "Conservador" },
+                { value: "centro", label: "Centro" },
+                { value: "liberal", label: "Liberal" },
+                { value: "muy-liberal", label: "Muy Liberal" },
+                { value: "otro", label: "Otro punto de vista" },
+              ])}
+
+              {renderSelectField("¿Eres una persona de valores tradicionales?", "valoresTradicionales", [
+                { value: "bastante", label: "Bastante, me gusta aferrarme a las tradiciones" },
+                { value: "tradicional-abierto", label: "Soy tradicional, pero de mente abierta" },
+                { value: "poco", label: "Poco tradicional... prefiero mi propio camino" },
+              ])}
+
+              {renderSelectField("¿Te interesa la espiritualidad?", "espiritualidad", [
+                { value: "si-bastante", label: "Sí, bastante" },
+                { value: "mas-o-menos", label: "Más o menos" },
+                { value: "muy-poco", label: "Muy poco" },
+              ])}
             </div>
 
             {/* Religión */}
             <div className="bg-forest-dark/60 backdrop-blur-sm border border-neon-green/20 rounded-xl p-6 shadow-lg">
-              <h3 className="text-xl font-bold text-neon-green mb-4">Religión</h3>
-              {renderFieldValue("Religión", formData.religion, "religion")}
-              {renderFieldValue("Convicciones religiosas", formData.conviccionesReligiosas, "conviccionesReligiosas")}
+              <h3 className="text-xl font-bold text-neon-green mb-6">Religión</h3>
+
+              {renderSelectField("Religión", "religion", [
+                { value: "catolico", label: "Católico" },
+                { value: "cristiano", label: "Cristiano" },
+                { value: "protestante", label: "Protestante" },
+                { value: "ortodoxo", label: "Ortodoxo" },
+                { value: "musulman", label: "Musulmán" },
+                { value: "judio", label: "Judío" },
+                { value: "budista", label: "Budista" },
+                { value: "hindu", label: "Hindú" },
+                { value: "ateo", label: "Ateo" },
+                { value: "agnostico", label: "Agnóstico" },
+                { value: "otro", label: "Otro" },
+              ])}
+
+              {renderSelectField("Convicciones religiosas", "conviccionesReligiosas", [
+                { value: "bastante-religioso", label: "Me considero bastante religioso" },
+                { value: "creyente-relajado", label: "Creyente... pero relajado" },
+                { value: "no-creyente", label: "No soy creyente, ni religioso" },
+              ])}
             </div>
           </div>
         );
@@ -520,22 +621,203 @@ export default function AjustesPerfilPage() {
       case "estilo-vida":
         return (
           <div className="space-y-6">
+            {/* Qué haces normalmente */}
+            <div className="bg-forest-dark/60 backdrop-blur-sm border border-neon-green/20 rounded-xl p-6 shadow-lg">
+              <h3 className="text-xl font-bold text-neon-green mb-6">¿Qué haces normalmente?</h3>
+
+              {renderCheckboxes("Marca tus actividades:", "queHaces", [
+                { value: "cocinar", label: "Cocinar" },
+                { value: "deporte", label: "Deporte" },
+                { value: "bailar", label: "Bailar" },
+                { value: "leer", label: "Leer" },
+                { value: "cine", label: "Ir al cine" },
+                { value: "viajar", label: "Viajar" },
+              ])}
+
+              {/* Expansión para Cocinar */}
+              {formData.queHaces.includes("cocinar") && (
+                <div className="bg-white/5 border border-neon-green/30 rounded-lg p-4 mt-4">
+                  <p className="text-sm font-medium text-gray-300 mb-3">¿Cuánto te gusta cocinar?</p>
+                  <select
+                    value={formData.nivelCocinar}
+                    onChange={(e) => handleInputChange("nivelCocinar", e.target.value)}
+                    className="w-full px-4 py-2 bg-forest-dark border border-gray-600 rounded-lg text-gray-200 focus:border-neon-green"
+                  >
+                    <option value="">Selecciona...</option>
+                    <option value="solo-necesario">Solo lo necesario</option>
+                    <option value="me-gusta">Me gusta</option>
+                    <option value="me-encanta">Me encanta</option>
+                    <option value="chef">Soy chef / Profesional</option>
+                  </select>
+                  {formData.nivelCocinar && (
+                    <div className="mt-3 text-sm text-gray-400">
+                      → {formData.nivelCocinar === "solo-necesario" && "Solo lo necesario"}
+                      {formData.nivelCocinar === "me-gusta" && "Me gusta"}
+                      {formData.nivelCocinar === "me-encanta" && "Me encanta"}
+                      {formData.nivelCocinar === "chef" && "Soy chef / Profesional"}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Expansión para Deporte */}
+              {formData.queHaces.includes("deporte") && (
+                <div className="bg-white/5 border border-neon-green/30 rounded-lg p-4 mt-4">
+                  <p className="text-sm font-medium text-gray-300 mb-3">¿Qué deportes practicas?</p>
+                  {renderCheckboxes("", "deportesPractica", [
+                    { value: "futbol", label: "Fútbol" },
+                    { value: "basketball", label: "Basketball" },
+                    { value: "natacion", label: "Natación" },
+                    { value: "yoga", label: "Yoga" },
+                    { value: "ciclismo", label: "Ciclismo" },
+                    { value: "gym", label: "Gimnasio" },
+                  ])}
+                </div>
+              )}
+
+              {/* Expansión para Bailar */}
+              {formData.queHaces.includes("bailar") && (
+                <div className="bg-white/5 border border-neon-green/30 rounded-lg p-4 mt-4">
+                  <p className="text-sm font-medium text-gray-300 mb-3">¿Cuánto te gusta bailar?</p>
+                  <select
+                    value={formData.nivelBailar}
+                    onChange={(e) => handleInputChange("nivelBailar", e.target.value)}
+                    className="w-full px-4 py-2 bg-forest-dark border border-gray-600 rounded-lg text-gray-200 focus:border-neon-green"
+                  >
+                    <option value="">Selecciona...</option>
+                    <option value="me-encanta">Me encanta</option>
+                    <option value="frecuentemente">Frecuentemente</option>
+                    <option value="de-vez-cuando">De vez en cuando</option>
+                  </select>
+                  {formData.nivelBailar && (
+                    <div className="mt-3 text-sm text-gray-400">
+                      → {formData.nivelBailar === "me-encanta" && "Me encanta"}
+                      {formData.nivelBailar === "frecuentemente" && "Frecuentemente"}
+                      {formData.nivelBailar === "de-vez-cuando" && "De vez en cuando"}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
             {/* Salud y hábitos */}
             <div className="bg-forest-dark/60 backdrop-blur-sm border border-neon-green/20 rounded-xl p-6 shadow-lg">
-              <h3 className="text-xl font-bold text-neon-green mb-4">Salud y hábitos</h3>
-              {renderFieldValue("Te ejercitas físicamente?", formData.teEjercitas, "teEjercitas")}
-              {renderFieldValue("Usas drogas?", formData.usasDrogas, "usasDrogas")}
-              {renderFieldValue("Dieta o alimentación especial?", formData.dietaEspecial, "dietaEspecial")}
+              <h3 className="text-xl font-bold text-neon-green mb-6">Salud y hábitos</h3>
+
+              {renderSelectField("¿Te ejercitas físicamente?", "teEjercitas", [
+                { value: "diariamente", label: "Diariamente" },
+                { value: "semanalmente", label: "Semanalmente" },
+                { value: "rara-vez", label: "Rara vez" },
+                { value: "nunca", label: "Nunca" },
+              ])}
+
+              {renderYesNoField(
+                "¿Fumas?",
+                "fumas",
+                <>
+                  <p className="text-sm font-medium text-gray-300 mb-3">¿Con qué frecuencia?</p>
+                  <select
+                    value={formData.frecuenciaFumar}
+                    onChange={(e) => handleInputChange("frecuenciaFumar", e.target.value)}
+                    className="w-full px-4 py-2 bg-forest-dark border border-gray-600 rounded-lg text-gray-200 focus:border-neon-green"
+                  >
+                    <option value="">Selecciona...</option>
+                    <option value="diariamente">Diariamente</option>
+                    <option value="ocasionalmente">Ocasionalmente</option>
+                    <option value="socialmente">Socialmente</option>
+                  </select>
+                  {formData.frecuenciaFumar && (
+                    <div className="mt-3 text-sm text-gray-400">
+                      → {formData.frecuenciaFumar === "diariamente" && "Diariamente"}
+                      {formData.frecuenciaFumar === "ocasionalmente" && "Ocasionalmente"}
+                      {formData.frecuenciaFumar === "socialmente" && "Socialmente"}
+                    </div>
+                  )}
+                </>
+              )}
+
+              {renderYesNoField(
+                "¿Bebes alcohol?",
+                "bebesAlcohol",
+                <>
+                  <p className="text-sm font-medium text-gray-300 mb-3">¿Con qué frecuencia?</p>
+                  <select
+                    value={formData.frecuenciaBeber}
+                    onChange={(e) => handleInputChange("frecuenciaBeber", e.target.value)}
+                    className="w-full px-4 py-2 bg-forest-dark border border-gray-600 rounded-lg text-gray-200 focus:border-neon-green"
+                  >
+                    <option value="">Selecciona...</option>
+                    <option value="diariamente">Diariamente</option>
+                    <option value="semanalmente">Semanalmente</option>
+                    <option value="ocasionalmente">Ocasionalmente</option>
+                    <option value="socialmente">Socialmente</option>
+                  </select>
+                  {formData.frecuenciaBeber && (
+                    <div className="mt-3 text-sm text-gray-400">
+                      → {formData.frecuenciaBeber === "diariamente" && "Diariamente"}
+                      {formData.frecuenciaBeber === "semanalmente" && "Semanalmente"}
+                      {formData.frecuenciaBeber === "ocasionalmente" && "Ocasionalmente"}
+                      {formData.frecuenciaBeber === "socialmente" && "Socialmente"}
+                    </div>
+                  )}
+                </>
+              )}
+
+              {renderYesNoField(
+                "¿Usas drogas?",
+                "usasDrogas",
+                <>
+                  <p className="text-sm font-medium text-gray-300 mb-3">¿Con qué frecuencia?</p>
+                  <select
+                    value={formData.frecuenciaDrogas}
+                    onChange={(e) => handleInputChange("frecuenciaDrogas", e.target.value)}
+                    className="w-full px-4 py-2 bg-forest-dark border border-gray-600 rounded-lg text-gray-200 focus:border-neon-green"
+                  >
+                    <option value="">Selecciona...</option>
+                    <option value="ocasionalmente">Ocasionalmente</option>
+                    <option value="regularmente">Regularmente</option>
+                  </select>
+                  {formData.frecuenciaDrogas && (
+                    <div className="mt-3 text-sm text-gray-400">
+                      → {formData.frecuenciaDrogas === "ocasionalmente" && "Ocasionalmente"}
+                      {formData.frecuenciaDrogas === "regularmente" && "Regularmente"}
+                    </div>
+                  )}
+                </>
+              )}
+
+              {renderSelectField("¿Dieta o alimentación especial?", "dietaEspecial", [
+                { value: "ninguna", label: "Ninguna alimentación en especial" },
+                { value: "vegetariana", label: "Vegetariana" },
+                { value: "vegana", label: "Vegana" },
+                { value: "kosher", label: "Kosher" },
+                { value: "halal", label: "Halal" },
+                { value: "otra", label: "Otra" },
+              ])}
             </div>
 
             {/* Personalidad y costumbres */}
             <div className="bg-forest-dark/60 backdrop-blur-sm border border-neon-green/20 rounded-xl p-6 shadow-lg">
-              <h3 className="text-xl font-bold text-neon-green mb-4">Personalidad y costumbres</h3>
-              {renderFieldValue("Te gusta pasar tiempo con familiares?", formData.tiempoConFamilia, "tiempoConFamilia")}
-              {renderFieldValue("Eres de personalidad sociable?", formData.personalidadSociable, "personalidadSociable")}
-              {renderFieldValue("Te gusta bailar?", formData.teGustaBailar, "teGustaBailar")}
-              {renderFieldValue("Te gusta cocinar?", formData.teGustaCocinar, "teGustaCocinar")}
-              {renderFieldValue("Orden y mantenimiento", formData.ordenMantenimiento, "ordenMantenimiento")}
+              <h3 className="text-xl font-bold text-neon-green mb-6">Personalidad y costumbres</h3>
+
+              {renderSelectField("¿Te gusta pasar tiempo con familiares?", "tiempoConFamilia", [
+                { value: "si-encanta", label: "Sí, me encanta, soy súper familiero/a" },
+                { value: "ocasionalmente", label: "Ocasionalmente, de vez en cuando" },
+                { value: "no-familiero", label: "Francamente... no soy muy familiero" },
+              ])}
+
+              {renderSelectField("¿Eres de personalidad sociable?", "personalidadSociable", [
+                { value: "extrovertido", label: "Sí, soy bastante extrovertido y sociable" },
+                { value: "algo-timido", label: "Soy algo tímido/a, pero igual me gusta socializar" },
+                { value: "desgastante", label: "Me resulta desgastante... odio hacer sociales" },
+              ])}
+
+              {renderSelectField("Orden y mantenimiento", "ordenMantenimiento", [
+                { value: "impecable", label: "Me encanta mantener todo lo más impecable posible" },
+                { value: "orden-sin-exagerar", label: "Me gusta mantener el orden, pero sin exagerar" },
+                { value: "relajado", label: "Soy relajado, ordeno ocasionalmente" },
+                { value: "muy-relajado", label: "Soy muy relajado, no ordeno casi nunca" },
+              ])}
             </div>
           </div>
         );
@@ -565,50 +847,114 @@ export default function AjustesPerfilPage() {
 
             {/* Educación */}
             <div className="bg-forest-dark/60 backdrop-blur-sm border border-neon-green/20 rounded-xl p-6 shadow-lg">
-              <div className="flex items-center gap-2 mb-4">
+              <div className="flex items-center gap-2 mb-6">
                 <span className="text-gray-400">🔒</span>
                 <h3 className="text-xl font-bold text-neon-green">Educación</h3>
               </div>
-              {renderFieldValue("¿Estudiaste en escuelas privadas o públicas?", formData.escuelasPrivadasPublicas, "escuelasPrivadasPublicas", true)}
+
+              {renderSelectField("¿Estudiaste en escuelas privadas o públicas?", "escuelasPrivadasPublicas", [
+                { value: "publicas", label: "Escuelas públicas" },
+                { value: "privadas", label: "Escuelas privadas" },
+                { value: "mezcla", label: "Mezcla de públicas y privadas" },
+                { value: "en-casa", label: "Educación en casa" },
+                { value: "alternativa", label: "Educación alternativa" },
+              ])}
             </div>
 
             {/* Familia */}
             <div className="bg-forest-dark/60 backdrop-blur-sm border border-neon-green/20 rounded-xl p-6 shadow-lg">
-              <div className="flex items-center gap-2 mb-4">
+              <div className="flex items-center gap-2 mb-6">
                 <span className="text-gray-400">🔒</span>
                 <h3 className="text-xl font-bold text-neon-green">Familia</h3>
               </div>
-              {renderFieldValue("Tus padres están...", formData.tusPadresEstan, "tusPadresEstan", true)}
+
+              {renderSelectField("Tus padres están...", "tusPadresEstan", [
+                { value: "aun-casados", label: "Aún casados" },
+                { value: "divorciados", label: "Divorciados" },
+                { value: "separados", label: "Separados" },
+                { value: "uno-muerto", label: "Uno ha muerto" },
+                { value: "ambos-murieron", label: "Ambos murieron" },
+                { value: "no-estan-juntos", label: "No están juntos" },
+              ])}
+
+              {renderSelectField("Orden de nacimiento", "ordenNacimiento", [
+                { value: "primero", label: "Primero" },
+                { value: "segundo", label: "Segundo" },
+                { value: "tercero", label: "Tercero" },
+                { value: "cuarto", label: "Cuarto" },
+                { value: "quinto-mas", label: "Quinto o más" },
+                { value: "unico", label: "Único hijo" },
+              ])}
             </div>
 
             {/* Situación económica */}
             <div className="bg-forest-dark/60 backdrop-blur-sm border border-neon-green/20 rounded-xl p-6 shadow-lg">
-              <div className="flex items-center gap-2 mb-4">
+              <div className="flex items-center gap-2 mb-6">
                 <span className="text-gray-400">🔒</span>
                 <h3 className="text-xl font-bold text-neon-green">Situación económica</h3>
               </div>
-              {renderFieldValue("¿Eres económicamente independiente?", formData.economicamenteIndependiente, "economicamenteIndependiente", true)}
-              {renderFieldValue("¿Es importante que tu pareja tenga tu mismo nivel de ingresos?", formData.parejaMismoNivelIngresos, "parejaMismoNivelIngresos", true)}
-              {renderFieldValue("¿Cuál es tu nivel de ingresos actual?", formData.nivelIngresosActual, "nivelIngresosActual", true)}
+
+              {renderSelectField("¿Eres económicamente independiente?", "economicamenteIndependiente", [
+                { value: "si", label: "Sí" },
+                { value: "no", label: "No" },
+                { value: "mas-o-menos", label: "Más o menos" },
+              ])}
+
+              {renderSelectField("¿Cuál es tu nivel de ingresos actual?", "nivelIngresos", [
+                { value: "no-tengo", label: "No tengo ingresos" },
+                { value: "menores", label: "Ingresos menores que un salario básico" },
+                { value: "similares", label: "Ingresos similares que un salario básico" },
+                { value: "mayores", label: "Ingresos mayores que un salario básico" },
+                { value: "mucho-mayores", label: "Ingresos mucho mayores que un salario básico" },
+              ])}
+
+              {renderSelectField("¿Es importante que tu pareja tenga tu mismo nivel de ingresos?", "importaNivelIngresosPareja", [
+                { value: "no-importante", label: "No es importante" },
+                { value: "escalon-cercano", label: "Es importante que al menos esté en un escalón cercano" },
+                { value: "mismo-nivel", label: "Tiene que estar en el mismo nivel o más que yo" },
+              ])}
             </div>
 
             {/* Orígenes */}
             <div className="bg-forest-dark/60 backdrop-blur-sm border border-neon-green/20 rounded-xl p-6 shadow-lg">
-              <div className="flex items-center gap-2 mb-4">
+              <div className="flex items-center gap-2 mb-6">
                 <span className="text-gray-400">🔒</span>
                 <h3 className="text-xl font-bold text-neon-green">Orígenes</h3>
               </div>
-              {renderFieldValue("¿Cuáles son tus orígenes socio-económicos?", formData.origenesSocioeconomicos, "origenesSocioeconomicos", true)}
+
+              {renderSelectField("¿De dónde provienes?", "origenGeograficoPrivado", [
+                { value: "pueblo", label: "Vida de pueblo" },
+                { value: "ciudad", label: "Vida de ciudad" },
+              ])}
+
+              {renderSelectField("¿Cuáles son tus orígenes socio-económicos?", "claseSocioeconomica", [
+                { value: "clase-humilde", label: "Provengo de una familia de clase humilde" },
+                { value: "clase-media", label: "Provengo de una familia de clase media" },
+                { value: "clase-media-alta", label: "Provengo de una familia de clase media-alta" },
+                { value: "clase-alta", label: "Provengo de una familia de clase alta" },
+              ])}
             </div>
 
             {/* Saldrías con alguien que... (privado) */}
             <div className="bg-forest-dark/60 backdrop-blur-sm border border-neon-green/20 rounded-xl p-6 shadow-lg">
-              <div className="flex items-center gap-2 mb-4">
+              <div className="flex items-center gap-2 mb-6">
                 <span className="text-gray-400">🔒</span>
                 <h3 className="text-xl font-bold text-neon-green">Saldrías con alguien que...</h3>
               </div>
-              {renderFieldValue("¿Saldrías con alguien con unos kilos de más o de talla grande?", formData.saldriasMasKilos, "saldriasMasKilos", true)}
-              {renderFieldValue("¿Saldrías con alguien que tiene hijos?", formData.saldriasConHijos, "saldriasConHijos", true)}
+
+              {renderSelectField("¿Saldrías con alguien con unos kilos de más o de talla grande?", "saldriasMasKilos", [
+                { value: "no", label: "No" },
+                { value: "si", label: "Sí" },
+                { value: "si-prefiero", label: "Sí, y prefiero que sea así" },
+                { value: "me-da-igual", label: "Me da igual" },
+              ])}
+
+              {renderSelectField("¿Saldrías con alguien que tiene hijos?", "saldriasConHijos", [
+                { value: "no", label: "No" },
+                { value: "si", label: "Sí" },
+                { value: "depende-cuantos", label: "Depende cuántos" },
+                { value: "me-da-igual", label: "Me da igual" },
+              ])}
             </div>
           </div>
         );
@@ -618,50 +964,10 @@ export default function AjustesPerfilPage() {
     }
   };
 
-  const renderEditModal = () => {
-    if (!editingField) return null;
-
-    return (
-      <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-        <div className="bg-forest-dark border-2 border-neon-green/30 rounded-2xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl shadow-neon-green/20">
-          {/* Modal content based on editingField */}
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl font-bold text-neon-green">Editar campo</h3>
-            <button
-              onClick={closeEditModal}
-              className="text-gray-400 hover:text-neon-green transition-colors"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-
-          {/* Modal form content - placeholder */}
-          <div className="text-gray-300 mb-6">
-            <p>Modal para editar: {editingField}</p>
-            <p className="text-sm text-gray-500 mt-2">TODO: Implementar formulario específico para cada campo</p>
-          </div>
-
-          {/* Buttons */}
-          <div className="flex gap-4">
-            <Button
-              onClick={closeEditModal}
-              variant="ghost"
-              className="flex-1 bg-forest-light/30 text-gray-300 hover:bg-forest-light/50"
-            >
-              Cancelar
-            </Button>
-            <Button
-              onClick={saveEditModal}
-              className="flex-1 bg-neon-green text-forest-dark hover:brightness-110"
-            >
-              Guardar
-            </Button>
-          </div>
-        </div>
-      </div>
-    );
+  const handleSaveAll = () => {
+    console.log("Guardando todos los datos:", formData);
+    // TODO: Enviar a API/backend
+    alert("Perfil guardado correctamente");
   };
 
   return (
@@ -718,6 +1024,16 @@ export default function AjustesPerfilPage() {
                   </button>
                 ))}
               </nav>
+
+              {/* Botón Guardar Todo */}
+              <div className="mt-6">
+                <Button
+                  onClick={handleSaveAll}
+                  className="w-full bg-neon-green text-forest-dark hover:brightness-110 shadow-lg shadow-neon-green/30"
+                >
+                  💾 Guardar todo
+                </Button>
+              </div>
             </div>
           </div>
 
@@ -727,9 +1043,6 @@ export default function AjustesPerfilPage() {
           </div>
         </div>
       </div>
-
-      {/* Edit Modal */}
-      {renderEditModal()}
     </div>
   );
 }
