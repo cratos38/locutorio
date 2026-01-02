@@ -472,7 +472,7 @@ export default function AjustesPerfilPage() {
                 { value: "algunos-universitarios", label: "Algunos estudios universitarios" },
                 { value: "graduado-universitario", label: "Graduado universitario" },
                 { value: "posgrado-universitario", label: "Posgrado universitario" },
-                { value: "otros", label: "Otros" },
+                { value: "otro", label: "Otros" },
               ], "educacionOtra")}
 
               {renderYesNoField(
@@ -939,6 +939,7 @@ export default function AjustesPerfilPage() {
                     <option value="me-encanta">Me encanta</option>
                     <option value="frecuentemente">Frecuentemente</option>
                     <option value="de-vez-cuando">De vez en cuando</option>
+                    <option value="no-bailo">No bailo, no me gusta bailar</option>
                   </select>
                 </div>
               )}
