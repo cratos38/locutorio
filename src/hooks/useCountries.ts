@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import countriesData from '@/data/countries.json';
+import countriesData from '../data/countries.json';
 
 interface City {
   name: string;

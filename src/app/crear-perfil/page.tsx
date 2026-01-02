@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCountries } from "@/hooks/useCountries";
+import { useCountries } from "../../hooks/useCountries";
 
 function CrearPerfilForm() {
   const router = useRouter();
