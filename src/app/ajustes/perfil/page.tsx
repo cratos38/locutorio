@@ -52,7 +52,7 @@ export default function AjustesPerfilPage() {
     // ===== CULTURA =====
     // Pasatiempos (checkboxes múltiples)
     pasatiempos: [] as string[], // ["peliculas", "musica", "leer", etc.]
-    generosP eliculas: [] as string[],
+    generosPeliculas: [] as string[],
     generosMusica: [] as string[],
     generosLibros: [] as string[],
     
