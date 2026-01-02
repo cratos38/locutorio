@@ -27,6 +27,7 @@ export default function AjustesPerfilPage() {
     colorCabelloOtro: "", // Si selecciona "otro"
     signoZodiacal: "",
     educacion: "universitaria",
+    educacionOtra: "", // Si selecciona "otros"
     etnia: "mestizo",
     etniaOtra: "", // Si selecciona "otro"
     idiomas: [] as string[],
@@ -406,12 +407,15 @@ export default function AjustesPerfilPage() {
               <h3 className="text-xl font-bold text-neon-green mb-6">Educación y trabajo</h3>
 
               {renderSelectField("Educación", "educacion", [
-                { value: "basica", label: "Básica" },
-                { value: "secundaria", label: "Secundaria" },
-                { value: "tecnica", label: "Técnica" },
-                { value: "universitaria", label: "Universitaria" },
-                { value: "postgrado", label: "Postgrado" },
-              ])}
+                { value: "primario", label: "Primario" },
+                { value: "secundario", label: "Secundario" },
+                { value: "algunos-terciarios", label: "Algunos estudios terciarios" },
+                { value: "graduado-terciario", label: "Graduado terciario" },
+                { value: "algunos-universitarios", label: "Algunos estudios universitarios" },
+                { value: "graduado-universitario", label: "Graduado universitario" },
+                { value: "posgrado-universitario", label: "Posgrado universitario" },
+                { value: "otros", label: "Otros" },
+              ], "educacionOtra")}
 
               {renderYesNoField(
                 "¿Trabajas?",
@@ -538,6 +542,7 @@ export default function AjustesPerfilPage() {
                 { value: "pareja-seria", label: "Pareja seria" },
                 { value: "aventuras", label: "Aventuras sin compromiso" },
                 { value: "amistad", label: "Amistad" },
+                { value: "charlar-alguien", label: "Charlar con alguien" },
                 { value: "conocer-gente", label: "Conocer gente nueva" },
                 { value: "no-seguro", label: "No estoy seguro" },
               ])}
@@ -549,14 +554,28 @@ export default function AjustesPerfilPage() {
               ])}
 
               {renderSelectField("¿Cómo te gusta administrar tu tiempo en pareja?", "tiempoEnPareja", [
-                { value: "mayoria-compania", label: "Me encanta pasar la mayoría del tiempo en compañía" },
-                { value: "equilibrio", label: "Necesito mi espacio y negociar un equilibrio" },
+                { value: "mayoria-compania", label: "Me encanta pasar la mayoría del tiempo en compañía de mi pareja" },
+                { value: "equilibrio", label: "Necesito mi espacio y que negociemos un equilibrio entre tiempo en pareja y tiempo personal" },
               ])}
 
               {renderSelectField("¿Casarse es importante?", "casarseImportante", [
                 { value: "si-importante", label: "Sí, es importante, me gustaría casarme en el futuro" },
                 { value: "no-tan-importante", label: "No es tan importante, vivir juntos sería suficiente" },
-                { value: "no-seguro", label: "No estoy seguro" },
+                { value: "futuro-dira", label: "Futuro lo dirá" },
+              ])}
+
+              {renderSelectField("¿Cuánto duró la relación más larga que has tenido?", "duracionRelacionLarga", [
+                { value: "menos-1", label: "Menos de 1 año" },
+                { value: "mas-1", label: "Más de 1 año" },
+                { value: "mas-2", label: "Más de 2 años" },
+                { value: "mas-3", label: "Más de 3 años" },
+                { value: "mas-4", label: "Más de 4 años" },
+                { value: "mas-5", label: "Más de 5 años" },
+                { value: "mas-6", label: "Más de 6 años" },
+                { value: "mas-7", label: "Más de 7 años" },
+                { value: "mas-8", label: "Más de 8 años" },
+                { value: "mas-9", label: "Más de 9 años" },
+                { value: "mas-10", label: "Más de 10 años" },
               ])}
             </div>
 
@@ -566,11 +585,35 @@ export default function AjustesPerfilPage() {
 
               {renderYesNoField("¿Tienes vehículo propio?", "tieneVehiculo")}
 
-              {renderSelectField("¿Saldrías con alguien que fuma?", "saldriasFumador", [
+              {renderSelectField("¿Tienes mascota?", "tieneMascota", [
                 { value: "no", label: "No" },
-                { value: "si", label: "Sí" },
-                { value: "si-prefiero", label: "Sí, y prefiero que fume" },
-                { value: "me-da-igual", label: "Me da igual" },
+                { value: "perro", label: "Perro" },
+                { value: "gato", label: "Gato" },
+                { value: "perro-gato", label: "Perro y gato" },
+                { value: "pajaro", label: "Pájaro" },
+                { value: "otro", label: "Otro" },
+              ])}
+
+              {renderCheckboxes("¿Hablas otro idioma? (puedes marcar varios)", "hablaOtroIdioma", [
+                { value: "ninguno", label: "Ningún otro idioma" },
+                { value: "arabe", label: "Árabe" },
+                { value: "chino", label: "Chino" },
+                { value: "holandes", label: "Holandés" },
+                { value: "ingles", label: "Inglés" },
+                { value: "frances", label: "Francés" },
+                { value: "aleman", label: "Alemán" },
+                { value: "hebreo", label: "Hebreo" },
+                { value: "hindi", label: "Hindi" },
+                { value: "italiano", label: "Italiano" },
+                { value: "japones", label: "Japonés" },
+                { value: "noruego", label: "Noruego" },
+                { value: "portugues", label: "Portugués" },
+                { value: "ruso", label: "Ruso" },
+                { value: "espanol", label: "Español" },
+                { value: "sueco", label: "Sueco" },
+                { value: "tagalog", label: "Tagalog" },
+                { value: "urdu", label: "Urdu" },
+                { value: "otro", label: "Otro" },
               ])}
             </div>
           </div>
