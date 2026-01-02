@@ -1,0 +1,536 @@
+{
+  "countries": [
+    {
+      "code": "VE",
+      "name": "Venezuela",
+      "region": "latinoamerica",
+      "states": [
+        {
+          "name": "Distrito Capital",
+          "cities": ["Caracas"]
+        },
+        {
+          "name": "Miranda",
+          "cities": ["Los Teques", "Guarenas", "Guatire", "Petare"]
+        },
+        {
+          "name": "Zulia",
+          "cities": ["Maracaibo", "Cabimas", "Ciudad Ojeda"]
+        },
+        {
+          "name": "Carabobo",
+          "cities": ["Valencia", "Puerto Cabello", "Guacara"]
+        },
+        {
+          "name": "Aragua",
+          "cities": ["Maracay", "Turmero", "La Victoria"]
+        },
+        {
+          "name": "Lara",
+          "cities": ["Barquisimeto", "Cabudare"]
+        },
+        {
+          "name": "Bolívar",
+          "cities": ["Ciudad Bolívar", "Puerto Ordaz", "San Félix"]
+        },
+        {
+          "name": "Anzoátegui",
+          "cities": ["Barcelona", "Puerto La Cruz", "El Tigre"]
+        }
+      ]
+    },
+    {
+      "code": "CO",
+      "name": "Colombia",
+      "region": "latinoamerica",
+      "states": [
+        {
+          "name": "Cundinamarca",
+          "cities": ["Bogotá", "Soacha", "Facatativá", "Zipaquirá"]
+        },
+        {
+          "name": "Antioquia",
+          "cities": ["Medellín", "Bello", "Itagüí", "Envigado"]
+        },
+        {
+          "name": "Valle del Cauca",
+          "cities": ["Cali", "Palmira", "Buenaventura", "Tuluá"]
+        },
+        {
+          "name": "Atlántico",
+          "cities": ["Barranquilla", "Soledad", "Malambo"]
+        },
+        {
+          "name": "Bolívar",
+          "cities": ["Cartagena", "Magangué", "Turbaco"]
+        },
+        {
+          "name": "Santander",
+          "cities": ["Bucaramanga", "Floridablanca", "Girón"]
+        }
+      ]
+    },
+    {
+      "code": "MX",
+      "name": "México",
+      "region": "latinoamerica",
+      "states": [
+        {
+          "name": "Ciudad de México",
+          "cities": ["Ciudad de México"]
+        },
+        {
+          "name": "Jalisco",
+          "cities": ["Guadalajara", "Zapopan", "Tlaquepaque", "Tonalá"]
+        },
+        {
+          "name": "Nuevo León",
+          "cities": ["Monterrey", "San Pedro Garza García", "Guadalupe"]
+        },
+        {
+          "name": "México",
+          "cities": ["Toluca", "Ecatepec", "Nezahualcóyotl"]
+        },
+        {
+          "name": "Puebla",
+          "cities": ["Puebla", "Tehuacán", "Atlixco"]
+        },
+        {
+          "name": "Quintana Roo",
+          "cities": ["Cancún", "Playa del Carmen", "Chetumal"]
+        }
+      ]
+    },
+    {
+      "code": "AR",
+      "name": "Argentina",
+      "region": "latinoamerica",
+      "states": [
+        {
+          "name": "Buenos Aires",
+          "cities": ["Buenos Aires", "La Plata", "Mar del Plata"]
+        },
+        {
+          "name": "Córdoba",
+          "cities": ["Córdoba", "Villa María", "Río Cuarto"]
+        },
+        {
+          "name": "Santa Fe",
+          "cities": ["Rosario", "Santa Fe", "Rafaela"]
+        },
+        {
+          "name": "Mendoza",
+          "cities": ["Mendoza", "San Rafael", "Godoy Cruz"]
+        }
+      ]
+    },
+    {
+      "code": "PE",
+      "name": "Perú",
+      "region": "latinoamerica",
+      "states": [
+        {
+          "name": "Lima",
+          "cities": ["Lima", "Callao", "San Juan de Lurigancho"]
+        },
+        {
+          "name": "Arequipa",
+          "cities": ["Arequipa", "Cayma", "Cerro Colorado"]
+        },
+        {
+          "name": "La Libertad",
+          "cities": ["Trujillo", "Chepén", "Pacasmayo"]
+        },
+        {
+          "name": "Cusco",
+          "cities": ["Cusco", "Sicuani", "Urcos"]
+        }
+      ]
+    },
+    {
+      "code": "CL",
+      "name": "Chile",
+      "region": "latinoamerica",
+      "states": [
+        {
+          "name": "Región Metropolitana",
+          "cities": ["Santiago", "Puente Alto", "Maipú"]
+        },
+        {
+          "name": "Valparaíso",
+          "cities": ["Valparaíso", "Viña del Mar", "Quilpué"]
+        },
+        {
+          "name": "Biobío",
+          "cities": ["Concepción", "Talcahuano", "Los Ángeles"]
+        }
+      ]
+    },
+    {
+      "code": "EC",
+      "name": "Ecuador",
+      "region": "latinoamerica",
+      "states": [
+        {
+          "name": "Pichincha",
+          "cities": ["Quito", "Cayambe", "Sangolquí"]
+        },
+        {
+          "name": "Guayas",
+          "cities": ["Guayaquil", "Durán", "Milagro"]
+        },
+        {
+          "name": "Azuay",
+          "cities": ["Cuenca", "Gualaceo"]
+        }
+      ]
+    },
+    {
+      "code": "BO",
+      "name": "Bolivia",
+      "region": "latinoamerica",
+      "states": [
+        {
+          "name": "La Paz",
+          "cities": ["La Paz", "El Alto"]
+        },
+        {
+          "name": "Santa Cruz",
+          "cities": ["Santa Cruz de la Sierra", "Montero"]
+        },
+        {
+          "name": "Cochabamba",
+          "cities": ["Cochabamba", "Quillacollo", "Sacaba"]
+        }
+      ]
+    },
+    {
+      "code": "PY",
+      "name": "Paraguay",
+      "region": "latinoamerica",
+      "states": [
+        {
+          "name": "Central",
+          "cities": ["Asunción", "San Lorenzo", "Luque"]
+        },
+        {
+          "name": "Alto Paraná",
+          "cities": ["Ciudad del Este", "Hernandarias"]
+        }
+      ]
+    },
+    {
+      "code": "UY",
+      "name": "Uruguay",
+      "region": "latinoamerica",
+      "states": [
+        {
+          "name": "Montevideo",
+          "cities": ["Montevideo"]
+        },
+        {
+          "name": "Canelones",
+          "cities": ["Canelones", "Ciudad de la Costa", "Las Piedras"]
+        }
+      ]
+    },
+    {
+      "code": "CR",
+      "name": "Costa Rica",
+      "region": "latinoamerica",
+      "states": [
+        {
+          "name": "San José",
+          "cities": ["San José", "Desamparados", "Escazú"]
+        },
+        {
+          "name": "Alajuela",
+          "cities": ["Alajuela", "San Carlos"]
+        }
+      ]
+    },
+    {
+      "code": "PA",
+      "name": "Panamá",
+      "region": "latinoamerica",
+      "states": [
+        {
+          "name": "Panamá",
+          "cities": ["Ciudad de Panamá", "San Miguelito"]
+        },
+        {
+          "name": "Colón",
+          "cities": ["Colón"]
+        }
+      ]
+    },
+    {
+      "code": "GT",
+      "name": "Guatemala",
+      "region": "latinoamerica",
+      "states": [
+        {
+          "name": "Guatemala",
+          "cities": ["Ciudad de Guatemala", "Mixco", "Villa Nueva"]
+        }
+      ]
+    },
+    {
+      "code": "HN",
+      "name": "Honduras",
+      "region": "latinoamerica",
+      "states": [
+        {
+          "name": "Francisco Morazán",
+          "cities": ["Tegucigalpa"]
+        },
+        {
+          "name": "Cortés",
+          "cities": ["San Pedro Sula"]
+        }
+      ]
+    },
+    {
+      "code": "SV",
+      "name": "El Salvador",
+      "region": "latinoamerica",
+      "states": [
+        {
+          "name": "San Salvador",
+          "cities": ["San Salvador", "Soyapango"]
+        }
+      ]
+    },
+    {
+      "code": "NI",
+      "name": "Nicaragua",
+      "region": "latinoamerica",
+      "states": [
+        {
+          "name": "Managua",
+          "cities": ["Managua"]
+        },
+        {
+          "name": "León",
+          "cities": ["León"]
+        }
+      ]
+    },
+    {
+      "code": "DO",
+      "name": "República Dominicana",
+      "region": "latinoamerica",
+      "states": [
+        {
+          "name": "Distrito Nacional",
+          "cities": ["Santo Domingo"]
+        },
+        {
+          "name": "Santiago",
+          "cities": ["Santiago de los Caballeros"]
+        }
+      ]
+    },
+    {
+      "code": "CU",
+      "name": "Cuba",
+      "region": "latinoamerica",
+      "states": [
+        {
+          "name": "La Habana",
+          "cities": ["La Habana"]
+        },
+        {
+          "name": "Santiago de Cuba",
+          "cities": ["Santiago de Cuba"]
+        }
+      ]
+    },
+    {
+      "code": "PR",
+      "name": "Puerto Rico",
+      "region": "latinoamerica",
+      "states": [
+        {
+          "name": "San Juan",
+          "cities": ["San Juan", "Bayamón", "Carolina"]
+        }
+      ]
+    },
+    {
+      "code": "US",
+      "name": "Estados Unidos",
+      "region": "norteamerica",
+      "states": [
+        {
+          "name": "California",
+          "cities": ["Los Angeles", "San Francisco", "San Diego", "Sacramento"]
+        },
+        {
+          "name": "Texas",
+          "cities": ["Houston", "Dallas", "Austin", "San Antonio"]
+        },
+        {
+          "name": "Florida",
+          "cities": ["Miami", "Orlando", "Tampa", "Jacksonville"]
+        },
+        {
+          "name": "New York",
+          "cities": ["New York City", "Buffalo", "Rochester"]
+        }
+      ]
+    },
+    {
+      "code": "CA",
+      "name": "Canadá",
+      "region": "norteamerica",
+      "states": [
+        {
+          "name": "Ontario",
+          "cities": ["Toronto", "Ottawa", "Mississauga"]
+        },
+        {
+          "name": "Quebec",
+          "cities": ["Montreal", "Quebec City"]
+        },
+        {
+          "name": "British Columbia",
+          "cities": ["Vancouver", "Victoria"]
+        }
+      ]
+    },
+    {
+      "code": "ES",
+      "name": "España",
+      "region": "europa",
+      "states": [
+        {
+          "name": "Madrid",
+          "cities": ["Madrid", "Móstoles", "Alcalá de Henares"]
+        },
+        {
+          "name": "Cataluña",
+          "cities": ["Barcelona", "Hospitalet de Llobregat", "Badalona"]
+        },
+        {
+          "name": "Andalucía",
+          "cities": ["Sevilla", "Málaga", "Granada"]
+        },
+        {
+          "name": "Valencia",
+          "cities": ["Valencia", "Alicante", "Elche"]
+        }
+      ]
+    },
+    {
+      "code": "IT",
+      "name": "Italia",
+      "region": "europa",
+      "states": [
+        {
+          "name": "Lazio",
+          "cities": ["Roma"]
+        },
+        {
+          "name": "Lombardía",
+          "cities": ["Milán", "Brescia", "Bérgamo"]
+        },
+        {
+          "name": "Campania",
+          "cities": ["Nápoles", "Salerno"]
+        }
+      ]
+    },
+    {
+      "code": "FR",
+      "name": "Francia",
+      "region": "europa",
+      "states": [
+        {
+          "name": "Île-de-France",
+          "cities": ["París"]
+        },
+        {
+          "name": "Provenza",
+          "cities": ["Marsella", "Niza"]
+        },
+        {
+          "name": "Ródano-Alpes",
+          "cities": ["Lyon"]
+        }
+      ]
+    },
+    {
+      "code": "DE",
+      "name": "Alemania",
+      "region": "europa",
+      "states": [
+        {
+          "name": "Berlín",
+          "cities": ["Berlín"]
+        },
+        {
+          "name": "Baviera",
+          "cities": ["Múnich", "Núremberg"]
+        },
+        {
+          "name": "Renania del Norte",
+          "cities": ["Colonia", "Düsseldorf"]
+        }
+      ]
+    },
+    {
+      "code": "GB",
+      "name": "Reino Unido",
+      "region": "europa",
+      "states": [
+        {
+          "name": "Inglaterra",
+          "cities": ["Londres", "Manchester", "Birmingham"]
+        },
+        {
+          "name": "Escocia",
+          "cities": ["Edimburgo", "Glasgow"]
+        }
+      ]
+    },
+    {
+      "code": "PT",
+      "name": "Portugal",
+      "region": "europa",
+      "states": [
+        {
+          "name": "Lisboa",
+          "cities": ["Lisboa"]
+        },
+        {
+          "name": "Porto",
+          "cities": ["Porto"]
+        }
+      ]
+    },
+    {
+      "code": "BR",
+      "name": "Brasil",
+      "region": "latinoamerica",
+      "states": [
+        {
+          "name": "São Paulo",
+          "cities": ["São Paulo", "Campinas", "Santos"]
+        },
+        {
+          "name": "Rio de Janeiro",
+          "cities": ["Rio de Janeiro", "Niterói"]
+        },
+        {
+          "name": "Minas Gerais",
+          "cities": ["Belo Horizonte", "Uberlândia"]
+        },
+        {
+          "name": "Bahia",
+          "cities": ["Salvador", "Feira de Santana"]
+        }
+      ]
+    }
+  ]
+}

@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useState, Suspense, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useCountries } from "@/hooks/useCountries";
 
 function CrearPerfilForm() {
   const router = useRouter();
@@ -16,11 +17,49 @@ function CrearPerfilForm() {
     nombre: "",
     sexo: "",
     fechaNacimiento: "",
-    pais: "Venezuela",
+    paisCodigo: "VE", // Código del país
+    paisNombre: "Venezuela",
     ciudad: "",
+    estado: "", // Se detecta automáticamente
     queBusca: "",
     sobreTi: "",
   });
+
+  // Hook para manejar países/ciudades
+  const { countries, getCities, getStateByCity } = useCountries(profileData.paisCodigo);
+  const [availableCities, setAvailableCities] = useState<Array<{name: string; state: string}>>([]);
+
+  // Actualizar ciudades cuando cambia el país
+  useEffect(() => {
+    if (profileData.paisCodigo) {
+      const cities = getCities(profileData.paisCodigo);
+      setAvailableCities(cities);
+      // Reset ciudad y estado al cambiar país
+      setProfileData(prev => ({ ...prev, ciudad: "", estado: "" }));
+    }
+  }, [profileData.paisCodigo, getCities]);
+
+  // Detectar estado cuando se selecciona una ciudad
+  useEffect(() => {
+    if (profileData.paisCodigo && profileData.ciudad) {
+      const state = getStateByCity(profileData.paisCodigo, profileData.ciudad);
+      if (state) {
+        setProfileData(prev => ({ ...prev, estado: state }));
+      }
+    }
+  }, [profileData.paisCodigo, profileData.ciudad, getStateByCity]);
+
+  const handleCountryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedCode = e.target.value;
+    const selectedCountry = countries.find(c => c.code === selectedCode);
+    if (selectedCountry) {
+      setProfileData(prev => ({
+        ...prev,
+        paisCodigo: selectedCode,
+        paisNombre: selectedCountry.name,
+      }));
+    }
+  };
 
   const handleContinue = (e: React.FormEvent) => {
     e.preventDefault();
@@ -165,33 +204,58 @@ function CrearPerfilForm() {
               />
             </div>
 
-            {/* De dónde */}
-            <div className="grid grid-cols-2 gap-4">
+            {/* Ubicación */}
+            <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   País <span className="text-red-400">*</span>
                 </label>
-                <Input
-                  type="text"
-                  value={profileData.pais}
-                  onChange={(e) => setProfileData({ ...profileData, pais: e.target.value })}
-                  className="bg-forest-dark/80 border-forest-light text-white"
+                <select
+                  value={profileData.paisCodigo}
+                  onChange={handleCountryChange}
+                  className="w-full px-4 py-2 bg-forest-dark/80 border border-forest-light rounded-lg text-white focus:border-neon-green focus:ring-1 focus:ring-neon-green"
                   required
-                />
+                >
+                  <option value="">Selecciona tu país</option>
+                  {countries.map((country) => (
+                    <option key={country.code} value={country.code}>
+                      {country.name}
+                    </option>
+                  ))}
+                </select>
               </div>
+
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   Ciudad <span className="text-red-400">*</span>
                 </label>
-                <Input
-                  type="text"
-                  placeholder="Tu ciudad"
+                <select
                   value={profileData.ciudad}
                   onChange={(e) => setProfileData({ ...profileData, ciudad: e.target.value })}
-                  className="bg-forest-dark/80 border-forest-light text-white placeholder:text-gray-500"
+                  className="w-full px-4 py-2 bg-forest-dark/80 border border-forest-light rounded-lg text-white focus:border-neon-green focus:ring-1 focus:ring-neon-green"
                   required
-                />
+                  disabled={!profileData.paisCodigo}
+                >
+                  <option value="">Selecciona tu ciudad</option>
+                  {availableCities.map((city, index) => (
+                    <option key={`${city.name}-${index}`} value={city.name}>
+                      {city.name}
+                    </option>
+                  ))}
+                </select>
+                {profileData.paisCodigo && availableCities.length === 0 && (
+                  <p className="text-xs text-gray-400 mt-1">No hay ciudades disponibles para este país</p>
+                )}
               </div>
+
+              {/* Mostrar estado detectado */}
+              {profileData.estado && (
+                <div className="bg-neon-green/10 border border-neon-green/30 rounded-lg p-3">
+                  <p className="text-xs text-gray-300">
+                    📍 Estado/Departamento: <span className="text-neon-green font-medium">{profileData.estado}</span>
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* ¿Qué buscas? */}
