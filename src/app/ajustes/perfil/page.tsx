@@ -14,6 +14,13 @@ type YesNoResponse = "no-respondo" | "no" | "si" | "";
 export default function AjustesPerfilPage() {
   const [activeCategory, setActiveCategory] = useState<CategoryType>("algo-sobre-mi");
   
+  // Función para cambiar de categoría y hacer scroll al inicio
+  const handleCategoryChange = (category: CategoryType) => {
+    setActiveCategory(category);
+    // Scroll al inicio de la página
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+  
   // Estado para todos los campos del formulario
   const [formData, setFormData] = useState({
     // ===== ALGO SOBRE MÍ =====
@@ -631,8 +638,33 @@ export default function AjustesPerfilPage() {
                 { value: "musica", label: "Música" },
                 { value: "leer", label: "Leer" },
                 { value: "deporte", label: "Deporte" },
-                { value: "viajar", label: "Viajar" },
+                { value: "arquitectura", label: "Arquitectura" },
+                { value: "tuning-coches", label: "Tuning de coches" },
+                { value: "viajes", label: "Viajes" },
+                { value: "automovilismo", label: "Automovilismo deportivo" },
+                { value: "historia", label: "Historia" },
+                { value: "teatro", label: "Teatro" },
                 { value: "fotografia", label: "Fotografía" },
+                { value: "juegos", label: "Juegos (PC, PS, Xbox)" },
+                { value: "cria-animales", label: "Cría de animales" },
+                { value: "cine", label: "Cine" },
+                { value: "conciertos", label: "Conciertos" },
+                { value: "pintura", label: "Pintura" },
+                { value: "modelismo", label: "Modelismo" },
+                { value: "moda", label: "Moda" },
+                { value: "monumentos", label: "Monumentos" },
+                { value: "museos", label: "Museos" },
+                { value: "caza", label: "Caza" },
+                { value: "pesca", label: "Pesca" },
+                { value: "canto", label: "Canto" },
+                { value: "costura", label: "Costura" },
+                { value: "ganchillo", label: "Ganchillo" },
+                { value: "baile", label: "Baile" },
+                { value: "senderismo", label: "Senderismo" },
+                { value: "cocina-reposteria", label: "Cocina-repostería" },
+                { value: "jardineria", label: "Jardinería-cultivo" },
+                { value: "vida-saludable", label: "Estilo de vida saludable" },
+                { value: "otros", label: "Otros" },
               ])}
 
               {/* Expansión para Películas */}
@@ -641,12 +673,19 @@ export default function AjustesPerfilPage() {
                   <p className="text-sm font-medium text-gray-300 mb-3">¿Qué tipo de películas te gustan?</p>
                   {renderCheckboxes("", "generosPeliculas", [
                     { value: "accion", label: "Acción" },
-                    { value: "comedia", label: "Comedia" },
-                    { value: "drama", label: "Drama" },
-                    { value: "horror", label: "Horror" },
-                    { value: "scifi", label: "Ciencia ficción" },
-                    { value: "romance", label: "Romance" },
+                    { value: "alternativa", label: "Alternativa" },
                     { value: "documentales", label: "Documentales" },
+                    { value: "animacion", label: "Animación" },
+                    { value: "drama", label: "Drama" },
+                    { value: "historia", label: "Historia" },
+                    { value: "horror", label: "Horror" },
+                    { value: "comedia", label: "Comedia" },
+                    { value: "misterio", label: "Misterio" },
+                    { value: "romantico", label: "Romántico" },
+                    { value: "scifi", label: "Sci-Fi" },
+                    { value: "fantasy", label: "Fantasy" },
+                    { value: "guerra", label: "Guerra" },
+                    { value: "otros", label: "Otros" },
                   ])}
                 </div>
               )}
@@ -656,14 +695,34 @@ export default function AjustesPerfilPage() {
                 <div className="bg-white/5 border border-neon-green/30 rounded-lg p-4 mt-4">
                   <p className="text-sm font-medium text-gray-300 mb-3">¿Qué géneros musicales te gustan?</p>
                   {renderCheckboxes("", "generosMusica", [
-                    { value: "rock", label: "Rock" },
-                    { value: "pop", label: "Pop" },
-                    { value: "jazz", label: "Jazz" },
+                    { value: "ambient", label: "Ambient" },
                     { value: "blues", label: "Blues" },
+                    { value: "disko", label: "Disko" },
+                    { value: "drum-n-bass", label: "Drum n Bass" },
+                    { value: "electro", label: "Electro" },
+                    { value: "folk-country", label: "Folk & Country" },
+                    { value: "funky", label: "Funky" },
+                    { value: "house", label: "House" },
+                    { value: "chill-out", label: "Chill-out" },
+                    { value: "indie", label: "Indie" },
+                    { value: "jazz", label: "Jazz" },
                     { value: "clasica", label: "Clásica" },
-                    { value: "electronica", label: "Electrónica" },
-                    { value: "reggaeton", label: "Reggaetón" },
+                    { value: "metal", label: "Metal" },
+                    { value: "new-age", label: "New Age" },
                     { value: "salsa", label: "Salsa" },
+                    { value: "bachata", label: "Bachata" },
+                    { value: "folclorica", label: "Música folclórica" },
+                    { value: "pop", label: "Pop" },
+                    { value: "punk", label: "Punk" },
+                    { value: "rap", label: "Rap" },
+                    { value: "rb", label: "R&B" },
+                    { value: "soul", label: "Soul" },
+                    { value: "hip-hop", label: "Hip-hop" },
+                    { value: "reggae", label: "Reggae" },
+                    { value: "rock", label: "Rock" },
+                    { value: "techno", label: "Techno" },
+                    { value: "trance", label: "Trance" },
+                    { value: "otro", label: "Otro" },
                   ])}
                 </div>
               )}
@@ -673,12 +732,60 @@ export default function AjustesPerfilPage() {
                 <div className="bg-white/5 border border-neon-green/30 rounded-lg p-4 mt-4">
                   <p className="text-sm font-medium text-gray-300 mb-3">¿Qué tipo de libros lees?</p>
                   {renderCheckboxes("", "generosLibros", [
+                    { value: "policiacas", label: "Novelas policíacas" },
+                    { value: "viajes", label: "Libros de viajes" },
+                    { value: "idiomas-extranjeros", label: "Literatura en idiomas extranjeros" },
                     { value: "fantasia", label: "Fantasía" },
+                    { value: "historico", label: "Novelas históricas" },
+                    { value: "terror", label: "Terror" },
+                    { value: "humor", label: "Humor" },
+                    { value: "satira", label: "Sátira" },
+                    { value: "motivacional", label: "Literatura motivacional" },
+                    { value: "cocina", label: "Cocina" },
+                    { value: "especializada", label: "Literatura especializada" },
+                    { value: "poesia", label: "Poesía" },
+                    { value: "mujeres", label: "Para mujeres" },
+                    { value: "cuentos", label: "Cuentos" },
                     { value: "ciencia-ficcion", label: "Ciencia ficción" },
-                    { value: "historico", label: "Histórico" },
+                    { value: "thriller", label: "Thriller" },
                     { value: "biografias", label: "Biografías" },
-                    { value: "autoayuda", label: "Autoayuda" },
-                    { value: "novelas", label: "Novelas" },
+                    { value: "otros", label: "Otros" },
+                  ])}
+                </div>
+              )}
+
+              {/* Expansión para Deporte */}
+              {formData.pasatiempos.includes("deporte") && (
+                <div className="bg-white/5 border border-neon-green/30 rounded-lg p-4 mt-4">
+                  <p className="text-sm font-medium text-gray-300 mb-3">¿Qué deportes practicas?</p>
+                  {renderCheckboxes("", "deportesPractica", [
+                    { value: "aerobic", label: "Aerobic" },
+                    { value: "combate", label: "Deportes de combate" },
+                    { value: "ciclismo", label: "Ciclismo" },
+                    { value: "extremos", label: "Deportes extremos" },
+                    { value: "fitness", label: "Fitness" },
+                    { value: "futbol", label: "Fútbol" },
+                    { value: "baloncesto", label: "Baloncesto" },
+                    { value: "voleibol", label: "Voleibol" },
+                    { value: "badminton", label: "Bádminton" },
+                    { value: "hockey", label: "Hockey" },
+                    { value: "natacion", label: "Natación" },
+                    { value: "patinaje", label: "Patinaje" },
+                    { value: "yoga", label: "Yoga" },
+                    { value: "running", label: "Running" },
+                    { value: "escalada", label: "Escalada" },
+                    { value: "senderismo", label: "Senderismo" },
+                    { value: "snowboard", label: "Snowboard" },
+                    { value: "esqui", label: "Esquí" },
+                    { value: "ping-pong", label: "Ping-pong" },
+                    { value: "tenis", label: "Tenis" },
+                    { value: "golf", label: "Golf" },
+                    { value: "padel", label: "Pádel" },
+                    { value: "balonmano", label: "Balonmano" },
+                    { value: "remo", label: "Remo" },
+                    { value: "buceo", label: "Buceo" },
+                    { value: "squash", label: "Squash" },
+                    { value: "otros", label: "Otros" },
                   ])}
                 </div>
               )}
@@ -716,6 +823,7 @@ export default function AjustesPerfilPage() {
               <h3 className="text-xl font-bold text-neon-green mb-6">Religión</h3>
 
               {renderSelectField("Religión", "religion", [
+                { value: "sin-religion", label: "Sin religión o ateo" },
                 { value: "catolico", label: "Católico" },
                 { value: "cristiano", label: "Cristiano" },
                 { value: "protestante", label: "Protestante" },
@@ -724,7 +832,6 @@ export default function AjustesPerfilPage() {
                 { value: "judio", label: "Judío" },
                 { value: "budista", label: "Budista" },
                 { value: "hindu", label: "Hindú" },
-                { value: "ateo", label: "Ateo" },
                 { value: "agnostico", label: "Agnóstico" },
                 { value: "otro", label: "Otro" },
               ], "religionOtra")}
@@ -747,7 +854,6 @@ export default function AjustesPerfilPage() {
 
               {renderCheckboxes("Marca tus actividades:", "queHaces", [
                 { value: "cocinar", label: "Cocinar" },
-                { value: "deporte", label: "Deporte" },
                 { value: "bailar", label: "Bailar" },
                 { value: "leer", label: "Leer" },
                 { value: "cine", label: "Ir al cine" },
@@ -769,29 +875,6 @@ export default function AjustesPerfilPage() {
                     <option value="me-encanta">Me encanta</option>
                     <option value="chef">Soy chef / Profesional</option>
                   </select>
-                  {formData.nivelCocinar && (
-                    <div className="mt-3 text-sm text-gray-400">
-                      → {formData.nivelCocinar === "solo-necesario" && "Solo lo necesario"}
-                      {formData.nivelCocinar === "me-gusta" && "Me gusta"}
-                      {formData.nivelCocinar === "me-encanta" && "Me encanta"}
-                      {formData.nivelCocinar === "chef" && "Soy chef / Profesional"}
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Expansión para Deporte */}
-              {formData.queHaces.includes("deporte") && (
-                <div className="bg-white/5 border border-neon-green/30 rounded-lg p-4 mt-4">
-                  <p className="text-sm font-medium text-gray-300 mb-3">¿Qué deportes practicas?</p>
-                  {renderCheckboxes("", "deportesPractica", [
-                    { value: "futbol", label: "Fútbol" },
-                    { value: "basketball", label: "Basketball" },
-                    { value: "natacion", label: "Natación" },
-                    { value: "yoga", label: "Yoga" },
-                    { value: "ciclismo", label: "Ciclismo" },
-                    { value: "gym", label: "Gimnasio" },
-                  ])}
                 </div>
               )}
 
@@ -809,13 +892,6 @@ export default function AjustesPerfilPage() {
                     <option value="frecuentemente">Frecuentemente</option>
                     <option value="de-vez-cuando">De vez en cuando</option>
                   </select>
-                  {formData.nivelBailar && (
-                    <div className="mt-3 text-sm text-gray-400">
-                      → {formData.nivelBailar === "me-encanta" && "Me encanta"}
-                      {formData.nivelBailar === "frecuentemente" && "Frecuentemente"}
-                      {formData.nivelBailar === "de-vez-cuando" && "De vez en cuando"}
-                    </div>
-                  )}
                 </div>
               )}
             </div>
@@ -906,14 +982,32 @@ export default function AjustesPerfilPage() {
                 </>
               )}
 
+              {renderSelectField("¿Saldrías con alguien que fuma?", "saldriasFumador", [
+                { value: "no", label: "No" },
+                { value: "si", label: "Sí" },
+                { value: "me-da-igual", label: "Me da igual" },
+              ])}
+
+              {renderSelectField("¿Saldrías con alguien que bebe?", "saldriasBebedor", [
+                { value: "no", label: "No" },
+                { value: "si", label: "Sí" },
+                { value: "solo-ocasional", label: "Solo si bebe ocasionalmente" },
+                { value: "solo-social", label: "Solo si bebe socialmente" },
+                { value: "me-da-igual", label: "Me da igual" },
+              ])}
+
               {renderSelectField("¿Dieta o alimentación especial?", "dietaEspecial", [
-                { value: "ninguna", label: "Ninguna alimentación en especial" },
+                { value: "ninguna", label: "Ninguna" },
+                { value: "sin-lactosa", label: "Sin lactosa" },
+                { value: "sin-azucar", label: "Sin azúcar" },
+                { value: "sin-gluten", label: "Sin gluten (celíaca)" },
+                { value: "diabetes", label: "Diabetes" },
                 { value: "vegetariana", label: "Vegetariana" },
                 { value: "vegana", label: "Vegana" },
                 { value: "kosher", label: "Kosher" },
                 { value: "halal", label: "Halal" },
                 { value: "otra", label: "Otra" },
-              ])}
+              ], "dietaEspecialOtra")}
             </div>
 
             {/* Personalidad y costumbres */}
@@ -929,7 +1023,15 @@ export default function AjustesPerfilPage() {
               {renderSelectField("¿Eres de personalidad sociable?", "personalidadSociable", [
                 { value: "extrovertido", label: "Sí, soy bastante extrovertido y sociable" },
                 { value: "algo-timido", label: "Soy algo tímido/a, pero igual me gusta socializar" },
-                { value: "desgastante", label: "Me resulta desgastante... odio hacer sociales" },
+                { value: "neutro", label: "No lo busco específicamente, pero si me topo con algo así, lo paso sin problema" },
+                { value: "desgastante", label: "Me resulta desgastante... odio hacer sociales o hablar con gente que apenas conozco" },
+              ])}
+
+              {renderSelectField("¿Eres ambicioso?", "eresAmbicioso", [
+                { value: "super-ambicioso", label: "Super ambicioso" },
+                { value: "ambicioso", label: "Ambicioso" },
+                { value: "algo-ambicioso", label: "Algo ambicioso" },
+                { value: "no-ambicioso", label: "No soy ambicioso" },
               ])}
 
               {renderSelectField("Orden y mantenimiento", "ordenMantenimiento", [
@@ -1132,7 +1234,7 @@ export default function AjustesPerfilPage() {
                 {categories.map((category) => (
                   <button
                     key={category.id}
-                    onClick={() => setActiveCategory(category.id)}
+                    onClick={() => handleCategoryChange(category.id)}
                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
                       activeCategory === category.id
                         ? "bg-neon-green/20 border border-neon-green text-neon-green shadow-lg shadow-neon-green/20"
