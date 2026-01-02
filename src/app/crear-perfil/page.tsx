@@ -17,17 +17,28 @@ function CrearPerfilForm() {
     nombre: "",
     sexo: "",
     fechaNacimiento: "",
-    paisCodigo: "VE", // Código del país
+    paisCodigo: "VE", // Código del país donde vive
     paisNombre: "Venezuela",
     ciudad: "",
     estado: "", // Se detecta automáticamente
     queBusca: "",
-    sobreTi: "",
+    // Dónde busca pareja
+    buscarParejaPaisCodigo: "", // País donde busca pareja
+    buscarParejaPaisNombre: "",
+    buscarParejaCiudad: "", // Solo si es el mismo país
+    buscarParejaEstado: "", // Solo si es el mismo país
   });
 
-  // Hook para manejar países/ciudades
+  // Hook para manejar países/ciudades (ubicación actual)
   const { countries, getCities, getStateByCity } = useCountries(profileData.paisCodigo);
   const [availableCities, setAvailableCities] = useState<Array<{name: string; state: string}>>([]);
+  
+  // Hook para manejar ciudades de búsqueda de pareja
+  const { 
+    getCities: getBuscarCities, 
+    getStateByCity: getBuscarStateByCity 
+  } = useCountries(profileData.buscarParejaPaisCodigo);
+  const [buscarAvailableCities, setBuscarAvailableCities] = useState<Array<{name: string; state: string}>>([]);
 
   // Actualizar ciudades cuando cambia el país
   useEffect(() => {
@@ -51,6 +62,28 @@ function CrearPerfilForm() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profileData.paisCodigo, profileData.ciudad]);
 
+  // Actualizar ciudades de búsqueda cuando cambia el país de búsqueda
+  useEffect(() => {
+    if (profileData.buscarParejaPaisCodigo) {
+      const cities = getBuscarCities(profileData.buscarParejaPaisCodigo);
+      setBuscarAvailableCities(cities);
+      // Reset ciudad y estado de búsqueda al cambiar país
+      setProfileData(prev => ({ ...prev, buscarParejaCiudad: "", buscarParejaEstado: "" }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profileData.buscarParejaPaisCodigo]);
+
+  // Detectar estado de búsqueda cuando se selecciona una ciudad
+  useEffect(() => {
+    if (profileData.buscarParejaPaisCodigo && profileData.buscarParejaCiudad) {
+      const state = getBuscarStateByCity(profileData.buscarParejaPaisCodigo, profileData.buscarParejaCiudad);
+      if (state && state !== profileData.buscarParejaEstado) {
+        setProfileData(prev => ({ ...prev, buscarParejaEstado: state }));
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profileData.buscarParejaPaisCodigo, profileData.buscarParejaCiudad]);
+
   const handleCountryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedCode = e.target.value;
     const selectedCountry = countries.find(c => c.code === selectedCode);
@@ -59,6 +92,18 @@ function CrearPerfilForm() {
         ...prev,
         paisCodigo: selectedCode,
         paisNombre: selectedCountry.name,
+      }));
+    }
+  };
+
+  const handleBuscarParejaCountryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedCode = e.target.value;
+    const selectedCountry = countries.find(c => c.code === selectedCode);
+    if (selectedCountry) {
+      setProfileData(prev => ({
+        ...prev,
+        buscarParejaPaisCodigo: selectedCode,
+        buscarParejaPaisNombre: selectedCountry.name,
       }));
     }
   };
@@ -280,17 +325,67 @@ function CrearPerfilForm() {
               </select>
             </div>
 
-            {/* Algo sobre ti */}
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                Algo sobre ti
-              </label>
-              <Textarea
-                placeholder="Cuéntanos un poco sobre ti, tus intereses, qué te gusta hacer..."
-                value={profileData.sobreTi}
-                onChange={(e) => setProfileData({ ...profileData, sobreTi: e.target.value })}
-                className="bg-forest-dark/80 border-forest-light text-white placeholder:text-gray-500 min-h-[100px]"
-              />
+            {/* ¿Dónde buscas pareja? */}
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  ¿Dónde buscas pareja? <span className="text-red-400">*</span>
+                </label>
+                <select
+                  value={profileData.buscarParejaPaisCodigo}
+                  onChange={handleBuscarParejaCountryChange}
+                  className="w-full px-4 py-2 bg-forest-dark/80 border border-forest-light rounded-lg text-white focus:border-neon-green focus:ring-1 focus:ring-neon-green"
+                  required
+                >
+                  <option value="">Selecciona un país</option>
+                  {countries.map((country) => (
+                    <option key={country.code} value={country.code}>
+                      {country.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Mostrar selector de ciudad SOLO si es el mismo país */}
+              {profileData.buscarParejaPaisCodigo && profileData.buscarParejaPaisCodigo === profileData.paisCodigo && (
+                <>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      ¿En qué ciudad?
+                    </label>
+                    <select
+                      value={profileData.buscarParejaCiudad}
+                      onChange={(e) => setProfileData({ ...profileData, buscarParejaCiudad: e.target.value })}
+                      className="w-full px-4 py-2 bg-forest-dark/80 border border-forest-light rounded-lg text-white focus:border-neon-green focus:ring-1 focus:ring-neon-green"
+                    >
+                      <option value="">Cualquier ciudad</option>
+                      {buscarAvailableCities.map((city, index) => (
+                        <option key={`${city.name}-${index}`} value={city.name}>
+                          {city.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Mostrar estado detectado para búsqueda */}
+                  {profileData.buscarParejaEstado && (
+                    <div className="bg-neon-green/10 border border-neon-green/30 rounded-lg p-3">
+                      <p className="text-xs text-gray-300">
+                        📍 Buscando en: <span className="text-neon-green font-medium">{profileData.buscarParejaEstado}</span>
+                      </p>
+                    </div>
+                  )}
+                </>
+              )}
+
+              {/* Info cuando busca en otro país */}
+              {profileData.buscarParejaPaisCodigo && profileData.buscarParejaPaisCodigo !== profileData.paisCodigo && (
+                <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3">
+                  <p className="text-xs text-gray-300">
+                    🌍 Buscando pareja en cualquier ciudad de <span className="text-blue-400 font-medium">{profileData.buscarParejaPaisNombre}</span>
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* Buttons */}
