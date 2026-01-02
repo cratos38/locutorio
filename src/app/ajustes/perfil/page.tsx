@@ -20,12 +20,22 @@ export default function AjustesPerfilPage() {
     altura: "175",
     peso: "70",
     tipoCuerpo: "atletico",
+    tipoCuerpoOtro: "", // Si selecciona "otro"
     colorOjos: "marrones",
+    colorOjosOtro: "", // Si selecciona "otro"
     colorCabello: "negro",
+    colorCabelloOtro: "", // Si selecciona "otro"
+    signoZodiacal: "",
     educacion: "universitaria",
     etnia: "mestizo",
+    etniaOtra: "", // Si selecciona "otro"
     idiomas: [] as string[],
     vivesEn: "ciudad",
+    
+    // Trabajo
+    trabajas: "" as YesNoResponse,
+    enQueTrabaja: "", // Solo si "trabajas" = "si"
+    
     defineteEnFrase: "",
     cuentanosAlgoTuyo: "",
     intereses: "",
@@ -60,6 +70,7 @@ export default function AjustesPerfilPage() {
     valoresTradicionales: "",
     espiritualidad: "",
     religion: "",
+    religionOtra: "", // Si selecciona "otro"
     conviccionesReligiosas: "",
     
     // ===== ESTILO DE VIDA =====
@@ -120,6 +131,7 @@ export default function AjustesPerfilPage() {
       ...(value !== "si" && {
         // Reset related fields based on the field being changed
         ...(field === "tieneHijos" && { situacionHijos: "" }),
+        ...(field === "trabajas" && { enQueTrabaja: "" }),
         ...(field === "fumas" && { frecuenciaFumar: "" }),
         ...(field === "bebesAlcohol" && { frecuenciaBeber: "" }),
         ...(field === "usasDrogas" && { frecuenciaDrogas: "" }),
@@ -212,9 +224,11 @@ export default function AjustesPerfilPage() {
   const renderSelectField = (
     label: string,
     field: keyof typeof formData,
-    options: { value: string; label: string }[]
+    options: { value: string; label: string }[],
+    otroField?: keyof typeof formData // Campo para "Otro" descripción
   ) => {
     const value = formData[field] as string;
+    const otroValue = otroField ? (formData[otroField] as string) : "";
     
     return (
       <div className="mb-6">
@@ -231,9 +245,17 @@ export default function AjustesPerfilPage() {
             <option key={opt.value} value={opt.value}>{opt.label}</option>
           ))}
         </select>
-        {value && (
-          <div className="mt-3 text-sm text-gray-400">
-            → {options.find(o => o.value === value)?.label}
+        
+        {/* Input de texto si selecciona "otro" */}
+        {value === "otro" && otroField && (
+          <div className="mt-3">
+            <Input
+              type="text"
+              value={otroValue}
+              onChange={(e) => handleInputChange(otroField, e.target.value)}
+              placeholder="Especifica..."
+              className="w-full bg-forest-dark border border-neon-green/50 text-gray-200 focus:border-neon-green"
+            />
           </div>
         )}
       </div>
@@ -324,11 +346,14 @@ export default function AjustesPerfilPage() {
               </div>
 
               {renderSelectField("Tipo de cuerpo", "tipoCuerpo", [
+                { value: "prefiero-no-decir", label: "Prefiero no decir" },
                 { value: "delgado", label: "Delgado/a" },
                 { value: "atletico", label: "Atlético/a" },
-                { value: "promedio", label: "Promedio" },
-                { value: "robusto", label: "Robusto/a" },
-              ])}
+                { value: "punto-medio", label: "Punto medio" },
+                { value: "curvas-extra", label: "Algunas curvas extra" },
+                { value: "talla-grande", label: "De talla grande" },
+                { value: "grande-robusto", label: "Grande y robusto/a" },
+              ], "tipoCuerpoOtro")}
 
               {renderSelectField("Color de ojos", "colorOjos", [
                 { value: "negros", label: "Negros" },
@@ -337,7 +362,7 @@ export default function AjustesPerfilPage() {
                 { value: "verdes", label: "Verdes" },
                 { value: "grises", label: "Grises" },
                 { value: "otro", label: "Otro" },
-              ])}
+              ], "colorOjosOtro")}
 
               {renderSelectField("Color de cabello", "colorCabello", [
                 { value: "negro", label: "Negro" },
@@ -346,12 +371,27 @@ export default function AjustesPerfilPage() {
                 { value: "pelirrojo", label: "Pelirrojo" },
                 { value: "gris", label: "Gris/Blanco" },
                 { value: "otro", label: "Otro" },
+              ], "colorCabelloOtro")}
+
+              {renderSelectField("Signo zodiacal", "signoZodiacal", [
+                { value: "aries", label: "Aries" },
+                { value: "tauro", label: "Tauro" },
+                { value: "geminis", label: "Géminis" },
+                { value: "cancer", label: "Cáncer" },
+                { value: "leo", label: "Leo" },
+                { value: "virgo", label: "Virgo" },
+                { value: "libra", label: "Libra" },
+                { value: "escorpio", label: "Escorpio" },
+                { value: "sagitario", label: "Sagitario" },
+                { value: "capricornio", label: "Capricornio" },
+                { value: "acuario", label: "Acuario" },
+                { value: "piscis", label: "Piscis" },
               ])}
             </div>
 
-            {/* Educación y origen */}
+            {/* Educación y trabajo */}
             <div className="bg-forest-dark/60 backdrop-blur-sm border border-neon-green/20 rounded-xl p-6 shadow-lg">
-              <h3 className="text-xl font-bold text-neon-green mb-6">Educación y origen</h3>
+              <h3 className="text-xl font-bold text-neon-green mb-6">Educación y trabajo</h3>
 
               {renderSelectField("Educación", "educacion", [
                 { value: "basica", label: "Básica" },
@@ -361,6 +401,31 @@ export default function AjustesPerfilPage() {
                 { value: "postgrado", label: "Postgrado" },
               ])}
 
+              {renderYesNoField(
+                "¿Trabajas?",
+                "trabajas",
+                <>
+                  <p className="text-sm font-medium text-gray-300 mb-3">¿En qué trabajas?</p>
+                  <Input
+                    type="text"
+                    value={formData.enQueTrabaja}
+                    onChange={(e) => handleInputChange("enQueTrabaja", e.target.value)}
+                    placeholder="Ej: Ingeniero de software, Profesor, Comerciante..."
+                    className="w-full bg-forest-dark border border-gray-600 text-gray-200 focus:border-neon-green"
+                  />
+                  {formData.enQueTrabaja && (
+                    <div className="mt-3 text-sm text-gray-400">
+                      → {formData.enQueTrabaja}
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+
+            {/* Origen */}
+            <div className="bg-forest-dark/60 backdrop-blur-sm border border-neon-green/20 rounded-xl p-6 shadow-lg">
+              <h3 className="text-xl font-bold text-neon-green mb-6">Origen</h3>
+
               {renderSelectField("Etnia", "etnia", [
                 { value: "blanco", label: "Blanco/a (Caucásico/a)" },
                 { value: "afro", label: "Afro/Negro/a" },
@@ -369,7 +434,7 @@ export default function AjustesPerfilPage() {
                 { value: "indigena", label: "Indígena" },
                 { value: "arabe", label: "Árabe/Turco/a" },
                 { value: "otro", label: "Otro" },
-              ])}
+              ], "etniaOtra")}
 
               {renderSelectField("¿Vives en ciudad o campo?", "vivesEn", [
                 { value: "ciudad", label: "Ciudad" },
@@ -607,7 +672,7 @@ export default function AjustesPerfilPage() {
                 { value: "ateo", label: "Ateo" },
                 { value: "agnostico", label: "Agnóstico" },
                 { value: "otro", label: "Otro" },
-              ])}
+              ], "religionOtra")}
 
               {renderSelectField("Convicciones religiosas", "conviccionesReligiosas", [
                 { value: "bastante-religioso", label: "Me considero bastante religioso" },
