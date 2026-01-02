@@ -126,7 +126,7 @@ function CrearPerfilForm() {
     if (redirect) {
       router.replace(redirect);
     } else {
-      router.replace("/mi-espacio");
+      router.replace("/inicio");
     }
   };
 
