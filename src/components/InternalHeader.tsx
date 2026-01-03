@@ -59,7 +59,7 @@ export default function InternalHeader() {
 
           {/* Navigation */}
           <nav className="hidden md:flex items-center gap-1 ml-4">
-            <Link href="/personas" className="px-4 py-2 text-sm font-medium text-white hover:text-primary hover:bg-white/5 rounded-lg transition-colors">
+            <Link href="/people" className="px-4 py-2 text-sm font-medium text-white hover:text-primary hover:bg-white/5 rounded-lg transition-colors">
               Personas
             </Link>
             <button 

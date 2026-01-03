@@ -149,7 +149,7 @@ export default function TutorialPage() {
             </div>
 
             <div className="flex justify-center w-full px-4">
-              <Link href="/mi-espacio">
+              <Link href="/dashboard">
                 <Button className="relative flex w-full max-w-[320px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-14 px-8 bg-primary text-connect-bg-dark hover:brightness-110 hover:shadow-[0_0_20px_rgba(43,238,121,0.3)] active:scale-95 group font-bold text-base">
                   <span className="mr-2">Ir a Mi Espacio Personal</span>
                   <svg className="w-5 h-5 transition-transform group-hover:translate-x-1" fill="currentColor" viewBox="0 0 24 24">

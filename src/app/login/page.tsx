@@ -40,7 +40,7 @@ function LoginForm() {
       if (redirect) {
         router.replace(redirect); // No dejar login en historial
       } else {
-        router.push("/mi-espacio"); // Navegación normal
+        router.push("/dashboard"); // Navegación normal
       }
     } else {
       // Si es primera vez, crear perfil (guardamos redirect para después)

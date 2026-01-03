@@ -1268,7 +1268,7 @@ export default function AjustesPerfilPage() {
             </Link>
             
             <nav className="flex items-center gap-4">
-              <Link href="/mi-espacio" className="text-gray-400 hover:text-neon-green transition-colors">
+              <Link href="/dashboard" className="text-gray-400 hover:text-neon-green transition-colors">
                 Mi Espacio
               </Link>
             </nav>

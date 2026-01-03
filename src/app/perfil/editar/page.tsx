@@ -38,7 +38,7 @@ export default function EditarPerfilPage() {
             <span className="text-gray-600">LosCanarias</span>
           </div>
           <div className="flex items-center gap-4">
-            <a href="/mi-espacio" className="text-gray-600 hover:text-blue-600">salas</a>
+            <a href="/dashboard" className="text-gray-600 hover:text-blue-600">salas</a>
             <a href="#" className="text-gray-600 hover:text-blue-600">usuarios</a>
             <a href="#" className="text-gray-600 hover:text-blue-600">stretko</a>
           </div>

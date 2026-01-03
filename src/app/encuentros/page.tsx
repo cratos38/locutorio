@@ -445,7 +445,7 @@ export default function EncuentrosPage() {
                 {activeTab === "accepted" && "No tienes invitaciones aceptadas"}
                 {activeTab === "rejected" && "No tienes invitaciones rechazadas"}
               </p>
-              <Link href="/personas">
+              <Link href="/people">
                 <Button className="bg-primary hover:bg-primary/90 text-connect-bg-dark font-bold">
                   Buscar personas
                 </Button>
