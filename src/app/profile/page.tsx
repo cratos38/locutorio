@@ -148,7 +148,7 @@ export default function AjustesPerfilPage() {
     saldriasConHijos: "",
     
     // ===== FOTOS =====
-    fotos: [] as { id: string; url: string; esPrincipal: boolean }[],
+    fotos: [] as { id: string; url: string; esPrincipal: boolean; estado: 'pendiente' | 'aprobada' | 'rechazada' }[],
   });
 
   const categories = [
@@ -1258,7 +1258,13 @@ export default function AjustesPerfilPage() {
                     <p>Agrega fotos a tu perfil para que otros usuarios puedan conocerte mejor.</p>
                     <p>• <strong className="text-neon-green">Máximo 6 fotos</strong></p>
                     <p>• Marca una como <strong className="text-neon-green">foto principal</strong></p>
-                    <p>• Formatos aceptados: JPG, PNG (máx. 5MB)</p>
+                    <p>• Formatos aceptados: JPG, PNG</p>
+                    <p>• Tamaño máximo: <strong className="text-neon-green">500KB por foto</strong></p>
+                    <p>• <strong className="text-orange-400">Las fotos deben ser verificadas antes de publicarse</strong></p>
+                    <p className="text-xs text-gray-400 mt-2">
+                      ℹ️ Cara claramente visible (50%+), sin filtros, sin múltiples personas. 
+                      Tiempo de verificación: máximo 24 horas.
+                    </p>
                   </div>
                 </div>
               </div>
@@ -1281,9 +1287,9 @@ export default function AjustesPerfilPage() {
                       onChange={(e) => {
                         const file = e.target.files?.[0];
                         if (file) {
-                          // Validar tamaño
-                          if (file.size > 5 * 1024 * 1024) {
-                            alert("La imagen es muy grande. Máximo 5MB.");
+                          // Validar tamaño (500KB máximo)
+                          if (file.size > 500 * 1024) {
+                            alert("La imagen es muy grande. Máximo 500KB.");
                             return;
                           }
                           
@@ -1298,7 +1304,8 @@ export default function AjustesPerfilPage() {
                           const newPhoto = {
                             id: Date.now().toString(),
                             url: url,
-                            esPrincipal: formData.fotos.length === 0 // Primera foto es principal
+                            esPrincipal: formData.fotos.length === 0, // Primera foto es principal
+                            estado: 'pendiente' as const // Pendiente de aprobación
                           };
                           
                           setFormData(prev => ({
@@ -1336,6 +1343,25 @@ export default function AjustesPerfilPage() {
                         alt="Foto de perfil"
                         className="w-full aspect-square object-cover"
                       />
+                      
+                      {/* Badge de estado */}
+                      <div className="absolute top-2 right-2">
+                        {foto.estado === 'pendiente' && (
+                          <div className="bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg flex items-center gap-1">
+                            🕐 En revisión
+                          </div>
+                        )}
+                        {foto.estado === 'aprobada' && (
+                          <div className="bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg flex items-center gap-1">
+                            ✅ Aprobada
+                          </div>
+                        )}
+                        {foto.estado === 'rechazada' && (
+                          <div className="bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg flex items-center gap-1">
+                            ❌ Rechazada
+                          </div>
+                        )}
+                      </div>
                       
                       {/* Badge de foto principal */}
                       {foto.esPrincipal && (
