@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
-type CategoryType = "algo-sobre-mi" | "relaciones" | "cultura" | "estilo-vida" | "informacion-privada";
+type CategoryType = "algo-sobre-mi" | "relaciones" | "cultura" | "estilo-vida" | "informacion-privada" | "fotos";
 
 // Tipo para respuestas Sí/No/No respondo
 type YesNoResponse = "no-respondo" | "no" | "si" | "";
@@ -146,6 +146,9 @@ export default function AjustesPerfilPage() {
     ordenNacimiento: "",
     saldriasMasKilos: "",
     saldriasConHijos: "",
+    
+    // ===== FOTOS =====
+    fotos: [] as { id: string; url: string; esPrincipal: boolean }[],
   });
 
   const categories = [
@@ -154,6 +157,7 @@ export default function AjustesPerfilPage() {
     { id: "cultura" as CategoryType, label: "Cultura", icon: "🎭" },
     { id: "estilo-vida" as CategoryType, label: "Estilo de vida", icon: "🏃" },
     { id: "informacion-privada" as CategoryType, label: "Información privada", icon: "🔒" },
+    { id: "fotos" as CategoryType, label: "Fotos", icon: "📸" },
   ];
 
   // ===== HANDLERS =====
@@ -1238,6 +1242,150 @@ export default function AjustesPerfilPage() {
                 { value: "me-da-igual", label: "Me da igual" },
               ])}
             </div>
+          </div>
+        );
+
+      case "fotos":
+        return (
+          <div className="space-y-6">
+            {/* Banner informativo */}
+            <div className="bg-forest-dark/80 backdrop-blur-sm border border-neon-green/30 rounded-xl p-6 shadow-xl shadow-neon-green/10">
+              <div className="flex items-start gap-4">
+                <div className="text-3xl">📸</div>
+                <div className="flex-1">
+                  <h3 className="text-xl font-bold text-neon-green mb-3">Tus fotos</h3>
+                  <div className="text-sm text-gray-300 space-y-2">
+                    <p>Agrega fotos a tu perfil para que otros usuarios puedan conocerte mejor.</p>
+                    <p>• <strong className="text-neon-green">Máximo 6 fotos</strong></p>
+                    <p>• Marca una como <strong className="text-neon-green">foto principal</strong></p>
+                    <p>• Formatos aceptados: JPG, PNG (máx. 5MB)</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Subir nueva foto */}
+            <div className="bg-forest-dark/60 backdrop-blur-sm border border-neon-green/20 rounded-xl p-6 shadow-lg">
+              <h3 className="text-lg font-bold text-white mb-4">Subir nueva foto</h3>
+              
+              <div className="flex flex-col sm:flex-row gap-4">
+                <label className="flex-1 cursor-pointer">
+                  <div className="border-2 border-dashed border-neon-green/30 rounded-xl p-8 text-center hover:border-neon-green/60 hover:bg-neon-green/5 transition-all">
+                    <div className="text-5xl mb-3">📷</div>
+                    <p className="text-neon-green font-medium mb-1">Click para seleccionar</p>
+                    <p className="text-gray-400 text-sm">o arrastra una imagen aquí</p>
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          // Validar tamaño
+                          if (file.size > 5 * 1024 * 1024) {
+                            alert("La imagen es muy grande. Máximo 5MB.");
+                            return;
+                          }
+                          
+                          // Validar cantidad máxima
+                          if (formData.fotos.length >= 6) {
+                            alert("Ya tienes 6 fotos. Elimina una antes de subir otra.");
+                            return;
+                          }
+                          
+                          // Crear URL temporal
+                          const url = URL.createObjectURL(file);
+                          const newPhoto = {
+                            id: Date.now().toString(),
+                            url: url,
+                            esPrincipal: formData.fotos.length === 0 // Primera foto es principal
+                          };
+                          
+                          setFormData(prev => ({
+                            ...prev,
+                            fotos: [...prev.fotos, newPhoto]
+                          }));
+                        }
+                      }}
+                    />
+                  </div>
+                </label>
+              </div>
+              
+              <p className="text-xs text-gray-500 mt-3">
+                {formData.fotos.length}/6 fotos subidas
+              </p>
+            </div>
+
+            {/* Galería de fotos */}
+            {formData.fotos.length > 0 && (
+              <div className="bg-forest-dark/60 backdrop-blur-sm border border-neon-green/20 rounded-xl p-6 shadow-lg">
+                <h3 className="text-lg font-bold text-white mb-4">Mis fotos</h3>
+                
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  {formData.fotos.map((foto) => (
+                    <div
+                      key={foto.id}
+                      className={`relative group rounded-xl overflow-hidden ${
+                        foto.esPrincipal ? 'ring-4 ring-neon-green' : ''
+                      }`}
+                    >
+                      {/* Imagen */}
+                      <img
+                        src={foto.url}
+                        alt="Foto de perfil"
+                        className="w-full aspect-square object-cover"
+                      />
+                      
+                      {/* Badge de foto principal */}
+                      {foto.esPrincipal && (
+                        <div className="absolute top-2 left-2 bg-neon-green text-forest-dark text-xs font-bold px-3 py-1 rounded-full shadow-lg">
+                          ⭐ Principal
+                        </div>
+                      )}
+                      
+                      {/* Overlay con botones */}
+                      <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
+                        {!foto.esPrincipal && (
+                          <button
+                            onClick={() => {
+                              setFormData(prev => ({
+                                ...prev,
+                                fotos: prev.fotos.map(f => ({
+                                  ...f,
+                                  esPrincipal: f.id === foto.id
+                                }))
+                              }));
+                            }}
+                            className="bg-neon-green text-forest-dark px-4 py-2 rounded-lg text-sm font-medium hover:brightness-110 transition-all"
+                          >
+                            ⭐ Marcar como principal
+                          </button>
+                        )}
+                        
+                        <button
+                          onClick={() => {
+                            if (confirm('¿Eliminar esta foto?')) {
+                              setFormData(prev => {
+                                const newFotos = prev.fotos.filter(f => f.id !== foto.id);
+                                // Si eliminamos la foto principal, marcar la primera como principal
+                                if (foto.esPrincipal && newFotos.length > 0) {
+                                  newFotos[0].esPrincipal = true;
+                                }
+                                return { ...prev, fotos: newFotos };
+                              });
+                            }
+                          }}
+                          className="bg-red-500/80 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-red-500 transition-all"
+                        >
+                          🗑️ Eliminar
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         );
 
