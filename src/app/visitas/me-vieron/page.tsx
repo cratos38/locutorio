@@ -17,7 +17,7 @@ export default function MeVieronPage() {
     <div className="min-h-screen bg-connect-bg-dark text-white font-display">
       {/* Header */}
       <header className="h-16 bg-connect-card border-b border-connect-border flex items-center justify-between px-6 sticky top-0 z-50">
-        <Link href="/inicio" className="flex items-center gap-2">
+        <Link href="/mi-espacio" className="flex items-center gap-2">
           <div className="size-9 bg-primary/20 rounded-lg flex items-center justify-center text-primary">
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
               <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>

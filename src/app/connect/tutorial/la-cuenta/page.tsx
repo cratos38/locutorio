@@ -1040,7 +1040,7 @@ Esto se baja gradualmente hasta en cero mensajes en Chat por día y cero MP(mens
               ← Volver al tutorial
             </Button>
           </Link>
-          <Link href="/inicio">
+          <Link href="/mi-espacio">
             <Button className="bg-primary text-connect-bg-dark hover:brightness-110">
               Ir a Mi Espacio Personal →
             </Button>

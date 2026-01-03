@@ -40,7 +40,7 @@ export default function BuscarPage() {
         </Link>
 
         <nav className="hidden md:flex items-center gap-6">
-          <Link href="/inicio" className="text-sm font-medium text-gray-400 hover:text-white">Mi Espacio Personal</Link>
+          <Link href="/mi-espacio" className="text-sm font-medium text-gray-400 hover:text-white">Mi Espacio Personal</Link>
           <button onClick={() => openMessages()} className="text-sm font-medium text-gray-400 hover:text-white">Mensajes</button>
           <Link href="/notificaciones" className="text-sm font-medium text-gray-400 hover:text-white">Notificaciones</Link>
           <Link href="/perfil/editar" className="text-sm font-medium text-gray-400 hover:text-white">Mi Perfil</Link>

@@ -39,7 +39,7 @@ export default function SalasPage() {
             </Link>
             <span className="text-gray-600">LosCanarias</span>
             <nav className="flex items-center gap-6 text-sm">
-              <a href="/inicio" className="text-gray-600 hover:text-blue-600">Qué hay de nuevo</a>
+              <a href="/mi-espacio" className="text-gray-600 hover:text-blue-600">Qué hay de nuevo</a>
               <a href="#" className="text-gray-600 hover:text-blue-600">correo rápido</a>
               <a href="#" className="flex items-center gap-1 text-gray-600 hover:text-blue-600">
                 email
