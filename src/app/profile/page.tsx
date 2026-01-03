@@ -1289,80 +1289,129 @@ export default function AjustesPerfilPage() {
           <p className="text-gray-400">Completa tu perfil para mejorar tus conexiones</p>
         </div>
 
-        {/* =================== FOTO DE PERFIL (UNA SOLA CARTA) =================== */}
-        <div className="mb-8 bg-forest-dark/80 backdrop-blur-sm border border-neon-green/20 rounded-xl p-6 shadow-lg max-w-md mx-auto">
-          <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-            📸 Foto de Perfil
-          </h2>
-          
-          {/* Carta única con proporción 10:13 */}
-          <div className="relative rounded-xl overflow-hidden bg-forest-dark border border-neon-green/20" style={{ aspectRatio: '10/13' }}>
-            {formData.fotos.length > 0 ? (
-              <>
-                {/* Foto grande */}
-                <img 
-                  src={formData.fotos[currentPhotoIndex].url} 
-                  alt="Foto de perfil"
-                  className="w-full h-full object-cover"
-                />
-                
-                {/* Badges de estado */}
-                <div className="absolute top-2 right-2 flex flex-col gap-1 z-10">
-                  {formData.fotos[currentPhotoIndex].estado === 'pendiente' && (
-                    <span className="bg-orange-500/90 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-full">
-                      🕐 En revisión
-                    </span>
-                  )}
-                  {formData.fotos[currentPhotoIndex].estado === 'aprobada' && (
-                    <span className="bg-green-500/90 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-full">
-                      ✅ Aprobada
-                    </span>
-                  )}
-                  {formData.fotos[currentPhotoIndex].estado === 'rechazada' && (
-                    <span className="bg-red-500/90 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-full">
-                      ❌ Rechazada
-                    </span>
-                  )}
-                  
-                  {formData.fotos[currentPhotoIndex].esPrincipal && (
-                    <span className="bg-neon-green/90 backdrop-blur-sm text-forest-dark text-xs px-2 py-1 rounded-full font-bold">
-                      ⭐ Principal
-                    </span>
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          {/* Sidebar */}
+          <div className="lg:col-span-1">
+            <div className="bg-forest-dark/60 backdrop-blur-sm border border-neon-green/20 rounded-xl p-4 shadow-lg sticky top-24 space-y-4">
+              
+              {/* =================== FOTO DE PERFIL (EN SIDEBAR) =================== */}
+              <div className="space-y-3">
+                {/* Carta de foto con proporción 10:13 */}
+                <div 
+                  className="relative rounded-xl overflow-hidden bg-forest-dark border border-neon-green/20 cursor-pointer"
+                  style={{ aspectRatio: '10/13' }}
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                  }}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const file = e.dataTransfer.files?.[0];
+                    if (file && (file.type === 'image/jpeg' || file.type === 'image/png')) {
+                      if (file.size > 500 * 1024) {
+                        alert("La imagen es muy grande. Máximo 500KB.");
+                        return;
+                      }
+                      if (formData.fotos.length >= 6) {
+                        alert("Ya tienes 6 fotos. Elimina una antes de subir otra.");
+                        return;
+                      }
+                      const url = URL.createObjectURL(file);
+                      const newPhoto = {
+                        id: Date.now().toString(),
+                        url: url,
+                        esPrincipal: formData.fotos.length === 0,
+                        estado: 'pendiente' as const
+                      };
+                      setFormData(prev => ({
+                        ...prev,
+                        fotos: [...prev.fotos, newPhoto]
+                      }));
+                      setCurrentPhotoIndex(formData.fotos.length);
+                    }
+                  }}
+                >
+                  {formData.fotos.length > 0 ? (
+                    <>
+                      {/* Foto actual */}
+                      <img 
+                        src={formData.fotos[currentPhotoIndex].url} 
+                        alt="Foto de perfil"
+                        className="w-full h-full object-cover"
+                      />
+                      
+                      {/* Badges en esquina superior derecha */}
+                      <div className="absolute top-2 right-2 flex flex-col gap-1">
+                        {formData.fotos[currentPhotoIndex].estado === 'pendiente' && (
+                          <span className="bg-orange-500/90 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-full">
+                            🕐
+                          </span>
+                        )}
+                        {formData.fotos[currentPhotoIndex].estado === 'aprobada' && (
+                          <span className="bg-green-500/90 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-full">
+                            ✅
+                          </span>
+                        )}
+                        {formData.fotos[currentPhotoIndex].estado === 'rechazada' && (
+                          <span className="bg-red-500/90 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-full">
+                            ❌
+                          </span>
+                        )}
+                        {formData.fotos[currentPhotoIndex].esPrincipal && (
+                          <span className="bg-neon-green/90 backdrop-blur-sm text-forest-dark text-xs px-2 py-1 rounded-full font-bold">
+                            ⭐
+                          </span>
+                        )}
+                      </div>
+                      
+                      {/* Navegación con flechas */}
+                      {formData.fotos.length > 1 && (
+                        <>
+                          <button
+                            onClick={() => setCurrentPhotoIndex(prev => 
+                              prev === 0 ? formData.fotos.length - 1 : prev - 1
+                            )}
+                            className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/80 text-white rounded-full w-8 h-8 flex items-center justify-center transition-all text-sm"
+                          >
+                            ◀
+                          </button>
+                          <button
+                            onClick={() => setCurrentPhotoIndex(prev => 
+                              prev === formData.fotos.length - 1 ? 0 : prev + 1
+                            )}
+                            className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/80 text-white rounded-full w-8 h-8 flex items-center justify-center transition-all text-sm"
+                          >
+                            ▶
+                          </button>
+                        </>
+                      )}
+                      
+                      {/* Contador pequeño */}
+                      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 bg-black/70 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-full">
+                        {currentPhotoIndex + 1}/{formData.fotos.length}
+                      </div>
+                    </>
+                  ) : (
+                    // Texto de requisitos cuando no hay fotos (se tapa al subir)
+                    <div className="flex flex-col items-center justify-center h-full p-6 text-center">
+                      <div className="text-5xl mb-3">📷</div>
+                      <p className="text-neon-green font-medium text-sm mb-2">Subir foto</p>
+                      <div className="text-xs text-gray-400 space-y-1">
+                        <p>JPG, PNG • Máx 500KB</p>
+                        <p>Cara visible (50%+)</p>
+                        <p>Sin filtros</p>
+                        <p>Solo tú en la foto</p>
+                      </div>
+                    </div>
                   )}
                 </div>
                 
-                {/* Navegación con flechas */}
-                {formData.fotos.length > 1 && (
-                  <>
-                    <button
-                      onClick={() => setCurrentPhotoIndex(prev => 
-                        prev === 0 ? formData.fotos.length - 1 : prev - 1
-                      )}
-                      className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full w-10 h-10 transition-all z-10"
-                    >
-                      ◀
-                    </button>
-                    <button
-                      onClick={() => setCurrentPhotoIndex(prev => 
-                        prev === formData.fotos.length - 1 ? 0 : prev + 1
-                      )}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full w-10 h-10 transition-all z-10"
-                    >
-                      ▶
-                    </button>
-                  </>
-                )}
-                
-                {/* Contador */}
-                <div className="absolute bottom-16 left-1/2 -translate-x-1/2 bg-black/70 backdrop-blur-sm text-white text-sm px-3 py-1 rounded-full z-10">
-                  {currentPhotoIndex + 1}/{formData.fotos.length}
-                </div>
-                
-                {/* Botones pequeños en la parte inferior */}
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 flex gap-2 z-10">
-                  <label className="flex-1 cursor-pointer">
-                    <div className="bg-neon-green/20 hover:bg-neon-green/30 text-neon-green border border-neon-green/30 py-2 px-3 rounded-lg text-center text-sm transition-all">
-                      📤 Subir
+                {/* 3 BOTONES */}
+                <div className="grid grid-cols-3 gap-2">
+                  <label className="cursor-pointer">
+                    <div className="bg-neon-green/10 hover:bg-neon-green/20 text-neon-green border border-neon-green/30 py-2 rounded-lg text-center text-xs transition-all">
+                      📤
                     </div>
                     <input
                       type="file"
@@ -1375,12 +1424,10 @@ export default function AjustesPerfilPage() {
                             alert("La imagen es muy grande. Máximo 500KB.");
                             return;
                           }
-                          
                           if (formData.fotos.length >= 6) {
                             alert("Ya tienes 6 fotos. Elimina una antes de subir otra.");
                             return;
                           }
-                          
                           const url = URL.createObjectURL(file);
                           const newPhoto = {
                             id: Date.now().toString(),
@@ -1388,7 +1435,6 @@ export default function AjustesPerfilPage() {
                             esPrincipal: formData.fotos.length === 0,
                             estado: 'pendiente' as const
                           };
-                          
                           setFormData(prev => ({
                             ...prev,
                             fotos: [...prev.fotos, newPhoto]
@@ -1399,107 +1445,50 @@ export default function AjustesPerfilPage() {
                     />
                   </label>
                   
-                  {!formData.fotos[currentPhotoIndex].esPrincipal && (
-                    <button
-                      onClick={() => {
-                        setFormData(prev => ({
-                          ...prev,
-                          fotos: prev.fotos.map((f, i) => ({
-                            ...f,
-                            esPrincipal: i === currentPhotoIndex
-                          }))
-                        }));
-                      }}
-                      className="flex-1 bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-300 border border-yellow-500/30 py-2 px-3 rounded-lg text-sm transition-all"
-                    >
-                      ⭐
-                    </button>
-                  )}
-                  
                   <button
                     onClick={() => {
+                      if (formData.fotos.length === 0) return;
                       if (confirm('¿Eliminar esta foto?')) {
                         const newFotos = formData.fotos.filter((_, i) => i !== currentPhotoIndex);
-                        
-                        // Si eliminamos la foto principal, marcar la primera como principal
                         if (formData.fotos[currentPhotoIndex].esPrincipal && newFotos.length > 0) {
                           newFotos[0].esPrincipal = true;
                         }
-                        
                         setFormData(prev => ({
                           ...prev,
                           fotos: newFotos
                         }));
-                        
                         setCurrentPhotoIndex(Math.max(0, currentPhotoIndex - 1));
                       }
                     }}
-                    className="bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/30 py-2 px-3 rounded-lg text-sm transition-all"
+                    className="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 py-2 rounded-lg text-center text-xs transition-all"
+                    disabled={formData.fotos.length === 0}
                   >
                     🗑️
                   </button>
-                </div>
-              </>
-            ) : (
-              // Pantalla de "subir foto" cuando no hay fotos
-              <label className="cursor-pointer block w-full h-full">
-                <div className="flex flex-col items-center justify-center h-full p-8 hover:bg-neon-green/5 transition-all">
-                  <div className="text-6xl mb-4">📷</div>
-                  <p className="text-neon-green font-medium text-lg mb-2">Click para subir foto</p>
-                  <p className="text-gray-400 text-sm mb-4">o arrastra una imagen aquí</p>
-                  <div className="text-xs text-gray-500 space-y-1 text-center">
-                    <p>JPG, PNG • Máx 500KB</p>
-                    <p>Cara visible • Sin filtros</p>
-                    <p>Solo tú en la foto</p>
-                  </div>
-                </div>
-                <input
-                  type="file"
-                  accept="image/jpeg,image/png"
-                  className="hidden"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      if (file.size > 500 * 1024) {
-                        alert("La imagen es muy grande. Máximo 500KB.");
-                        return;
-                      }
-                      
-                      const url = URL.createObjectURL(file);
-                      const newPhoto = {
-                        id: Date.now().toString(),
-                        url: url,
-                        esPrincipal: true,
-                        estado: 'pendiente' as const
-                      };
-                      
+                  
+                  <button
+                    onClick={() => {
+                      if (formData.fotos.length === 0) return;
                       setFormData(prev => ({
                         ...prev,
-                        fotos: [newPhoto]
+                        fotos: prev.fotos.map((f, i) => ({
+                          ...f,
+                          esPrincipal: i === currentPhotoIndex
+                        }))
                       }));
-                      setCurrentPhotoIndex(0);
-                    }
-                  }}
-                />
-              </label>
-            )}
-          </div>
-          
-          {/* Info de requisitos debajo */}
-          <div className="mt-4 text-center">
-            <p className="text-xs text-gray-400">
-              {formData.fotos.length}/6 fotos • Verificación en máx 24h •
-              <a href="/tutorial/la-cuenta" className="text-neon-green hover:underline ml-1">
-                Ver requisitos
-              </a>
-            </p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Sidebar */}
-          <div className="lg:col-span-1">
-            <div className="bg-forest-dark/60 backdrop-blur-sm border border-neon-green/20 rounded-xl p-4 shadow-lg sticky top-24">
+                    }}
+                    className="bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-300 border border-yellow-500/30 py-2 rounded-lg text-center text-xs transition-all"
+                    disabled={formData.fotos.length === 0 || formData.fotos[currentPhotoIndex]?.esPrincipal}
+                  >
+                    ⭐
+                  </button>
+                </div>
+              </div>
+              
+              {/* Separador */}
+              <div className="border-t border-neon-green/20"></div>
+              
+              {/* Nav de categorías */}
               <nav className="space-y-2">
                 {/* Botón Datos básicos - Redirige a /create-profile */}
                 <Link
