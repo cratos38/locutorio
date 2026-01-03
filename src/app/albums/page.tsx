@@ -307,7 +307,7 @@ export default function AlbumesPage() {
               return (
                 <Link
                   key={album.id}
-                  href={`/albumes/${album.id}`}
+                  href={`/albums/${album.id}`}
                   prefetch={false}
                   className="group relative overflow-hidden rounded-xl bg-connect-card p-2 transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10"
                 >

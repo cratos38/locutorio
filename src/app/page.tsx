@@ -24,7 +24,7 @@ export default function ConnectPage() {
 
             {/* Navigation */}
             <div className="hidden md:flex items-center gap-4">
-              <Link href="/historias" className="text-sm font-medium text-white hover:text-primary transition-colors">
+              <Link href="/stories" className="text-sm font-medium text-white hover:text-primary transition-colors">
                 Historias
               </Link>
               <Link href="/tutorial" className="text-sm font-medium text-white hover:text-primary transition-colors">

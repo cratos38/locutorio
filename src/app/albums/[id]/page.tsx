@@ -101,7 +101,7 @@ export default function AlbumDetailPage() {
             </div>
             <h2 className="text-2xl font-bold mb-3">Álbum no encontrado</h2>
             <p className="text-connect-muted mb-6">El álbum que buscas no existe o ha sido eliminado.</p>
-            <Button onClick={() => router.push("/albumes")} className="bg-primary hover:bg-primary/90 text-connect-bg-dark font-bold">
+            <Button onClick={() => router.push("/albums")} className="bg-primary hover:bg-primary/90 text-connect-bg-dark font-bold">
               Volver a Álbumes
             </Button>
           </div>

@@ -806,7 +806,7 @@ export default function ChatRoomsPage() {
                     MP
                   </button>
                   <Link
-                    href={`/albumes/${user.username.toLowerCase()}`}
+                    href={`/albums/${user.username.toLowerCase()}`}
                     target="_blank"
                     className={`py-1.5 px-2 text-xs font-bold rounded-lg text-center transition-colors ${
                       user.hasPhotoAlbum

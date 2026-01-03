@@ -36,7 +36,7 @@ export default function NotificationBell() {
       title: "¡Es un Match!",
       message: "Laura también te dio like",
       avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop",
-      link: "/encuentros/matches",
+      link: "/meetings/matches",
       time: "Hace 15 min",
       isRead: false,
     },
