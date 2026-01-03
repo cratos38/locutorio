@@ -774,11 +774,11 @@ export default function InicioPage() {
         <footer className="mt-8 pb-4 text-center text-xs text-connect-muted border-t border-connect-border pt-4 max-w-[1600px] mx-auto">
           <p>
             © 2023 LoCuToRiO Inc. •{" "}
-            <Link href="/acerca-de/proteccion-datos" className="hover:text-primary">
+            <Link href="/about/proteccion-datos" className="hover:text-primary">
               Privacidad
             </Link>{" "}
             •{" "}
-            <Link href="/acerca-de/terminos" className="hover:text-primary">
+            <Link href="/about/terminos" className="hover:text-primary">
               Términos
             </Link>
           </p>

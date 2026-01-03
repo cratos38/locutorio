@@ -30,7 +30,7 @@ export default function ConnectPage() {
               <Link href="/tutorial" className="text-sm font-medium text-white hover:text-primary transition-colors">
                 Tutorial
               </Link>
-              <Link href="/acerca-de" className="text-sm font-medium text-white hover:text-primary transition-colors">
+              <Link href="/about" className="text-sm font-medium text-white hover:text-primary transition-colors">
                 Acerca de
               </Link>
               
@@ -48,7 +48,7 @@ export default function ConnectPage() {
                   Iniciar Sesión
                 </Button>
               </Link>
-              <Link href="/registro">
+              <Link href="/register">
                 <Button className="bg-primary text-connect-bg-dark hover:brightness-110 font-bold shadow-[0_0_20px_rgba(43,238,121,0.3)]">
                   Únete Ahora
                 </Button>
@@ -203,7 +203,7 @@ export default function ConnectPage() {
                       <p className="text-connect-muted text-sm mt-2 leading-relaxed">
                         Regístrate gratis con tu email. Solo toma 2 minutos. Tu cuenta será verificada para garantizar seguridad en la comunidad.
                       </p>
-                      <Link href="/registro" className="inline-flex items-center gap-2 mt-3 text-primary text-sm font-medium hover:underline">
+                      <Link href="/register" className="inline-flex items-center gap-2 mt-3 text-primary text-sm font-medium hover:underline">
                         Crear cuenta ahora →
                       </Link>
                     </div>
@@ -305,7 +305,7 @@ export default function ConnectPage() {
                   </div>
                 </div>
 
-                <Link href="/registro">
+                <Link href="/register">
                   <Button className="w-full mt-4 bg-primary text-connect-bg-dark hover:brightness-110 font-bold">
                     Únete Gratis
                   </Button>
@@ -341,13 +341,13 @@ export default function ConnectPage() {
             </div>
 
             <div className="flex flex-wrap justify-center gap-8 text-sm text-connect-muted">
-              <Link href="/acerca-de" className="hover:text-primary transition-colors">
+              <Link href="/about" className="hover:text-primary transition-colors">
                 Acerca de
               </Link>
-              <Link href="/acerca-de/proteccion-datos" className="hover:text-primary transition-colors">
+              <Link href="/about/proteccion-datos" className="hover:text-primary transition-colors">
                 Política de Privacidad
               </Link>
-              <Link href="/acerca-de/terminos" className="hover:text-primary transition-colors">
+              <Link href="/about/terminos" className="hover:text-primary transition-colors">
                 Términos de Servicio
               </Link>
               <Link href="/connect/tutorial/la-cuenta" className="hover:text-primary transition-colors">

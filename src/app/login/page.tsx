@@ -45,9 +45,9 @@ function LoginForm() {
     } else {
       // Si es primera vez, crear perfil (guardamos redirect para después)
       if (redirect) {
-        router.replace(`/crear-perfil?redirect=${redirect}`);
+        router.replace(`/create-profile?redirect=${redirect}`);
       } else {
-        router.push("/crear-perfil");
+        router.push("/create-profile");
       }
     }
   };
@@ -158,7 +158,7 @@ function LoginForm() {
             <p className="text-connect-muted text-sm">
               ¿No tienes una cuenta?{" "}
               <Link
-                href="/registro"
+                href="/register"
                 className="text-primary font-semibold hover:brightness-125 transition-all"
               >
                 Regístrate gratis

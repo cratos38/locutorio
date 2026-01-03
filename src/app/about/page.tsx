@@ -4,37 +4,37 @@ export default function AcercaDePage() {
   const sections = [
     {
       name: "Sobre nosotros",
-      href: "/acerca-de/sobre-nosotros",
+      href: "/about/sobre-nosotros",
       description: "Conoce más sobre LoCuToRiO y nuestra misión",
       icon: "👥"
     },
     {
       name: "Carrera",
-      href: "/acerca-de/carrera",
+      href: "/about/carrera",
       description: "Únete a nuestro equipo y crece profesionalmente",
       icon: "💼"
     },
     {
       name: "Términos",
-      href: "/acerca-de/terminos",
+      href: "/about/terminos",
       description: "Términos y condiciones de uso del servicio",
       icon: "📄"
     },
     {
       name: "Cookies",
-      href: "/acerca-de/cookies",
+      href: "/about/cookies",
       description: "Política de cookies y publicidad",
       icon: "🍪"
     },
     {
       name: "Protección de datos",
-      href: "/acerca-de/proteccion-datos",
+      href: "/about/proteccion-datos",
       description: "Cómo manejamos tus datos privados",
       icon: "🔒"
     },
     {
       name: "Ajuste de privacidad",
-      href: "/acerca-de/ajuste-privacidad",
+      href: "/about/ajuste-privacidad",
       description: "Configura tus preferencias de privacidad",
       icon: "⚙️"
     },

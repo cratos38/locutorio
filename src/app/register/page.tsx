@@ -223,11 +223,11 @@ export default function RegistroPage() {
                 />
                 <label htmlFor="acceptTerms" className="ml-2 text-sm text-connect-muted">
                   Acepto los{" "}
-                  <Link href="/acerca-de/terminos" className="text-primary hover:brightness-125">
+                  <Link href="/about/terminos" className="text-primary hover:brightness-125">
                     Términos y condiciones
                   </Link>{" "}
                   y la{" "}
-                  <Link href="/acerca-de/proteccion-datos" className="text-primary hover:brightness-125">
+                  <Link href="/about/proteccion-datos" className="text-primary hover:brightness-125">
                     Política de privacidad
                   </Link>
                 </label>

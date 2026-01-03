@@ -112,7 +112,7 @@ export default function RecuperarContrasenaPage() {
             <p className="text-connect-muted text-sm">
               ¿No tienes cuenta?{" "}
               <Link
-                href="/registro"
+                href="/register"
                 className="text-primary font-semibold hover:brightness-125 transition-all"
               >
                 Regístrate gratis

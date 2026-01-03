@@ -6,12 +6,12 @@ export default function AcercaDeLayout({
   children: React.ReactNode;
 }) {
   const sections = [
-    { name: "Sobre nosotros", href: "/acerca-de/sobre-nosotros" },
-    { name: "Carrera", href: "/acerca-de/carrera" },
-    { name: "Términos", href: "/acerca-de/terminos" },
-    { name: "Cookies", href: "/acerca-de/cookies" },
-    { name: "Protección de datos", href: "/acerca-de/proteccion-datos" },
-    { name: "Ajuste de privacidad", href: "/acerca-de/ajuste-privacidad" },
+    { name: "Sobre nosotros", href: "/about/sobre-nosotros" },
+    { name: "Carrera", href: "/about/carrera" },
+    { name: "Términos", href: "/about/terminos" },
+    { name: "Cookies", href: "/about/cookies" },
+    { name: "Protección de datos", href: "/about/proteccion-datos" },
+    { name: "Ajuste de privacidad", href: "/about/ajuste-privacidad" },
   ];
 
   return (

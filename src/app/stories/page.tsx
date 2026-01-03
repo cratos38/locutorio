@@ -53,7 +53,7 @@ export default function HistoriasPage() {
               <Link href="/tutorial" className="text-sm font-medium text-white hover:text-primary transition-colors">
                 Tutorial
               </Link>
-              <Link href="/acerca-de" className="text-sm font-medium text-white hover:text-primary transition-colors">
+              <Link href="/about" className="text-sm font-medium text-white hover:text-primary transition-colors">
                 Acerca de
               </Link>
               
@@ -71,7 +71,7 @@ export default function HistoriasPage() {
                   Iniciar Sesión
                 </Button>
               </Link>
-              <Link href="/registro">
+              <Link href="/register">
                 <Button className="bg-primary text-connect-bg-dark hover:brightness-110 font-bold shadow-[0_0_20px_rgba(43,238,121,0.3)]">
                   Únete Ahora
                 </Button>
@@ -116,7 +116,7 @@ export default function HistoriasPage() {
           {/* CTA Section */}
           <div className="mt-20 text-center">
             <h2 className="text-3xl font-bold mb-6">¿Listo para escribir tu propia historia?</h2>
-            <Link href="/registro">
+            <Link href="/register">
               <Button size="lg" className="bg-primary text-connect-bg-dark hover:brightness-110 font-bold text-lg px-8 py-6 shadow-[0_0_30px_rgba(43,238,121,0.4)]">
                 Únete Gratis Ahora
               </Button>

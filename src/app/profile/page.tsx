@@ -1288,9 +1288,9 @@ export default function AjustesPerfilPage() {
           <div className="lg:col-span-1">
             <div className="bg-forest-dark/60 backdrop-blur-sm border border-neon-green/20 rounded-xl p-4 shadow-lg sticky top-24">
               <nav className="space-y-2">
-                {/* Botón Datos básicos - Redirige a /crear-perfil */}
+                {/* Botón Datos básicos - Redirige a /create-profile */}
                 <Link
-                  href="/crear-perfil"
+                  href="/create-profile"
                   className="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all bg-forest-dark/40 border border-transparent text-gray-400 hover:border-neon-green/50 hover:text-gray-300"
                 >
                   <span className="text-xl">📝</span>
