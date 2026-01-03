@@ -60,16 +60,15 @@ export default function InternalHeader() {
 
           {/* Navigation */}
           <nav className="hidden md:flex items-center gap-1 ml-4">
-            <Link 
-              href="/dashboard" 
-              className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                pathname === '/dashboard' 
-                  ? 'text-primary bg-primary/10' 
-                  : 'text-white hover:text-primary hover:bg-white/5'
-              }`}
-            >
-              Mi Espacio
-            </Link>
+            {/* Solo mostrar "Mi Espacio" si NO estás en /dashboard */}
+            {pathname !== '/dashboard' && (
+              <Link 
+                href="/dashboard" 
+                className="px-4 py-2 text-sm font-medium text-white hover:text-primary hover:bg-white/5 rounded-lg transition-colors"
+              >
+                Mi Espacio
+              </Link>
+            )}
             <Link 
               href="/people" 
               className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
