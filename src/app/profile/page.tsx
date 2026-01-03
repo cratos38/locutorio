@@ -1341,7 +1341,8 @@ export default function AjustesPerfilPage() {
                       <img
                         src={foto.url}
                         alt="Foto de perfil"
-                        className="w-full aspect-square object-cover"
+                        className="w-full object-cover"
+                        style={{ aspectRatio: '10/13' }}
                       />
                       
                       {/* Badge de estado */}
