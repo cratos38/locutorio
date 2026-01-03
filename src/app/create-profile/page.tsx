@@ -461,7 +461,8 @@ function CrearPerfilForm() {
 
           {/* Contenido derecho: Formulario de Datos básicos */}
           <div className="lg:col-span-3">
-          <form onSubmit={handleContinue} className="space-y-6">
+            <div className="bg-forest-dark/60 backdrop-blur-sm border border-neon-green/20 rounded-2xl p-8 shadow-xl shadow-neon-green/5">
+              <form onSubmit={handleContinue} className="space-y-6">
             {/* Nombre */}
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">
@@ -683,6 +684,8 @@ function CrearPerfilForm() {
             <p className="text-xs text-gray-300 text-center">
               💡 Puedes completar tu perfil detallado más tarde desde tu espacio personal
             </p>
+          </div>
+            </div>
           </div>
         </div>
       </div>
