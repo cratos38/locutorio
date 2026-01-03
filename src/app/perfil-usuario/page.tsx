@@ -1258,7 +1258,7 @@ export default function AjustesPerfilPage() {
       <header className="bg-forest-dark/90 backdrop-blur-sm border-b border-forest-light sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <Link href="/connect" className="flex items-center gap-2">
+            <Link href="/" className="flex items-center gap-2">
               <div className="size-10 text-neon-green bg-neon-green/20 rounded-full flex items-center justify-center">
                 <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>

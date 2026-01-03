@@ -16,7 +16,7 @@ export default function InternalHeader() {
   const handleLogout = () => {
     // Aquí iría la lógica de logout (limpiar sesión, tokens, etc.)
     localStorage.clear();
-    router.push("/connect");
+    router.push("/");
   };
 
   // Cerrar menú al hacer click fuera
@@ -42,11 +42,11 @@ export default function InternalHeader() {
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <Link
-            href="/connect"
+            href="/"
             className="flex items-center gap-2 hover:opacity-80 transition-opacity"
             onClick={(e) => {
               e.preventDefault();
-              router.push("/connect");
+              router.push("/");
             }}
           >
             <div className="size-8 text-primary bg-primary/20 rounded-full flex items-center justify-center">

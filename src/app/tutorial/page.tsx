@@ -8,7 +8,7 @@ export default function TutorialPage() {
   return (
     <div className="relative flex h-screen w-full flex-col overflow-hidden bg-connect-bg-dark text-white font-display">
       <header className="flex w-full items-center justify-between px-6 py-6 md:px-10 z-10">
-        <Link href="/connect" className="flex items-center gap-2">
+        <Link href="/" className="flex items-center gap-2">
           <div className="size-8 text-primary bg-primary/20 rounded-full flex items-center justify-center">
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
               <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
@@ -18,7 +18,7 @@ export default function TutorialPage() {
         </Link>
 
         <Link
-          href="/connect"
+          href="/"
           className="group flex cursor-pointer items-center justify-center rounded-full bg-transparent px-4 py-2 text-sm font-medium text-slate-400 transition-colors hover:text-primary hover:bg-white/5"
         >
           <span>Saltar tutorial</span>

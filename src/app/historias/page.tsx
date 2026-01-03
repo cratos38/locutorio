@@ -36,7 +36,7 @@ export default function HistoriasPage() {
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
             {/* Logo */}
-            <Link href="/connect" className="flex items-center gap-2">
+            <Link href="/" className="flex items-center gap-2">
               <div className="size-8 text-primary bg-primary/20 rounded-full flex items-center justify-center">
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
@@ -47,10 +47,10 @@ export default function HistoriasPage() {
 
             {/* Navigation */}
             <div className="hidden md:flex items-center gap-4">
-              <Link href="/connect/historias" className="text-sm font-medium text-primary hover:text-primary transition-colors">
+              <Link href="/historias" className="text-sm font-medium text-primary hover:text-primary transition-colors">
                 Historias
               </Link>
-              <Link href="/connect/tutorial" className="text-sm font-medium text-white hover:text-primary transition-colors">
+              <Link href="/tutorial" className="text-sm font-medium text-white hover:text-primary transition-colors">
                 Tutorial
               </Link>
               <Link href="/acerca-de" className="text-sm font-medium text-white hover:text-primary transition-colors">
