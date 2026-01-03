@@ -4,12 +4,13 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import NotificationBell from "./NotificationBell";
 import { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useMessages } from "@/contexts/MessagesContext";
 
 export default function InternalHeader() {
   const [showMenu, setShowMenu] = useState(false);
   const router = useRouter();
+  const pathname = usePathname();
   const menuRef = useRef<HTMLDivElement>(null);
   const { openMessages, getUnreadCount } = useMessages();
 
@@ -59,7 +60,24 @@ export default function InternalHeader() {
 
           {/* Navigation */}
           <nav className="hidden md:flex items-center gap-1 ml-4">
-            <Link href="/people" className="px-4 py-2 text-sm font-medium text-white hover:text-primary hover:bg-white/5 rounded-lg transition-colors">
+            <Link 
+              href="/dashboard" 
+              className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                pathname === '/dashboard' 
+                  ? 'text-primary bg-primary/10' 
+                  : 'text-white hover:text-primary hover:bg-white/5'
+              }`}
+            >
+              Mi Espacio
+            </Link>
+            <Link 
+              href="/people" 
+              className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                pathname === '/people' 
+                  ? 'text-primary bg-primary/10' 
+                  : 'text-white hover:text-primary hover:bg-white/5'
+              }`}
+            >
               Personas
             </Link>
             <button 
@@ -73,13 +91,34 @@ export default function InternalHeader() {
                 </span>
               )}
             </button>
-            <Link href="/chat" className="px-4 py-2 text-sm font-medium text-white hover:text-primary hover:bg-white/5 rounded-lg transition-colors">
+            <Link 
+              href="/chat" 
+              className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                pathname === '/chat' 
+                  ? 'text-primary bg-primary/10' 
+                  : 'text-white hover:text-primary hover:bg-white/5'
+              }`}
+            >
               Chat
             </Link>
-            <Link href="/albums" className="px-4 py-2 text-sm font-medium text-white hover:text-primary hover:bg-white/5 rounded-lg transition-colors">
+            <Link 
+              href="/albums" 
+              className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                pathname === '/albums' || pathname?.startsWith('/albums/') 
+                  ? 'text-primary bg-primary/10' 
+                  : 'text-white hover:text-primary hover:bg-white/5'
+              }`}
+            >
               Álbumes
             </Link>
-            <Link href="/meetings" className="px-4 py-2 text-sm font-medium text-white hover:text-primary hover:bg-white/5 rounded-lg transition-colors">
+            <Link 
+              href="/meetings" 
+              className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                pathname === '/meetings' || pathname?.startsWith('/meetings/') 
+                  ? 'text-primary bg-primary/10' 
+                  : 'text-white hover:text-primary hover:bg-white/5'
+              }`}
+            >
               Encuentros
             </Link>
           </nav>
