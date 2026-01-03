@@ -268,17 +268,21 @@ En Locutorio, intentamos que charlen aquí gente real. Por eso nuestro objetivo 
 
 **Así se ve una buena foto de perfil:**
 
-La cara es claramente visible (más del 50% de la cara) y está en el cuadrícula para cargar una foto.
-La edad de la foto coincide con la edad del perfil.
-La foto te muestra como propietario de la cuenta (no puede ser del perfil de otra persona)
+[IMAGE:/static/fotos-correctas.jpg]
+
+✅ La cara es claramente visible (más del 50% de la cara) y está en el cuadro para cargar una foto
+✅ La edad de la foto coincide con la edad del perfil
+✅ La foto te muestra como propietario de la cuenta (no puede ser del perfil de otra persona)
 
 **Una mala foto reduce tus posibilidades de que se te acerquen**
 
 Si viniste a Locutorio con el propósito de conocer personas, una buena foto de perfil es fundamental. Los siguientes consejos le dirán qué es lo que definitivamente no le interesará a la gente:
 
-No puedo ver bien tu cara
-Hay más personas en la foto.
-Se utilizan modificaciones gráficas y de otro tipo que afectan significativamente la cara (filtros, cara pintada, cara borrosa, mosaico)
+[IMAGE:/static/fotos-incorrectas.jpg]
+
+❌ No puedo ver bien tu cara
+❌ Hay más personas en la foto
+❌ Se utilizan modificaciones gráficas y de otro tipo que afectan significativamente la cara (filtros, cara pintada, cara borrosa, mosaico)
 
 ¡Si no se puede ver bien tu rostro, estás en una foto con un amigo o usaste un filtro que distorsionó tu rostro, no aprobaremos tu foto!
 
@@ -842,6 +846,20 @@ Esto se baja gradualmente hasta en cero mensajes en Chat por día y cero MP(mens
                   <div className="mt-2 ml-4 p-6 rounded-xl bg-connect-bg-dark border-l-4 border-primary animate-in slide-in-from-top-2 duration-300">
                     <div className="text-connect-muted leading-relaxed whitespace-pre-line space-y-4">
                       {faq.answer.split("\n\n").map((paragraph, idx) => {
+                        // Detectar si es una imagen
+                        if (paragraph.startsWith("[IMAGE:") && paragraph.endsWith("]")) {
+                          const imageUrl = paragraph.slice(7, -1);
+                          return (
+                            <div key={idx} className="my-6">
+                              <img 
+                                src={imageUrl} 
+                                alt="Ejemplos de fotos" 
+                                className="rounded-xl border-2 border-primary/30 w-full max-w-2xl mx-auto shadow-lg"
+                              />
+                            </div>
+                          );
+                        }
+
                         // Mapa de referencias a IDs de secciones
                         const sectionMap: { [key: string]: number } = {
                           "¿Qué fotos de perfil aprobamos?": 3,
