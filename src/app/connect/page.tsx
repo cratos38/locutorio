@@ -34,6 +34,9 @@ export default function ConnectPage() {
                 Acerca de
               </Link>
               
+              {/* Espacio extra antes del widget */}
+              <div className="w-16"></div>
+              
               {/* Widget de Tiempo y BCV */}
               <InfoWidget />
             </div>
