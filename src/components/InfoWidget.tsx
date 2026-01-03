@@ -19,12 +19,15 @@ export default function InfoWidget() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Obtener clima de Caracas
-    fetch('https://api.openweathermap.org/data/2.5/weather?q=Caracas,VE&appid=YOUR_API_KEY&units=metric')
+    // Obtener clima de Caracas usando Open-Meteo (100% gratis, sin API key)
+    fetch('https://api.open-meteo.com/v1/forecast?latitude=10.4806&longitude=-66.9036&current_weather=true&timezone=America/Caracas')
       .then(res => res.json())
       .then(data => {
-        if (data.main) {
-          setWeather(data);
+        if (data.current_weather) {
+          setWeather({ 
+            main: { temp: data.current_weather.temperature },
+            name: 'Caracas'
+          });
         }
       })
       .catch(() => {
