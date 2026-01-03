@@ -7,6 +7,89 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
+// =================== UTILIDAD: REDIMENSIONAR IMAGEN ===================
+/**
+ * Redimensiona una imagen manteniendo proporción 10:13 y reduce el tamaño
+ * @param file - Archivo de imagen original
+ * @param maxWidth - Ancho máximo (por defecto 400px)
+ * @returns Promise con el archivo redimensionado
+ */
+async function resizeImage(file: File, maxWidth: number = 400): Promise<File> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (e) => {
+      const img = new Image();
+      img.src = e.target?.result as string;
+      img.onload = () => {
+        // Calcular dimensiones manteniendo proporción 10:13
+        const targetWidth = maxWidth;
+        const targetHeight = Math.round(targetWidth * 1.3); // 130% del ancho
+        
+        // Crear canvas
+        const canvas = document.createElement('canvas');
+        canvas.width = targetWidth;
+        canvas.height = targetHeight;
+        const ctx = canvas.getContext('2d');
+        
+        if (!ctx) {
+          reject(new Error('No se pudo crear el contexto del canvas'));
+          return;
+        }
+        
+        // Calcular crop para mantener proporción
+        const sourceRatio = img.width / img.height;
+        const targetRatio = targetWidth / targetHeight;
+        
+        let sourceX = 0;
+        let sourceY = 0;
+        let sourceWidth = img.width;
+        let sourceHeight = img.height;
+        
+        if (sourceRatio > targetRatio) {
+          // Imagen muy ancha, recortar los lados
+          sourceWidth = img.height * targetRatio;
+          sourceX = (img.width - sourceWidth) / 2;
+        } else {
+          // Imagen muy alta, recortar arriba/abajo
+          sourceHeight = img.width / targetRatio;
+          sourceY = (img.height - sourceHeight) / 2;
+        }
+        
+        // Dibujar imagen redimensionada
+        ctx.drawImage(
+          img,
+          sourceX, sourceY, sourceWidth, sourceHeight,
+          0, 0, targetWidth, targetHeight
+        );
+        
+        // Convertir a Blob con compresión
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) {
+              reject(new Error('No se pudo crear el blob'));
+              return;
+            }
+            
+            // Crear nuevo archivo con el blob
+            const resizedFile = new File(
+              [blob],
+              file.name,
+              { type: 'image/jpeg', lastModified: Date.now() }
+            );
+            
+            resolve(resizedFile);
+          },
+          'image/jpeg',
+          0.85 // Calidad 85% para reducir tamaño
+        );
+      };
+      img.onerror = () => reject(new Error('Error al cargar la imagen'));
+    };
+    reader.onerror = () => reject(new Error('Error al leer el archivo'));
+  });
+}
+
 type CategoryType = "algo-sobre-mi" | "relaciones" | "cultura" | "estilo-vida" | "informacion-privada";
 
 // Tipo para respuestas Sí/No/No respondo
@@ -22,6 +105,47 @@ export default function AjustesPerfilPage() {
   
   // Estado para navegación de fotos
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
+  
+  // =================== HANDLER: PROCESAR FOTO ===================
+  const handlePhotoUpload = async (file: File) => {
+    try {
+      // Validar tamaño máximo original (5MB para permitir fotos grandes)
+      if (file.size > 5 * 1024 * 1024) {
+        alert("La imagen es muy grande. Máximo 5MB.");
+        return;
+      }
+      
+      // Validar cantidad máxima
+      if (formData.fotos.length >= 6) {
+        alert("Ya tienes 6 fotos. Elimina una antes de subir otra.");
+        return;
+      }
+      
+      // Redimensionar imagen automáticamente
+      const resizedFile = await resizeImage(file, 400);
+      
+      // Verificar tamaño después de redimensionar
+      console.log(`Tamaño original: ${(file.size / 1024).toFixed(2)}KB → Tamaño final: ${(resizedFile.size / 1024).toFixed(2)}KB`);
+      
+      // Crear URL temporal
+      const url = URL.createObjectURL(resizedFile);
+      const newPhoto = {
+        id: Date.now().toString(),
+        url: url,
+        esPrincipal: formData.fotos.length === 0,
+        estado: 'pendiente' as const
+      };
+      
+      setFormData(prev => ({
+        ...prev,
+        fotos: [...prev.fotos, newPhoto]
+      }));
+      setCurrentPhotoIndex(formData.fotos.length);
+    } catch (error) {
+      console.error('Error al procesar la imagen:', error);
+      alert('Error al procesar la imagen. Inténtalo de nuevo.');
+    }
+  };
   
   // Cambiar categoría si cambia el parámetro tab
   useEffect(() => {
@@ -1309,26 +1433,9 @@ export default function AjustesPerfilPage() {
                     e.stopPropagation();
                     const file = e.dataTransfer.files?.[0];
                     if (file && (file.type === 'image/jpeg' || file.type === 'image/png')) {
-                      if (file.size > 500 * 1024) {
-                        alert("La imagen es muy grande. Máximo 500KB.");
-                        return;
-                      }
-                      if (formData.fotos.length >= 6) {
-                        alert("Ya tienes 6 fotos. Elimina una antes de subir otra.");
-                        return;
-                      }
-                      const url = URL.createObjectURL(file);
-                      const newPhoto = {
-                        id: Date.now().toString(),
-                        url: url,
-                        esPrincipal: formData.fotos.length === 0,
-                        estado: 'pendiente' as const
-                      };
-                      setFormData(prev => ({
-                        ...prev,
-                        fotos: [...prev.fotos, newPhoto]
-                      }));
-                      setCurrentPhotoIndex(formData.fotos.length);
+                      handlePhotoUpload(file);
+                    } else if (file) {
+                      alert("Solo se permiten imágenes JPG o PNG.");
                     }
                   }}
                 >
@@ -1420,27 +1527,10 @@ export default function AjustesPerfilPage() {
                       onChange={(e) => {
                         const file = e.target.files?.[0];
                         if (file) {
-                          if (file.size > 500 * 1024) {
-                            alert("La imagen es muy grande. Máximo 500KB.");
-                            return;
-                          }
-                          if (formData.fotos.length >= 6) {
-                            alert("Ya tienes 6 fotos. Elimina una antes de subir otra.");
-                            return;
-                          }
-                          const url = URL.createObjectURL(file);
-                          const newPhoto = {
-                            id: Date.now().toString(),
-                            url: url,
-                            esPrincipal: formData.fotos.length === 0,
-                            estado: 'pendiente' as const
-                          };
-                          setFormData(prev => ({
-                            ...prev,
-                            fotos: [...prev.fotos, newPhoto]
-                          }));
-                          setCurrentPhotoIndex(formData.fotos.length);
+                          handlePhotoUpload(file);
                         }
+                        // Reset input para permitir subir la misma imagen de nuevo
+                        e.target.value = '';
                       }}
                     />
                   </label>
@@ -1482,6 +1572,16 @@ export default function AjustesPerfilPage() {
                   >
                     ⭐
                   </button>
+                </div>
+                
+                {/* Info de verificación y contador */}
+                <div className="text-center space-y-1">
+                  <p className="text-xs text-gray-400">
+                    {formData.fotos.length}/6 fotos
+                  </p>
+                  <p className="text-xs text-orange-400">
+                    ⏱️ Verificación en máx 24h
+                  </p>
                 </div>
               </div>
               
