@@ -23,7 +23,7 @@ export default function ConnectPage() {
             </Link>
 
             {/* Navigation */}
-            <div className="hidden md:flex items-center gap-6">
+            <div className="hidden md:flex items-center gap-4">
               <Link href="/connect/historias" className="text-sm font-medium text-white hover:text-primary transition-colors">
                 Historias
               </Link>

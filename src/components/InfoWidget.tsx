@@ -59,7 +59,7 @@ export default function InfoWidget() {
   }
 
   return (
-    <div className="flex items-center gap-4 text-sm">
+    <div className="flex items-center gap-3 text-sm">
       {/* Tiempo - PRIMERO */}
       {weather && (
         <div className="flex items-center gap-1.5 text-gray-300 hover:text-primary transition-colors">
@@ -71,11 +71,10 @@ export default function InfoWidget() {
       {/* Separador */}
       <span className="text-gray-600">|</span>
       
-      {/* BCV - DESPUÉS */}
+      {/* BCV - DESPUÉS (con símbolo $) */}
       {bcv && (
         <div className="flex items-center gap-1.5 text-gray-300 hover:text-primary transition-colors">
-          <span className="text-base">💵</span>
-          <span className="font-medium">{bcv.price} Bs</span>
+          <span className="font-medium">$ {bcv.price} Bs</span>
         </div>
       )}
     </div>
