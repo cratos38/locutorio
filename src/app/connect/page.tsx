@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { TextHoverEffect } from "@/components/ui/text-hover-effect";
+import InfoWidget from "@/components/InfoWidget";
 import Link from "next/link";
 
 export default function ConnectPage() {
@@ -22,28 +23,19 @@ export default function ConnectPage() {
             </Link>
 
             {/* Navigation */}
-            <div className="hidden md:flex items-center gap-8">
-              <Link href="/connect" className="text-sm font-medium text-white hover:text-primary transition-colors">
-                Inicio
-              </Link>
-              <Link href="/connect/community" className="text-sm font-medium text-connect-muted hover:text-primary transition-colors">
-                Comunidad
-              </Link>
-              <Link href="/connect/historias" className="text-sm font-medium text-connect-muted hover:text-primary transition-colors">
+            <div className="hidden md:flex items-center gap-6">
+              <Link href="/connect/historias" className="text-sm font-medium text-white hover:text-primary transition-colors">
                 Historias
               </Link>
-              <Link href="/login?redirect=/chat" className="text-sm font-medium text-connect-muted hover:text-primary transition-colors">
-                Chat
-              </Link>
-              <Link href="/login?redirect=/albumes" className="text-sm font-medium text-connect-muted hover:text-primary transition-colors">
-                Álbumes
-              </Link>
-              <Link href="/connect/tutorial" className="text-sm font-medium text-connect-muted hover:text-primary transition-colors">
+              <Link href="/connect/tutorial" className="text-sm font-medium text-white hover:text-primary transition-colors">
                 Tutorial
               </Link>
-              <Link href="/acerca-de" className="text-sm font-medium text-connect-muted hover:text-primary transition-colors">
+              <Link href="/acerca-de" className="text-sm font-medium text-white hover:text-primary transition-colors">
                 Acerca de
               </Link>
+              
+              {/* Widget de Tiempo y BCV */}
+              <InfoWidget />
             </div>
 
             {/* Actions */}
