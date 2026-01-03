@@ -1501,24 +1501,40 @@ export default function AjustesPerfilPage() {
                     </>
                   ) : (
                     // Texto de requisitos cuando no hay fotos (se tapa al subir)
-                    <div className="flex flex-col items-center justify-center h-full p-6 text-center">
-                      <div className="text-5xl mb-3">📷</div>
-                      <p className="text-neon-green font-medium text-sm mb-2">Subir foto</p>
-                      <div className="text-xs text-gray-400 space-y-1">
-                        <p>JPG, PNG • Máx 500KB</p>
-                        <p>Cara visible (50%+)</p>
-                        <p>Sin filtros</p>
-                        <p>Solo tú en la foto</p>
+                    // Hacer toda la carta clickeable con un label
+                    <label className="cursor-pointer block w-full h-full">
+                      <div className="flex flex-col items-center justify-center h-full p-6 text-center hover:bg-neon-green/5 transition-all">
+                        <div className="text-5xl mb-3">📷</div>
+                        <p className="text-neon-green font-medium text-sm mb-2">Subir foto o arrastra aquí</p>
+                        <div className="text-xs text-gray-400 space-y-1">
+                          <p>JPG, PNG • Máx 5MB</p>
+                          <p>Cara visible (50%+)</p>
+                          <p>Sin filtros</p>
+                          <p>Solo tú en la foto</p>
+                          <p className="text-orange-400 mt-2">⏱️ Verificación en máx 24h</p>
+                        </div>
                       </div>
-                    </div>
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/png"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            handlePhotoUpload(file);
+                          }
+                          e.target.value = '';
+                        }}
+                      />
+                    </label>
                   )}
                 </div>
                 
                 {/* 3 BOTONES */}
                 <div className="grid grid-cols-3 gap-2">
                   <label className="cursor-pointer">
-                    <div className="bg-neon-green/10 hover:bg-neon-green/20 text-neon-green border border-neon-green/30 py-2 rounded-lg text-center text-xs transition-all">
-                      📤
+                    <div className="bg-neon-green/10 hover:bg-neon-green/20 text-neon-green border border-neon-green/30 py-2 rounded-lg text-center text-xs transition-all font-medium">
+                      📤 Subir
                     </div>
                     <input
                       type="file"
@@ -1572,16 +1588,6 @@ export default function AjustesPerfilPage() {
                   >
                     ⭐
                   </button>
-                </div>
-                
-                {/* Info de verificación y contador */}
-                <div className="text-center space-y-1">
-                  <p className="text-xs text-gray-400">
-                    {formData.fotos.length}/6 fotos
-                  </p>
-                  <p className="text-xs text-orange-400">
-                    ⏱️ Verificación en máx 24h
-                  </p>
                 </div>
               </div>
               
