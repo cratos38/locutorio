@@ -464,52 +464,9 @@ function EncuentrosContent() {
                         {/* Overlay con degradado solo en la foto principal */}
                         {index === 0 && (
                           <>
-                            {/* Degradado superior */}
-                            <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-black/70 to-transparent" />
+                            {/* Degradado inferior solamente */}
+                            <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
                             
-                            {/* Degradado inferior */}
-                            <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
-                            
-                            {/* Información del usuario en la parte superior */}
-                            <div className="absolute top-4 left-4 right-4">
-                              <div className="flex items-start justify-between">
-                                <div>
-                                  {userInfo && (
-                                    <>
-                                      <h3 className="text-xl font-bold text-white mb-1">
-                                        {userInfo.username || userInfo.name}
-                                      </h3>
-                                      <div className="flex items-center gap-3 text-sm text-white/90">
-                                        <span>{userInfo.age} / {userInfo.city === "Maracaibo" ? "BB" : userInfo.city === "Caracas" ? "CC" : "VV"}</span>
-                                        <span>/</span>
-                                        <span>na Pokeci 7 rokov</span>
-                                      </div>
-                                    </>
-                                  )}
-                                </div>
-                                
-                                {/* Íconos de perfil y fotos */}
-                                <div className="flex flex-col gap-2 items-end">
-                                  <div className="flex items-center gap-1 bg-black/40 backdrop-blur-sm px-2 py-1 rounded">
-                                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                    </svg>
-                                    <span className="text-xs font-bold text-white">
-                                      {userInfo?.profileComplete || 0}%
-                                    </span>
-                                  </div>
-                                  <div className="flex items-center gap-1 bg-black/40 backdrop-blur-sm px-2 py-1 rounded">
-                                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                    </svg>
-                                    <span className="text-xs font-bold text-white">
-                                      {userInfo?.publicPhotos || 0}
-                                    </span>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-
                             {/* Contador de foto actual */}
                             <div className="absolute top-1/2 right-4 -translate-y-1/2 bg-black/60 backdrop-blur-sm px-3 py-2 rounded-full">
                               <span className="text-sm font-bold text-white">
@@ -517,69 +474,41 @@ function EncuentrosContent() {
                               </span>
                             </div>
 
-                            {/* Información en la parte inferior */}
-                            <div className="absolute bottom-0 left-0 right-0 p-6">
-                              {/* Stats en grid */}
-                              <div className="grid grid-cols-2 gap-3 mb-4">
-                                <div className="bg-black/40 backdrop-blur-sm rounded-lg p-3">
-                                  <div className="flex items-center gap-2 text-white">
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                    <div>
-                                      <div className="text-[10px] opacity-70">En línea</div>
-                                      <div className="text-xs font-bold">{userInfo?.memberSince || "N/A"}</div>
-                                    </div>
+                            {/* Información en la parte inferior - más compacta y cerca del borde */}
+                            <div className="absolute bottom-2 left-0 right-0 px-4 pb-2">
+                              {/* Info del usuario y stats en una línea */}
+                              {userInfo && (
+                                <div className="mb-2">
+                                  <h3 className="text-lg font-bold text-white mb-1 drop-shadow-lg">
+                                    {userInfo.username || userInfo.name}
+                                  </h3>
+                                  <div className="flex items-center gap-3 text-sm text-white drop-shadow-lg">
+                                    <span>{userInfo.age} / {userInfo.city === "Maracaibo" ? "BB" : userInfo.city === "Caracas" ? "CC" : "VV"} / {userInfo.memberSince || "N/A"}</span>
+                                    <span className="flex items-center gap-1">
+                                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                      </svg>
+                                      {userInfo.profileComplete || 0}%
+                                    </span>
+                                    <span className="flex items-center gap-1">
+                                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                      </svg>
+                                      {userInfo.publicPhotos || 0}
+                                    </span>
                                   </div>
                                 </div>
-                                
-                                <div className="bg-black/40 backdrop-blur-sm rounded-lg p-3">
-                                  <div className="flex items-center gap-2 text-white">
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                    </svg>
-                                    <div>
-                                      <div className="text-[10px] opacity-70">Fotos</div>
-                                      <div className="text-xs font-bold">{userInfo?.totalPhotos || 0}</div>
-                                    </div>
-                                  </div>
-                                </div>
+                              )}
 
-                                <div className="bg-black/40 backdrop-blur-sm rounded-lg p-3">
-                                  <div className="flex items-center gap-2 text-white">
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                    </svg>
-                                    <div>
-                                      <div className="text-[10px] opacity-70">Públicas</div>
-                                      <div className="text-xs font-bold">{userInfo?.publicPhotos || 0}</div>
-                                    </div>
-                                  </div>
-                                </div>
-
-                                <div className="bg-black/40 backdrop-blur-sm rounded-lg p-3">
-                                  <div className="flex items-center gap-2 text-white">
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                    <div>
-                                      <div className="text-[10px] opacity-70">Perfil</div>
-                                      <div className="text-xs font-bold">{userInfo?.profileComplete || 0}%</div>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-
-                              {/* Botones de acción */}
-                              <div className="flex justify-center gap-4">
-                                <button className="w-16 h-16 bg-white/90 hover:bg-white rounded-full font-bold shadow-lg hover:scale-110 transition-all flex items-center justify-center">
-                                  <svg className="w-8 h-8 text-gray-700" fill="currentColor" viewBox="0 0 20 20">
+                              {/* Botones de acción - 50% más pequeños */}
+                              <div className="flex justify-center gap-3">
+                                <button className="w-8 h-8 bg-white/90 hover:bg-white rounded-full font-bold shadow-lg hover:scale-110 transition-all flex items-center justify-center">
+                                  <svg className="w-4 h-4 text-gray-700" fill="currentColor" viewBox="0 0 20 20">
                                     <path d="M18 9.5a1.5 1.5 0 11-3 0v-6a1.5 1.5 0 013 0v6zM14 9.667v-5.43a2 2 0 00-1.105-1.79l-.05-.025A4 4 0 0011.055 2H5.64a2 2 0 00-1.962 1.608l-1.2 6A2 2 0 004.44 12H8v4a2 2 0 002 2 1 1 0 001-1v-.667a4 4 0 01.8-2.4l1.4-1.866a4 4 0 00.8-2.4z" />
                                   </svg>
                                 </button>
-                                <button className="w-16 h-16 bg-primary hover:brightness-110 rounded-full font-bold shadow-[0_0_25px_rgba(43,238,121,0.4)] hover:shadow-[0_0_35px_rgba(43,238,121,0.6)] hover:scale-110 transition-all flex items-center justify-center">
-                                  <svg className="w-8 h-8 text-connect-bg-dark" fill="currentColor" viewBox="0 0 20 20">
+                                <button className="w-8 h-8 bg-primary hover:brightness-110 rounded-full font-bold shadow-[0_0_20px_rgba(43,238,121,0.4)] hover:shadow-[0_0_30px_rgba(43,238,121,0.6)] hover:scale-110 transition-all flex items-center justify-center">
+                                  <svg className="w-4 h-4 text-connect-bg-dark" fill="currentColor" viewBox="0 0 20 20">
                                     <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z" />
                                   </svg>
                                 </button>
@@ -605,13 +534,8 @@ function EncuentrosContent() {
                 </div>
               </div>
 
-              {/* Mensaje informativo */}
-              <div className="text-center text-sm text-connect-muted italic">
-                Tito ľudia sa ti páčia
-              </div>
-
               {/* Botón para volver */}
-              <div className="flex justify-center pt-2">
+              <div className="flex justify-center pt-6">
                 <Link href="/meetings">
                   <Button variant="outline" className="bg-white/5 hover:bg-white/10 border-white/20">
                     <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
