@@ -94,8 +94,7 @@ export default function MeVieronPage() {
         {/* Load More */}
         <div className="text-center mt-8">
           <Button
-            variant="outline"
-            className="border-connect-border text-white hover:bg-white/5"
+            className="bg-white/5 hover:bg-white/10 border border-white/20 text-white font-medium transition-colors"
           >
             Cargar más
           </Button>
