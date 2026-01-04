@@ -97,7 +97,7 @@ export default function AjustesPage() {
   const securityStatus = emailVerified && (telegramVerified || whatsappVerified) ? 'protegida' : 'insegura'
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black via-[#0a1510] to-black">
+    <div className="min-h-screen bg-connect-bg-dark">
       <InternalHeader />
       
       <main className="container mx-auto px-4 py-8 max-w-7xl">
