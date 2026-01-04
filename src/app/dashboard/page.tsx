@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import InternalHeader from "@/components/InternalHeader";
+import { useMessages } from "@/contexts/MessagesContext";
 
 type CoffeeUser = {
   id: number;
@@ -16,6 +17,7 @@ type CoffeeUser = {
 };
 
 export default function InicioPage() {
+  const { openMessages } = useMessages();
   const [statusText, setStatusText] = useState("");
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
@@ -58,10 +60,6 @@ export default function InicioPage() {
     { id: 2, userId: 2, name: "Laura", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop", message: "Gracias por aceptar", unread: 1 },
     { id: 3, userId: 3, name: "Sofia", avatar: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400&h=400&fit=crop", message: "Nos vemos pronto", unread: 0 }
   ];
-
-  const openMessages = (userId?: number) => {
-    console.log('Opening messages for user:', userId);
-  };
 
   // Estado para el widget de Tomar Café
   const [coffeeUsers] = useState<CoffeeUser[]>([
@@ -609,7 +607,10 @@ export default function InicioPage() {
 
                 <div className="space-y-2">
                   {/* Mensaje 1 */}
-                  <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 cursor-pointer transition-colors">
+                  <div 
+                    onClick={() => openMessages(1)}
+                    className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 cursor-pointer transition-colors"
+                  >
                     <div className="relative">
                       <img
                         src="https://lh3.googleusercontent.com/aida-public/AB6AXuBcAgJzBVY0VcA1ICIc8GlT1M1eiu5Og95ubTpOa58bFlu9OV7QmjTZH1cbQBwbPhtvFKip_HyKq7atWt0zzANSMDAC_wrJi67kz8SXvn-HnWmPBihZZc3BAfUyEZ7TOAs4LhWokU66QRGD6Lhq2RYxETUZKEeHUzBCVw0BiuXDqP1lYEwLeNcffCadpUuZggEMO_dPmEceKo3MQ6C2rOGG5yHNZlrhQNjpnrQwZB36kSlcM_HfVWyMRoN6UQ6gNvgLzfLeM1B3VVpJ"
@@ -631,7 +632,10 @@ export default function InicioPage() {
                   </div>
 
                   {/* Mensaje 2 */}
-                  <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 cursor-pointer transition-colors">
+                  <div 
+                    onClick={() => openMessages(2)}
+                    className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 cursor-pointer transition-colors"
+                  >
                     <div className="relative">
                       <img
                         src="https://lh3.googleusercontent.com/aida-public/AB6AXuC_k-QPp7Bm1IORwcSuHrBwaT_cooNKHNEO7JbKB8m3ha0lPXpGDfwzn5chvUYwCPj-s9EoOhcVO8dF1vAaBaSF_i1tPyB_hzk8KO03gjXPyNa6N_QrbNVGTFpDQnDJqg10fnvdppt4JpIGSb5n4ql1Ivdmsn9olN4WVvyYvYvXGFUkTqnZmxxtewOWL7MEejxvXGzyIEmcWxbTMlB2HIf7XruycmsEoo9DgJVX043mkpUuUJhOyS_wCVP3JlP0-kYUXILRCrp8H8ic"
@@ -649,7 +653,10 @@ export default function InicioPage() {
                   </div>
 
                   {/* Mensaje 3 */}
-                  <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 cursor-pointer transition-colors">
+                  <div 
+                    onClick={() => openMessages(3)}
+                    className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 cursor-pointer transition-colors"
+                  >
                     <div className="relative">
                       <img
                         src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGb3wmeflExbrjA88BEWgMoBARwnsWXrjnuX9eX0BtYZqnIuIuV2k_c80FD-aUsIiTHut6e-k4cJzjyk4OERJYc_7V103-NFf7eD9WJOXNYzN4YOa0ulR1gN-hucbZyaIz5RfojyS2OglAr4ickMC-qkdFxcoLvF59IV_i3Kxtk7OBbeQjLB2sX2q9THJ5MpQALQETi5ABgMmTiDxzKtRbbs6RUv1H7KU0c6gcA7w_9cbtihKJ1iEfLVPD4g6KGUSrVkXQuXl421Fk"
