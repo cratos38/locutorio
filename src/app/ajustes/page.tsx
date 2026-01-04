@@ -39,6 +39,10 @@ export default function AjustesPage() {
   const [twoFactorTelegram, setTwoFactorTelegram] = useState(false)
   const [twoFactorEmail, setTwoFactorEmail] = useState(true)
   const [twoFactorGoogle, setTwoFactorGoogle] = useState(false)
+  const [twoFactorMethod, setTwoFactorMethod] = useState<'whatsapp' | 'telegram' | 'email' | 'google' | null>(null)
+  const [twoFactorPhone, setTwoFactorPhone] = useState('')
+  const [twoFactorCode, setTwoFactorCode] = useState('')
+  const [twoFactorStep, setTwoFactorStep] = useState<'phone' | 'code' | null>(null)
   
   // Verificación de perfil
   const [profileVerified, setProfileVerified] = useState(false)
@@ -68,6 +72,46 @@ export default function AjustesPage() {
     if (verificationMethod === 'whatsapp') setWhatsappVerified(true)
     setVerificationMethod(null)
     setVerificationCode('')
+  }
+
+  const handleTwoFactorChange = (method: 'whatsapp' | 'telegram' | 'email' | 'google') => {
+    setTwoFactorMethod(method)
+    if (method === 'google') {
+      setTwoFactorStep('code') // Google Auth va directo a código
+    } else if (method === 'email') {
+      setTwoFactorStep('code') // Email va directo a código (ya tiene email registrado)
+    } else {
+      setTwoFactorStep('phone') // WhatsApp/Telegram piden teléfono primero
+    }
+  }
+
+  const handleTwoFactorSendCode = () => {
+    setTwoFactorStep('code')
+    alert(`Código enviado a ${twoFactorMethod === 'email' ? email : twoFactorPhone}`)
+  }
+
+  const handleTwoFactorConfirm = () => {
+    if (twoFactorMethod === 'whatsapp') setTwoFactorWhatsApp(true)
+    if (twoFactorMethod === 'telegram') setTwoFactorTelegram(true)
+    if (twoFactorMethod === 'email') setTwoFactorEmail(true)
+    if (twoFactorMethod === 'google') setTwoFactorGoogle(true)
+    
+    // Reset
+    setTwoFactorMethod(null)
+    setTwoFactorStep(null)
+    setTwoFactorPhone('')
+    setTwoFactorCode('')
+    alert('Autentificación 2FA activada correctamente')
+  }
+
+  const handleTwoFactorDisable = (method: 'whatsapp' | 'telegram' | 'email' | 'google') => {
+    if (confirm('¿Deseas desactivar este método de autentificación?')) {
+      if (method === 'whatsapp') setTwoFactorWhatsApp(false)
+      if (method === 'telegram') setTwoFactorTelegram(false)
+      if (method === 'email') setTwoFactorEmail(false)
+      if (method === 'google') setTwoFactorGoogle(false)
+      alert('Método desactivado')
+    }
   }
 
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -426,31 +470,138 @@ export default function AjustesPage() {
 
                 <h4 className="text-base font-bold text-white mb-3">Métodos de verificación</h4>
 
-                <div className="space-y-3">
+                <div className="space-y-3 mb-4">
                   {[
-                    { name: 'WhatsApp', enabled: twoFactorWhatsApp },
-                    { name: 'Telegram', enabled: twoFactorTelegram },
-                    { name: 'Email', enabled: twoFactorEmail, value: 'Cr****38@gmail.com' },
-                    { name: 'Google Authenticator', enabled: twoFactorGoogle },
-                  ].map((method, i) => (
-                    <div key={i} className="flex items-center justify-between p-3 bg-transparent rounded-lg border border-white/10 shadow-[0_0_15px_rgba(43,238,121,0.05)]">
+                    { id: 'whatsapp' as const, name: 'WhatsApp', enabled: twoFactorWhatsApp },
+                    { id: 'telegram' as const, name: 'Telegram', enabled: twoFactorTelegram },
+                    { id: 'email' as const, name: 'Email', enabled: twoFactorEmail, value: 'Cr****38@gmail.com' },
+                    { id: 'google' as const, name: 'Google Authenticator', enabled: twoFactorGoogle },
+                  ].map((method) => (
+                    <div key={method.id} className="flex items-center justify-between p-3 bg-transparent rounded-lg border border-white/10 shadow-[0_0_15px_rgba(43,238,121,0.05)]">
                       <div className="flex items-center gap-3">
-                        <i className="fas fa-mobile-alt text-2xl text-gray-400"></i>
+                        <i className={`fas ${method.enabled ? 'fa-check-circle text-green-500' : 'fa-mobile-alt text-gray-400'} text-2xl`}></i>
                         <div>
                           <p className="text-white text-sm font-semibold">{method.name}</p>
-                          <p className={`text-xs ${method.enabled ? 'text-gray-400' : 'text-red-400'}`}>
+                          <p className={`text-xs ${method.enabled ? 'text-green-400' : 'text-red-400'}`}>
                             {method.enabled ? (method.value || 'Activado') : 'No establecido'}
                           </p>
                         </div>
                       </div>
                       <button 
-                        className="text-[#2BEE79] hover:bg-transparent hover:border hover:border-[#2BEE79]/50 hover:shadow-[0_0_15px_rgba(43,238,121,0.3)] text-xs px-3 py-1.5 rounded-lg transition-all bg-transparent border border-white/10"
+                        onClick={() => method.enabled ? handleTwoFactorDisable(method.id) : handleTwoFactorChange(method.id)}
+                        className={`text-xs px-3 py-1.5 rounded-lg transition-all border ${
+                          method.enabled
+                            ? 'text-red-400 border-red-400/50 hover:bg-red-400/10 hover:shadow-[0_0_15px_rgba(239,68,68,0.3)]'
+                            : 'text-[#2BEE79] border-white/10 hover:border-[#2BEE79]/50 hover:shadow-[0_0_15px_rgba(43,238,121,0.3)]'
+                        }`}
                       >
-                        Cambiar
+                        {method.enabled ? 'Desactivar' : 'Activar'}
                       </button>
                     </div>
                   ))}
                 </div>
+
+                {/* Formulario de emparejamiento */}
+                {twoFactorMethod && (
+                  <div className="bg-black/20 rounded-lg p-4 border border-white/10 shadow-[0_0_20px_rgba(43,238,121,0.05)]">
+                    <h4 className="text-sm font-bold text-white mb-3">
+                      Configurar {twoFactorMethod === 'whatsapp' ? 'WhatsApp' : twoFactorMethod === 'telegram' ? 'Telegram' : twoFactorMethod === 'email' ? 'Email' : 'Google Authenticator'}
+                    </h4>
+
+                    {/* Paso 1: Teléfono (WhatsApp/Telegram) */}
+                    {twoFactorStep === 'phone' && (
+                      <div>
+                        <p className="text-gray-300 text-xs mb-3">
+                          Ingresa tu número de teléfono para recibir los códigos de verificación
+                        </p>
+                        <Input
+                          type="tel"
+                          placeholder="+58 424 1234567"
+                          value={twoFactorPhone}
+                          onChange={(e) => setTwoFactorPhone(e.target.value)}
+                          className="mb-3 bg-transparent border-white/20 text-white text-sm"
+                        />
+                        <Button 
+                          onClick={handleTwoFactorSendCode}
+                          disabled={!twoFactorPhone}
+                          className="w-full bg-[#2BEE79] hover:bg-[#2BEE79]/90 text-black text-xs py-2"
+                        >
+                          Enviar código
+                        </Button>
+                      </div>
+                    )}
+
+                    {/* Paso 2: Código (todos) */}
+                    {twoFactorStep === 'code' && (
+                      <div>
+                        {twoFactorMethod === 'google' ? (
+                          <>
+                            <p className="text-gray-300 text-xs mb-3">
+                              Escanea este código QR con tu aplicación Google Authenticator
+                            </p>
+                            <div className="bg-white p-4 rounded-lg mb-3 flex items-center justify-center">
+                              <div className="w-40 h-40 bg-gray-200 flex items-center justify-center text-gray-500 text-xs">
+                                [QR Code]
+                              </div>
+                            </div>
+                            <p className="text-gray-400 text-xs mb-3 text-center font-mono">
+                              Clave manual: ABCD-EFGH-IJKL-MNOP
+                            </p>
+                          </>
+                        ) : (
+                          <p className="text-gray-300 text-xs mb-3">
+                            Ingresa el código de 6 dígitos que te enviamos
+                          </p>
+                        )}
+                        
+                        <div className="flex gap-2 mb-3 justify-center">
+                          {[0, 1, 2, 3, 4, 5].map((i) => (
+                            <input
+                              key={i}
+                              type="text"
+                              maxLength={1}
+                              className="w-10 h-10 text-center text-lg bg-transparent border-white/20 text-white border rounded-lg focus:border-[#2BEE79] focus:ring-1 focus:ring-[#2BEE79]"
+                              value={twoFactorCode[i] || ''}
+                              onChange={(e) => {
+                                const newCode = twoFactorCode.split('')
+                                newCode[i] = e.target.value
+                                setTwoFactorCode(newCode.join(''))
+                                
+                                // Auto-focus siguiente campo
+                                if (e.target.value && i < 5) {
+                                  const next = e.target.nextElementSibling as HTMLInputElement
+                                  next?.focus()
+                                }
+                              }}
+                            />
+                          ))}
+                        </div>
+
+                        <div className="flex gap-2">
+                          <Button 
+                            onClick={() => {
+                              setTwoFactorMethod(null)
+                              setTwoFactorStep(null)
+                              setTwoFactorCode('')
+                              setTwoFactorPhone('')
+                            }}
+                            variant="outline"
+                            className="flex-1 text-xs py-2"
+                          >
+                            Cancelar
+                          </Button>
+                          <Button 
+                            onClick={handleTwoFactorConfirm}
+                            disabled={twoFactorCode.length !== 6}
+                            className="flex-1 bg-[#2BEE79] hover:bg-[#2BEE79]/90 text-black text-xs py-2"
+                          >
+                            Confirmar
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             )}
 
