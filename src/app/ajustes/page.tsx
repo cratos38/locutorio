@@ -539,8 +539,8 @@ export default function AjustesPage() {
                             <p className="text-gray-300 text-xs mb-3">
                               Escanea este código QR con tu aplicación Google Authenticator
                             </p>
-                            <div className="bg-white p-4 rounded-lg mb-3 flex items-center justify-center">
-                              <div className="w-40 h-40 bg-gray-200 flex items-center justify-center text-gray-500 text-xs">
+                            <div className="bg-black/30 p-4 rounded-lg mb-3 flex items-center justify-center border border-white/10">
+                              <div className="w-40 h-40 bg-white flex items-center justify-center text-gray-400 text-xs font-semibold">
                                 [QR Code]
                               </div>
                             </div>
@@ -578,18 +578,17 @@ export default function AjustesPage() {
                         </div>
 
                         <div className="flex gap-2">
-                          <Button 
+                          <button
                             onClick={() => {
                               setTwoFactorMethod(null)
                               setTwoFactorStep(null)
                               setTwoFactorCode('')
                               setTwoFactorPhone('')
                             }}
-                            variant="outline"
-                            className="flex-1 text-xs py-2"
+                            className="flex-1 text-xs py-2 bg-transparent border border-white/20 text-gray-300 hover:border-white/40 hover:text-white rounded-lg transition-all"
                           >
                             Cancelar
-                          </Button>
+                          </button>
                           <Button 
                             onClick={handleTwoFactorConfirm}
                             disabled={twoFactorCode.length !== 6}
