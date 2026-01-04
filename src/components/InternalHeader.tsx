@@ -141,7 +141,7 @@ export default function InternalHeader() {
                 </div>
                 <div className="py-2">
                   <Link
-                    href="/perfil"
+                    href="/profile"
                     onClick={() => setShowMenu(false)}
                     className="flex items-center gap-3 px-4 py-2.5 text-sm text-white hover:bg-white/5 transition-colors"
                   >
@@ -151,7 +151,7 @@ export default function InternalHeader() {
                     Mi Perfil
                   </Link>
                   <Link
-                    href="/configuracion"
+                    href="/ajustes"
                     onClick={() => setShowMenu(false)}
                     className="flex items-center gap-3 px-4 py-2.5 text-sm text-white hover:bg-white/5 transition-colors"
                   >
