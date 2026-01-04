@@ -537,7 +537,8 @@ export default function InicioPage() {
                     <img
                       src={currentCoffeeUser.avatar}
                       alt={currentCoffeeUser.name}
-                      className="w-full h-64 object-cover"
+                      onClick={() => window.open(`/meetings?user=${currentCoffeeUser.username}`, '_blank')}
+                      className="w-full h-64 object-cover cursor-pointer"
                     />
 
                     {/* Overlay con gradiente */}

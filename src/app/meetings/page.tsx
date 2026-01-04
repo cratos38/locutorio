@@ -1,7 +1,8 @@
 "use client";
 import { useMessages } from "@/contexts/MessagesContext";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import InternalHeader from "@/components/InternalHeader";
@@ -10,6 +11,7 @@ import Link from "next/link";
 type CoffeeInvitation = {
   id: number;
   userId: number;
+  username?: string; // Optional username field
   name: string;
   age: number;
   city: string;
@@ -20,7 +22,10 @@ type CoffeeInvitation = {
   message?: string;
 };
 
-export default function EncuentrosPage() {
+function EncuentrosContent() {
+  const searchParams = useSearchParams();
+  const userFilter = searchParams.get('user'); // Get username from URL
+  
   const [activeTab, setActiveTab] = useState<"received" | "sent" | "accepted" | "rejected">("received");
   const { openMessages } = useMessages();
   const [searchQuery, setSearchQuery] = useState("");
@@ -42,6 +47,7 @@ export default function EncuentrosPage() {
     {
       id: 1,
       userId: 101,
+      username: "laura_g",
       name: "Laura",
       age: 25,
       city: "Caracas",
@@ -54,6 +60,7 @@ export default function EncuentrosPage() {
     {
       id: 2,
       userId: 102,
+      username: "maria8163",
       name: "María",
       age: 24,
       city: "Maracaibo",
@@ -112,6 +119,9 @@ export default function EncuentrosPage() {
 
   // Filtrar invitaciones
   const filteredInvitations = invitations.filter(inv => {
+    // Filtro por usuario específico (desde URL)
+    if (userFilter && inv.username !== userFilter) return false;
+    
     // Filtro por tab
     if (activeTab === "received" && inv.type !== "received") return false;
     if (activeTab === "sent" && inv.type !== "sent") return false;
@@ -471,5 +481,13 @@ export default function EncuentrosPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function EncuentrosPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-connect-bg-dark flex items-center justify-center"><div className="text-white">Cargando...</div></div>}>
+      <EncuentrosContent />
+    </Suspense>
   );
 }
