@@ -431,16 +431,6 @@ function EncuentrosContent() {
             <div className="max-w-2xl mx-auto space-y-6">
               {/* Carrusel de fotos con efecto de stack */}
               <div className="relative">
-                {/* Contador de fotos */}
-                <div className="text-center mb-4">
-                  <h2 className="text-2xl font-bold text-white mb-2">
-                    {userInfo?.name || 'Usuario'}
-                  </h2>
-                  <p className="text-sm text-connect-muted">
-                    {userPhotos.length} fotos de perfil • {userInfo?.totalPhotos || 0} total en álbumes
-                  </p>
-                </div>
-
                 {/* Stack de fotos con carrusel */}
                 <div className="relative w-full max-w-lg mx-auto">
                   {/* Fotos apiladas en el fondo (efecto de profundidad) */}
@@ -466,19 +456,12 @@ function EncuentrosContent() {
                           <>
                             {/* Degradado inferior solamente */}
                             <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-                            
-                            {/* Contador de foto actual de perfil */}
-                            <div className="absolute top-1/2 right-4 -translate-y-1/2 bg-black/60 backdrop-blur-sm px-3 py-2 rounded-full">
-                              <span className="text-sm font-bold text-white">
-                                {index === 0 ? photo.id : 1} / {userPhotos.length}
-                              </span>
-                            </div>
 
                             {/* Información en la parte inferior - más compacta y cerca del borde */}
                             <div className="absolute bottom-2 left-0 right-0 px-4 pb-2">
                               {/* Info del usuario y stats en una línea */}
                               {userInfo && (
-                                <div className="mb-2">
+                                <div className="mb-3">
                                   <h3 className="text-lg font-bold text-white mb-1 drop-shadow-lg">
                                     {userInfo.username || userInfo.name}
                                   </h3>
@@ -499,6 +482,13 @@ function EncuentrosContent() {
                                   </div>
                                 </div>
                               )}
+
+                              {/* Contador de foto - centrado encima de botones */}
+                              <div className="text-center mb-2">
+                                <span className="text-xs font-bold text-white drop-shadow-lg">
+                                  {index === 0 ? photo.id : 1} / {userPhotos.length}
+                                </span>
+                              </div>
 
                               {/* Botones de acción - 50% más pequeños */}
                               <div className="flex justify-center gap-3">
