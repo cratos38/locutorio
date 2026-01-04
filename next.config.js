@@ -3,7 +3,8 @@ const nextConfig = {
   reactStrictMode: false,
   allowedDevOrigins: [
     "*.preview.same-app.com",
-    "*.sandbox.novita.ai"
+    "*.sandbox.novita.ai",
+    "*.sandbox.gensparksite.com"
   ],
   images: {
     unoptimized: true,
