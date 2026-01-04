@@ -536,11 +536,17 @@ export default function InicioPage() {
                   <div 
                     className="relative rounded-xl overflow-hidden group cursor-pointer"
                     onClick={(e) => {
-                      // Solo abrir si no se hizo click en los botones
-                      if (!(e.target as HTMLElement).closest('button')) {
-                        console.log('✅ CLICK en foto de usuario:', currentCoffeeUser.username);
-                        window.open(`/meetings?user=${currentCoffeeUser.username}`, '_blank', 'noopener,noreferrer');
+                      // Si el target es un botón o hijo de un botón, no hacer nada
+                      const target = e.target as HTMLElement;
+                      if (target.tagName === 'BUTTON' || target.closest('button')) {
+                        console.log('❌ Click bloqueado (es un botón)');
+                        return;
                       }
+                      
+                      console.log('✅ CLICK en foto de usuario:', currentCoffeeUser.username);
+                      const url = `/meetings?user=${currentCoffeeUser.username}`;
+                      console.log('🔗 Abriendo URL:', url);
+                      window.open(url, '_blank', 'noopener,noreferrer');
                     }}
                   >
                     {/* Imagen del usuario */}
