@@ -288,9 +288,11 @@ export default function InicioPage() {
                 <div className="w-full bg-white/5 rounded-full h-1.5">
                   <div className="bg-primary h-1.5 rounded-full shadow-[0_0_15px_rgba(74,222,128,0.1)]" style={{ width: '100%' }}></div>
                 </div>
-                <Button variant="outline" className="w-full py-1.5 mt-2 bg-transparent hover:bg-white/5 border border-white/10 text-gray-400 hover:text-white text-xs transition-colors">
-                  Revisar actividad reciente
-                </Button>
+                <Link href="/ajustes?tab=seguridad">
+                  <Button variant="outline" className="w-full py-1.5 mt-2 bg-transparent hover:bg-white/5 border border-white/10 text-gray-400 hover:text-white text-xs transition-colors">
+                    Revisar actividad reciente
+                  </Button>
+                </Link>
               </div>
             </div>
           </div>
