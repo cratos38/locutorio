@@ -25,8 +25,8 @@ export default function AjustesPage() {
   const [deleteDataOnExport, setDeleteDataOnExport] = useState(false)
   const [locutorioEnabled, setLocutorioEnabled] = useState(true)
   
-  // Seguridad
-  const [emailVerified, setEmailVerified] = useState(true)
+  // Seguridad (inicialmente NO verificados para poder verificar)
+  const [emailVerified, setEmailVerified] = useState(false)
   const [telegramVerified, setTelegramVerified] = useState(false)
   const [whatsappVerified, setWhatsappVerified] = useState(false)
   const [verificationMethod, setVerificationMethod] = useState<'email' | 'telegram' | 'whatsapp' | null>(null)
@@ -329,24 +329,31 @@ export default function AjustesPage() {
                     ].map((item) => (
                       <button
                         key={item.method}
-                        onClick={() => setVerificationMethod(item.method)}
+                        onClick={() => !item.verified && setVerificationMethod(item.method)}
+                        disabled={item.verified}
                         className={`relative p-3 rounded-lg text-xs transition-all ${
-                          verificationMethod === item.method
-                            ? 'bg-[#2BEE79]/10 border-2 border-[#2BEE79] text-white shadow-[0_0_20px_rgba(43,238,121,0.5)]'
-                            : 'bg-transparent border-2 border-white/20 text-gray-300 hover:border-white/40'
+                          item.verified
+                            ? 'bg-green-500/10 border-2 border-green-500/50 text-green-400 cursor-default'
+                            : verificationMethod === item.method
+                              ? 'bg-[#2BEE79]/10 border-2 border-[#2BEE79] text-white shadow-[0_0_20px_rgba(43,238,121,0.5)]'
+                              : 'bg-transparent border-2 border-white/20 text-gray-300 hover:border-white/40'
                         }`}
                       >
                         {item.verified && (
-                          <i className="fas fa-check-circle absolute top-1 right-1 text-[#2BEE79] text-xs"></i>
+                          <i className="fas fa-check-circle absolute top-1 right-1 text-green-500 text-xs"></i>
                         )}
-                        <p className="font-semibold">Verificar</p>
+                        <p className="font-semibold">{item.verified ? 'Verificado' : 'Verificar'}</p>
                         <p>{item.label}</p>
                       </button>
                     ))}
                   </div>
 
-                  {/* Formulario verificación */}
-                  {verificationMethod && (
+                  {/* Formulario verificación - solo si NO está verificado */}
+                  {verificationMethod && !(
+                    (verificationMethod === 'email' && emailVerified) ||
+                    (verificationMethod === 'telegram' && telegramVerified) ||
+                    (verificationMethod === 'whatsapp' && whatsappVerified)
+                  ) && (
                     <div className="bg-black/20 rounded-lg p-4 border border-white/10 shadow-[0_0_20px_rgba(43,238,121,0.05)]">
                       <h4 className="text-sm font-bold text-white mb-3">
                         Verificación por {verificationMethod === 'email' ? 'correo' : verificationMethod}
@@ -590,14 +597,14 @@ export default function AjustesPage() {
                       <i className="fas fa-circle text-[6px] mt-1.5 text-orange-500"></i>
                       <span>
                         Todos tus datos personales que usaste para crear tu{' '}
-                        <a href="/perfil/maria-p" className="text-blue-400 underline hover:text-blue-300">perfil</a>
+                        <a href="/perfil/editar" className="text-blue-400 underline hover:text-blue-300">perfil</a>
                       </span>
                     </p>
                     <p className="flex items-start gap-2">
                       <i className="fas fa-circle text-[6px] mt-1.5 text-orange-500"></i>
                       <span>
                         Fotos y sus respectivos comentarios en{' '}
-                        <a href="/albumes" className="text-blue-400 underline hover:text-blue-300">Álbumes</a>
+                        <a href="/albums" className="text-blue-400 underline hover:text-blue-300">Álbumes</a>
                       </span>
                     </p>
                     <p className="flex items-start gap-2">
@@ -608,7 +615,7 @@ export default function AjustesPage() {
                       <i className="fas fa-circle text-[6px] mt-1.5 text-orange-500"></i>
                       <span>
                         Toda comunicación por salas de chat incluido{' '}
-                        <a href="/mensajes" className="text-blue-400 underline hover:text-blue-300">mensajes privados</a>
+                        <a href="/chat" className="text-blue-400 underline hover:text-blue-300">mensajes privados</a>
                       </span>
                     </p>
                     <p className="flex items-start gap-2">
