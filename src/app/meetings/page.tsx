@@ -27,6 +27,14 @@ type CoffeeInvitation = {
   publicPhotos?: number; // Fotos visibles para todos
 };
 
+type UserPhoto = {
+  id: number;
+  url: string;
+  isPublic: boolean;
+  albumName: string;
+  uploadedDate: string;
+};
+
 function EncuentrosContent() {
   const searchParams = useSearchParams();
   const userFilter = searchParams.get('user'); // Get username from URL
@@ -129,6 +137,44 @@ function EncuentrosContent() {
       type: "sent",
     },
   ]);
+
+  // Galería de fotos por usuario (simulando datos de álbumes)
+  const userPhotosData: Record<string, UserPhoto[]> = {
+    "maria8163": [
+      { id: 1, url: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=500&fit=crop", isPublic: true, albumName: "Mis fotos", uploadedDate: "Hace 2 días" },
+      { id: 2, url: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=500&fit=crop", isPublic: true, albumName: "Verano 2024", uploadedDate: "Hace 1 semana" },
+      { id: 3, url: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400&h=500&fit=crop", isPublic: true, albumName: "Viajes", uploadedDate: "Hace 2 semanas" },
+      { id: 4, url: "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=400&h=500&fit=crop", isPublic: true, albumName: "Aventuras", uploadedDate: "Hace 3 semanas" },
+      { id: 5, url: "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=400&h=500&fit=crop", isPublic: true, albumName: "Mis fotos", uploadedDate: "Hace 1 mes" },
+      { id: 6, url: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400&h=500&fit=crop", isPublic: false, albumName: "Privadas", uploadedDate: "Hace 1 mes" },
+      { id: 7, url: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=500&fit=crop", isPublic: true, albumName: "Verano 2024", uploadedDate: "Hace 2 meses" },
+      { id: 8, url: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=500&fit=crop", isPublic: true, albumName: "Momentos", uploadedDate: "Hace 2 meses" },
+      { id: 9, url: "https://images.unsplash.com/photo-1509967419530-da38b4704bc6?w=400&h=500&fit=crop", isPublic: true, albumName: "Mis fotos", uploadedDate: "Hace 3 meses" },
+      { id: 10, url: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=400&h=500&fit=crop", isPublic: false, albumName: "Privadas", uploadedDate: "Hace 3 meses" },
+      { id: 11, url: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=400&h=500&fit=crop", isPublic: true, albumName: "Viajes", uploadedDate: "Hace 4 meses" },
+      { id: 12, url: "https://images.unsplash.com/photo-1502823403499-6ccfcf4fb453?w=400&h=500&fit=crop", isPublic: true, albumName: "Aventuras", uploadedDate: "Hace 4 meses" },
+      { id: 13, url: "https://images.unsplash.com/photo-1500917293891-ef795e70e1f6?w=400&h=500&fit=crop", isPublic: true, albumName: "Mis fotos", uploadedDate: "Hace 5 meses" },
+      { id: 14, url: "https://images.unsplash.com/photo-1479936343636-73cdc5aae0c3?w=400&h=500&fit=crop", isPublic: true, albumName: "Verano 2024", uploadedDate: "Hace 5 meses" },
+      { id: 15, url: "https://images.unsplash.com/photo-1504439468489-c8920d796a29?w=400&h=500&fit=crop", isPublic: false, albumName: "Privadas", uploadedDate: "Hace 6 meses" },
+      { id: 16, url: "https://images.unsplash.com/photo-1515077678510-ce3bdf418862?w=400&h=500&fit=crop", isPublic: true, albumName: "Momentos", uploadedDate: "Hace 6 meses" },
+      { id: 17, url: "https://images.unsplash.com/photo-1506863530036-1efeddceb993?w=400&h=500&fit=crop", isPublic: true, albumName: "Viajes", uploadedDate: "Hace 7 meses" },
+      { id: 18, url: "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?w=400&h=500&fit=crop", isPublic: true, albumName: "Aventuras", uploadedDate: "Hace 7 meses" },
+    ],
+    "laura_g": [
+      { id: 1, url: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=500&fit=crop", isPublic: true, albumName: "Mis fotos", uploadedDate: "Hace 1 día" },
+      { id: 2, url: "https://images.unsplash.com/photo-1502823403499-6ccfcf4fb453?w=400&h=500&fit=crop", isPublic: true, albumName: "Mis fotos", uploadedDate: "Hace 3 días" },
+      { id: 3, url: "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?w=400&h=500&fit=crop", isPublic: true, albumName: "Playa", uploadedDate: "Hace 1 semana" },
+      { id: 4, url: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400&h=500&fit=crop", isPublic: true, albumName: "Viajes", uploadedDate: "Hace 2 semanas" },
+      { id: 5, url: "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=400&h=500&fit=crop", isPublic: false, albumName: "Privadas", uploadedDate: "Hace 3 semanas" },
+      { id: 6, url: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=500&fit=crop", isPublic: true, albumName: "Verano", uploadedDate: "Hace 1 mes" },
+      { id: 7, url: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400&h=500&fit=crop", isPublic: true, albumName: "Momentos", uploadedDate: "Hace 1 mes" },
+      { id: 8, url: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=500&fit=crop", isPublic: true, albumName: "Mis fotos", uploadedDate: "Hace 2 meses" },
+    ],
+  };
+
+  // Obtener fotos del usuario filtrado
+  const userPhotos = userFilter ? userPhotosData[userFilter] || [] : [];
+  const userInfo = userFilter ? invitations.find(inv => inv.username === userFilter) : null;
 
   // Filtrar invitaciones
   const filteredInvitations = invitations.filter(inv => {
@@ -380,8 +426,149 @@ function EncuentrosContent() {
             </div>
           )}
 
+          {/* Vista de Galería de Fotos (cuando hay filtro de usuario) */}
+          {userFilter && userPhotos.length > 0 ? (
+            <div className="space-y-6">
+              {/* Header con info del usuario */}
+              {userInfo && (
+                <div className="bg-connect-card border border-connect-border rounded-xl p-6">
+                  <div className="flex items-center gap-4 mb-4">
+                    <img
+                      src={userInfo.avatar}
+                      alt={userInfo.name}
+                      className="w-20 h-20 rounded-full object-cover border-2 border-primary/50"
+                    />
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h2 className="text-2xl font-bold text-white">{userInfo.name}, {userInfo.age}</h2>
+                        {userInfo.username && (
+                          <span className="text-sm text-primary">@{userInfo.username}</span>
+                        )}
+                      </div>
+                      <p className="text-sm text-connect-muted flex items-center gap-1">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        {userInfo.city}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Stats del perfil */}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-white/5 rounded-lg">
+                    {userInfo.memberSince && (
+                      <div className="text-center">
+                        <div className="text-xs text-connect-muted mb-1">En línea</div>
+                        <div className="text-sm font-bold text-white">{userInfo.memberSince}</div>
+                      </div>
+                    )}
+                    {userInfo.profileComplete !== undefined && (
+                      <div className="text-center">
+                        <div className="text-xs text-connect-muted mb-1">Perfil</div>
+                        <div className="text-sm font-bold text-primary">{userInfo.profileComplete}%</div>
+                      </div>
+                    )}
+                    {userInfo.totalPhotos !== undefined && (
+                      <div className="text-center">
+                        <div className="text-xs text-connect-muted mb-1">Total Fotos</div>
+                        <div className="text-sm font-bold text-white">{userInfo.totalPhotos}</div>
+                      </div>
+                    )}
+                    {userInfo.publicPhotos !== undefined && (
+                      <div className="text-center">
+                        <div className="text-xs text-connect-muted mb-1">Públicas</div>
+                        <div className="text-sm font-bold text-primary">{userInfo.publicPhotos}</div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Galería de fotos en grid */}
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-xl font-bold text-white">
+                    Galería de Fotos ({userPhotos.length})
+                  </h3>
+                  <div className="flex items-center gap-2 text-xs text-connect-muted">
+                    <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                    <span>{userPhotos.filter(p => p.isPublic).length} públicas</span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {userPhotos.map((photo) => (
+                    <div
+                      key={photo.id}
+                      className="relative group cursor-pointer rounded-xl overflow-hidden bg-connect-card border border-connect-border hover:border-primary/50 transition-all"
+                    >
+                      <div className="aspect-[4/5] relative">
+                        <img
+                          src={photo.url}
+                          alt={`Foto ${photo.id}`}
+                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                        />
+                        
+                        {/* Overlay con info */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                          <div className="absolute bottom-0 left-0 right-0 p-3">
+                            <div className="flex items-center justify-between text-xs text-white">
+                              <span className="font-medium">{photo.albumName}</span>
+                              {photo.isPublic ? (
+                                <div className="flex items-center gap-1 bg-primary/20 px-2 py-1 rounded">
+                                  <svg className="w-3 h-3 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                  </svg>
+                                  <span className="text-primary">Pública</span>
+                                </div>
+                              ) : (
+                                <div className="flex items-center gap-1 bg-white/10 px-2 py-1 rounded">
+                                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                  </svg>
+                                  <span>Privada</span>
+                                </div>
+                              )}
+                            </div>
+                            <p className="text-[10px] text-gray-400 mt-1">{photo.uploadedDate}</p>
+                          </div>
+                        </div>
+
+                        {/* Badge de visibilidad en la esquina */}
+                        {!photo.isPublic && (
+                          <div className="absolute top-2 right-2 bg-black/60 backdrop-blur-sm p-1.5 rounded-full">
+                            <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                            </svg>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Botón para volver */}
+              <div className="flex justify-center pt-4">
+                <Link href="/meetings">
+                  <Button variant="outline" className="bg-white/5 hover:bg-white/10 border-white/20">
+                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    Volver a todas las invitaciones
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          ) : null}
+
           {/* Lista de invitaciones */}
-          {filteredInvitations.length > 0 ? (
+          {!userFilter && filteredInvitations.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredInvitations.map((invitation) => (
                 <div
