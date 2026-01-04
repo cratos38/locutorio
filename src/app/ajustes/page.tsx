@@ -20,7 +20,9 @@ export default function AjustesPage() {
   const [volumeEnabled, setVolumeEnabled] = useState(true)
   const [showAge, setShowAge] = useState(true)
   const [invisibleMode, setInvisibleMode] = useState(false)
-  const [dataProcessingAccepted, setDataProcessingAccepted] = useState(true)
+  const [dataProcessingAccepted, setDataProcessingAccepted] = useState(false)
+  const [termsAccepted, setTermsAccepted] = useState(false)
+  const [deleteDataOnExport, setDeleteDataOnExport] = useState(false)
   const [locutorioEnabled, setLocutorioEnabled] = useState(true)
   
   // Seguridad
@@ -83,7 +85,10 @@ export default function AjustesPage() {
   }
 
   const handleExportData = () => {
-    alert('Se enviará un archivo ZIP a tu correo en los próximos 30 días')
+    const message = deleteDataOnExport
+      ? 'Se enviará un archivo ZIP a tu correo en los próximos 10 días y tus datos serán eliminados del servidor.'
+      : 'Se enviará un archivo ZIP a tu correo en los próximos 10 días. Tus datos permanecerán en el servidor.'
+    alert(message)
   }
 
   const handleDeleteAccount = () => {
@@ -228,19 +233,39 @@ export default function AjustesPage() {
 
                 {/* Procesamiento de datos */}
                 <div className="bg-transparent border border-white/10 rounded-lg p-4 shadow-[0_0_30px_rgba(43,238,121,0.1)]">
-                  <h3 className="text-base font-bold text-white mb-3">Procesamiento de los datos</h3>
-                  <label className="flex items-start gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={dataProcessingAccepted}
-                      onChange={(e) => setDataProcessingAccepted(e.target.checked)}
-                      className="mt-0.5 w-4 h-4 rounded border-gray-600 text-[#2BEE79] focus:ring-[#2BEE79]"
-                    />
-                    <span className="text-gray-300 text-xs">
-                      Acepto mensajes de publicidad y declaro que me he familiarizado con el{' '}
-                      <a href="#" className="text-[#2BEE79] underline">procesamiento de datos personales</a>
-                    </span>
-                  </label>
+                  <h3 className="text-base font-bold text-white mb-4">Procesamiento de los datos</h3>
+                  
+                  <div className="space-y-3">
+                    <label className="flex items-start gap-2 cursor-pointer group">
+                      <input
+                        type="checkbox"
+                        checked={dataProcessingAccepted}
+                        onChange={(e) => setDataProcessingAccepted(e.target.checked)}
+                        className="mt-0.5 w-4 h-4 rounded border-gray-600 text-[#2BEE79] focus:ring-[#2BEE79]"
+                      />
+                      <span className="text-gray-300 text-xs">
+                        Declaro que estoy de acuerdo y me he familiarizado con{' '}
+                        <a href="/acerca-de#proteccion-datos" className="text-blue-400 underline hover:text-blue-300">
+                          el procesamiento de datos personales
+                        </a>
+                      </span>
+                    </label>
+
+                    <label className="flex items-start gap-2 cursor-pointer group">
+                      <input
+                        type="checkbox"
+                        checked={termsAccepted}
+                        onChange={(e) => setTermsAccepted(e.target.checked)}
+                        className="mt-0.5 w-4 h-4 rounded border-gray-600 text-[#2BEE79] focus:ring-[#2BEE79]"
+                      />
+                      <span className="text-gray-300 text-xs">
+                        Declaro que estoy de acuerdo y me he familiarizado con{' '}
+                        <a href="/acerca-de#terminos" className="text-blue-400 underline hover:text-blue-300">
+                          términos y condiciones de uso
+                        </a>
+                      </span>
+                    </label>
+                  </div>
                 </div>
 
                 {/* Activación de servicios */}
@@ -261,21 +286,6 @@ export default function AjustesPage() {
                   </label>
                 </div>
 
-                {/* Exportar datos */}
-                <div className="bg-transparent border border-white/10 rounded-lg p-4 shadow-[0_0_30px_rgba(43,238,121,0.1)]">
-                  <h3 className="text-base font-bold text-white mb-3">Exporta tus datos</h3>
-                  <p className="text-gray-300 text-xs mb-3">
-                    Todos tus datos te pertenecen. Te los enviaremos en formato ZIP dentro de 30 días.
-                  </p>
-                  <Button 
-                    onClick={handleExportData} 
-                    className="bg-[#2BEE79] hover:bg-[#2BEE79]/90 text-black font-semibold text-xs py-2 px-4 shadow-[0_0_20px_rgba(43,238,121,0.4)] hover:shadow-[0_0_30px_rgba(43,238,121,0.6)]"
-                  >
-                    <i className="fas fa-download mr-2"></i>
-                    Exportar datos
-                  </Button>
-                </div>
-
               </div>
             )}
 
@@ -284,8 +294,10 @@ export default function AjustesPage() {
               <div className="space-y-4">
                 
                 {/* Alerta */}
-                <div className={`rounded-lg p-4 shadow-[0_0_30px_rgba(43,238,121,0.1)] ${
-                  securityStatus === 'protegida' ? 'bg-green-600/20 border border-green-500/30' : 'bg-orange-600/20 border border-orange-500/30'
+                <div className={`rounded-lg p-4 ${
+                  securityStatus === 'protegida' 
+                    ? 'bg-green-600/20 border border-green-500/30 shadow-[0_0_30px_rgba(34,197,94,0.2)]' 
+                    : 'bg-orange-600/20 border border-orange-500/30 shadow-[0_0_30px_rgba(251,146,60,0.2)]'
                 }`}>
                   <div className="flex items-center gap-3">
                     <i className={`fas ${
@@ -426,7 +438,10 @@ export default function AjustesPage() {
                           </p>
                         </div>
                       </div>
-                      <Button variant="ghost" className="text-[#2BEE79] hover:text-[#2BEE79]/80 text-xs">
+                      <Button 
+                        variant="ghost" 
+                        className="text-[#2BEE79] hover:bg-[#2BEE79]/10 hover:shadow-[0_0_15px_rgba(43,238,121,0.3)] text-xs px-3 py-1.5 rounded-lg transition-all"
+                      >
                         Cambiar
                       </Button>
                     </div>
@@ -505,26 +520,114 @@ export default function AjustesPage() {
 
             {/* PESTAÑA: ELIMINAR */}
             {activeTab === 'eliminar' && (
-              <div className="bg-transparent border border-white/10 rounded-lg p-4 shadow-[0_0_30px_rgba(251,146,60,0.1)]">
-                <h3 className="text-xl font-bold text-orange-500 mb-3">ELIMINAR CUENTA</h3>
-                <p className="text-gray-300 text-sm mb-4">
-                  Puedes eliminar tu cuenta en cualquier momento. Perderás todos tus datos.
-                </p>
+              <div className="space-y-6">
+                
+                {/* Exportar datos */}
+                <div className="bg-transparent border border-white/10 rounded-lg p-4 shadow-[0_0_30px_rgba(251,146,60,0.1)]">
+                  <h3 className="text-xl font-bold text-orange-500 mb-3">
+                    <i className="fas fa-download mr-2"></i>
+                    Exportar tus datos
+                  </h3>
+                  
+                  <div className="space-y-3 text-gray-300 text-sm mb-4">
+                    <p>
+                      Todos tus datos de usuario, que se recopilan en nuestros servidores durante tu estancia aquí, te pertenecen a ti. 
+                      En cualquier momento puedes pedirnos que te enviamos todos tus datos.
+                    </p>
+                    <p>
+                      Si así lo haces, te lo enviaremos dentro de 10 días a tu correo electrónico que usaste para crear tu cuenta en Locutorio en el formato ZIP.
+                    </p>
+                    <p>
+                      Si el tamaño de ZIP superaría 5MB te mandamos link de descarga donde lo puedes descargar gratis.
+                    </p>
+                  </div>
 
-                <div className="space-y-2 mb-6 text-gray-300 text-xs">
-                  <p>• Todos tus datos personales</p>
-                  <p>• Fotos y comentarios en Galería</p>
-                  <p>• Anuncios publicados</p>
-                  <p>• Mensajes y comunicaciones</p>
-                  <p>• Privilegios PLUS+ sin reembolso</p>
+                  <div className="bg-orange-600/10 border border-orange-500/30 rounded-lg p-3 mb-4">
+                    <p className="text-orange-400 text-xs font-semibold flex items-start gap-2">
+                      <i className="fas fa-exclamation-triangle mt-0.5"></i>
+                      <span>
+                        Envío de tus datos no borrará esos datos del sistema automáticamente!
+                      </span>
+                    </p>
+                  </div>
+
+                  <label className="flex items-start gap-2 cursor-pointer mb-4">
+                    <input
+                      type="checkbox"
+                      checked={deleteDataOnExport}
+                      onChange={(e) => setDeleteDataOnExport(e.target.checked)}
+                      className="mt-0.5 w-4 h-4 rounded border-gray-600 text-orange-500 focus:ring-orange-500"
+                    />
+                    <span className="text-gray-300 text-xs">
+                      Borrar mis datos del servidor después de enviar el ZIP
+                    </span>
+                  </label>
+
+                  <div className="bg-orange-600/10 border border-orange-500/30 rounded-lg p-3 mb-4">
+                    <p className="text-orange-400 text-xs font-semibold flex items-start gap-2">
+                      <i className="fas fa-info-circle mt-0.5"></i>
+                      <span>
+                        Exportar y borrar tus datos del sistema no eliminará tu cuenta!
+                      </span>
+                    </p>
+                  </div>
+
+                  <Button 
+                    onClick={handleExportData} 
+                    className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 text-sm shadow-[0_0_20px_rgba(251,146,60,0.4)] hover:shadow-[0_0_30px_rgba(251,146,60,0.6)]"
+                  >
+                    <i className="fas fa-download mr-2"></i>
+                    Exportar mis datos
+                  </Button>
                 </div>
 
-                <Button 
-                  onClick={handleDeleteAccount} 
-                  className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 text-sm shadow-[0_0_20px_rgba(251,146,60,0.4)] hover:shadow-[0_0_30px_rgba(251,146,60,0.6)]"
-                >
-                  Eliminar cuenta
-                </Button>
+                {/* Eliminar cuenta */}
+                <div className="bg-transparent border border-orange-500/30 rounded-lg p-4 shadow-[0_0_30px_rgba(251,146,60,0.2)]">
+                  <h3 className="text-xl font-bold text-orange-500 mb-3">
+                    <i className="fas fa-trash-alt mr-2"></i>
+                    ELIMINAR CUENTA
+                  </h3>
+                  
+                  <p className="text-gray-300 text-sm mb-4">
+                    Tu cuenta personal puedes eliminar en cualquier momento.
+                  </p>
+
+                  <p className="text-white font-semibold text-sm mb-3">
+                    Recuerda que con este paso puedes perder tus datos que se guardan en nuestro servidor:
+                  </p>
+
+                  <div className="space-y-2 mb-6 text-gray-300 text-xs bg-black/20 rounded-lg p-4 border border-white/10">
+                    <p className="flex items-start gap-2">
+                      <i className="fas fa-circle text-[6px] mt-1.5 text-orange-500"></i>
+                      <span>Todos tus datos personales que usaste para crear tu perfil</span>
+                    </p>
+                    <p className="flex items-start gap-2">
+                      <i className="fas fa-circle text-[6px] mt-1.5 text-orange-500"></i>
+                      <span>Fotos y sus respectivos comentarios en Álbumes</span>
+                    </p>
+                    <p className="flex items-start gap-2">
+                      <i className="fas fa-circle text-[6px] mt-1.5 text-orange-500"></i>
+                      <span>Anuncios que publicaste</span>
+                    </p>
+                    <p className="flex items-start gap-2">
+                      <i className="fas fa-circle text-[6px] mt-1.5 text-orange-500"></i>
+                      <span>Toda comunicación por salas de chat incluido mensajes privados</span>
+                    </p>
+                    <p className="flex items-start gap-2">
+                      <i className="fas fa-circle text-[6px] mt-1.5 text-orange-500"></i>
+                      <span>Privilegios obtenidos o comprados por activación de programa +PLUS sin derecho de reembolso</span>
+                    </p>
+                  </div>
+
+                  <Button 
+                    onClick={handleDeleteAccount} 
+                    className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 text-sm shadow-[0_0_20px_rgba(220,38,38,0.4)] hover:shadow-[0_0_30px_rgba(220,38,38,0.6)]"
+                  >
+                    <i className="fas fa-trash-alt mr-2"></i>
+                    Eliminar mi cuenta permanentemente
+                  </Button>
+                </div>
+
               </div>
             )}
 
