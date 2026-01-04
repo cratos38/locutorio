@@ -155,8 +155,12 @@ export default function AjustesPage() {
                 
                 {/* Configuración General */}
                 <div className="bg-transparent border border-white/10 rounded-lg p-4 shadow-[0_0_30px_rgba(43,238,121,0.1)]">
-                  <h3 className="text-lg font-bold text-white mb-3">Configuración General</h3>
-                  <div className="border-b border-white/10 mb-3"></div>
+                  <div className="flex items-center gap-3 mb-3 pb-3 border-b border-white/10">
+                    <div className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center">
+                      <i className="fas fa-cog text-gray-400 text-sm"></i>
+                    </div>
+                    <h3 className="text-lg font-bold text-white">Configuración General</h3>
+                  </div>
                   
                   <div className="space-y-3">
                     {/* Volumen */}
@@ -280,12 +284,16 @@ export default function AjustesPage() {
               <div className="space-y-4">
                 
                 {/* Alerta */}
-                <div className={`rounded-lg p-4 ${
-                  securityStatus === 'protegida' ? 'bg-green-600/20 border border-green-500/30' : 'bg-red-600/20 border border-red-500/30'
+                <div className={`rounded-lg p-4 shadow-[0_0_30px_rgba(43,238,121,0.1)] ${
+                  securityStatus === 'protegida' ? 'bg-green-600/20 border border-green-500/30' : 'bg-orange-600/20 border border-orange-500/30'
                 }`}>
                   <div className="flex items-center gap-3">
-                    <i className="fas fa-exclamation-triangle text-2xl"></i>
-                    <p className="text-sm font-semibold">
+                    <i className={`fas ${
+                      securityStatus === 'protegida' ? 'fa-check-circle text-green-500' : 'fa-exclamation-triangle text-orange-500'
+                    } text-2xl`}></i>
+                    <p className={`text-sm font-semibold ${
+                      securityStatus === 'protegida' ? 'text-green-400' : 'text-orange-400'
+                    }`}>
                       {securityStatus === 'protegida' 
                         ? 'La seguridad de su cuenta es asegurada' 
                         : 'Para aumentar la seguridad, verifica tu correo y teléfono'}
@@ -310,10 +318,12 @@ export default function AjustesPage() {
                       <button
                         key={item.method}
                         onClick={() => setVerificationMethod(item.method)}
-                        className={`relative p-3 rounded-lg border-2 text-xs transition-all ${
-                          item.verified
-                            ? 'bg-[#2BEE79]/10 border-[#2BEE79] text-white shadow-[0_0_15px_rgba(43,238,121,0.3)]'
-                            : 'bg-transparent border-white/20 text-gray-300 hover:border-white/40'
+                        className={`relative p-3 rounded-lg text-xs transition-all ${
+                          verificationMethod === item.method
+                            ? 'bg-[#2BEE79]/10 border-2 border-[#2BEE79] text-white shadow-[0_0_20px_rgba(43,238,121,0.5)]'
+                            : item.verified
+                              ? 'bg-green-500/10 border-2 border-green-500/50 text-white'
+                              : 'bg-transparent border-2 border-white/20 text-gray-300 hover:border-white/40'
                         }`}
                       >
                         {item.verified && (
@@ -327,7 +337,7 @@ export default function AjustesPage() {
 
                   {/* Formulario verificación */}
                   {verificationMethod && (
-                    <div className="bg-black/20 rounded-lg p-4 border border-white/10">
+                    <div className="bg-black/20 rounded-lg p-4 border border-white/10 shadow-[0_0_20px_rgba(43,238,121,0.05)]">
                       <h4 className="text-sm font-bold text-white mb-3">
                         Verificación por {verificationMethod === 'email' ? 'correo' : verificationMethod}
                       </h4>
@@ -375,7 +385,7 @@ export default function AjustesPage() {
                   <h3 className="text-base font-bold text-white mb-3">Últimas Conexiones</h3>
                   <div className="space-y-1 max-h-48 overflow-y-auto">
                     {sessionLogs.map((log, index) => (
-                      <div key={index} className="flex items-center gap-3 p-2 bg-black/20 rounded text-xs border border-white/5">
+                      <div key={index} className="flex items-center gap-3 p-2 bg-black/20 rounded text-xs border border-white/5 shadow-[0_0_10px_rgba(43,238,121,0.03)]">
                         <span className="text-gray-400 w-20">{log.date}</span>
                         <span className="text-gray-400 w-28 font-mono">{log.ip}</span>
                         <span className="text-gray-300 w-24">{log.location}</span>
@@ -406,7 +416,7 @@ export default function AjustesPage() {
                     { name: 'Email', enabled: twoFactorEmail, value: 'Cr****38@gmail.com' },
                     { name: 'Google Authenticator', enabled: twoFactorGoogle },
                   ].map((method, i) => (
-                    <div key={i} className="flex items-center justify-between p-3 bg-transparent rounded-lg border border-white/10">
+                    <div key={i} className="flex items-center justify-between p-3 bg-transparent rounded-lg border border-white/10 shadow-[0_0_15px_rgba(43,238,121,0.05)]">
                       <div className="flex items-center gap-3">
                         <i className="fas fa-mobile-alt text-2xl text-gray-400"></i>
                         <div>
