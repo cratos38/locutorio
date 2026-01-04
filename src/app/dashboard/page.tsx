@@ -534,37 +534,39 @@ export default function InicioPage() {
 
                 {currentCoffeeUser ? (
                   <div className="relative rounded-xl overflow-hidden group">
-                    <img
-                      src={currentCoffeeUser.avatar}
-                      alt={currentCoffeeUser.name}
-                      onClick={() => window.open(`/meetings?user=${currentCoffeeUser.username}`, '_blank')}
-                      className="w-full h-64 object-cover cursor-pointer transition-all duration-300 group-hover:scale-110 group-hover:brightness-110"
-                    />
-                    
-                    {/* Overlay clickeable para ver más fotos */}
+                    {/* Overlay clickeable para ver más fotos - debe estar primero */}
                     <div 
                       onClick={() => window.open(`/meetings?user=${currentCoffeeUser.username}`, '_blank')}
-                      className="absolute inset-0 cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/40 backdrop-blur-[2px] flex items-center justify-center"
+                      className="absolute inset-0 cursor-pointer z-10"
                     >
-                      <div className="text-center text-white transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
-                        <svg className="w-12 h-12 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                        <p className="text-sm font-bold">Ver todas las fotos</p>
-                        <p className="text-xs opacity-80">Click para abrir galería</p>
+                      <img
+                        src={currentCoffeeUser.avatar}
+                        alt={currentCoffeeUser.name}
+                        className="w-full h-64 object-cover transition-all duration-300 group-hover:scale-110 group-hover:brightness-110"
+                      />
+                      
+                      {/* Overlay con efecto hover */}
+                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/40 backdrop-blur-[2px] flex items-center justify-center">
+                        <div className="text-center text-white transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
+                          <svg className="w-12 h-12 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                          <p className="text-sm font-bold">Ver todas las fotos</p>
+                          <p className="text-xs opacity-80">Click para abrir galería</p>
+                        </div>
                       </div>
+                      
+                      {/* Overlay con gradiente */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent"></div>
                     </div>
 
-                    {/* Overlay con gradiente */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent pointer-events-none"></div>
-
                     {/* Badge de invitación */}
-                    <div className="absolute top-3 left-3 bg-primary/90 backdrop-blur-sm px-3 py-1 rounded-full">
+                    <div className="absolute top-3 left-3 bg-primary/90 backdrop-blur-sm px-3 py-1 rounded-full pointer-events-none z-20">
                       <span className="text-xs font-bold text-connect-bg-dark">Nueva Invitación</span>
                     </div>
 
                     {/* Botones de aceptar/rechazar */}
-                    <div className="absolute bottom-16 left-0 right-0 flex justify-center gap-4 px-4 pointer-events-auto z-10">
+                    <div className="absolute bottom-16 left-0 right-0 flex justify-center gap-4 px-4 z-20">
                       <button
                         onClick={(e) => { e.stopPropagation(); setShowRejectModal(true); }}
                         className="w-16 h-16 bg-white/90 hover:bg-white rounded-full font-bold shadow-lg hover:scale-110 transition-all flex items-center justify-center"
@@ -584,7 +586,7 @@ export default function InicioPage() {
                     </div>
 
                     {/* Info del usuario */}
-                    <div className="absolute bottom-0 left-0 right-0 p-4 text-center text-white pointer-events-none z-10">
+                    <div className="absolute bottom-0 left-0 right-0 p-4 text-center text-white pointer-events-none z-20">
                       <h4 className="text-lg font-bold">{currentCoffeeUser.name}, {currentCoffeeUser.age}</h4>
                       <p className="text-sm opacity-90 flex items-center justify-center gap-1">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
