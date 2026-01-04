@@ -18,6 +18,17 @@ type CoffeeUser = {
 export default function InicioPage() {
   const [statusText, setStatusText] = useState("");
 
+  // Mensajes privados
+  const privateMessages = [
+    { id: 1, userId: 1, name: "María", avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuBeeMOB_U1vT493g04GMXkQt_nyAG8MhMlNfzG4z2DYPQKR24ob0HEzimmB96Sd4GhY0YRP-TPyWuknoITGye5AxQIIkUMS6bJlap4RBIO5q_9eDlpkiyd765t4bxfntbtlcCVH1rCWDZMmwPm00connYJnD94blHHAjyt0rEyqSIOeuhOi0cgq-CVpWnR4eVh26kZy9ucxX4cLrs2p0K3JeEK_8H1TCTgJzrmRB0bDkW41xryg77g7H1GG4XFsbwP_wkCMxr-3NlwB", message: "Hola! ¿Cómo estás?", unread: 2 },
+    { id: 2, userId: 2, name: "Laura", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop", message: "Gracias por aceptar", unread: 1 },
+    { id: 3, userId: 3, name: "Sofia", avatar: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400&h=400&fit=crop", message: "Nos vemos pronto", unread: 0 }
+  ];
+
+  const openMessages = (userId?: number) => {
+    console.log('Opening messages for user:', userId);
+  };
+
   // Estado para el widget de Tomar Café
   const [coffeeUsers] = useState<CoffeeUser[]>([
     { id: 1, username: "maria8163", name: "María", age: 24, city: "Maracaibo", avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuBeeMOB_U1vT493g04GMXkQt_nyAG8MhMlNfzG4z2DYPQKR24ob0HEzimmB96Sd4GhY0YRP-TPyWuknoITGye5AxQIIkUMS6bJlap4RBIO5q_9eDlpkiyd765t4bxfntbtlcCVH1rCWDZMmwPm00connYJnD94blHHAjyt0rEyqSIOeuhOi0cgq-CVpWnR4eVh26kZy9ucxX4cLrs2p0K3JeEK_8H1TCTgJzrmRB0bDkW41xryg77g7H1GG4XFsbwP_wkCMxr-3NlwB" },
