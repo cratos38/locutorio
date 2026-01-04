@@ -245,7 +245,7 @@ export default function AjustesPage() {
                       />
                       <span className="text-gray-300 text-xs">
                         Declaro que estoy de acuerdo y me he familiarizado con{' '}
-                        <a href="/acerca-de#proteccion-datos" className="text-blue-400 underline hover:text-blue-300">
+                        <a href="/about/proteccion-datos" className="text-blue-400 underline hover:text-blue-300">
                           el procesamiento de datos personales
                         </a>
                       </span>
@@ -260,7 +260,7 @@ export default function AjustesPage() {
                       />
                       <span className="text-gray-300 text-xs">
                         Declaro que estoy de acuerdo y me he familiarizado con{' '}
-                        <a href="/acerca-de#terminos" className="text-blue-400 underline hover:text-blue-300">
+                        <a href="/about/terminos" className="text-blue-400 underline hover:text-blue-300">
                           términos y condiciones de uso
                         </a>
                       </span>
@@ -333,9 +333,7 @@ export default function AjustesPage() {
                         className={`relative p-3 rounded-lg text-xs transition-all ${
                           verificationMethod === item.method
                             ? 'bg-[#2BEE79]/10 border-2 border-[#2BEE79] text-white shadow-[0_0_20px_rgba(43,238,121,0.5)]'
-                            : item.verified
-                              ? 'bg-green-500/10 border-2 border-green-500/50 text-white'
-                              : 'bg-transparent border-2 border-white/20 text-gray-300 hover:border-white/40'
+                            : 'bg-transparent border-2 border-white/20 text-gray-300 hover:border-white/40'
                         }`}
                       >
                         {item.verified && (
@@ -438,12 +436,11 @@ export default function AjustesPage() {
                           </p>
                         </div>
                       </div>
-                      <Button 
-                        variant="ghost" 
-                        className="text-[#2BEE79] hover:bg-[#2BEE79]/10 hover:shadow-[0_0_15px_rgba(43,238,121,0.3)] text-xs px-3 py-1.5 rounded-lg transition-all"
+                      <button 
+                        className="text-[#2BEE79] hover:bg-transparent hover:border hover:border-[#2BEE79]/50 hover:shadow-[0_0_15px_rgba(43,238,121,0.3)] text-xs px-3 py-1.5 rounded-lg transition-all bg-transparent border border-white/10"
                       >
                         Cambiar
-                      </Button>
+                      </button>
                     </div>
                   ))}
                 </div>
@@ -538,18 +535,14 @@ export default function AjustesPage() {
                       Si así lo haces, te lo enviaremos dentro de 10 días a tu correo electrónico que usaste para crear tu cuenta en Locutorio en el formato ZIP.
                     </p>
                     <p>
-                      Si el tamaño de ZIP superaría 5MB te mandamos link de descarga donde lo puedes descargar gratis.
+                      Si el tamaño de ZIP superaría 25MB te mandamos link de descarga donde lo puedes descargar gratis.
                     </p>
                   </div>
 
-                  <div className="bg-orange-600/10 border border-orange-500/30 rounded-lg p-3 mb-4">
-                    <p className="text-orange-400 text-xs font-semibold flex items-start gap-2">
-                      <i className="fas fa-exclamation-triangle mt-0.5"></i>
-                      <span>
-                        Envío de tus datos no borrará esos datos del sistema automáticamente!
-                      </span>
-                    </p>
-                  </div>
+                  <p className="text-orange-400 text-sm mb-2 flex items-start gap-2">
+                    <i className="fas fa-exclamation-triangle mt-0.5"></i>
+                    <span>Envío de tus datos no borrará esos datos del sistema automáticamente!</span>
+                  </p>
 
                   <label className="flex items-start gap-2 cursor-pointer mb-4">
                     <input
@@ -563,14 +556,10 @@ export default function AjustesPage() {
                     </span>
                   </label>
 
-                  <div className="bg-orange-600/10 border border-orange-500/30 rounded-lg p-3 mb-4">
-                    <p className="text-orange-400 text-xs font-semibold flex items-start gap-2">
-                      <i className="fas fa-info-circle mt-0.5"></i>
-                      <span>
-                        Exportar y borrar tus datos del sistema no eliminará tu cuenta!
-                      </span>
-                    </p>
-                  </div>
+                  <p className="text-orange-400 text-sm mb-4 flex items-start gap-2">
+                    <i className="fas fa-exclamation-triangle mt-0.5"></i>
+                    <span>Exportar y borrar tus datos del sistema no eliminará tu cuenta!</span>
+                  </p>
 
                   <Button 
                     onClick={handleExportData} 
@@ -599,11 +588,17 @@ export default function AjustesPage() {
                   <div className="space-y-2 mb-6 text-gray-300 text-xs bg-black/20 rounded-lg p-4 border border-white/10">
                     <p className="flex items-start gap-2">
                       <i className="fas fa-circle text-[6px] mt-1.5 text-orange-500"></i>
-                      <span>Todos tus datos personales que usaste para crear tu perfil</span>
+                      <span>
+                        Todos tus datos personales que usaste para crear tu{' '}
+                        <a href="/perfil/maria-p" className="text-blue-400 underline hover:text-blue-300">perfil</a>
+                      </span>
                     </p>
                     <p className="flex items-start gap-2">
                       <i className="fas fa-circle text-[6px] mt-1.5 text-orange-500"></i>
-                      <span>Fotos y sus respectivos comentarios en Álbumes</span>
+                      <span>
+                        Fotos y sus respectivos comentarios en{' '}
+                        <a href="/albumes" className="text-blue-400 underline hover:text-blue-300">Álbumes</a>
+                      </span>
                     </p>
                     <p className="flex items-start gap-2">
                       <i className="fas fa-circle text-[6px] mt-1.5 text-orange-500"></i>
@@ -611,7 +606,10 @@ export default function AjustesPage() {
                     </p>
                     <p className="flex items-start gap-2">
                       <i className="fas fa-circle text-[6px] mt-1.5 text-orange-500"></i>
-                      <span>Toda comunicación por salas de chat incluido mensajes privados</span>
+                      <span>
+                        Toda comunicación por salas de chat incluido{' '}
+                        <a href="/mensajes" className="text-blue-400 underline hover:text-blue-300">mensajes privados</a>
+                      </span>
                     </p>
                     <p className="flex items-start gap-2">
                       <i className="fas fa-circle text-[6px] mt-1.5 text-orange-500"></i>
