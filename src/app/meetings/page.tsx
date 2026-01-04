@@ -426,135 +426,192 @@ function EncuentrosContent() {
             </div>
           )}
 
-          {/* Vista de Galería de Fotos (cuando hay filtro de usuario) */}
+          {/* Vista de Carrusel de Fotos estilo Stretko (cuando hay filtro de usuario) */}
           {userFilter && userPhotos.length > 0 ? (
-            <div className="space-y-6">
-              {/* Header con info del usuario */}
-              {userInfo && (
-                <div className="bg-connect-card border border-connect-border rounded-xl p-6">
-                  <div className="flex items-center gap-4 mb-4">
-                    <img
-                      src={userInfo.avatar}
-                      alt={userInfo.name}
-                      className="w-20 h-20 rounded-full object-cover border-2 border-primary/50"
-                    />
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h2 className="text-2xl font-bold text-white">{userInfo.name}, {userInfo.age}</h2>
-                        {userInfo.username && (
-                          <span className="text-sm text-primary">@{userInfo.username}</span>
-                        )}
-                      </div>
-                      <p className="text-sm text-connect-muted flex items-center gap-1">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                        {userInfo.city}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Stats del perfil */}
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-white/5 rounded-lg">
-                    {userInfo.memberSince && (
-                      <div className="text-center">
-                        <div className="text-xs text-connect-muted mb-1">En línea</div>
-                        <div className="text-sm font-bold text-white">{userInfo.memberSince}</div>
-                      </div>
-                    )}
-                    {userInfo.profileComplete !== undefined && (
-                      <div className="text-center">
-                        <div className="text-xs text-connect-muted mb-1">Perfil</div>
-                        <div className="text-sm font-bold text-primary">{userInfo.profileComplete}%</div>
-                      </div>
-                    )}
-                    {userInfo.totalPhotos !== undefined && (
-                      <div className="text-center">
-                        <div className="text-xs text-connect-muted mb-1">Total Fotos</div>
-                        <div className="text-sm font-bold text-white">{userInfo.totalPhotos}</div>
-                      </div>
-                    )}
-                    {userInfo.publicPhotos !== undefined && (
-                      <div className="text-center">
-                        <div className="text-xs text-connect-muted mb-1">Públicas</div>
-                        <div className="text-sm font-bold text-primary">{userInfo.publicPhotos}</div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Galería de fotos en grid */}
-              <div>
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-xl font-bold text-white">
-                    Galería de Fotos ({userPhotos.length})
-                  </h3>
-                  <div className="flex items-center gap-2 text-xs text-connect-muted">
-                    <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                    </svg>
-                    <span>{userPhotos.filter(p => p.isPublic).length} públicas</span>
-                  </div>
+            <div className="max-w-2xl mx-auto space-y-6">
+              {/* Carrusel de fotos con efecto de stack */}
+              <div className="relative">
+                {/* Contador de fotos */}
+                <div className="text-center mb-4">
+                  <h2 className="text-2xl font-bold text-white mb-2">
+                    {userInfo?.name || 'Usuario'}
+                  </h2>
+                  <p className="text-sm text-connect-muted">
+                    {userPhotos.filter(p => p.isPublic).length} de {userPhotos.length} fotos públicas
+                  </p>
                 </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                  {userPhotos.map((photo) => (
-                    <div
-                      key={photo.id}
-                      className="relative group cursor-pointer rounded-xl overflow-hidden bg-connect-card border border-connect-border hover:border-primary/50 transition-all"
-                    >
-                      <div className="aspect-[4/5] relative">
+                {/* Stack de fotos con carrusel */}
+                <div className="relative w-full max-w-lg mx-auto">
+                  {/* Fotos apiladas en el fondo (efecto de profundidad) */}
+                  <div className="relative" style={{ paddingBottom: '140%' }}>
+                    {userPhotos.slice(0, 3).map((photo, index) => (
+                      <div
+                        key={`stack-${photo.id}`}
+                        className="absolute inset-0 rounded-2xl overflow-hidden shadow-2xl transition-all duration-300"
+                        style={{
+                          transform: `translateY(${index * 20}px) translateX(${index * 10}px) scale(${1 - index * 0.05})`,
+                          zIndex: 3 - index,
+                          opacity: index === 0 ? 1 : 0.3,
+                        }}
+                      >
                         <img
                           src={photo.url}
                           alt={`Foto ${photo.id}`}
-                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                          className="w-full h-full object-cover"
                         />
                         
-                        {/* Overlay con info */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                          <div className="absolute bottom-0 left-0 right-0 p-3">
-                            <div className="flex items-center justify-between text-xs text-white">
-                              <span className="font-medium">{photo.albumName}</span>
-                              {photo.isPublic ? (
-                                <div className="flex items-center gap-1 bg-primary/20 px-2 py-1 rounded">
-                                  <svg className="w-3 h-3 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                  </svg>
-                                  <span className="text-primary">Pública</span>
+                        {/* Overlay con degradado solo en la foto principal */}
+                        {index === 0 && (
+                          <>
+                            {/* Degradado superior */}
+                            <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-black/70 to-transparent" />
+                            
+                            {/* Degradado inferior */}
+                            <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
+                            
+                            {/* Información del usuario en la parte superior */}
+                            <div className="absolute top-4 left-4 right-4">
+                              <div className="flex items-start justify-between">
+                                <div>
+                                  {userInfo && (
+                                    <>
+                                      <h3 className="text-xl font-bold text-white mb-1">
+                                        {userInfo.username || userInfo.name}
+                                      </h3>
+                                      <div className="flex items-center gap-3 text-sm text-white/90">
+                                        <span>{userInfo.age} / {userInfo.city === "Maracaibo" ? "BB" : userInfo.city === "Caracas" ? "CC" : "VV"}</span>
+                                        <span>/</span>
+                                        <span>na Pokeci 7 rokov</span>
+                                      </div>
+                                    </>
+                                  )}
                                 </div>
-                              ) : (
-                                <div className="flex items-center gap-1 bg-white/10 px-2 py-1 rounded">
-                                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                                  </svg>
-                                  <span>Privada</span>
+                                
+                                {/* Íconos de perfil y fotos */}
+                                <div className="flex flex-col gap-2 items-end">
+                                  <div className="flex items-center gap-1 bg-black/40 backdrop-blur-sm px-2 py-1 rounded">
+                                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                    </svg>
+                                    <span className="text-xs font-bold text-white">
+                                      {userInfo?.profileComplete || 0}%
+                                    </span>
+                                  </div>
+                                  <div className="flex items-center gap-1 bg-black/40 backdrop-blur-sm px-2 py-1 rounded">
+                                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                    <span className="text-xs font-bold text-white">
+                                      {userInfo?.publicPhotos || 0}
+                                    </span>
+                                  </div>
                                 </div>
-                              )}
+                              </div>
                             </div>
-                            <p className="text-[10px] text-gray-400 mt-1">{photo.uploadedDate}</p>
-                          </div>
-                        </div>
 
-                        {/* Badge de visibilidad en la esquina */}
-                        {!photo.isPublic && (
-                          <div className="absolute top-2 right-2 bg-black/60 backdrop-blur-sm p-1.5 rounded-full">
-                            <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                            </svg>
-                          </div>
+                            {/* Contador de foto actual */}
+                            <div className="absolute top-1/2 right-4 -translate-y-1/2 bg-black/60 backdrop-blur-sm px-3 py-2 rounded-full">
+                              <span className="text-sm font-bold text-white">
+                                {photo.id} / {userPhotos.length}
+                              </span>
+                            </div>
+
+                            {/* Información en la parte inferior */}
+                            <div className="absolute bottom-0 left-0 right-0 p-6">
+                              {/* Stats en grid */}
+                              <div className="grid grid-cols-2 gap-3 mb-4">
+                                <div className="bg-black/40 backdrop-blur-sm rounded-lg p-3">
+                                  <div className="flex items-center gap-2 text-white">
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <div>
+                                      <div className="text-[10px] opacity-70">En línea</div>
+                                      <div className="text-xs font-bold">{userInfo?.memberSince || "N/A"}</div>
+                                    </div>
+                                  </div>
+                                </div>
+                                
+                                <div className="bg-black/40 backdrop-blur-sm rounded-lg p-3">
+                                  <div className="flex items-center gap-2 text-white">
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                    <div>
+                                      <div className="text-[10px] opacity-70">Fotos</div>
+                                      <div className="text-xs font-bold">{userInfo?.totalPhotos || 0}</div>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <div className="bg-black/40 backdrop-blur-sm rounded-lg p-3">
+                                  <div className="flex items-center gap-2 text-white">
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                    </svg>
+                                    <div>
+                                      <div className="text-[10px] opacity-70">Públicas</div>
+                                      <div className="text-xs font-bold">{userInfo?.publicPhotos || 0}</div>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <div className="bg-black/40 backdrop-blur-sm rounded-lg p-3">
+                                  <div className="flex items-center gap-2 text-white">
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <div>
+                                      <div className="text-[10px] opacity-70">Perfil</div>
+                                      <div className="text-xs font-bold">{userInfo?.profileComplete || 0}%</div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Botones de acción */}
+                              <div className="flex justify-center gap-4">
+                                <button className="w-16 h-16 bg-white/90 hover:bg-white rounded-full font-bold shadow-lg hover:scale-110 transition-all flex items-center justify-center">
+                                  <svg className="w-8 h-8 text-gray-700" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M18 9.5a1.5 1.5 0 11-3 0v-6a1.5 1.5 0 013 0v6zM14 9.667v-5.43a2 2 0 00-1.105-1.79l-.05-.025A4 4 0 0011.055 2H5.64a2 2 0 00-1.962 1.608l-1.2 6A2 2 0 004.44 12H8v4a2 2 0 002 2 1 1 0 001-1v-.667a4 4 0 01.8-2.4l1.4-1.866a4 4 0 00.8-2.4z" />
+                                  </svg>
+                                </button>
+                                <button className="w-16 h-16 bg-primary hover:brightness-110 rounded-full font-bold shadow-[0_0_25px_rgba(43,238,121,0.4)] hover:shadow-[0_0_35px_rgba(43,238,121,0.6)] hover:scale-110 transition-all flex items-center justify-center">
+                                  <svg className="w-8 h-8 text-connect-bg-dark" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z" />
+                                  </svg>
+                                </button>
+                              </div>
+                            </div>
+                          </>
                         )}
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
+
+                  {/* Flechas de navegación */}
+                  <button className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center transition-all z-10">
+                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                    </svg>
+                  </button>
+                  <button className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center transition-all z-10">
+                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
                 </div>
               </div>
 
+              {/* Mensaje informativo */}
+              <div className="text-center text-sm text-connect-muted italic">
+                Tito ľudia sa ti páčia
+              </div>
+
               {/* Botón para volver */}
-              <div className="flex justify-center pt-4">
+              <div className="flex justify-center pt-2">
                 <Link href="/meetings">
                   <Button variant="outline" className="bg-white/5 hover:bg-white/10 border-white/20">
                     <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
