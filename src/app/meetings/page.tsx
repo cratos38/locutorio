@@ -457,51 +457,56 @@ function EncuentrosContent() {
                             {/* Degradado inferior solamente */}
                             <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
 
-                            {/* Información en la parte inferior - más compacta y cerca del borde */}
+                            {/* Información en la parte inferior - TODO EN UNA LÍNEA */}
                             <div className="absolute bottom-2 left-0 right-0 px-4 pb-2">
-                              {/* Info del usuario y stats en una línea */}
+                              {/* Username en línea separada */}
                               {userInfo && (
-                                <div className="mb-3">
-                                  <h3 className="text-lg font-bold text-white mb-1 drop-shadow-lg">
-                                    {userInfo.username || userInfo.name}
-                                  </h3>
-                                  <div className="flex items-center gap-3 text-sm text-white drop-shadow-lg">
-                                    <span>{userInfo.age} / {userInfo.city === "Maracaibo" ? "BB" : userInfo.city === "Caracas" ? "CC" : "VV"} / {userInfo.memberSince || "N/A"}</span>
-                                    <span className="flex items-center gap-1">
-                                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                      </svg>
-                                      {userInfo.profileComplete || 0}%
-                                    </span>
-                                    <span className="flex items-center gap-1">
-                                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                      </svg>
-                                      {userInfo.totalPhotos || 0}
-                                    </span>
-                                  </div>
-                                </div>
+                                <h3 className="text-lg font-bold text-white mb-2 drop-shadow-lg">
+                                  {userInfo.username || userInfo.name}
+                                </h3>
                               )}
 
-                              {/* Contador de foto - centrado encima de botones */}
-                              <div className="text-center mb-2">
-                                <span className="text-xs font-bold text-white drop-shadow-lg">
-                                  {index === 0 ? photo.id : 1} / {userPhotos.length}
-                                </span>
-                              </div>
+                              {/* Todo en una línea: edad/ciudad - pulgar abajo - contador - pulgar arriba - perfil% - fotos */}
+                              <div className="flex items-center justify-between text-sm text-white drop-shadow-lg">
+                                {/* Izquierda: edad / ciudad / tiempo */}
+                                <div className="flex items-center gap-2">
+                                  <span>{userInfo?.age} / {userInfo?.city === "Maracaibo" ? "BB" : userInfo?.city === "Caracas" ? "CC" : "VV"} / {userInfo?.memberSince || "N/A"}</span>
+                                </div>
 
-                              {/* Botones de acción - 50% más pequeños */}
-                              <div className="flex justify-center gap-3">
-                                <button className="w-8 h-8 bg-white/90 hover:bg-white rounded-full font-bold shadow-lg hover:scale-110 transition-all flex items-center justify-center">
-                                  <svg className="w-4 h-4 text-gray-700" fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M18 9.5a1.5 1.5 0 11-3 0v-6a1.5 1.5 0 013 0v6zM14 9.667v-5.43a2 2 0 00-1.105-1.79l-.05-.025A4 4 0 0011.055 2H5.64a2 2 0 00-1.962 1.608l-1.2 6A2 2 0 004.44 12H8v4a2 2 0 002 2 1 1 0 001-1v-.667a4 4 0 01.8-2.4l1.4-1.866a4 4 0 00.8-2.4z" />
-                                  </svg>
-                                </button>
-                                <button className="w-8 h-8 bg-primary hover:brightness-110 rounded-full font-bold shadow-[0_0_20px_rgba(43,238,121,0.4)] hover:shadow-[0_0_30px_rgba(43,238,121,0.6)] hover:scale-110 transition-all flex items-center justify-center">
-                                  <svg className="w-4 h-4 text-connect-bg-dark" fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z" />
-                                  </svg>
-                                </button>
+                                {/* Centro: Botón pulgar abajo - Contador - Botón pulgar arriba */}
+                                <div className="flex items-center gap-3">
+                                  <button className="w-8 h-8 bg-white/90 hover:bg-white rounded-full font-bold shadow-lg hover:scale-110 transition-all flex items-center justify-center">
+                                    <svg className="w-4 h-4 text-gray-700" fill="currentColor" viewBox="0 0 20 20">
+                                      <path d="M18 9.5a1.5 1.5 0 11-3 0v-6a1.5 1.5 0 013 0v6zM14 9.667v-5.43a2 2 0 00-1.105-1.79l-.05-.025A4 4 0 0011.055 2H5.64a2 2 0 00-1.962 1.608l-1.2 6A2 2 0 004.44 12H8v4a2 2 0 002 2 1 1 0 001-1v-.667a4 4 0 01.8-2.4l1.4-1.866a4 4 0 00.8-2.4z" />
+                                    </svg>
+                                  </button>
+                                  
+                                  <span className="text-xs font-bold">
+                                    {index === 0 ? photo.id : 1} / {userPhotos.length}
+                                  </span>
+                                  
+                                  <button className="w-8 h-8 bg-primary hover:brightness-110 rounded-full font-bold shadow-[0_0_20px_rgba(43,238,121,0.4)] hover:shadow-[0_0_30px_rgba(43,238,121,0.6)] hover:scale-110 transition-all flex items-center justify-center">
+                                    <svg className="w-4 h-4 text-connect-bg-dark" fill="currentColor" viewBox="0 0 20 20">
+                                      <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z" />
+                                    </svg>
+                                  </button>
+                                </div>
+
+                                {/* Derecha: % perfil - fotos totales */}
+                                <div className="flex items-center gap-3">
+                                  <span className="flex items-center gap-1">
+                                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                    </svg>
+                                    {userInfo?.profileComplete || 0}%
+                                  </span>
+                                  <span className="flex items-center gap-1">
+                                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                    {userInfo?.totalPhotos || 0}
+                                  </span>
+                                </div>
                               </div>
                             </div>
                           </>
