@@ -17,6 +17,40 @@ type CoffeeUser = {
 
 export default function InicioPage() {
   const [statusText, setStatusText] = useState("");
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+
+  // Emojis comunes para estado
+  const commonEmojis = [
+    '😊', '😃', '😄', '😁', '😆', '😅', '🤣', '😂', 
+    '🙂', '😉', '😊', '😇', '🥰', '😍', '🤩', '😘',
+    '😗', '😚', '😙', '🥲', '😋', '😛', '😜', '🤪',
+    '😝', '🤑', '🤗', '🤭', '🫢', '🫣', '🤫', '🤔',
+    '🫡', '🤐', '🤨', '😐', '😑', '😶', '🫥', '😶‍🌫️',
+    '😏', '😒', '🙄', '😬', '😮‍💨', '🤥', '😌', '😔',
+    '😪', '🤤', '😴', '😷', '🤒', '🤕', '🤢', '🤮',
+    '🤧', '🥵', '🥶', '🥴', '😵', '😵‍💫', '🤯', '🤠',
+    '🥳', '🥸', '😎', '🤓', '🧐', '😕', '🫤', '😟',
+    '🙁', '☹️', '😮', '😯', '😲', '😳', '🥺', '🥹',
+    '😦', '😧', '😨', '😰', '😥', '😢', '😭', '😱',
+    '😖', '😣', '😞', '😓', '😩', '😫', '🥱', '😤',
+    '😡', '😠', '🤬', '😈', '👿', '💀', '☠️', '💩',
+    '🤡', '👹', '👺', '👻', '👽', '👾', '🤖', '😺',
+    '😸', '😹', '😻', '😼', '😽', '🙀', '😿', '😾',
+    '❤️', '🧡', '💛', '💚', '💙', '💜', '🖤', '🤍',
+    '🤎', '💔', '❤️‍🔥', '❤️‍🩹', '❣️', '💕', '💞', '💓',
+    '💗', '💖', '💘', '💝', '💟', '☮️', '✝️', '☪️',
+    '🕉️', '☸️', '✡️', '🔯', '🕎', '☯️', '☦️', '🛐',
+    '⛎', '♈', '♉', '♊', '♋', '♌', '♍', '♎',
+    '♏', '♐', '♑', '♒', '♓', '🆔', '⚛️', '🉑',
+    '☢️', '☣️', '📴', '📳', '🈶', '🈚', '🈸', '🈺',
+    '🈷️', '✴️', '🆚', '💮', '🉐', '㊙️', '㊗️', '🈴',
+    '🈵', '🈹', '🈲', '🅰️', '🅱️', '🆎', '🆑', '🅾️',
+    '🆘', '❌', '⭕', '🛑', '⛔', '📛', '🚫', '💯',
+    '💢', '♨️', '🚷', '🚯', '🚳', '🚱', '🔞', '📵',
+    '🚭', '❗', '❕', '❓', '❔', '‼️', '⁉️', '🔅',
+    '🔆', '〽️', '⚠️', '🚸', '🔱', '⚜️', '🔰', '♻️',
+    '✅', '🈯', '💹', '❇️', '✳️', '❎', '🌐', '💠'
+  ];
 
   // Mensajes privados
   const privateMessages = [
@@ -318,19 +352,45 @@ export default function InicioPage() {
               </div>
 
               <div className="flex justify-between items-center mt-3 pl-14">
-                <div className="flex gap-2">
-                  <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-full hover:bg-white/5 text-xs text-connect-muted hover:text-white transition-colors">
-                    <svg className="w-[18px] h-[18px] text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                    Foto
-                  </button>
-                  <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-full hover:bg-white/5 text-xs text-connect-muted hover:text-white transition-colors">
+                <div className="relative">
+                  <button 
+                    onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-full hover:bg-white/5 text-xs text-connect-muted hover:text-white transition-colors"
+                  >
                     <svg className="w-[18px] h-[18px] text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    Estado
+                    Emoji
                   </button>
+
+                  {/* Selector de Emojis */}
+                  {showEmojiPicker && (
+                    <div className="absolute left-0 top-full mt-2 bg-connect-card border border-white/10 rounded-lg p-3 shadow-xl z-50 w-80">
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="text-sm font-semibold text-white">Selecciona un emoji</h4>
+                        <button 
+                          onClick={() => setShowEmojiPicker(false)}
+                          className="text-gray-400 hover:text-white"
+                        >
+                          <i className="fas fa-times"></i>
+                        </button>
+                      </div>
+                      <div className="grid grid-cols-10 gap-1 max-h-64 overflow-y-auto">
+                        {commonEmojis.map((emoji, i) => (
+                          <button
+                            key={i}
+                            onClick={() => {
+                              setStatusText(prev => prev + emoji);
+                              setShowEmojiPicker(false);
+                            }}
+                            className="text-2xl hover:bg-white/10 rounded p-1 transition-colors"
+                          >
+                            {emoji}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
