@@ -57,7 +57,6 @@ export default function AjustesPage() {
   ]
 
   const handleVerificationSend = () => {
-    // Simular envío de código
     alert(`Código enviado a ${verificationMethod === 'email' ? email : phoneNumber}`)
   }
 
@@ -76,7 +75,6 @@ export default function AjustesPage() {
     setUploadingPhoto(true)
     setVerificationResult(null)
     
-    // Simular proceso de IA (3 segundos)
     setTimeout(() => {
       setUploadingPhoto(false)
       setVerificationResult('success')
@@ -97,96 +95,53 @@ export default function AjustesPage() {
   const securityStatus = emailVerified && (telegramVerified || whatsappVerified) ? 'protegida' : 'insegura'
 
   return (
-    <div className="min-h-screen bg-connect-bg-dark">
+    <div 
+      className="min-h-screen text-white"
+      style={{
+        background: 'radial-gradient(circle at top left, rgba(16, 34, 23, 0.8), #102217 50%, #0a1510 100%)'
+      }}
+    >
       <InternalHeader />
       
       <main className="container mx-auto px-4 py-8 max-w-7xl">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           
-          {/* Sidebar - Menú de pestañas */}
+          {/* Sidebar - Menú */}
           <div className="lg:col-span-1">
-            <div className="bg-[#1A2226] rounded-lg border border-white/5 overflow-hidden shadow-lg">
-              <div className="p-4 border-b border-white/5">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-gradient-to-br from-[#2BEE79] to-emerald-600 rounded-lg flex items-center justify-center shadow-[0_0_15px_rgba(43,238,121,0.3)]">
-                    <i className="fas fa-cog text-white"></i>
+            <div className="bg-transparent border border-white/10 rounded-lg overflow-hidden">
+              <div className="p-3 border-b border-white/10">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 bg-gradient-to-br from-[#2BEE79] to-emerald-600 rounded-lg flex items-center justify-center">
+                    <i className="fas fa-cog text-black text-sm"></i>
                   </div>
-                  <h2 className="text-lg font-bold text-white">Configuración</h2>
+                  <h2 className="text-base font-bold text-white">Configuración</h2>
                 </div>
               </div>
               
               <nav className="p-2">
-                <button
-                  onClick={() => setActiveTab('ajustes')}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
-                    activeTab === 'ajustes' 
-                      ? 'bg-[#2BEE79]/10 text-[#2BEE79] border border-[#2BEE79]/30 shadow-[0_0_15px_rgba(43,238,121,0.3)]' 
-                      : 'text-gray-400 hover:bg-white/5 hover:text-white'
-                  }`}
-                >
-                  <i className="fas fa-sliders w-5"></i>
-                  <span>Ajustes</span>
-                </button>
-                
-                <button
-                  onClick={() => setActiveTab('seguridad')}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
-                    activeTab === 'seguridad' 
-                      ? 'bg-[#2BEE79]/10 text-[#2BEE79] border border-[#2BEE79]/30 shadow-[0_0_15px_rgba(43,238,121,0.3)]' 
-                      : 'text-gray-400 hover:bg-white/5 hover:text-white'
-                  }`}
-                >
-                  <i className="fas fa-lock w-5"></i>
-                  <span>Seguridad</span>
-                </button>
-                
-                <button
-                  onClick={() => setActiveTab('2fa')}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
-                    activeTab === '2fa' 
-                      ? 'bg-[#2BEE79]/10 text-[#2BEE79] border border-[#2BEE79]/30 shadow-[0_0_15px_rgba(43,238,121,0.3)]' 
-                      : 'text-gray-400 hover:bg-white/5 hover:text-white'
-                  }`}
-                >
-                  <i className="fas fa-shield-alt w-5"></i>
-                  <span>Autentificación 2FA</span>
-                </button>
-                
-                <button
-                  onClick={() => setActiveTab('verificacion')}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
-                    activeTab === 'verificacion' 
-                      ? 'bg-[#2BEE79]/10 text-[#2BEE79] border border-[#2BEE79]/30 shadow-[0_0_15px_rgba(43,238,121,0.3)]' 
-                      : 'text-gray-400 hover:bg-white/5 hover:text-white'
-                  }`}
-                >
-                  <i className="fas fa-user-check w-5"></i>
-                  <span>Verificación de Perfil</span>
-                </button>
-                
-                <button
-                  onClick={() => setActiveTab('contrasena')}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
-                    activeTab === 'contrasena' 
-                      ? 'bg-[#2BEE79]/10 text-[#2BEE79] border border-[#2BEE79]/30 shadow-[0_0_15px_rgba(43,238,121,0.3)]' 
-                      : 'text-gray-400 hover:bg-white/5 hover:text-white'
-                  }`}
-                >
-                  <i className="fas fa-key w-5"></i>
-                  <span>Cambio de Contraseña</span>
-                </button>
-                
-                <button
-                  onClick={() => setActiveTab('eliminar')}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
-                    activeTab === 'eliminar' 
-                      ? 'bg-orange-500/20 text-orange-400 border border-orange-500/30 shadow-[0_0_15px_rgba(251,146,60,0.3)]' 
-                      : 'text-gray-400 hover:bg-white/5 hover:text-white'
-                  }`}
-                >
-                  <i className="fas fa-trash w-5"></i>
-                  <span>Eliminar Cuenta</span>
-                </button>
+                {[
+                  { id: 'ajustes', icon: 'fa-sliders', label: 'Ajustes' },
+                  { id: 'seguridad', icon: 'fa-lock', label: 'Seguridad' },
+                  { id: '2fa', icon: 'fa-shield-alt', label: 'Autentificación 2FA' },
+                  { id: 'verificacion', icon: 'fa-user-check', label: 'Verificación de Perfil' },
+                  { id: 'contrasena', icon: 'fa-key', label: 'Cambio de Contraseña' },
+                  { id: 'eliminar', icon: 'fa-trash', label: 'Eliminar Cuenta' },
+                ].map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id as TabType)}
+                    className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg transition-all text-sm ${
+                      activeTab === tab.id
+                        ? tab.id === 'eliminar'
+                          ? 'bg-transparent border border-orange-400/50 text-orange-400 shadow-[0_0_15px_rgba(251,146,60,0.3)]'
+                          : 'bg-transparent border border-[#2BEE79]/50 text-[#2BEE79] shadow-[0_0_15px_rgba(43,238,121,0.3)]'
+                        : 'text-gray-400 hover:text-white hover:bg-white/5'
+                    }`}
+                  >
+                    <i className={`fas ${tab.icon} w-4`}></i>
+                    <span className="text-xs">{tab.label}</span>
+                  </button>
+                ))}
               </nav>
             </div>
           </div>
@@ -196,132 +151,123 @@ export default function AjustesPage() {
             
             {/* PESTAÑA: AJUSTES */}
             {activeTab === 'ajustes' && (
-              <div className="space-y-6">
+              <div className="space-y-4">
                 
-                {/* Toggles ON/OFF */}
-                <div className="bg-[#0F2D19] rounded-lg border border-white/5 p-6 shadow-lg">
-                  <h3 className="text-xl font-bold text-white mb-6">Configuración General</h3>
+                {/* Configuración General */}
+                <div className="bg-transparent border border-white/10 rounded-lg p-4 shadow-[0_0_30px_rgba(43,238,121,0.1)]">
+                  <h3 className="text-lg font-bold text-white mb-4">Configuración General</h3>
                   
-                  <div className="space-y-4">
+                  <div className="space-y-3">
                     {/* Volumen */}
-                    <div className="flex items-center justify-between p-4 bg-black/30 rounded-lg border border-white/5">
-                      <div className="flex items-center gap-3">
-                        <i className="fas fa-volume-up text-primary text-xl"></i>
+                    <div className="flex items-center justify-between py-2 border-b border-white/5">
+                      <div className="flex items-center gap-2">
+                        <i className="fas fa-volume-up text-[#2BEE79] text-base"></i>
                         <div>
-                          <p className="text-white font-semibold">Sonidos</p>
-                          <p className="text-sm text-gray-400">Activar/desactivar sonidos de la página</p>
+                          <p className="text-white text-sm font-medium">Sonidos</p>
+                          <p className="text-xs text-gray-400">Activar/desactivar sonidos</p>
                         </div>
                       </div>
                       <button
                         onClick={() => setVolumeEnabled(!volumeEnabled)}
-                        className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors ${
-                          volumeEnabled ? 'bg-[#2BEE79] shadow-[0_0_15px_rgba(43,238,121,0.5)]' : 'bg-gray-600'
+                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-all ${
+                          volumeEnabled ? 'bg-[#2BEE79] shadow-[0_0_10px_rgba(43,238,121,0.5)]' : 'bg-gray-600'
                         }`}
                       >
-                        <span className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
-                          volumeEnabled ? 'translate-x-7' : 'translate-x-1'
+                        <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                          volumeEnabled ? 'translate-x-6' : 'translate-x-1'
                         }`} />
                       </button>
                     </div>
                     
                     {/* Mostrar edad - PLUS+ */}
-                    <div className="flex items-center justify-between p-4 bg-black/30 rounded-lg border border-orange-400/30">
-                      <div className="flex items-center gap-3">
-                        <i className="fas fa-birthday-cake text-orange-400 text-xl"></i>
+                    <div className="flex items-center justify-between py-2 border-b border-white/5">
+                      <div className="flex items-center gap-2">
+                        <i className="fas fa-birthday-cake text-orange-400 text-base"></i>
                         <div>
-                          <p className="text-white font-semibold flex items-center gap-2">
+                          <p className="text-white text-sm font-medium flex items-center gap-2">
                             Mostrar edad
-                            <span className="px-2 py-0.5 bg-gradient-to-r from-yellow-400 to-orange-500 text-black text-xs font-bold rounded shadow-[0_0_10px_rgba(251,146,60,0.4)]">PLUS+</span>
+                            <span className="px-1.5 py-0.5 bg-gradient-to-r from-yellow-400 to-orange-500 text-black text-[10px] font-bold rounded">PLUS+</span>
                           </p>
-                          <p className="text-sm text-gray-400">Ocultar tu edad en tu perfil</p>
+                          <p className="text-xs text-gray-400">Ocultar edad en perfil</p>
                         </div>
                       </div>
                       <button
-                        onClick={() => setShowAge(!showAge)}
                         disabled
-                        className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors opacity-50 cursor-not-allowed ${
-                          showAge ? 'bg-[#2BEE79]' : 'bg-gray-600'
-                        }`}
+                        className="relative inline-flex h-6 w-11 items-center rounded-full bg-gray-600 opacity-50 cursor-not-allowed"
                       >
-                        <span className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
-                          showAge ? 'translate-x-7' : 'translate-x-1'
-                        }`} />
+                        <span className="inline-block h-4 w-4 transform rounded-full bg-white translate-x-6" />
                       </button>
                     </div>
                     
                     {/* Modo invisible - PLUS+ */}
-                    <div className="flex items-center justify-between p-4 bg-black/30 rounded-lg border border-orange-400/30">
-                      <div className="flex items-center gap-3">
-                        <i className="fas fa-eye-slash text-orange-400 text-xl"></i>
+                    <div className="flex items-center justify-between py-2">
+                      <div className="flex items-center gap-2">
+                        <i className="fas fa-eye-slash text-orange-400 text-base"></i>
                         <div>
-                          <p className="text-white font-semibold flex items-center gap-2">
+                          <p className="text-white text-sm font-medium flex items-center gap-2">
                             Modo invisible
-                            <span className="px-2 py-0.5 bg-gradient-to-r from-yellow-400 to-orange-500 text-black text-xs font-bold rounded shadow-[0_0_10px_rgba(251,146,60,0.4)]">PLUS+</span>
+                            <span className="px-1.5 py-0.5 bg-gradient-to-r from-yellow-400 to-orange-500 text-black text-[10px] font-bold rounded">PLUS+</span>
                           </p>
-                          <p className="text-sm text-gray-400">Navegar sin aparecer en línea</p>
+                          <p className="text-xs text-gray-400">Navegar en modo incógnito</p>
                         </div>
                       </div>
                       <button
-                        onClick={() => setInvisibleMode(!invisibleMode)}
                         disabled
-                        className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors opacity-50 cursor-not-allowed ${
-                          invisibleMode ? 'bg-[#2BEE79]' : 'bg-gray-600'
-                        }`}
+                        className="relative inline-flex h-6 w-11 items-center rounded-full bg-gray-600 opacity-50 cursor-not-allowed"
                       >
-                        <span className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
-                          invisibleMode ? 'translate-x-7' : 'translate-x-1'
-                        }`} />
+                        <span className="inline-block h-4 w-4 transform rounded-full bg-white translate-x-1" />
                       </button>
                     </div>
                   </div>
                 </div>
 
                 {/* Procesamiento de datos */}
-                <div className="bg-[#0F2D19] rounded-lg border border-white/5 p-6 shadow-lg">
-                  <h3 className="text-xl font-bold text-white mb-4">Procesamiento de los datos</h3>
-                  <label className="flex items-start gap-3 cursor-pointer">
+                <div className="bg-transparent border border-white/10 rounded-lg p-4">
+                  <h3 className="text-base font-bold text-white mb-3">Procesamiento de los datos</h3>
+                  <label className="flex items-start gap-2 cursor-pointer">
                     <input
                       type="checkbox"
                       checked={dataProcessingAccepted}
                       onChange={(e) => setDataProcessingAccepted(e.target.checked)}
-                      className="mt-1 w-5 h-5 rounded border-gray-600 text-primary focus:ring-primary"
+                      className="mt-0.5 w-4 h-4 rounded border-gray-600 text-[#2BEE79] focus:ring-[#2BEE79]"
                     />
-                    <span className="text-gray-300 text-sm">
-                      Acepto enviar mensajes de publicidad y marketing de terceros a mi cuenta de Locutorio y declaro que me he familiarizado con el{' '}
+                    <span className="text-gray-300 text-xs">
+                      Acepto mensajes de publicidad y declaro que me he familiarizado con el{' '}
                       <a href="#" className="text-[#2BEE79] underline">procesamiento de datos personales</a>
                     </span>
                   </label>
                 </div>
 
                 {/* Activación de servicios */}
-                <div className="bg-[#0F2D19] rounded-lg border border-white/5 p-6 shadow-lg">
-                  <h3 className="text-xl font-bold text-white mb-4">Activación de los servicios</h3>
-                  <p className="text-gray-300 text-sm mb-4">
-                    Al marcar casilla usted acepta el uso de servicio de Locutorio seleccionado. Si usa el servicio su acuerdo esta elegido automáticamente
+                <div className="bg-transparent border border-white/10 rounded-lg p-4">
+                  <h3 className="text-base font-bold text-white mb-3">Activación de los servicios</h3>
+                  <p className="text-gray-300 text-xs mb-3">
+                    Al marcar casilla acepta el uso del servicio seleccionado
                   </p>
                   
-                  <label className="flex items-center gap-3 cursor-pointer">
+                  <label className="flex items-center gap-2 cursor-pointer">
                     <input
                       type="checkbox"
                       checked={locutorioEnabled}
                       onChange={(e) => setLocutorioEnabled(e.target.checked)}
-                      className="w-5 h-5 rounded border-gray-600 text-primary focus:ring-primary"
+                      className="w-4 h-4 rounded border-gray-600 text-[#2BEE79] focus:ring-[#2BEE79]"
                     />
-                    <span className="text-[#2BEE79] font-semibold">Locutorio.com.ve</span>
+                    <span className="text-[#2BEE79] font-semibold text-sm">Locutorio.com.ve</span>
                   </label>
                 </div>
 
                 {/* Exportar datos */}
-                <div className="bg-[#0F2D19] rounded-lg border border-white/5 p-6 shadow-lg">
-                  <h3 className="text-xl font-bold text-white mb-4">Exporta tus datos de usuario</h3>
-                  <p className="text-gray-300 text-sm mb-4">
-                    Todos tus datos como usuario, que se recopilan en nuestros servidores durante tu estancia aquí, te pertenecen a ti. 
-                    En cualquier momento puedes pedirlos, que te enviamos todos tus datos. Si así lo haces, te lo enviaremos dentro de 30 días 
-                    a tu correo electrónico que usaste para crear tu cuenta en Locutorio en el formato ZIP.
+                <div className="bg-transparent border border-white/10 rounded-lg p-4">
+                  <h3 className="text-base font-bold text-white mb-3">Exporta tus datos</h3>
+                  <p className="text-gray-300 text-xs mb-3">
+                    Todos tus datos te pertenecen. Te los enviaremos en formato ZIP dentro de 30 días.
                   </p>
-                  <Button onClick={handleExportData} className="bg-[#2BEE79] hover:bg-[#2BEE79]/90 text-black font-semibold shadow-[0_0_20px_rgba(43,238,121,0.4)] hover:shadow-[0_0_30px_rgba(43,238,121,0.6)] transition-all">
+                  <Button 
+                    onClick={handleExportData} 
+                    className="bg-[#2BEE79] hover:bg-[#2BEE79]/90 text-black font-semibold text-xs py-2 px-4 shadow-[0_0_20px_rgba(43,238,121,0.4)] hover:shadow-[0_0_30px_rgba(43,238,121,0.6)]"
+                  >
                     <i className="fas fa-download mr-2"></i>
-                    Exportar tus datos
+                    Exportar datos
                   </Button>
                 </div>
 
@@ -330,125 +276,91 @@ export default function AjustesPage() {
 
             {/* PESTAÑA: SEGURIDAD */}
             {activeTab === 'seguridad' && (
-              <div className="space-y-6">
+              <div className="space-y-4">
                 
-                {/* Alerta de estado */}
-                <div className={`rounded-lg p-6 ${
-                  securityStatus === 'protegida' 
-                    ? 'bg-green-600' 
-                    : 'bg-red-600'
+                {/* Alerta */}
+                <div className={`rounded-lg p-4 ${
+                  securityStatus === 'protegida' ? 'bg-green-600/20 border border-green-500/30' : 'bg-red-600/20 border border-red-500/30'
                 }`}>
-                  <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 bg-black/20 rounded-lg flex items-center justify-center">
-                      <i className="fas fa-exclamation-triangle text-white text-3xl"></i>
-                    </div>
-                    <div className="text-white">
-                      <p className="font-bold text-lg">
-                        {securityStatus === 'protegida' 
-                          ? 'La seguridad de su cuenta, es asegurada' 
-                          : 'Para aumentar la seguridad de su cuenta, es necesario verificar su correo electrónico y en segundo paso su número de teléfono móvil'}
-                      </p>
-                    </div>
+                  <div className="flex items-center gap-3">
+                    <i className="fas fa-exclamation-triangle text-2xl"></i>
+                    <p className="text-sm font-semibold">
+                      {securityStatus === 'protegida' 
+                        ? 'La seguridad de su cuenta es asegurada' 
+                        : 'Para aumentar la seguridad, verifica tu correo y teléfono'}
+                    </p>
                   </div>
                 </div>
 
                 {/* Verificación */}
-                <div className="bg-[#0F2D19] rounded-lg border border-white/5 p-6 shadow-lg">
-                  <h3 className="text-xl font-bold text-[#2BEE79] mb-4">Seguridad de la cuenta de Cratoz39</h3>
-                  <p className="text-gray-300 text-sm mb-6">
-                    Si olvida su contraseña, solo le enviaremos la nueva información a contactos verificados. 
-                    Estos datos no revelaremos nunca a ningún parte
+                <div className="bg-transparent border border-white/10 rounded-lg p-4 shadow-[0_0_30px_rgba(43,238,121,0.1)]">
+                  <h3 className="text-lg font-bold text-[#2BEE79] mb-3">Seguridad de cuenta</h3>
+                  <p className="text-gray-300 text-xs mb-4">
+                    Si olvidas tu contraseña, enviaremos información solo a contactos verificados
                   </p>
 
-                  {/* Botones de verificación */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                    <button
-                      onClick={() => setVerificationMethod('email')}
-                      className={`relative p-4 rounded-lg border-2 transition-all ${
-                        emailVerified 
-                          ? 'bg-blue-600 border-blue-600 text-white'
-                          : 'bg-white border-gray-300 text-gray-700 hover:border-blue-400'
-                      }`}
-                    >
-                      {emailVerified && (
-                        <i className="fas fa-check-circle absolute top-2 right-2 text-white"></i>
-                      )}
-                      <p className="font-semibold">Verificación vía</p>
-                      <p>correo electrónico</p>
-                    </button>
-
-                    <button
-                      onClick={() => setVerificationMethod('telegram')}
-                      className={`relative p-4 rounded-lg border-2 transition-all ${
-                        telegramVerified 
-                          ? 'bg-blue-600 border-blue-600 text-white'
-                          : 'bg-white border-gray-300 text-gray-700 hover:border-blue-400'
-                      }`}
-                    >
-                      {telegramVerified && (
-                        <i className="fas fa-check-circle absolute top-2 right-2 text-white"></i>
-                      )}
-                      <p className="font-semibold">Verificación vía</p>
-                      <p>Telegram</p>
-                    </button>
-
-                    <button
-                      onClick={() => setVerificationMethod('whatsapp')}
-                      className={`relative p-4 rounded-lg border-2 transition-all ${
-                        whatsappVerified 
-                          ? 'bg-blue-600 border-blue-600 text-white'
-                          : 'bg-white border-gray-300 text-gray-700 hover:border-blue-400'
-                      }`}
-                    >
-                      {whatsappVerified && (
-                        <i className="fas fa-check-circle absolute top-2 right-2 text-white"></i>
-                      )}
-                      <p className="font-semibold">Verificación vía</p>
-                      <p>WhatsApp</p>
-                    </button>
+                  {/* Botones verificación */}
+                  <div className="grid grid-cols-3 gap-3 mb-4">
+                    {[
+                      { method: 'email' as const, label: 'Email', verified: emailVerified },
+                      { method: 'telegram' as const, label: 'Telegram', verified: telegramVerified },
+                      { method: 'whatsapp' as const, label: 'WhatsApp', verified: whatsappVerified },
+                    ].map((item) => (
+                      <button
+                        key={item.method}
+                        onClick={() => setVerificationMethod(item.method)}
+                        className={`relative p-3 rounded-lg border-2 text-xs transition-all ${
+                          item.verified
+                            ? 'bg-[#2BEE79]/10 border-[#2BEE79] text-white shadow-[0_0_15px_rgba(43,238,121,0.3)]'
+                            : 'bg-transparent border-white/20 text-gray-300 hover:border-white/40'
+                        }`}
+                      >
+                        {item.verified && (
+                          <i className="fas fa-check-circle absolute top-1 right-1 text-[#2BEE79] text-xs"></i>
+                        )}
+                        <p className="font-semibold">Verificar</p>
+                        <p>{item.label}</p>
+                      </button>
+                    ))}
                   </div>
 
-                  {/* Formulario de verificación */}
+                  {/* Formulario verificación */}
                   {verificationMethod && (
-                    <div className="bg-black/30 rounded-lg p-6 border border-white/5">
-                      <h4 className="text-lg font-bold text-white mb-4">
-                        Verificación por {verificationMethod === 'email' ? 'correo electrónico' : verificationMethod === 'telegram' ? 'Telegram' : 'WhatsApp'}
+                    <div className="bg-black/20 rounded-lg p-4 border border-white/10">
+                      <h4 className="text-sm font-bold text-white mb-3">
+                        Verificación por {verificationMethod === 'email' ? 'correo' : verificationMethod}
                       </h4>
                       
                       {verificationMethod === 'email' ? (
                         <>
-                          <p className="text-gray-300 mb-4">Su correo electrónico: <span className="font-mono">{email}</span></p>
                           <Input
                             type="email"
-                            placeholder="Su correo electrónico"
-                            className="mb-4 bg-white/10 border-white/20 text-white"
+                            placeholder="Tu correo electrónico"
+                            className="mb-3 bg-transparent border-white/20 text-white text-sm"
                           />
-                          <Button onClick={handleVerificationSend} className="w-full bg-[#2BEE79] hover:bg-[#2BEE79]/90 text-black font-semibold shadow-[0_0_20px_rgba(43,238,121,0.4)]">
+                          <Button className="w-full bg-[#2BEE79] hover:bg-[#2BEE79]/90 text-black text-xs py-2">
                             Enviar código
                           </Button>
                         </>
                       ) : (
                         <>
-                          <p className="text-gray-300 mb-4">
-                            <img src="https://flagcdn.com/w20/ve.png" alt="VE" className="inline w-5 mr-2" />
-                            +58 V {phoneNumber}
-                          </p>
-                          <Button onClick={handleVerificationSend} className="w-full bg-[#2BEE79] hover:bg-[#2BEE79]/90 text-black font-semibold shadow-[0_0_20px_rgba(43,238,121,0.4)] mb-4">
+                          <p className="text-gray-300 mb-3 text-xs">{phoneNumber}</p>
+                          <Button className="w-full bg-[#2BEE79] hover:bg-[#2BEE79]/90 text-black text-xs py-2 mb-3">
                             Enviar código
                           </Button>
                           
-                          <p className="text-white font-semibold mb-2">Escribe código de 6 cifras</p>
-                          <div className="flex gap-2 mb-4">
+                          <p className="text-white text-xs mb-2">Código de 6 cifras</p>
+                          <div className="flex gap-2 mb-3">
                             {[...Array(6)].map((_, i) => (
                               <Input
                                 key={i}
                                 type="text"
                                 maxLength={1}
-                                className="w-12 h-12 text-center text-xl bg-white/10 border-white/20 text-white"
+                                className="w-10 h-10 text-center text-lg bg-transparent border-white/20 text-white"
                               />
                             ))}
                           </div>
-                          <Button onClick={handleVerificationConfirm} className="w-full bg-[#2BEE79] hover:bg-[#2BEE79]/90 text-black font-semibold shadow-[0_0_20px_rgba(43,238,121,0.4)]">
+                          <Button onClick={handleVerificationConfirm} className="w-full bg-[#2BEE79] hover:bg-[#2BEE79]/90 text-black text-xs py-2">
                             Confirmar
                           </Button>
                         </>
@@ -458,14 +370,14 @@ export default function AjustesPage() {
                 </div>
 
                 {/* Últimas conexiones */}
-                <div className="bg-[#0F2D19] rounded-lg border border-white/5 p-6 shadow-lg">
-                  <h3 className="text-xl font-bold text-white mb-4">Últimas Conexiones</h3>
-                  <div className="space-y-2 max-h-64 overflow-y-auto">
+                <div className="bg-transparent border border-white/10 rounded-lg p-4">
+                  <h3 className="text-base font-bold text-white mb-3">Últimas Conexiones</h3>
+                  <div className="space-y-1 max-h-48 overflow-y-auto">
                     {sessionLogs.map((log, index) => (
-                      <div key={index} className="flex items-center gap-4 p-3 bg-black/20 rounded-lg text-sm">
-                        <span className="text-gray-400 w-24">{log.date}</span>
-                        <span className="text-gray-400 w-32 font-mono">{log.ip}</span>
-                        <span className="text-gray-300 w-28">{log.location}</span>
+                      <div key={index} className="flex items-center gap-3 p-2 bg-black/20 rounded text-xs border border-white/5">
+                        <span className="text-gray-400 w-20">{log.date}</span>
+                        <span className="text-gray-400 w-28 font-mono">{log.ip}</span>
+                        <span className="text-gray-300 w-24">{log.location}</span>
                         <span className="text-gray-300 flex-1">{log.device}</span>
                         <span className="text-gray-400">{log.browser}</span>
                       </div>
@@ -476,100 +388,59 @@ export default function AjustesPage() {
               </div>
             )}
 
-            {/* PESTAÑA: AUTENTIFICACIÓN 2FA */}
+            {/* PESTAÑA: 2FA */}
             {activeTab === '2fa' && (
-              <div className="bg-[#144214] rounded-lg border border-white/5 p-6">
-                <h3 className="text-2xl font-bold text-[#2BEE79] mb-4">Autentificación de dos factores</h3>
-                <p className="text-gray-300 mb-6">
-                  La <strong>verificación de dos etapas</strong> mejora la protección de su cuenta contra el acceso no autorizado. 
-                  Además de iniciar sesión con la contraseña, puede usar SMS-Code, correo electrónico o Google Authenticator (e otros de tu selección)
+              <div className="bg-transparent border border-white/10 rounded-lg p-4 shadow-[0_0_30px_rgba(43,238,121,0.1)]">
+                <h3 className="text-xl font-bold text-[#2BEE79] mb-3">Autentificación 2FA</h3>
+                <p className="text-gray-300 text-sm mb-4">
+                  La verificación de dos etapas protege tu cuenta del acceso no autorizado
                 </p>
 
-                <h4 className="text-lg font-bold text-white mb-4">Modo de verificación</h4>
+                <h4 className="text-base font-bold text-white mb-3">Métodos de verificación</h4>
 
-                <div className="space-y-4">
-                  {/* WhatsApp */}
-                  <div className="flex items-center justify-between p-4 bg-black/20 rounded-lg border border-white/10">
-                    <div className="flex items-center gap-4">
-                      <i className="fas fa-mobile-alt text-3xl text-gray-400"></i>
-                      <div>
-                        <p className="text-white font-semibold">WhatsApp</p>
-                        <p className="text-red-500 text-sm">No establecido</p>
+                <div className="space-y-3">
+                  {[
+                    { name: 'WhatsApp', enabled: twoFactorWhatsApp },
+                    { name: 'Telegram', enabled: twoFactorTelegram },
+                    { name: 'Email', enabled: twoFactorEmail, value: 'Cr****38@gmail.com' },
+                    { name: 'Google Authenticator', enabled: twoFactorGoogle },
+                  ].map((method, i) => (
+                    <div key={i} className="flex items-center justify-between p-3 bg-transparent rounded-lg border border-white/10">
+                      <div className="flex items-center gap-3">
+                        <i className="fas fa-mobile-alt text-2xl text-gray-400"></i>
+                        <div>
+                          <p className="text-white text-sm font-semibold">{method.name}</p>
+                          <p className={`text-xs ${method.enabled ? 'text-gray-400' : 'text-red-400'}`}>
+                            {method.enabled ? (method.value || 'Activado') : 'No establecido'}
+                          </p>
+                        </div>
                       </div>
+                      <Button variant="ghost" className="text-[#2BEE79] hover:text-[#2BEE79]/80 text-xs">
+                        Cambiar
+                      </Button>
                     </div>
-                    <Button variant="ghost" className="text-[#2BEE79] hover:text-[#2BEE79]/80 hover:bg-[#2BEE79]/10">
-                      Cambiar
-                    </Button>
-                  </div>
-
-                  {/* Telegram */}
-                  <div className="flex items-center justify-between p-4 bg-black/20 rounded-lg border border-white/10">
-                    <div className="flex items-center gap-4">
-                      <i className="fas fa-mobile-alt text-3xl text-gray-400"></i>
-                      <div>
-                        <p className="text-white font-semibold">Telegram</p>
-                        <p className="text-red-500 text-sm">No establecido</p>
-                      </div>
-                    </div>
-                    <Button variant="ghost" className="text-[#2BEE79] hover:text-[#2BEE79]/80 hover:bg-[#2BEE79]/10">
-                      Cambiar
-                    </Button>
-                  </div>
-
-                  {/* Correo electrónico */}
-                  <div className="flex items-center justify-between p-4 bg-black/20 rounded-lg border border-white/10">
-                    <div className="flex items-center gap-4">
-                      <i className="fas fa-at text-3xl text-gray-400"></i>
-                      <div>
-                        <p className="text-white font-semibold">Correo electrónico</p>
-                        <p className="text-gray-400 text-sm font-mono">Cr****38@gmail.com</p>
-                      </div>
-                    </div>
-                    <Button variant="ghost" className="text-[#2BEE79] hover:text-[#2BEE79]/80 hover:bg-[#2BEE79]/10">
-                      Cambiar
-                    </Button>
-                  </div>
-
-                  {/* Google Autentificador */}
-                  <div className="flex items-center justify-between p-4 bg-black/20 rounded-lg border border-white/10">
-                    <div className="flex items-center gap-4">
-                      <i className="fas fa-user-circle text-3xl text-gray-400"></i>
-                      <div>
-                        <p className="text-white font-semibold">Google Autentificador</p>
-                        <p className="text-red-500 text-sm">No establecido</p>
-                      </div>
-                    </div>
-                    <Button variant="ghost" className="text-[#2BEE79] hover:text-[#2BEE79]/80 hover:bg-[#2BEE79]/10">
-                      Cambiar
-                    </Button>
-                  </div>
+                  ))}
                 </div>
               </div>
             )}
 
-            {/* PESTAÑA: VERIFICACIÓN DE PERFIL */}
+            {/* PESTAÑA: VERIFICACIÓN */}
             {activeTab === 'verificacion' && (
-              <div className="bg-[#144214] rounded-lg border border-white/5 p-6">
-                <h3 className="text-2xl font-bold text-[#2BEE79] mb-4">Verificación de Perfil con IA</h3>
-                <p className="text-gray-300 mb-6">
-                  Verifica tu identidad subiendo una foto con tu rostro y tu documento de identidad en mano. 
-                  Nuestra IA comparará tu foto con tu ID y las fotos de tu perfil para confirmar tu autenticidad.
+              <div className="bg-transparent border border-white/10 rounded-lg p-4 shadow-[0_0_30px_rgba(43,238,121,0.1)]">
+                <h3 className="text-xl font-bold text-[#2BEE79] mb-3">Verificación con IA</h3>
+                <p className="text-gray-300 text-sm mb-4">
+                  Sube una foto con tu rostro y documento. La IA verificará tu identidad.
                 </p>
 
                 {verificationResult === null && !uploadingPhoto && (
-                  <div className="text-center py-12 border-2 border-dashed border-white/20 rounded-lg bg-black/20">
-                    <i className="fas fa-id-card text-6xl text-gray-600 mb-4"></i>
-                    <p className="text-white font-semibold mb-2">Sube una foto con tu rostro + ID en mano</p>
-                    <p className="text-gray-400 text-sm mb-6">La foto debe mostrar claramente tu cara y tu documento de identidad</p>
+                  <div className="text-center py-8 border-2 border-dashed border-white/20 rounded-lg">
+                    <i className="fas fa-id-card text-4xl text-gray-600 mb-3"></i>
+                    <p className="text-white text-sm mb-2">Foto con rostro + ID en mano</p>
+                    <p className="text-gray-400 text-xs mb-4">Clara y visible</p>
                     
-                    <label className="inline-block">
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handlePhotoUpload}
-                        className="hidden"
-                      />
-                      <span className="inline-block px-6 py-3 bg-[#2BEE79] hover:bg-[#2BEE79]/90 text-black font-semibold rounded-lg cursor-pointer transition-all shadow-[0_0_20px_rgba(43,238,121,0.4)] hover:shadow-[0_0_30px_rgba(43,238,121,0.6)]">
+                    <label>
+                      <input type="file" accept="image/*" onChange={handlePhotoUpload} className="hidden" />
+                      <span className="inline-block px-4 py-2 bg-[#2BEE79] hover:bg-[#2BEE79]/90 text-black text-xs font-semibold rounded-lg cursor-pointer shadow-[0_0_15px_rgba(43,238,121,0.4)]">
                         <i className="fas fa-upload mr-2"></i>
                         Subir foto
                       </span>
@@ -578,101 +449,70 @@ export default function AjustesPage() {
                 )}
 
                 {uploadingPhoto && (
-                  <div className="text-center py-12">
-                    <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary border-t-transparent mx-auto mb-4"></div>
-                    <p className="text-white font-semibold">Espera un momento...</p>
-                    <p className="text-gray-400 text-sm">La IA está verificando tu identidad</p>
+                  <div className="text-center py-8">
+                    <div className="animate-spin rounded-full h-12 w-12 border-4 border-[#2BEE79] border-t-transparent mx-auto mb-3"></div>
+                    <p className="text-white text-sm">Verificando...</p>
                   </div>
                 )}
 
                 {verificationResult === 'success' && (
-                  <div className="text-center py-12 bg-green-600/20 rounded-lg border border-green-500">
-                    <i className="fas fa-check-circle text-6xl text-green-500 mb-4"></i>
-                    <p className="text-white font-bold text-2xl mb-2">¡Perfil Auténtico!</p>
-                    <p className="text-gray-300">Tu identidad ha sido verificada exitosamente</p>
-                    <p className="text-sm text-gray-400 mt-4">Las fotos se han eliminado automáticamente por seguridad</p>
-                  </div>
-                )}
-
-                {verificationResult === 'failed' && (
-                  <div className="text-center py-12 bg-red-600/20 rounded-lg border border-red-500">
-                    <i className="fas fa-times-circle text-6xl text-red-500 mb-4"></i>
-                    <p className="text-white font-bold text-2xl mb-2">Verificación Fallida</p>
-                    <p className="text-gray-300">No pudimos verificar tu identidad</p>
-                    <Button onClick={() => setVerificationResult(null)} className="mt-6 bg-[#2BEE79] hover:bg-[#2BEE79]/90 text-black font-semibold shadow-[0_0_20px_rgba(43,238,121,0.4)]">
-                      Intentar de nuevo
-                    </Button>
-                  </div>
-                )}
-
-                {profileVerified && (
-                  <div className="mt-6 p-4 bg-green-600/10 rounded-lg border border-green-500/30">
-                    <div className="flex items-center gap-3">
-                      <i className="fas fa-badge-check text-green-500 text-2xl"></i>
-                      <div>
-                        <p className="text-white font-semibold">Perfil Verificado</p>
-                        <p className="text-sm text-gray-400">Tu perfil tiene el sello de verificación ✓</p>
-                      </div>
-                    </div>
+                  <div className="text-center py-8 bg-green-600/10 rounded-lg border border-green-500/30">
+                    <i className="fas fa-check-circle text-4xl text-green-500 mb-3"></i>
+                    <p className="text-white font-bold text-lg mb-1">¡Perfil Auténtico!</p>
+                    <p className="text-gray-300 text-sm">Verificado exitosamente</p>
                   </div>
                 )}
               </div>
             )}
 
-            {/* PESTAÑA: CAMBIO DE CONTRASEÑA */}
+            {/* PESTAÑA: CONTRASEÑA */}
             {activeTab === 'contrasena' && (
-              <div className="bg-[#144214] rounded-lg border border-white/5 p-6">
-                <h3 className="text-2xl font-bold text-[#2BEE79] mb-4">Cambio de contraseña</h3>
+              <div className="bg-transparent border border-white/10 rounded-lg p-4 shadow-[0_0_30px_rgba(43,238,121,0.1)]">
+                <h3 className="text-xl font-bold text-[#2BEE79] mb-3">Cambio de contraseña</h3>
                 
-                <div className="p-4 bg-green-600/20 rounded-lg border border-green-500 mb-6">
-                  <p className="text-green-400 font-semibold">Dirección de correo electrónico esta confirmado</p>
+                <div className="p-3 bg-green-600/10 rounded-lg border border-green-500/30 mb-4">
+                  <p className="text-green-400 text-xs font-semibold">Email confirmado</p>
                 </div>
 
-                <p className="text-gray-300 mb-6">
-                  Si olvida su contraseña, solo le enviaremos la nueva información a contactos verificados. 
-                  <strong> Estos datos no revelaremos nunca a ningún parte</strong>
+                <p className="text-gray-300 text-sm mb-4">
+                  Correo verificado: <span className="font-mono text-white">Cr****38@gmail.com</span>
                 </p>
 
-                <p className="text-white font-semibold mb-2">Cambio de datos esta protegido</p>
-                <p className="text-gray-300 mb-4">Su correo electrónico verificado es: <span className="font-mono">Cr****38@gmail.com</span></p>
-
-                <p className="text-white font-semibold mb-2">Para realizar cambios escribe tu correo electrónico entero</p>
                 <Input
                   type="email"
-                  placeholder="Escribe su correo electrónico"
+                  placeholder="Escribe tu correo completo"
                   value={passwordEmail}
                   onChange={(e) => setPasswordEmail(e.target.value)}
-                  className="mb-6 bg-white/10 border-white/20 text-white"
+                  className="mb-4 bg-transparent border-white/20 text-white"
                 />
 
-                <Button className="bg-[#2BEE79] hover:bg-[#2BEE79]/90 text-black font-semibold shadow-[0_0_20px_rgba(43,238,121,0.4)] w-full">
-                  Cambia la contraseña
+                <Button className="bg-[#2BEE79] hover:bg-[#2BEE79]/90 text-black text-sm py-2 px-4 font-semibold shadow-[0_0_20px_rgba(43,238,121,0.4)] w-full">
+                  Cambiar contraseña
                 </Button>
               </div>
             )}
 
-            {/* PESTAÑA: ELIMINAR CUENTA */}
+            {/* PESTAÑA: ELIMINAR */}
             {activeTab === 'eliminar' && (
-              <div className="bg-[#144214] rounded-lg border border-white/5 p-6">
-                <h3 className="text-2xl font-bold text-orange-500 mb-4">ELIMINACION DE TU CUENTA</h3>
-                <p className="text-gray-300 mb-6">
-                  Tu cuenta personal puedes eliminar en cualquier momento. 
-                  Recuerda que con este paso puedes perder tus datos que se guardan en nuestro servidor.
+              <div className="bg-transparent border border-white/10 rounded-lg p-4 shadow-[0_0_30px_rgba(251,146,60,0.1)]">
+                <h3 className="text-xl font-bold text-orange-500 mb-3">ELIMINAR CUENTA</h3>
+                <p className="text-gray-300 text-sm mb-4">
+                  Puedes eliminar tu cuenta en cualquier momento. Perderás todos tus datos.
                 </p>
 
-                <div className="space-y-3 mb-8 text-gray-300">
-                  <p>Todos tus datos personales que usaste para crear tu perfil</p>
-                  <p>Fotos y sus respetivos comentarios en <strong>Foto Galeria</strong></p>
-                  <p>Anuncios que publicaste en <strong>Mercadillo</strong> e <strong>Yo lo hago bien</strong></p>
-                  <p>Toda comunicación por salas de chat incluido mensajes privados.</p>
-                  <p>Privilegios obtenidos o comprados por activación de programa <strong>+PLUS</strong> sin derecho de reembolso.</p>
+                <div className="space-y-2 mb-6 text-gray-300 text-xs">
+                  <p>• Todos tus datos personales</p>
+                  <p>• Fotos y comentarios en Galería</p>
+                  <p>• Anuncios publicados</p>
+                  <p>• Mensajes y comunicaciones</p>
+                  <p>• Privilegios PLUS+ sin reembolso</p>
                 </div>
 
                 <Button 
                   onClick={handleDeleteAccount} 
-                  className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-4 text-lg shadow-[0_0_20px_rgba(251,146,60,0.4)] hover:shadow-[0_0_30px_rgba(251,146,60,0.6)] transition-all"
+                  className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 text-sm shadow-[0_0_20px_rgba(251,146,60,0.4)] hover:shadow-[0_0_30px_rgba(251,146,60,0.6)]"
                 >
-                  Eliminar la cuenta
+                  Eliminar cuenta
                 </Button>
               </div>
             )}
