@@ -44,6 +44,10 @@ function EncuentrosContent() {
   const [searchQuery, setSearchQuery] = useState("");
   const [historyAccepted, setHistoryAccepted] = useState<any[]>([]);
   const [historyRejected, setHistoryRejected] = useState<any[]>([]);
+  
+  // Estado del carrusel
+  const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
   // Cargar historial desde localStorage
   useEffect(() => {
@@ -175,6 +179,26 @@ function EncuentrosContent() {
   // Obtener fotos del usuario filtrado
   const userPhotos = userFilter ? userPhotosData[userFilter] || [] : [];
   const userInfo = userFilter ? invitations.find(inv => inv.username === userFilter) : null;
+
+  // Funciones de navegación del carrusel
+  const nextPhoto = () => {
+    if (isTransitioning || userPhotos.length === 0) return;
+    setIsTransitioning(true);
+    setCurrentPhotoIndex((prev) => (prev + 1) % userPhotos.length);
+    setTimeout(() => setIsTransitioning(false), 300);
+  };
+
+  const prevPhoto = () => {
+    if (isTransitioning || userPhotos.length === 0) return;
+    setIsTransitioning(true);
+    setCurrentPhotoIndex((prev) => (prev - 1 + userPhotos.length) % userPhotos.length);
+    setTimeout(() => setIsTransitioning(false), 300);
+  };
+
+  // Resetear índice cuando cambia el usuario
+  useEffect(() => {
+    setCurrentPhotoIndex(0);
+  }, [userFilter]);
 
   // Filtrar invitaciones
   const filteredInvitations = invitations.filter(inv => {
@@ -435,93 +459,112 @@ function EncuentrosContent() {
                 <div className="relative w-full max-w-lg mx-auto">
                   {/* Fotos apiladas en el fondo (efecto de profundidad) */}
                   <div className="relative" style={{ paddingBottom: '140%' }}>
-                    {userPhotos.slice(0, 3).map((photo, index) => (
-                      <div
-                        key={`stack-${photo.id}`}
-                        className="absolute inset-0 rounded-2xl overflow-hidden shadow-2xl transition-all duration-300"
-                        style={{
-                          transform: `translateY(${index * 20}px) translateX(${index * 10}px) scale(${1 - index * 0.05})`,
-                          zIndex: 3 - index,
-                          opacity: index === 0 ? 1 : 0.3,
-                        }}
-                      >
-                        <img
-                          src={photo.url}
-                          alt={`Foto ${photo.id}`}
-                          className="w-full h-full object-cover"
-                        />
-                        
-                        {/* Overlay con degradado solo en la foto principal */}
-                        {index === 0 && (
-                          <>
-                            {/* Degradado inferior solamente */}
-                            <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+                    {[0, 1, 2].map((offset) => {
+                      const photoIndex = (currentPhotoIndex + offset) % userPhotos.length;
+                      const photo = userPhotos[photoIndex];
+                      
+                      return (
+                        <div
+                          key={`stack-${offset}`}
+                          className={`absolute inset-0 rounded-2xl overflow-hidden shadow-2xl transition-all ${
+                            isTransitioning ? 'duration-300' : 'duration-500'
+                          }`}
+                          style={{
+                            transform: `translateY(${offset * 20}px) translateX(${offset * 10}px) scale(${1 - offset * 0.05})`,
+                            zIndex: 3 - offset,
+                            opacity: offset === 0 ? 1 : 0.3,
+                          }}
+                        >
+                          <img
+                            src={photo.url}
+                            alt={`Foto ${photoIndex + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                          
+                          {/* Overlay con degradado solo en la foto principal */}
+                          {offset === 0 && (
+                            <>
+                              {/* Degradado inferior solamente */}
+                              <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
 
-                            {/* Información en la parte inferior - TODO EN UNA LÍNEA */}
-                            <div className="absolute bottom-2 left-0 right-0 px-4 pb-2">
-                              {/* Username en línea separada */}
-                              {userInfo && (
-                                <h3 className="text-lg font-bold text-white mb-2 drop-shadow-lg">
-                                  {userInfo.username || userInfo.name}
-                                </h3>
-                              )}
+                              {/* Información en la parte inferior - TODO EN UNA LÍNEA */}
+                              <div className="absolute bottom-2 left-0 right-0 px-4 pb-2">
+                                {/* Username en línea separada */}
+                                {userInfo && (
+                                  <h3 className="text-lg font-bold text-white mb-2 drop-shadow-lg">
+                                    {userInfo.username || userInfo.name}
+                                  </h3>
+                                )}
 
-                              {/* Todo en una línea: edad/ciudad - pulgar abajo - contador - pulgar arriba - perfil% - fotos */}
-                              <div className="flex items-center justify-between text-sm text-white drop-shadow-lg">
-                                {/* Izquierda: edad / ciudad / tiempo */}
-                                <div className="flex items-center gap-2">
-                                  <span>{userInfo?.age} / {userInfo?.city === "Maracaibo" ? "BB" : userInfo?.city === "Caracas" ? "CC" : "VV"} / {userInfo?.memberSince || "N/A"}</span>
-                                </div>
+                                {/* Todo en una línea: edad/ciudad - pulgar abajo - contador - pulgar arriba - perfil% - fotos */}
+                                <div className="flex items-center justify-between text-sm text-white drop-shadow-lg">
+                                  {/* Izquierda: edad / ciudad / tiempo */}
+                                  <div className="flex items-center gap-2">
+                                    <span>{userInfo?.age} / {userInfo?.city === "Maracaibo" ? "BB" : userInfo?.city === "Caracas" ? "CC" : "VV"} / {userInfo?.memberSince || "N/A"}</span>
+                                  </div>
 
-                                {/* Centro: Botón pulgar abajo - Contador - Botón pulgar arriba */}
-                                <div className="flex items-center gap-3">
-                                  <button className="w-8 h-8 bg-white/90 hover:bg-white rounded-full font-bold shadow-lg hover:scale-110 transition-all flex items-center justify-center">
-                                    <svg className="w-4 h-4 text-gray-700" fill="currentColor" viewBox="0 0 20 20">
-                                      <path d="M18 9.5a1.5 1.5 0 11-3 0v-6a1.5 1.5 0 013 0v6zM14 9.667v-5.43a2 2 0 00-1.105-1.79l-.05-.025A4 4 0 0011.055 2H5.64a2 2 0 00-1.962 1.608l-1.2 6A2 2 0 004.44 12H8v4a2 2 0 002 2 1 1 0 001-1v-.667a4 4 0 01.8-2.4l1.4-1.866a4 4 0 00.8-2.4z" />
-                                    </svg>
-                                  </button>
-                                  
-                                  <span className="text-xs font-bold">
-                                    {index === 0 ? photo.id : 1} / {userPhotos.length}
-                                  </span>
-                                  
-                                  <button className="w-8 h-8 bg-primary hover:brightness-110 rounded-full font-bold shadow-[0_0_20px_rgba(43,238,121,0.4)] hover:shadow-[0_0_30px_rgba(43,238,121,0.6)] hover:scale-110 transition-all flex items-center justify-center">
-                                    <svg className="w-4 h-4 text-connect-bg-dark" fill="currentColor" viewBox="0 0 20 20">
-                                      <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z" />
-                                    </svg>
-                                  </button>
-                                </div>
+                                  {/* Centro: Botón pulgar abajo - Contador - Botón pulgar arriba */}
+                                  <div className="flex items-center gap-3">
+                                    <button 
+                                      onClick={prevPhoto}
+                                      className="w-8 h-8 bg-white/90 hover:bg-white rounded-full font-bold shadow-lg hover:scale-110 transition-all flex items-center justify-center"
+                                    >
+                                      <svg className="w-4 h-4 text-gray-700" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M18 9.5a1.5 1.5 0 11-3 0v-6a1.5 1.5 0 013 0v6zM14 9.667v-5.43a2 2 0 00-1.105-1.79l-.05-.025A4 4 0 0011.055 2H5.64a2 2 0 00-1.962 1.608l-1.2 6A2 2 0 004.44 12H8v4a2 2 0 002 2 1 1 0 001-1v-.667a4 4 0 01.8-2.4l1.4-1.866a4 4 0 00.8-2.4z" />
+                                      </svg>
+                                    </button>
+                                    
+                                    <span className="text-xs font-bold">
+                                      {currentPhotoIndex + 1} / {userPhotos.length}
+                                    </span>
+                                    
+                                    <button 
+                                      onClick={nextPhoto}
+                                      className="w-8 h-8 bg-primary hover:brightness-110 rounded-full font-bold shadow-[0_0_20px_rgba(43,238,121,0.4)] hover:shadow-[0_0_30px_rgba(43,238,121,0.6)] hover:scale-110 transition-all flex items-center justify-center"
+                                    >
+                                      <svg className="w-4 h-4 text-connect-bg-dark" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z" />
+                                      </svg>
+                                    </button>
+                                  </div>
 
-                                {/* Derecha: % perfil - fotos totales */}
-                                <div className="flex items-center gap-3">
-                                  <span className="flex items-center gap-1">
-                                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                    </svg>
-                                    {userInfo?.profileComplete || 0}%
-                                  </span>
-                                  <span className="flex items-center gap-1">
-                                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                    </svg>
-                                    {userInfo?.totalPhotos || 0}
-                                  </span>
+                                  {/* Derecha: % perfil - fotos totales */}
+                                  <div className="flex items-center gap-3">
+                                    <span className="flex items-center gap-1">
+                                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                      </svg>
+                                      {userInfo?.profileComplete || 0}%
+                                    </span>
+                                    <span className="flex items-center gap-1">
+                                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                      </svg>
+                                      {userInfo?.totalPhotos || 0}
+                                    </span>
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                          </>
-                        )}
-                      </div>
-                    ))}
+                            </>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
 
                   {/* Flechas de navegación */}
-                  <button className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center transition-all z-10">
+                  <button 
+                    onClick={prevPhoto}
+                    className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center transition-all z-10"
+                  >
                     <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                     </svg>
                   </button>
-                  <button className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center transition-all z-10">
+                  <button 
+                    onClick={nextPhoto}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center transition-all z-10"
+                  >
                     <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>
