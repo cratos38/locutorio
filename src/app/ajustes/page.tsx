@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import InternalHeader from '@/components/InternalHeader'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -747,14 +748,14 @@ export default function AjustesPage() {
                       <i className="fas fa-circle text-[6px] mt-1.5 text-orange-500"></i>
                       <span>
                         Todos tus datos personales que usaste para crear tu{' '}
-                        <a href="/perfil/editar" className="text-blue-400 underline hover:text-blue-300">perfil</a>
+                        <Link href="/perfil/editar" className="text-blue-400 underline hover:text-blue-300">perfil</Link>
                       </span>
                     </p>
                     <p className="flex items-start gap-2">
                       <i className="fas fa-circle text-[6px] mt-1.5 text-orange-500"></i>
                       <span>
                         Fotos y sus respectivos comentarios en{' '}
-                        <a href="/albums" className="text-blue-400 underline hover:text-blue-300">Álbumes</a>
+                        <Link href="/albums" className="text-blue-400 underline hover:text-blue-300">Álbumes</Link>
                       </span>
                     </p>
                     <p className="flex items-start gap-2">

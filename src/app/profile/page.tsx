@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -95,7 +95,7 @@ type CategoryType = "algo-sobre-mi" | "relaciones" | "cultura" | "estilo-vida" |
 // Tipo para respuestas Sí/No/No respondo
 type YesNoResponse = "no-respondo" | "no" | "si" | "";
 
-export default function AjustesPerfilPage() {
+function AjustesPerfilContent() {
   const searchParams = useSearchParams();
   const tabParam = searchParams.get("tab") as CategoryType | null;
   
@@ -1640,5 +1640,13 @@ export default function AjustesPerfilPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function AjustesPerfilPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-connect-bg-dark flex items-center justify-center"><div className="text-white">Cargando...</div></div>}>
+      <AjustesPerfilContent />
+    </Suspense>
   );
 }
