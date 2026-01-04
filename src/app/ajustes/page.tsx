@@ -97,7 +97,7 @@ export default function AjustesPage() {
   const securityStatus = emailVerified && (telegramVerified || whatsappVerified) ? 'protegida' : 'insegura'
 
   return (
-    <div className="min-h-screen bg-connect-bg-dark">
+    <div className="min-h-screen bg-gradient-to-b from-black via-[#0a1510] to-black">
       <InternalHeader />
       
       <main className="container mx-auto px-4 py-8 max-w-7xl">
@@ -105,10 +105,10 @@ export default function AjustesPage() {
           
           {/* Sidebar - Menú de pestañas */}
           <div className="lg:col-span-1">
-            <div className="bg-[#1A2226] rounded-lg border border-white/5 overflow-hidden">
+            <div className="bg-[#1A2226] rounded-lg border border-white/5 overflow-hidden shadow-lg">
               <div className="p-4 border-b border-white/5">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-gradient-to-br from-primary to-emerald-600 rounded-lg flex items-center justify-center">
+                  <div className="w-10 h-10 bg-gradient-to-br from-[#2BEE79] to-emerald-600 rounded-lg flex items-center justify-center shadow-[0_0_15px_rgba(43,238,121,0.3)]">
                     <i className="fas fa-cog text-white"></i>
                   </div>
                   <h2 className="text-lg font-bold text-white">Configuración</h2>
@@ -120,7 +120,7 @@ export default function AjustesPage() {
                   onClick={() => setActiveTab('ajustes')}
                   className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
                     activeTab === 'ajustes' 
-                      ? 'bg-primary/20 text-primary border border-primary/30' 
+                      ? 'bg-[#2BEE79]/10 text-[#2BEE79] border border-[#2BEE79]/30 shadow-[0_0_15px_rgba(43,238,121,0.3)]' 
                       : 'text-gray-400 hover:bg-white/5 hover:text-white'
                   }`}
                 >
@@ -132,7 +132,7 @@ export default function AjustesPage() {
                   onClick={() => setActiveTab('seguridad')}
                   className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
                     activeTab === 'seguridad' 
-                      ? 'bg-primary/20 text-primary border border-primary/30' 
+                      ? 'bg-[#2BEE79]/10 text-[#2BEE79] border border-[#2BEE79]/30 shadow-[0_0_15px_rgba(43,238,121,0.3)]' 
                       : 'text-gray-400 hover:bg-white/5 hover:text-white'
                   }`}
                 >
@@ -144,7 +144,7 @@ export default function AjustesPage() {
                   onClick={() => setActiveTab('2fa')}
                   className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
                     activeTab === '2fa' 
-                      ? 'bg-primary/20 text-primary border border-primary/30' 
+                      ? 'bg-[#2BEE79]/10 text-[#2BEE79] border border-[#2BEE79]/30 shadow-[0_0_15px_rgba(43,238,121,0.3)]' 
                       : 'text-gray-400 hover:bg-white/5 hover:text-white'
                   }`}
                 >
@@ -156,7 +156,7 @@ export default function AjustesPage() {
                   onClick={() => setActiveTab('verificacion')}
                   className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
                     activeTab === 'verificacion' 
-                      ? 'bg-primary/20 text-primary border border-primary/30' 
+                      ? 'bg-[#2BEE79]/10 text-[#2BEE79] border border-[#2BEE79]/30 shadow-[0_0_15px_rgba(43,238,121,0.3)]' 
                       : 'text-gray-400 hover:bg-white/5 hover:text-white'
                   }`}
                 >
@@ -168,7 +168,7 @@ export default function AjustesPage() {
                   onClick={() => setActiveTab('contrasena')}
                   className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
                     activeTab === 'contrasena' 
-                      ? 'bg-primary/20 text-primary border border-primary/30' 
+                      ? 'bg-[#2BEE79]/10 text-[#2BEE79] border border-[#2BEE79]/30 shadow-[0_0_15px_rgba(43,238,121,0.3)]' 
                       : 'text-gray-400 hover:bg-white/5 hover:text-white'
                   }`}
                 >
@@ -180,7 +180,7 @@ export default function AjustesPage() {
                   onClick={() => setActiveTab('eliminar')}
                   className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
                     activeTab === 'eliminar' 
-                      ? 'bg-red-500/20 text-red-400 border border-red-500/30' 
+                      ? 'bg-orange-500/20 text-orange-400 border border-orange-500/30 shadow-[0_0_15px_rgba(251,146,60,0.3)]' 
                       : 'text-gray-400 hover:bg-white/5 hover:text-white'
                   }`}
                 >
@@ -199,12 +199,12 @@ export default function AjustesPage() {
               <div className="space-y-6">
                 
                 {/* Toggles ON/OFF */}
-                <div className="bg-[#144214] rounded-lg border border-white/5 p-6">
+                <div className="bg-[#0F2D19] rounded-lg border border-white/5 p-6 shadow-lg">
                   <h3 className="text-xl font-bold text-white mb-6">Configuración General</h3>
                   
                   <div className="space-y-4">
                     {/* Volumen */}
-                    <div className="flex items-center justify-between p-4 bg-black/20 rounded-lg">
+                    <div className="flex items-center justify-between p-4 bg-black/30 rounded-lg border border-white/5">
                       <div className="flex items-center gap-3">
                         <i className="fas fa-volume-up text-primary text-xl"></i>
                         <div>
@@ -215,7 +215,7 @@ export default function AjustesPage() {
                       <button
                         onClick={() => setVolumeEnabled(!volumeEnabled)}
                         className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors ${
-                          volumeEnabled ? 'bg-primary' : 'bg-gray-600'
+                          volumeEnabled ? 'bg-[#2BEE79] shadow-[0_0_15px_rgba(43,238,121,0.5)]' : 'bg-gray-600'
                         }`}
                       >
                         <span className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
@@ -225,13 +225,13 @@ export default function AjustesPage() {
                     </div>
                     
                     {/* Mostrar edad - PLUS+ */}
-                    <div className="flex items-center justify-between p-4 bg-black/20 rounded-lg border border-yellow-500/30">
+                    <div className="flex items-center justify-between p-4 bg-black/30 rounded-lg border border-orange-400/30">
                       <div className="flex items-center gap-3">
-                        <i className="fas fa-birthday-cake text-yellow-500 text-xl"></i>
+                        <i className="fas fa-birthday-cake text-orange-400 text-xl"></i>
                         <div>
                           <p className="text-white font-semibold flex items-center gap-2">
                             Mostrar edad
-                            <span className="px-2 py-0.5 bg-gradient-to-r from-yellow-400 to-orange-500 text-black text-xs font-bold rounded">PLUS+</span>
+                            <span className="px-2 py-0.5 bg-gradient-to-r from-yellow-400 to-orange-500 text-black text-xs font-bold rounded shadow-[0_0_10px_rgba(251,146,60,0.4)]">PLUS+</span>
                           </p>
                           <p className="text-sm text-gray-400">Ocultar tu edad en tu perfil</p>
                         </div>
@@ -240,7 +240,7 @@ export default function AjustesPage() {
                         onClick={() => setShowAge(!showAge)}
                         disabled
                         className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors opacity-50 cursor-not-allowed ${
-                          showAge ? 'bg-primary' : 'bg-gray-600'
+                          showAge ? 'bg-[#2BEE79]' : 'bg-gray-600'
                         }`}
                       >
                         <span className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
@@ -250,13 +250,13 @@ export default function AjustesPage() {
                     </div>
                     
                     {/* Modo invisible - PLUS+ */}
-                    <div className="flex items-center justify-between p-4 bg-black/20 rounded-lg border border-yellow-500/30">
+                    <div className="flex items-center justify-between p-4 bg-black/30 rounded-lg border border-orange-400/30">
                       <div className="flex items-center gap-3">
-                        <i className="fas fa-eye-slash text-yellow-500 text-xl"></i>
+                        <i className="fas fa-eye-slash text-orange-400 text-xl"></i>
                         <div>
                           <p className="text-white font-semibold flex items-center gap-2">
                             Modo invisible
-                            <span className="px-2 py-0.5 bg-gradient-to-r from-yellow-400 to-orange-500 text-black text-xs font-bold rounded">PLUS+</span>
+                            <span className="px-2 py-0.5 bg-gradient-to-r from-yellow-400 to-orange-500 text-black text-xs font-bold rounded shadow-[0_0_10px_rgba(251,146,60,0.4)]">PLUS+</span>
                           </p>
                           <p className="text-sm text-gray-400">Navegar sin aparecer en línea</p>
                         </div>
@@ -265,7 +265,7 @@ export default function AjustesPage() {
                         onClick={() => setInvisibleMode(!invisibleMode)}
                         disabled
                         className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors opacity-50 cursor-not-allowed ${
-                          invisibleMode ? 'bg-primary' : 'bg-gray-600'
+                          invisibleMode ? 'bg-[#2BEE79]' : 'bg-gray-600'
                         }`}
                       >
                         <span className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
@@ -277,7 +277,7 @@ export default function AjustesPage() {
                 </div>
 
                 {/* Procesamiento de datos */}
-                <div className="bg-[#144214] rounded-lg border border-white/5 p-6">
+                <div className="bg-[#0F2D19] rounded-lg border border-white/5 p-6 shadow-lg">
                   <h3 className="text-xl font-bold text-white mb-4">Procesamiento de los datos</h3>
                   <label className="flex items-start gap-3 cursor-pointer">
                     <input
@@ -288,13 +288,13 @@ export default function AjustesPage() {
                     />
                     <span className="text-gray-300 text-sm">
                       Acepto enviar mensajes de publicidad y marketing de terceros a mi cuenta de Locutorio y declaro que me he familiarizado con el{' '}
-                      <a href="#" className="text-primary underline">procesamiento de datos personales</a>
+                      <a href="#" className="text-[#2BEE79] underline">procesamiento de datos personales</a>
                     </span>
                   </label>
                 </div>
 
                 {/* Activación de servicios */}
-                <div className="bg-[#144214] rounded-lg border border-white/5 p-6">
+                <div className="bg-[#0F2D19] rounded-lg border border-white/5 p-6 shadow-lg">
                   <h3 className="text-xl font-bold text-white mb-4">Activación de los servicios</h3>
                   <p className="text-gray-300 text-sm mb-4">
                     Al marcar casilla usted acepta el uso de servicio de Locutorio seleccionado. Si usa el servicio su acuerdo esta elegido automáticamente
@@ -307,19 +307,19 @@ export default function AjustesPage() {
                       onChange={(e) => setLocutorioEnabled(e.target.checked)}
                       className="w-5 h-5 rounded border-gray-600 text-primary focus:ring-primary"
                     />
-                    <span className="text-primary font-semibold">Locutorio.com.ve</span>
+                    <span className="text-[#2BEE79] font-semibold">Locutorio.com.ve</span>
                   </label>
                 </div>
 
                 {/* Exportar datos */}
-                <div className="bg-[#144214] rounded-lg border border-white/5 p-6">
+                <div className="bg-[#0F2D19] rounded-lg border border-white/5 p-6 shadow-lg">
                   <h3 className="text-xl font-bold text-white mb-4">Exporta tus datos de usuario</h3>
                   <p className="text-gray-300 text-sm mb-4">
                     Todos tus datos como usuario, que se recopilan en nuestros servidores durante tu estancia aquí, te pertenecen a ti. 
                     En cualquier momento puedes pedirlos, que te enviamos todos tus datos. Si así lo haces, te lo enviaremos dentro de 30 días 
                     a tu correo electrónico que usaste para crear tu cuenta en Locutorio en el formato ZIP.
                   </p>
-                  <Button onClick={handleExportData} className="bg-primary hover:bg-primary/90">
+                  <Button onClick={handleExportData} className="bg-[#2BEE79] hover:bg-[#2BEE79]/90 text-black font-semibold shadow-[0_0_20px_rgba(43,238,121,0.4)] hover:shadow-[0_0_30px_rgba(43,238,121,0.6)] transition-all">
                     <i className="fas fa-download mr-2"></i>
                     Exportar tus datos
                   </Button>
@@ -353,8 +353,8 @@ export default function AjustesPage() {
                 </div>
 
                 {/* Verificación */}
-                <div className="bg-[#144214] rounded-lg border border-white/5 p-6">
-                  <h3 className="text-xl font-bold text-primary mb-4">Seguridad de la cuenta de Cratoz39</h3>
+                <div className="bg-[#0F2D19] rounded-lg border border-white/5 p-6 shadow-lg">
+                  <h3 className="text-xl font-bold text-[#2BEE79] mb-4">Seguridad de la cuenta de Cratoz39</h3>
                   <p className="text-gray-300 text-sm mb-6">
                     Si olvida su contraseña, solo le enviaremos la nueva información a contactos verificados. 
                     Estos datos no revelaremos nunca a ningún parte
@@ -410,7 +410,7 @@ export default function AjustesPage() {
 
                   {/* Formulario de verificación */}
                   {verificationMethod && (
-                    <div className="bg-black/20 rounded-lg p-6">
+                    <div className="bg-black/30 rounded-lg p-6 border border-white/5">
                       <h4 className="text-lg font-bold text-white mb-4">
                         Verificación por {verificationMethod === 'email' ? 'correo electrónico' : verificationMethod === 'telegram' ? 'Telegram' : 'WhatsApp'}
                       </h4>
@@ -423,7 +423,7 @@ export default function AjustesPage() {
                             placeholder="Su correo electrónico"
                             className="mb-4 bg-white/10 border-white/20 text-white"
                           />
-                          <Button onClick={handleVerificationSend} className="w-full bg-blue-500 hover:bg-blue-600">
+                          <Button onClick={handleVerificationSend} className="w-full bg-[#2BEE79] hover:bg-[#2BEE79]/90 text-black font-semibold shadow-[0_0_20px_rgba(43,238,121,0.4)]">
                             Enviar código
                           </Button>
                         </>
@@ -433,7 +433,7 @@ export default function AjustesPage() {
                             <img src="https://flagcdn.com/w20/ve.png" alt="VE" className="inline w-5 mr-2" />
                             +58 V {phoneNumber}
                           </p>
-                          <Button onClick={handleVerificationSend} className="w-full bg-blue-500 hover:bg-blue-600 mb-4">
+                          <Button onClick={handleVerificationSend} className="w-full bg-[#2BEE79] hover:bg-[#2BEE79]/90 text-black font-semibold shadow-[0_0_20px_rgba(43,238,121,0.4)] mb-4">
                             Enviar código
                           </Button>
                           
@@ -448,7 +448,7 @@ export default function AjustesPage() {
                               />
                             ))}
                           </div>
-                          <Button onClick={handleVerificationConfirm} className="w-full bg-blue-500 hover:bg-blue-600">
+                          <Button onClick={handleVerificationConfirm} className="w-full bg-[#2BEE79] hover:bg-[#2BEE79]/90 text-black font-semibold shadow-[0_0_20px_rgba(43,238,121,0.4)]">
                             Confirmar
                           </Button>
                         </>
@@ -458,7 +458,7 @@ export default function AjustesPage() {
                 </div>
 
                 {/* Últimas conexiones */}
-                <div className="bg-[#144214] rounded-lg border border-white/5 p-6">
+                <div className="bg-[#0F2D19] rounded-lg border border-white/5 p-6 shadow-lg">
                   <h3 className="text-xl font-bold text-white mb-4">Últimas Conexiones</h3>
                   <div className="space-y-2 max-h-64 overflow-y-auto">
                     {sessionLogs.map((log, index) => (
@@ -479,7 +479,7 @@ export default function AjustesPage() {
             {/* PESTAÑA: AUTENTIFICACIÓN 2FA */}
             {activeTab === '2fa' && (
               <div className="bg-[#144214] rounded-lg border border-white/5 p-6">
-                <h3 className="text-2xl font-bold text-primary mb-4">Autentificación de dos factores</h3>
+                <h3 className="text-2xl font-bold text-[#2BEE79] mb-4">Autentificación de dos factores</h3>
                 <p className="text-gray-300 mb-6">
                   La <strong>verificación de dos etapas</strong> mejora la protección de su cuenta contra el acceso no autorizado. 
                   Además de iniciar sesión con la contraseña, puede usar SMS-Code, correo electrónico o Google Authenticator (e otros de tu selección)
@@ -497,7 +497,7 @@ export default function AjustesPage() {
                         <p className="text-red-500 text-sm">No establecido</p>
                       </div>
                     </div>
-                    <Button variant="ghost" className="text-primary hover:text-primary/80">
+                    <Button variant="ghost" className="text-[#2BEE79] hover:text-[#2BEE79]/80 hover:bg-[#2BEE79]/10">
                       Cambiar
                     </Button>
                   </div>
@@ -511,7 +511,7 @@ export default function AjustesPage() {
                         <p className="text-red-500 text-sm">No establecido</p>
                       </div>
                     </div>
-                    <Button variant="ghost" className="text-primary hover:text-primary/80">
+                    <Button variant="ghost" className="text-[#2BEE79] hover:text-[#2BEE79]/80 hover:bg-[#2BEE79]/10">
                       Cambiar
                     </Button>
                   </div>
@@ -525,7 +525,7 @@ export default function AjustesPage() {
                         <p className="text-gray-400 text-sm font-mono">Cr****38@gmail.com</p>
                       </div>
                     </div>
-                    <Button variant="ghost" className="text-primary hover:text-primary/80">
+                    <Button variant="ghost" className="text-[#2BEE79] hover:text-[#2BEE79]/80 hover:bg-[#2BEE79]/10">
                       Cambiar
                     </Button>
                   </div>
@@ -539,7 +539,7 @@ export default function AjustesPage() {
                         <p className="text-red-500 text-sm">No establecido</p>
                       </div>
                     </div>
-                    <Button variant="ghost" className="text-primary hover:text-primary/80">
+                    <Button variant="ghost" className="text-[#2BEE79] hover:text-[#2BEE79]/80 hover:bg-[#2BEE79]/10">
                       Cambiar
                     </Button>
                   </div>
@@ -550,7 +550,7 @@ export default function AjustesPage() {
             {/* PESTAÑA: VERIFICACIÓN DE PERFIL */}
             {activeTab === 'verificacion' && (
               <div className="bg-[#144214] rounded-lg border border-white/5 p-6">
-                <h3 className="text-2xl font-bold text-primary mb-4">Verificación de Perfil con IA</h3>
+                <h3 className="text-2xl font-bold text-[#2BEE79] mb-4">Verificación de Perfil con IA</h3>
                 <p className="text-gray-300 mb-6">
                   Verifica tu identidad subiendo una foto con tu rostro y tu documento de identidad en mano. 
                   Nuestra IA comparará tu foto con tu ID y las fotos de tu perfil para confirmar tu autenticidad.
@@ -569,7 +569,7 @@ export default function AjustesPage() {
                         onChange={handlePhotoUpload}
                         className="hidden"
                       />
-                      <span className="inline-block px-6 py-3 bg-primary hover:bg-primary/90 text-white font-semibold rounded-lg cursor-pointer transition-colors">
+                      <span className="inline-block px-6 py-3 bg-[#2BEE79] hover:bg-[#2BEE79]/90 text-black font-semibold rounded-lg cursor-pointer transition-all shadow-[0_0_20px_rgba(43,238,121,0.4)] hover:shadow-[0_0_30px_rgba(43,238,121,0.6)]">
                         <i className="fas fa-upload mr-2"></i>
                         Subir foto
                       </span>
@@ -599,7 +599,7 @@ export default function AjustesPage() {
                     <i className="fas fa-times-circle text-6xl text-red-500 mb-4"></i>
                     <p className="text-white font-bold text-2xl mb-2">Verificación Fallida</p>
                     <p className="text-gray-300">No pudimos verificar tu identidad</p>
-                    <Button onClick={() => setVerificationResult(null)} className="mt-6 bg-primary hover:bg-primary/90">
+                    <Button onClick={() => setVerificationResult(null)} className="mt-6 bg-[#2BEE79] hover:bg-[#2BEE79]/90 text-black font-semibold shadow-[0_0_20px_rgba(43,238,121,0.4)]">
                       Intentar de nuevo
                     </Button>
                   </div>
@@ -622,7 +622,7 @@ export default function AjustesPage() {
             {/* PESTAÑA: CAMBIO DE CONTRASEÑA */}
             {activeTab === 'contrasena' && (
               <div className="bg-[#144214] rounded-lg border border-white/5 p-6">
-                <h3 className="text-2xl font-bold text-primary mb-4">Cambio de contraseña</h3>
+                <h3 className="text-2xl font-bold text-[#2BEE79] mb-4">Cambio de contraseña</h3>
                 
                 <div className="p-4 bg-green-600/20 rounded-lg border border-green-500 mb-6">
                   <p className="text-green-400 font-semibold">Dirección de correo electrónico esta confirmado</p>
@@ -645,7 +645,7 @@ export default function AjustesPage() {
                   className="mb-6 bg-white/10 border-white/20 text-white"
                 />
 
-                <Button className="bg-primary hover:bg-primary/90 w-full">
+                <Button className="bg-[#2BEE79] hover:bg-[#2BEE79]/90 text-black font-semibold shadow-[0_0_20px_rgba(43,238,121,0.4)] w-full">
                   Cambia la contraseña
                 </Button>
               </div>
@@ -654,7 +654,7 @@ export default function AjustesPage() {
             {/* PESTAÑA: ELIMINAR CUENTA */}
             {activeTab === 'eliminar' && (
               <div className="bg-[#144214] rounded-lg border border-white/5 p-6">
-                <h3 className="text-2xl font-bold text-red-500 mb-4">ELIMINACION DE TU CUENTA</h3>
+                <h3 className="text-2xl font-bold text-orange-500 mb-4">ELIMINACION DE TU CUENTA</h3>
                 <p className="text-gray-300 mb-6">
                   Tu cuenta personal puedes eliminar en cualquier momento. 
                   Recuerda que con este paso puedes perder tus datos que se guardan en nuestro servidor.
@@ -670,7 +670,7 @@ export default function AjustesPage() {
 
                 <Button 
                   onClick={handleDeleteAccount} 
-                  className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 text-lg"
+                  className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-4 text-lg shadow-[0_0_20px_rgba(251,146,60,0.4)] hover:shadow-[0_0_30px_rgba(251,146,60,0.6)] transition-all"
                 >
                   Eliminar la cuenta
                 </Button>
