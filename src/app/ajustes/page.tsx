@@ -108,11 +108,11 @@ export default function AjustesPage() {
           
           {/* Sidebar - Menú */}
           <div className="lg:col-span-1">
-            <div className="bg-transparent border border-white/10 rounded-lg overflow-hidden">
+            <div className="bg-transparent border border-white/10 rounded-lg overflow-hidden shadow-[0_0_30px_rgba(43,238,121,0.1)]">
               <div className="p-3 border-b border-white/10">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 bg-gradient-to-br from-[#2BEE79] to-emerald-600 rounded-lg flex items-center justify-center">
-                    <i className="fas fa-cog text-black text-sm"></i>
+                  <div className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center">
+                    <i className="fas fa-cog text-gray-400 text-sm"></i>
                   </div>
                   <h2 className="text-base font-bold text-white">Configuración</h2>
                 </div>
@@ -155,7 +155,8 @@ export default function AjustesPage() {
                 
                 {/* Configuración General */}
                 <div className="bg-transparent border border-white/10 rounded-lg p-4 shadow-[0_0_30px_rgba(43,238,121,0.1)]">
-                  <h3 className="text-lg font-bold text-white mb-4">Configuración General</h3>
+                  <h3 className="text-lg font-bold text-white mb-3">Configuración General</h3>
+                  <div className="border-b border-white/10 mb-3"></div>
                   
                   <div className="space-y-3">
                     {/* Volumen */}
@@ -222,7 +223,7 @@ export default function AjustesPage() {
                 </div>
 
                 {/* Procesamiento de datos */}
-                <div className="bg-transparent border border-white/10 rounded-lg p-4">
+                <div className="bg-transparent border border-white/10 rounded-lg p-4 shadow-[0_0_30px_rgba(43,238,121,0.1)]">
                   <h3 className="text-base font-bold text-white mb-3">Procesamiento de los datos</h3>
                   <label className="flex items-start gap-2 cursor-pointer">
                     <input
@@ -239,7 +240,7 @@ export default function AjustesPage() {
                 </div>
 
                 {/* Activación de servicios */}
-                <div className="bg-transparent border border-white/10 rounded-lg p-4">
+                <div className="bg-transparent border border-white/10 rounded-lg p-4 shadow-[0_0_30px_rgba(43,238,121,0.1)]">
                   <h3 className="text-base font-bold text-white mb-3">Activación de los servicios</h3>
                   <p className="text-gray-300 text-xs mb-3">
                     Al marcar casilla acepta el uso del servicio seleccionado
@@ -257,7 +258,7 @@ export default function AjustesPage() {
                 </div>
 
                 {/* Exportar datos */}
-                <div className="bg-transparent border border-white/10 rounded-lg p-4">
+                <div className="bg-transparent border border-white/10 rounded-lg p-4 shadow-[0_0_30px_rgba(43,238,121,0.1)]">
                   <h3 className="text-base font-bold text-white mb-3">Exporta tus datos</h3>
                   <p className="text-gray-300 text-xs mb-3">
                     Todos tus datos te pertenecen. Te los enviaremos en formato ZIP dentro de 30 días.
@@ -370,7 +371,7 @@ export default function AjustesPage() {
                 </div>
 
                 {/* Últimas conexiones */}
-                <div className="bg-transparent border border-white/10 rounded-lg p-4">
+                <div className="bg-transparent border border-white/10 rounded-lg p-4 shadow-[0_0_30px_rgba(43,238,121,0.1)]">
                   <h3 className="text-base font-bold text-white mb-3">Últimas Conexiones</h3>
                   <div className="space-y-1 max-h-48 overflow-y-auto">
                     {sessionLogs.map((log, index) => (
