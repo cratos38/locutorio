@@ -408,8 +408,14 @@ La diferencia es CONCEPTUAL, pero el flujo es el mismo:
 
 9. **Modo invisible:**
    - PLUS puede navegar sin que otros vean sus visitas
+   - Excepción: Si escribe en chat público → aparece como Online
+   - En MP: permanece invisible
 
-10. **Estadísticas avanzadas:**
+10. **Enviar invitaciones de Encuentros:**
+   - PLUS puede enviar invitaciones "tomar café" ILIMITADAS
+   - Usuarios normales NO pueden enviar invitaciones
+
+11. **Estadísticas avanzadas:**
    - Gráficos de visitas, popularidad, etc.
 
 ### ⚠️ LO QUE PLUS **NO** INCLUYE:
@@ -831,6 +837,105 @@ Cada foto puede tener su propia configuración:
 - Sigue teniendo PLUS hasta que expire
 - Después vuelve a usuario normal
 - No pierde datos, solo funciones PLUS
+
+---
+
+## 14. ESTADOS DE PRESENCIA (Online/Ocupado/Invisible)
+
+### 🟢 Estados disponibles:
+
+1. **🟢 Online (verde)** - Disponible para TODOS
+2. **🟠 Ocupado (naranja)** - Disponible para TODOS  
+3. **⚫ Invisible (gris)** - Solo PLUS
+
+### Ubicación del selector:
+
+**En "Mi Espacio" (Dashboard):**
+- Opción A: Tres botones → [🟢 Online] [🟠 Ocupado] [⚫ Invisible]
+- Opción B: Dropdown → Estado: [Online ▼]
+- Opción C: Slider/Toggle
+
+### Comportamiento por estado:
+
+#### 🟢 ONLINE (todos):
+- Punto verde al lado del icono/foto
+- Usuario aparece como conectado
+- Otros ven: "🟢 Online"
+- Actividad visible para todos
+
+#### 🟠 OCUPADO (todos):
+- Punto naranja/amarillo al lado del icono
+- Usuario aparece como "ocupado pero conectado"
+- Otros ven: "🟠 Ocupado"
+- Significa: "Estoy aquí pero no me molesten, tengo algo en este momento"
+- Puede navegar y escribir normalmente
+- Recibes notificaciones pero con indicador de ocupado
+
+#### ⚫ INVISIBLE (solo PLUS):
+- Símbolo de "no conectado" o sin punto
+- Otros ven: "Offline" (aunque estés conectado)
+- Puedes navegar sin que te vean
+- Visitas NO se registran
+- ⚠️ EXCEPCIÓN 1: Si escribes en CHAT público → automáticamente apareces "Online"
+- ⚠️ EXCEPCIÓN 2: Si envías MP → permaneces "Invisible"
+
+**Motivación modo invisible:**
+- Privacidad al navegar
+- Ver perfiles sin dejar rastro
+- Revisar mensajes sin presión de responder
+
+**Restricción:**
+- Usuarios sin PLUS no pueden activar modo invisible
+- Si intentan: Modal "Necesitas PLUS para modo invisible"
+
+---
+
+## 15. SISTEMA DE APROBACIÓN DE MENSAJES PRIVADOS (Anti-spam)
+
+### 📨 Cuando recibes un PRIMER MENSAJE de alguien nuevo:
+
+**Tres opciones:**
+
+1. ✅ **"Aceptar"** → Conversación activa, puedes responder
+2. ❌ **"Rechazar"** → Conversación bloqueada, sender NO puede enviar más
+3. 💾 **"Guardar para luego"** → Pendiente, sender NO puede enviar más
+
+### Reglas importantes:
+
+**Si eliges "Rechazar" o "Guardar para luego":**
+- El sender NO puede enviar otro mensaje
+- El sender ve: "Tu mensaje está pendiente de respuesta"
+- Debe esperar tu decisión
+
+**Si eliges "Aceptar":**
+- ✅ Conversación activa
+- ⚠️ "Aceptar" NO significa que debes responder
+- ⚠️ Puedes aceptar y después BLOQUEAR al usuario
+- ⚠️ Puedes aceptar y después DENUNCIAR por mensajes inapropiados
+- Aceptar solo abre el canal de comunicación
+
+### 📸 Restricción de fotos en nuevas conversaciones:
+
+**REGLA:** NO se puede enviar fotos hasta intercambiar **5 mensajes por cada lado**
+
+**Definición:**
+- "5 por cada lado" = 5 de Juan + 5 de María = 10 mensajes totales
+- Ejemplo:
+  - Juan envía 1 → María responde 1
+  - Juan envía 2 → María responde 2
+  - Juan envía 3 → María responde 3
+  - Juan envía 4 → María responde 4
+  - Juan envía 5 → María responde 5
+  - ✅ AHORA ambos pueden enviar fotos
+
+**Implementación:**
+- Botón "📷 Enviar foto" deshabilitado si:
+  - messages_count_sender < 5 O messages_count_receiver < 5
+- Tooltip: "Envía 5 mensajes más para desbloquear fotos"
+
+**Motivación:** Evitar spam de fotos inapropiadas en primeros mensajes
+
+⚠️ Esta restricción aplica solo a NUEVAS conversaciones
 
 ---
 

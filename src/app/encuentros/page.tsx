@@ -72,14 +72,20 @@
 //      - Invitación desaparece
 //      - Quien invitó NO recibe notificación de rechazo
 //
-// Enviar invitaciones (PLUS):
+// Enviar invitaciones (SOLO PLUS):
+//   ⚠️ IMPORTANTE: Solo usuarios PLUS pueden ENVIAR invitaciones
+//   
 //   1. Usuario navega por perfiles
 //   2. Ve botón "☕ Invitar a tomar café"
-//   3. Click en botón → envía invitación
-//   4. NO hay límite de invitaciones por día
+//   3. Si NO tiene PLUS:
+//      - Botón deshabilitado o con badge "PLUS"
+//      - Click → Modal: "Necesitas PLUS para enviar invitaciones"
+//   4. Si tiene PLUS:
+//      - Click en botón → envía invitación
+//      - NO hay límite de invitaciones por día (ILIMITADAS)
 //   5. Usuario que recibe:
-//      - Si es PLUS: ve la invitación completa
-//      - Si NO es PLUS: solo ve notificación con número
+//      - Si es PLUS: ve la invitación completa (foto, nombre, fecha)
+//      - Si NO es PLUS: solo ve notificación con número ("5 usuarios te invitan")
 //
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // ❤️ SISTEMA DE LIKES (DIFERENTE A ENCUENTROS)

@@ -53,6 +53,74 @@
 //   ✅ Conversaciones existentes: ILIMITADAS
 //   ⚠️ REGLA ANTI-SPAM: Si envías MP y no aceptan → NO puedes enviar otro
 //
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 🚨 SISTEMA DE APROBACIÓN DE NUEVAS CONVERSACIONES (ANTI-SPAM)
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//
+// Cuando recibes un PRIMER MENSAJE de alguien nuevo, debes tomar una decisión:
+//
+// OPCIONES AL RECIBIR NUEVA CONVERSACIÓN:
+// ---------------------------------------
+// 1. ✅ "Aceptar" → Conversación se activa, puedes responder
+// 2. ❌ "Rechazar" → Conversación bloqueada, sender NO puede enviar más
+// 3. 💾 "Guardar para luego" → Conversación pendiente, sender NO puede enviar más
+//
+// ⚠️ IMPORTANTE: Si eliges "Rechazar" o "Guardar para luego":
+//    - El sender NO puede enviar otro mensaje
+//    - El sender ve: "Tu mensaje está pendiente de respuesta"
+//    - El sender debe esperar tu decisión
+//
+// ⚠️ CRÍTICO: "Aceptar" NO significa que debes responder:
+//    - Puedes aceptar y NO responder
+//    - Puedes aceptar y después BLOQUEAR al usuario
+//    - Puedes aceptar y después DENUNCIAR por mensajes inapropiados
+//
+// Ejemplo de flujo:
+//   1. Juan envía primer MP a María
+//   2. María recibe notificación: "Juan te envió un mensaje"
+//   3. María ve el mensaje y tres botones:
+//      - [Aceptar] [Rechazar] [Guardar para luego]
+//   4. Si María elige "Guardar para luego":
+//      - Conversación queda en carpeta "Pendientes"
+//      - Juan NO puede enviar más mensajes
+//      - Juan ve: "Tu mensaje está pendiente"
+//   5. Si María elige "Rechazar":
+//      - Conversación bloqueada
+//      - Juan NO puede enviar más mensajes
+//      - Juan ve: "Esta persona no aceptó tu invitación"
+//   6. Si María elige "Aceptar":
+//      - Conversación activa
+//      - Ambos pueden escribir libremente
+//      - María puede después bloquear o denunciar si es necesario
+//
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 📸 RESTRICCIÓN DE FOTOS EN NUEVAS CONVERSACIONES (ANTI-SPAM)
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//
+// REGLA: NO se puede enviar fotos hasta intercambiar 5 mensajes por cada lado
+//
+// Definición:
+//   - "5 mensajes por cada lado" = 5 de Juan + 5 de María = 10 mensajes totales
+//   - Ejemplo:
+//     * Juan envía 1 mensaje → María responde 1 → Juan envía 2 → María responde 2
+//     * Juan envía 3 → María responde 3 → Juan envía 4 → María responde 4
+//     * Juan envía 5 → María responde 5
+//     * ✅ AHORA ambos pueden enviar fotos
+//
+// Implementación técnica:
+//   - Contador por conversación: messages_count_sender, messages_count_receiver
+//   - Botón de "📷 Enviar foto" deshabilitado si:
+//     * messages_count_sender < 5 O messages_count_receiver < 5
+//   - Tooltip al pasar mouse sobre botón deshabilitado:
+//     * "Envía 5 mensajes más para desbloquear fotos"
+//     * "Espera a que tu contacto responda 5 mensajes para desbloquear fotos"
+//
+// Motivación: Evitar spam de fotos inapropiadas en primeros mensajes
+//
+// ⚠️ IMPORTANTE: Esta restricción aplica solo a NUEVAS conversaciones
+//    - Si ya tenías conversación activa antes → NO aplica restricción
+//    - Si es primera vez con este usuario → SÍ aplica restricción
+//
 // Definiciones:
 //   - "NUEVA CONVERSACIÓN": Primer MP a alguien con quien NUNCA hablaste
 //   - "CONVERSACIÓN EXISTENTE": Alguien con quien ya intercambiaste mensajes
