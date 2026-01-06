@@ -721,9 +721,9 @@ function EncuentrosContent() {
                 {activeTab === "accepted" && "No tienes invitaciones aceptadas"}
                 {activeTab === "rejected" && "No tienes invitaciones rechazadas"}
               </p>
-              <Link href="/people">
+              <Link href="/usuarios">
                 <Button className="bg-primary hover:bg-primary/90 text-connect-bg-dark font-bold">
-                  Buscar personas
+                  Buscar usuarios
                 </Button>
               </Link>
             </div>

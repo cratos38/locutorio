@@ -70,14 +70,14 @@ export default function InternalHeader() {
               </Link>
             )}
             <Link 
-              href="/people" 
+              href="/usuarios" 
               className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                pathname === '/people' 
+                pathname === '/usuarios' 
                   ? 'text-primary bg-primary/10' 
                   : 'text-white hover:text-primary hover:bg-white/5'
               }`}
             >
-              Personas
+              Usuarios
             </Link>
             <button 
               onClick={() => openMessages()} 
