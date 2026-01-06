@@ -28,15 +28,12 @@ import { useMessages } from "@/contexts/MessagesContext";
 import { useSearchParams } from "next/navigation";
 import FloatingMessagesWindow from "@/components/FloatingMessagesWindow";
 
-// Force dynamic rendering for this page
-export const dynamic = 'force-dynamic';
-
 function ChatRoomsContent() {
   const { openMessages } = useMessages();
   const searchParams = useSearchParams();
-  const roomFromUrl = searchParams.get('room');
+  const roomFromUrl = searchParams?.get('room') || null;
   
-  const [selectedRoom, setSelectedRoom] = useState(roomFromUrl || "general");
+  const [selectedRoom, setSelectedRoom] = useState("general");
   const [messageText, setMessageText] = useState("");
   const [chatMessages, setChatMessages] = useState<Array<{id: number, user: string, avatar: string, text: string, time: string, isOwn: boolean, replyTo?: string | null}>>([]);
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
@@ -264,10 +261,10 @@ function ChatRoomsContent() {
 
   // Detectar sala desde URL y seleccionarla automáticamente
   useEffect(() => {
-    if (roomFromUrl) {
+    if (roomFromUrl && roomFromUrl !== selectedRoom) {
       setSelectedRoom(roomFromUrl);
     }
-  }, [roomFromUrl]);
+  }, [roomFromUrl, selectedRoom]);
 
   // Auto-scroll input to end when messageText changes (especially for emojis)
   useEffect(() => {
@@ -1948,6 +1945,9 @@ function ChatRoomsContent() {
     </div>
   );
 }
+
+// Force dynamic rendering - must be outside component
+export const dynamic = 'force-dynamic';
 
 export default function ChatRoomsPage() {
   return (
