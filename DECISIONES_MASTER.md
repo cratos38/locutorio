@@ -386,22 +386,30 @@ La diferencia es CONCEPTUAL, pero el flujo es el mismo:
    - Usuarios normales: No pueden ver quién visitó
    - PLUS: Ve lista completa con fecha/hora
 
-4. **Ver quién te envió encuentro:**
-   - Usuarios normales: No pueden ver quién les envió encuentro
-   - PLUS: Ve lista completa
+4. **Ver quién te envió encuentro (invitación "tomar café"):**
+   - Usuarios normales: NO pueden ver quién, solo notificación "5 usuarios te invitan"
+   - PLUS: Ve lista completa con foto, nombre y fecha
 
-5. **Ocultar comentarios en tus fotos:**
+5. **Guardar historial completo:**
+   - PLUS puede guardar todo el historial de chat y MP
+   - Usuarios normales: No guardan historial
+
+6. **Doble check en MP (✓✓):**
+   - PLUS ve: mensaje entregado (✓) y mensaje leído (✓✓)
+   - Usuarios normales: No ven estado de entrega/lectura
+
+7. **Ocultar comentarios en tus fotos:**
    - Usuarios normales: Comentarios SIEMPRE públicos
    - PLUS: Puede ocultar comentarios públicos en sus fotos (solo él los ve)
 
-6. **Sin publicidad:**
+8. **Sin publicidad:**
    - Usuarios normales: Ven anuncios
    - PLUS: Navegación sin publicidad
 
-7. **Modo invisible:**
+9. **Modo invisible:**
    - PLUS puede navegar sin que otros vean sus visitas
 
-8. **Estadísticas avanzadas:**
+10. **Estadísticas avanzadas:**
    - Gráficos de visitas, popularidad, etc.
 
 ### ⚠️ LO QUE PLUS **NO** INCLUYE:
@@ -456,12 +464,14 @@ La diferencia es CONCEPTUAL, pero el flujo es el mismo:
 
 **Límites de Mensajes Privados (MP):**
 - ✅ **Puede iniciar conversaciones nuevas**
-- ⚠️ **Máximo 10 nuevos usuarios por día** (primer mensaje)
-  - Ejemplo: Si envía 1 mensaje a Juan → puede enviar primer mensaje a 9 personas más
-  - Ejemplo: Si envía 3 mensajes a Pedro → puede enviar primer mensaje a 9 personas más
-- ✅ **Mensajes ilimitados** con usuarios con los que ya se comunica
+- ⚠️ **Máximo 10 nuevas conversaciones por día**
+  - "Nueva conversación" = Primer MP a alguien con quien NUNCA has hablado antes
+  - Ejemplo: Si envías primer MP a Juan (nunca hablaste con él) → cuenta 1 de 10
+  - Ejemplo: Si hoy escribes a María (con quien ya hablaste ayer) → NO cuenta, es conversación existente
+- ✅ **Mensajes ilimitados** con usuarios con los que ya se comunicó antes
+- ⚠️ **REGLA ANTI-SPAM:** Si envías MP y la persona NO acepta tu invitación → NO puedes enviar otro MP hasta que acepte
 
-**IMPORTANTE:** La restricción de "10 nuevos usuarios/día" aplica tanto a usuarios normales como PLUS.
+**IMPORTANTE:** La restricción de "10 nuevas conversaciones/día" aplica tanto a usuarios normales como PLUS.
 
 ---
 
@@ -693,35 +703,38 @@ Cada foto puede tener su propia configuración:
 
 ### 💘 ¿Qué son los Encuentros?
 
-- Sistema tipo "Tinder"
-- Se muestran perfiles de otros usuarios
-- Puedes dar: ❤️ Me gusta | ❌ Pasar
+**Encuentros = Invitaciones a "Tomar café"**
+- Sistema de invitaciones entre usuarios
+- Solo usuarios PLUS pueden ver y enviar invitaciones
+- Usuarios sin PLUS reciben notificación pero no ven quién
 
 ### Límites:
 
-**TODOS los usuarios (con y sin PLUS):**
-- ✅ "Me gusta" ilimitados
-- ✅ Perfiles ilimitados por día
+**GRUPO A (sin verificar teléfono O sin PLUS):**
+- ❌ NO pueden ver invitaciones a "tomar café"
+- ❌ NO pueden enviar invitaciones
+- ✅ Reciben notificación: "5 usuarios te invitan a tomar café"
+- ❌ NO pueden ver quiénes son esos usuarios
+- ❌ NO pueden responder
 
-**Diferencia con PLUS:**
-- Usuarios normales: ❌ No pueden ver quién les dio "Me gusta" sin hacer match
-- Usuarios PLUS: ✅ Ven quién les dio "Me gusta" sin necesidad de match
+**GRUPO B (con PLUS):**
+- ✅ Ven quién les invitó (foto, nombre, fecha)
+- ✅ Pueden responder
+- ✅ Pueden enviar invitaciones ILIMITADAS
 
-### Match:
+### Sistema de Likes (❤️):
 
-Si dos personas se dan "Me gusta" mutuamente:
-- ✨ ¡Match!
-- Se abre automáticamente un chat privado
-- Notificación: "¡Tienes un nuevo match con [username]!"
+**LIKES SON DIFERENTES A ENCUENTROS:**
+- ✅ Likes son TOTALMENTE ANÓNIMOS
+- ✅ TODOS los usuarios ven: "❤️ con número"
+- ✅ Al pulsar el número → se anula y solo ves los de ese día
+- ✅ En estadísticas completas: número total acumulado
+- ✅ Notificación: "Obtuviste un like en perfil" o "Obtuviste un like en foto"
+- ❌ **NO se muestra quién dio el like** (anónimo para todos, con y sin PLUS)
 
-### Notificaciones:
-
-**Usuarios normales:**
-- "Tienes un nuevo match" (solo si hacen match)
-
-**Usuarios PLUS:**
-- "A [username] le gustaste" (sin necesidad de match)
-- "Tienes un nuevo match"
+**DIFERENCIA:**
+- **Likes:** Anónimos, solo número, para TODOS
+- **Encuentros:** Invitaciones con foto y nombre, solo PLUS
 
 ---
 
