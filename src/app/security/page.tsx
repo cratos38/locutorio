@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import InternalHeader from '@/components/InternalHeader'
@@ -17,7 +17,7 @@ interface SessionLog {
   browser: string
 }
 
-export default function AjustesPage() {
+function AjustesContent() {
   const searchParams = useSearchParams()
   const [activeTab, setActiveTab] = useState<TabType>('ajustes')
   
@@ -815,5 +815,16 @@ export default function AjustesPage() {
         </div>
       </main>
     </div>
+  )
+}
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
+export default function AjustesPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-connect-bg-dark flex items-center justify-center"><div className="text-white">Cargando...</div></div>}>
+      <AjustesContent />
+    </Suspense>
   )
 }
