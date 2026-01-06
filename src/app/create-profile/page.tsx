@@ -91,6 +91,34 @@ async function resizeImage(file: File, maxWidth: number = 400): Promise<File> {
   });
 }
 
+// =================== COMPONENTE: CREAR PERFIL ===================
+// Este componente maneja DOS modos:
+// 1. MODO REGISTRO (editMode=false): Usuario nuevo creando su cuenta
+// 2. MODO EDICIÓN (editMode=true): Usuario existente editando sus datos básicos
+//
+// FLUJO MODO REGISTRO:
+// 1. Usuario rellena formulario completo (nombre, email x2, password x2, datos básicos, foto)
+// 2. Usuario elige: "Crear y Empezar" o "Crear y Completar Perfil"
+// 3. Se envía registro al backend → genera código de verificación
+// 4. Se muestra EmailVerificationModal (componente a crear) - BLOQUEA TODA LA APP
+// 5. Usuario introduce código de 6 dígitos del email
+// 6. Si código correcto:
+//    a) "Crear y Empezar" → Redirige a /dashboard (ya logeado)
+//    b) "Crear y Completar Perfil" → Redirige a /userprofile?edit=true (ya logeado)
+// 7. [OPCIONAL] Usuario puede verificar teléfono después (WhatsApp/Telegram) → 30 días PLUS gratis
+//
+// FLUJO MODO EDICIÓN:
+// 1. Usuario ya logeado edita sus datos básicos
+// 2. Click en "Guardar Cambios" → actualiza DB → vuelve a su perfil
+//
+// VERIFICACIÓN DE TELÉFONO (después de email):
+// - Se hace en /userprofile o /security (no en esta página)
+// - Usuario elige: WhatsApp o Telegram
+// - Introduce número de teléfono con código de país
+// - Recibe código de 6 dígitos vía WhatsApp/Telegram
+// - Introduce código en PhoneVerificationModal (componente a crear)
+// - Si código correcto: phone_verified=true + 30 días PLUS gratis
+//
 function CrearPerfilForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -294,6 +322,9 @@ function CrearPerfilForm() {
     }
   };
 
+  // =================== HANDLER: CONTINUAR/GUARDAR ===================
+  // TODO: Este handler es para MODO EDICIÓN únicamente
+  // En modo registro, NO se usa este handler - ver botones de abajo
   const handleContinue = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -658,6 +689,18 @@ function CrearPerfilForm() {
 
 
             {/* Contraseña */}
+            {/* REQUISITOS:
+                - Mínimo 8 CARACTERES (NO "puntos")
+                - Debe incluir al menos:
+                  * Una letra MAYÚSCULA (A-Z)
+                  * Una letra minúscula (a-z)
+                  * Un número (0-9)
+                  * Un símbolo (ej: @, #, $, %, !, &, etc.)
+                - Ejemplos válidos: "Hola123!", "MiPass#99", "Secret$2024"
+                - Ejemplos inválidos: "hola1234" (sin mayúscula), "Hola" (muy corta), "HolaMundo" (sin número/símbolo)
+                
+                TODO BACKEND: Validar estos requisitos antes de aceptar registro
+            */}
             {!editMode && (
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
@@ -892,10 +935,109 @@ function CrearPerfilForm() {
                 </Button>
               ) : (
                 <>
+                  {/* =================== BOTÓN 1: CREAR Y EMPEZAR =================== */}
+                  {/* FLUJO COMPLETO:
+                      1. VALIDACIONES FRONTEND:
+                         - Verificar que nombre tenga mínimo 3 caracteres
+                         - Verificar que email y emailConfirm coincidan
+                         - Verificar que password y passwordConfirm coincidan
+                         - Verificar que password tenga mínimo 8 caracteres con mayúsculas, minúsculas, números y símbolos
+                         - Verificar que todos los campos obligatorios (*) estén llenos
+                         - Verificar que haya al menos 1 foto subida
+                      
+                      2. ENVÍO AL BACKEND (POST /api/auth/register):
+                         Body: {
+                           nombre: profileData.nombre,
+                           email: profileData.email,
+                           password: profileData.password,
+                           sexo: profileData.sexo,
+                           fechaNacimiento: profileData.fechaNacimiento,
+                           paisCodigo: profileData.paisCodigo,
+                           ciudad: profileData.ciudad,
+                           estado: profileData.estado,
+                           queBusca: profileData.queBusca,
+                           buscarParejaPaisCodigo: profileData.buscarParejaPaisCodigo,
+                           buscarParejaCiudad: profileData.buscarParejaCiudad,
+                           fotos: fotos,
+                           completarPerfilDespues: true // Indica "Crear y Empezar"
+                         }
+                      
+                      3. BACKEND DEBE:
+                         a) Validar que email no esté registrado (unique constraint)
+                         b) Validar que nombre (nick) no esté en uso (unique constraint)
+                         c) Hash de la contraseña (bcrypt)
+                         d) Crear usuario en DB con email_verified=false
+                         e) Generar código de verificación de 6 dígitos aleatorio (ej: 482735)
+                         f) Guardar código en tabla verification_codes:
+                            - user_id
+                            - code (hash del código, NO plain text)
+                            - type: 'email'
+                            - expires_at: NOW() + 5 minutos
+                            - attempts: 0
+                         g) Enviar email con el código a profileData.email
+                            Asunto: "Verifica tu cuenta en LoCuToRiO"
+                            Contenido: "Tu código de verificación es: 482735. Expira en 5 minutos."
+                         h) Response: { success: true, userId, message: "Código enviado" }
+                      
+                      4. FRONTEND RECIBE RESPUESTA:
+                         a) Mostrar componente <EmailVerificationModal> (crear componente nuevo)
+                         b) Modal tiene estas características:
+                            - NO se puede cerrar con X
+                            - NO se puede cerrar haciendo clic fuera
+                            - NO se puede cerrar con tecla ESC
+                            - Bloquea TODA la aplicación
+                         c) Modal muestra:
+                            - Título: "Verifica tu correo electrónico"
+                            - Texto: "Hemos enviado un código de 6 dígitos a [profileData.email]"
+                            - Input para 6 dígitos (solo números)
+                            - Temporizador: "Expira en 04:32" (decrementa cada segundo)
+                            - Botón "Verificar" (siempre habilitado)
+                            - Botón "Reenviar código" (se habilita después de 60 segundos)
+                            - Link: "¿No recibiste el código? Revisa tu carpeta de spam"
+                      
+                      5. USUARIO INTRODUCE CÓDIGO:
+                         a) Al hacer clic en "Verificar" → POST /api/verify-email
+                            Body: { userId, code: "482735" }
+                         b) Backend valida:
+                            - Código existe y coincide (comparar hash)
+                            - Código NO ha expirado (expires_at > NOW())
+                            - Intentos < 3
+                         c) Si código CORRECTO:
+                            - Actualizar usuario: email_verified=true
+                            - Generar JWT token
+                            - Response: { success: true, token }
+                            - Frontend: 
+                              * Cerrar modal
+                              * Guardar token en cookie/localStorage
+                              * Redirigir a /dashboard (usuario ya logeado)
+                         d) Si código INCORRECTO:
+                            - Incrementar attempts en DB
+                            - Response: { success: false, error: "Código incorrecto", attemptsLeft: 2 }
+                            - Frontend: Mostrar error debajo del input
+                            - Si attempts >= 3: Bloquear durante 5 minutos
+                         e) Si código EXPIRADO:
+                            - Response: { success: false, error: "Código expirado" }
+                            - Frontend: Mostrar mensaje "El código ha expirado. Solicita uno nuevo."
+                      
+                      6. REENVIAR CÓDIGO:
+                         a) Click en "Reenviar código" → POST /api/resend-email-code
+                            Body: { userId }
+                         b) Backend:
+                            - Invalidar código anterior
+                            - Generar nuevo código de 6 dígitos
+                            - Guardar con nuevo expires_at
+                            - Enviar nuevo email
+                         c) Frontend: Reiniciar temporizador a 5:00
+                      
+                      7. DESPUÉS DE VERIFICAR EMAIL EXITOSAMENTE:
+                         Usuario está en /dashboard con sesión activa
+                         Mostrar banner opcional: "¿Quieres ganar 30 días gratis de PLUS? Verifica tu teléfono"
+                         (Verificación de teléfono es OPCIONAL - se hace después)
+                  */}
                   <button
                     type="button"
                     onClick={() => {
-                      // TODO: Crear cuenta y redirigir a /dashboard
+                      // TODO: IMPLEMENTAR FLUJO COMPLETO DESCRITO ARRIBA
                       alert("Crear y Empezar → /dashboard");
                     }}
                     className="flex-1 bg-transparent border border-[#2BEE79]/50 text-white hover:text-[#2BEE79] shadow-[0_0_15px_rgba(43,238,121,0.3)] hover:shadow-[0_0_20px_rgba(43,238,121,0.4)] font-bold py-6 text-base rounded-lg transition-all"
@@ -903,10 +1045,25 @@ function CrearPerfilForm() {
                     Crear y Empezar
                   </button>
                   
+                  {/* =================== BOTÓN 2: CREAR Y COMPLETAR PERFIL =================== */}
+                  {/* FLUJO:
+                      1-6: IDÉNTICO al botón "Crear y Empezar" (todo el proceso de verificación de email)
+                      
+                      7. DESPUÉS DE VERIFICAR EMAIL EXITOSAMENTE:
+                         Diferencia: En lugar de ir a /dashboard, redirige a:
+                         → /userprofile?edit=true (modo edición de perfil)
+                         
+                         En esa página el usuario puede:
+                         - Añadir más fotos
+                         - Completar información adicional (intereses, descripción, etc.)
+                         - Verificar teléfono (opcional pero recomendado - 30 días PLUS)
+                         - Verificar identidad con ID (opcional - 30 días PLUS)
+                  */}
                   <button
                     type="button"
                     onClick={() => {
-                      // TODO: Crear cuenta y redirigir a /userprofile
+                      // TODO: IMPLEMENTAR FLUJO COMPLETO
+                      // Mismo proceso que "Crear y Empezar" pero redirige a /userprofile?edit=true
                       alert("Crear y Completar Perfil → /userprofile");
                     }}
                     className="flex-1 bg-transparent border border-[#2BEE79]/50 text-white hover:text-[#2BEE79] shadow-[0_0_15px_rgba(43,238,121,0.3)] hover:shadow-[0_0_20px_rgba(43,238,121,0.4)] py-6 text-base font-semibold rounded-lg transition-all"
