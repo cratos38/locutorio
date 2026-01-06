@@ -1376,10 +1376,122 @@ function AjustesPerfilContent() {
     }
   };
 
-  const handleSaveAll = () => {
-    console.log("Guardando todos los datos:", formData);
-    // TODO: Enviar a API/backend
-    alert("Perfil guardado correctamente");
+  const handleSaveAll = async () => {
+    try {
+      // Por ahora usaremos un username temporal
+      // TODO: Obtener el username del usuario autenticado
+      const username = 'admin'; // Temporal
+      const email = 'admin@locutorio.com'; // Temporal
+      
+      const profileData = {
+        username,
+        email,
+        nombre: formData.nombre || 'Admin',
+        edad: formData.edad || null,
+        genero: formData.genero || null,
+        ciudad: formData.ciudad || null,
+        foto_perfil: formData.fotoPerfil || null,
+        status_text: formData.statusText || null,
+        presence_status: 'online',
+        
+        // ALGO SOBRE MÍ
+        altura: formData.altura || null,
+        peso: formData.peso || null,
+        tipo_cuerpo: formData.tipoCuerpo || null,
+        color_ojos: formData.colorOjos || null,
+        color_cabello: formData.colorCabello || null,
+        signo_zodiacal: formData.signoZodiacal || null,
+        educacion: formData.educacion || null,
+        etnia: formData.etnia || null,
+        vives_en: formData.vivesEn || null,
+        idiomas: formData.idiomas || [],
+        
+        // TRABAJO
+        trabajas: formData.trabajas || false,
+        en_que_trabaja: formData.enQueTrabaja || null,
+        definete_en_frase: formData.defineteEnFrase || null,
+        cuentanos_algo_tuyo: formData.cuentanosAlgoTuyo || null,
+        intereses: formData.intereses || null,
+        primera_cita_ideal: formData.primeraCitaIdeal || null,
+        
+        // RELACIONES
+        tiene_hijos: formData.tieneHijos || false,
+        situacion_hijos: formData.situacionHijos || null,
+        quiere_tener_hijos: formData.quiereTenerHijos || null,
+        estado_civil: formData.estadoCivil || null,
+        que_buscas: formData.queBuscas || null,
+        razon_principal: formData.razonPrincipal || null,
+        tiempo_en_pareja: formData.tiempoEnPareja || null,
+        casarse_importante: formData.casarseImportante || null,
+        duracion_relacion_larga: formData.duracionRelacionLarga || null,
+        
+        // VEHÍCULO
+        tiene_vehiculo: formData.tieneVehiculo || false,
+        
+        // MASCOTA
+        tiene_mascota: formData.tieneMascota || null,
+        tiene_mascota_otra: formData.tieneMascotaOtra || null,
+        
+        // CULTURA
+        pasatiempos: formData.pasatiempos || [],
+        generos_peliculas: formData.generosPeliculas || [],
+        generos_musica: formData.generosMusica || [],
+        generos_libros: formData.generosLibros || [],
+        deportes_practica: formData.deportesPractica || [],
+        ideas_politicas: formData.ideasPoliticas || null,
+        valores_tradicionales: formData.valoresTradicionales || null,
+        espiritualidad: formData.espiritualidad || null,
+        religion: formData.religion || null,
+        convicciones_religiosas: formData.conviccionesReligiosas || null,
+        
+        // ESTILO DE VIDA
+        que_haces: formData.queHaces || null,
+        nivel_cocinar: formData.nivelCocinar || null,
+        nivel_bailar: formData.nivelBailar || null,
+        te_ejercitas: formData.teEjercitas || null,
+        eres_ambicioso: formData.eresAmbicioso || null,
+        
+        // Fumar
+        fumas: formData.fumas || null,
+        frecuencia_fumar: formData.frecuenciaFumar || null,
+        saldrias_fumador: formData.saldriasFumador || false,
+        
+        // Beber
+        bebes_alcohol: formData.bebesAlcohol || null,
+        frecuencia_beber: formData.frecuenciaBeber || null,
+        saldrias_bebedor: formData.saldriasBebedor || false,
+        
+        // Drogas
+        usas_drogas: formData.usasDrogas || null,
+        frecuencia_drogas: formData.frecuenciaDrogas || null,
+        
+        // Otros
+        dieta_especial: formData.dietaEspecial || null,
+        dieta_especial_otra: formData.dietaEspecialOtra || null,
+        tiempo_con_familia: formData.tiempoConFamilia || null,
+        personalidad_sociable: formData.personalidadSociable || null,
+        orden_mantenimiento: formData.ordenMantenimiento || null,
+      };
+      
+      const response = await fetch('/api/profile', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(profileData),
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        alert(`✅ Perfil guardado correctamente!\n\nPerfil completado: ${result.profileCompletion}%\n\nPuedes verlo en: /publicprofile/${username}`);
+      } else {
+        alert(`❌ Error al guardar: ${result.error}`);
+      }
+    } catch (error) {
+      console.error('Error al guardar perfil:', error);
+      alert('❌ Error al guardar el perfil. Revisa la consola.');
+    }
   };
 
   return (

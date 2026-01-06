@@ -3,31 +3,41 @@
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { useEffect, useState } from "react";
 
 export const runtime = 'edge';
 
 export default function PerfilPage() {
   const params = useParams();
   const username = params.username as string;
+  
+  const [profile, setProfile] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // 🔗 DATOS DEL PERFIL (simulados - vendrían del backend)
-  const profile = {
-    username: username,
-    name: "Javier S.",
-    age: 28,
-    city: "Madrid",
-    country: "España",
-    gender: "Hombre",
-    avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuBcAgJzBVY0VcA1ICIc8GlT1M1eiu5Og95ubTpOa58bFlu9OV7QmjTZH1cbQBwbPhtvFKip_HyKq7atWt0zzANSMDAC_wrJi67kz8SXvn-HnWmPBihZZc3BAfUyEZ7TOAs4LhWokU66QRGD6Lhq2RYxETUZKEeHUzBCVw0BiuXDqP1lYEwLeNcffCadpUuZggEMO_dPmEceKo3MQ6C2rOGG5yHNZlrhQNjpnrQwZB36kSlcM_HfVWyMRoN6UQ6gNvgLzfLeM1B3VVpJ",
-    presenceStatus: 'online' as 'online' | 'busy' | 'invisible',
-    statusText: "Disfrutando de un café ☕ mientras planeo mis próximos viajes ✈️",
-    profileCompletion: 85, // % de perfil completado
-    avgResponseTime: 15, // minutos promedio de respuesta
-    bio: "Amante de la música, viajes y fotografía. Siempre buscando nuevas aventuras.",
-    interests: ["Música", "Viajes", "Fotografía", "Cine", "Deportes"],
-  };
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await fetch(`/api/profile?username=${username}`);
+        const result = await response.json();
+        
+        if (result.success) {
+          setProfile(result.data);
+        } else {
+          setError(result.error || 'Usuario no encontrado');
+        }
+      } catch (err) {
+        console.error('Error al cargar perfil:', err);
+        setError('Error al cargar el perfil');
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchProfile();
+  }, [username]);
 
-  // Perfiles similares (simulados)
+  // Perfiles similares (simulados por ahora)
   const similarProfiles = [
     { id: 1, name: "Carlos M.", age: 27, avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuDGb3wmeflExbrjA88BEWgMoBARwnsWXrjnuX9eX0BtYZqnIuIuV2k_c80FD-aUsIiTHut6e-k4cJzjyk4OERJYc_7V103-NFf7eD9WJOXNYzN4YOa0ulR1gN-hucbZyaIz5RfojyS2OglAr4ickMC-qkdFxcoLvF59IV_i3Kxtk7OBbeQjLB2sX2q9THJ5MpQALQETi5ABgMmTiDxzKtRbbs6RUv1H7KU0c6gcA7w_9cbtihKJ1iEfLVPD4g6KGUSrVkXQuXl421Fk" },
     { id: 2, name: "Miguel R.", age: 30, avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuBcAgJzBVY0VcA1ICIc8GlT1M1eiu5Og95ubTpOa58bFlu9OV7QmjTZH1cbQBwbPhtvFKip_HyKq7atWt0zzANSMDAC_wrJi67kz8SXvn-HnWmPBihZZc3BAfUyEZ7TOAs4LhWokU66QRGD6Lhq2RYxETUZKEeHUzBCVw0BiuXDqP1lYEwLeNcffCadpUuZggEMO_dPmEceKo3MQ6C2rOGG5yHNZlrhQNjpnrQwZB36kSlcM_HfVWyMRoN6UQ6gNvgLzfLeM1B3VVpJ" },
@@ -36,6 +46,32 @@ export default function PerfilPage() {
     { id: 5, name: "Antonio F.", age: 31, avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuDGb3wmeflExbrjA88BEWgMoBARwnsWXrjnuX9eX0BtYZqnIuIuV2k_c80FD-aUsIiTHut6e-k4cJzjyk4OERJYc_7V103-NFf7eD9WJOXNYzN4YOa0ulR1gN-hucbZyaIz5RfojyS2OglAr4ickMC-qkdFxcoLvF59IV_i3Kxtk7OBbeQjLB2sX2q9THJ5MpQALQETi5ABgMmTiDxzKtRbbs6RUv1H7KU0c6gcA7w_9cbtihKJ1iEfLVPD4g6KGUSrVkXQuXl421Fk" },
     { id: 6, name: "Pablo G.", age: 27, avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuBcAgJzBVY0VcA1ICIc8GlT1M1eiu5Og95ubTpOa58bFlu9OV7QmjTZH1cbQBwbPhtvFKip_HyKq7atWt0zzANSMDAC_wrJi67kz8SXvn-HnWmPBihZZc3BAfUyEZ7TOAs4LhWokU66QRGD6Lhq2RYxETUZKEeHUzBCVw0BiuXDqP1lYEwLeNcffCadpUuZggEMO_dPmEceKo3MQ6C2rOGG5yHNZlrhQNjpnrQwZB36kSlcM_HfVWyMRoN6UQ6gNvgLzfLeM1B3VVpJ" },
   ];
+  
+  // Estado de carga
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-connect-bg-dark text-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-neon-green mx-auto mb-4"></div>
+          <p className="text-connect-muted">Cargando perfil...</p>
+        </div>
+      </div>
+    );
+  }
+  
+  // Estado de error
+  if (error || !profile) {
+    return (
+      <div className="min-h-screen bg-connect-bg-dark text-white flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-2xl mb-4">❌ {error || 'Usuario no encontrado'}</p>
+          <Link href="/dashboard">
+            <Button>Volver al Dashboard</Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-connect-bg-dark text-white font-display">
@@ -66,8 +102,8 @@ export default function PerfilPage() {
           <div className="flex-shrink-0">
             {/* Foto grande sin borde - Ratio 10:13 (400px x 520px) */}
             <img
-              src={profile.avatar}
-              alt={profile.name}
+              src={profile.foto_perfil || "https://via.placeholder.com/400x520?text=Sin+Foto"}
+              alt={profile.nombre || profile.username}
               className="w-[400px] h-[520px] object-cover rounded-2xl shadow-2xl"
             />
             
@@ -75,12 +111,12 @@ export default function PerfilPage() {
             <div className="mt-4">
               <div className="flex items-center justify-between text-sm mb-2">
                 <span className="text-connect-muted">Perfil completado</span>
-                <span className="text-primary font-bold">{profile.profileCompletion}%</span>
+                <span className="text-primary font-bold">{profile.profile_completion || 0}%</span>
               </div>
               <div className="h-2 bg-connect-bg-dark rounded-full overflow-hidden">
                 <div 
                   className="h-full bg-primary rounded-full transition-all"
-                  style={{ width: `${profile.profileCompletion}%` }}
+                  style={{ width: `${profile.profile_completion || 0}%` }}
                 ></div>
               </div>
             </div>
@@ -91,13 +127,15 @@ export default function PerfilPage() {
             
             {/* Nombre, edad, ciudad - SIN tarjeta, directo en fondo */}
             <div className="mb-6">
-              <h1 className="text-4xl font-bold font-heading mb-2">{profile.name}, {profile.age}</h1>
+              <h1 className="text-4xl font-bold font-heading mb-2">
+                {profile.nombre || profile.username}, {profile.edad || '?'}
+              </h1>
               <p className="text-lg text-connect-muted flex items-center gap-2">
                 <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
-                {profile.city}, {profile.country}
+                {profile.ciudad || 'Ciudad no especificada'}
               </p>
             </div>
 
@@ -124,10 +162,10 @@ export default function PerfilPage() {
             </div>
 
             {/* "¿Qué haces hoy?" - SIN tarjeta, con comillas */}
-            {profile.statusText && (
+            {profile.status_text && (
               <div className="mb-6 pl-4 border-l-4 border-primary/50">
                 <p className="text-lg text-white italic">
-                  "{profile.statusText}"
+                  "{profile.status_text}"
                 </p>
                 <p className="text-xs text-connect-muted mt-1">hace 5 min</p>
               </div>
@@ -136,7 +174,7 @@ export default function PerfilPage() {
             {/* Gráfico circular: Velocidad de respuesta */}
             <div className="flex items-center gap-6 mb-8">
               <div className="relative w-24 h-24">
-                {/* Círculo de progreso (simplificado - en producción usar librería) */}
+                {/* Círculo de progreso (simplificado) */}
                 <svg className="w-24 h-24 transform -rotate-90" viewBox="0 0 100 100">
                   <circle
                     cx="50"
@@ -153,43 +191,54 @@ export default function PerfilPage() {
                     fill="none"
                     stroke="rgb(43, 238, 121)"
                     strokeWidth="8"
-                    strokeDasharray={`${(profile.avgResponseTime / 60) * 251.2} 251.2`}
+                    strokeDasharray="188.4 251.2"
                     strokeLinecap="round"
                   />
                 </svg>
                 <div className="absolute inset-0 flex items-center justify-center flex-col">
-                  <span className="text-lg font-bold text-primary">{profile.avgResponseTime}</span>
+                  <span className="text-lg font-bold text-primary">15</span>
                   <span className="text-[10px] text-connect-muted">min</span>
                 </div>
               </div>
               <div>
                 <h3 className="text-sm font-bold mb-1">Velocidad de respuesta</h3>
                 <p className="text-xs text-connect-muted">
-                  Responde en promedio en {profile.avgResponseTime} minutos
+                  Responde en promedio en 15 minutos
                 </p>
               </div>
             </div>
 
             {/* Bio e intereses */}
             <div className="space-y-4">
-              <div>
-                <h3 className="text-sm font-bold text-primary mb-2">Sobre mí</h3>
-                <p className="text-connect-muted leading-relaxed">{profile.bio}</p>
-              </div>
-              
-              <div>
-                <h3 className="text-sm font-bold text-primary mb-2">Intereses</h3>
-                <div className="flex flex-wrap gap-2">
-                  {profile.interests.map((interest, index) => (
-                    <span
-                      key={index}
-                      className="px-3 py-1 bg-white/5 border border-white/10 text-white rounded-full text-sm"
-                    >
-                      {interest}
-                    </span>
-                  ))}
+              {profile.cuentanos_algo_tuyo && (
+                <div>
+                  <h3 className="text-sm font-bold text-primary mb-2">Sobre mí</h3>
+                  <p className="text-connect-muted leading-relaxed">{profile.cuentanos_algo_tuyo}</p>
                 </div>
-              </div>
+              )}
+              
+              {profile.intereses && (
+                <div>
+                  <h3 className="text-sm font-bold text-primary mb-2">Intereses</h3>
+                  <p className="text-connect-muted leading-relaxed">{profile.intereses}</p>
+                </div>
+              )}
+              
+              {profile.pasatiempos && profile.pasatiempos.length > 0 && (
+                <div>
+                  <h3 className="text-sm font-bold text-primary mb-2">Pasatiempos</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {profile.pasatiempos.map((hobby: string, index: number) => (
+                      <span
+                        key={index}
+                        className="px-3 py-1 bg-white/5 border border-white/10 text-white rounded-full text-sm"
+                      >
+                        {hobby}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
