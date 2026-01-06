@@ -25,6 +25,10 @@ export default function InicioPage() {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [favoriteSalas, setFavoriteSalas] = useState<string[]>([]);
   
+  // Estado de presencia del usuario
+  const [presenceStatus, setPresenceStatus] = useState<'online' | 'busy' | 'invisible'>('online');
+  const [isPlus, setIsPlus] = useState(false); // TODO: Obtener del backend
+  
   // Estado de verificación
   const [isPhoneVerified, setIsPhoneVerified] = useState(false); // TODO: Obtener del backend
   const [showPhoneModal, setShowPhoneModal] = useState(false);
@@ -551,6 +555,70 @@ export default function InicioPage() {
                     </div>
                   )}
                 </div>
+              </div>
+              
+              {/* Botones de Estado de Presencia */}
+              <div className="mt-4 pt-4 border-t border-white/10">
+                <p className="text-xs text-connect-muted mb-2">Estado de presencia:</p>
+                <div className="flex gap-2">
+                  {/* Online */}
+                  <button
+                    onClick={() => setPresenceStatus('online')}
+                    className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                      presenceStatus === 'online'
+                        ? 'bg-green-500/20 text-green-400 border border-green-500/50'
+                        : 'bg-white/5 text-connect-muted hover:bg-white/10 border border-transparent'
+                    }`}
+                  >
+                    <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                    Online
+                  </button>
+
+                  {/* Ocupado */}
+                  <button
+                    onClick={() => setPresenceStatus('busy')}
+                    className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                      presenceStatus === 'busy'
+                        ? 'bg-orange-500/20 text-orange-400 border border-orange-500/50'
+                        : 'bg-white/5 text-connect-muted hover:bg-white/10 border border-transparent'
+                    }`}
+                  >
+                    <span className="w-2 h-2 rounded-full bg-orange-500"></span>
+                    Ocupado
+                  </button>
+
+                  {/* Invisible - Solo PLUS */}
+                  <button
+                    onClick={() => {
+                      if (!isPlus) {
+                        alert('Necesitas PLUS para usar modo invisible');
+                        return;
+                      }
+                      setPresenceStatus('invisible');
+                    }}
+                    disabled={!isPlus}
+                    className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all relative ${
+                      presenceStatus === 'invisible'
+                        ? 'bg-gray-500/20 text-gray-400 border border-gray-500/50'
+                        : isPlus
+                        ? 'bg-white/5 text-connect-muted hover:bg-white/10 border border-transparent'
+                        : 'bg-white/5 text-connect-muted/50 cursor-not-allowed border border-transparent'
+                    }`}
+                  >
+                    <span className="w-2 h-2 rounded-full bg-gray-500"></span>
+                    Invisible
+                    {!isPlus && (
+                      <span className="ml-1 px-1.5 py-0.5 bg-primary/20 text-primary text-[10px] font-bold rounded">PLUS</span>
+                    )}
+                  </button>
+                </div>
+                
+                {/* Mensaje explicativo según el estado */}
+                <p className="text-xs text-connect-muted mt-2">
+                  {presenceStatus === 'online' && '🟢 Visible para todos'}
+                  {presenceStatus === 'busy' && '🟠 Conectado pero ocupado'}
+                  {presenceStatus === 'invisible' && '⚫ Navegas sin dejar rastro (solo en MP)'}
+                </p>
               </div>
             </div>
 
