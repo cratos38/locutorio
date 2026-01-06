@@ -1,10 +1,21 @@
 # 🌐 Locutorio - Red Social Venezolana
 
-> **Estado del Proyecto**: Frontend completado (100%) | Backend pendiente
-> 
-> **Última actualización**: 19 de diciembre de 2025
-> 
-> **Backup disponible**: [Descargar aquí](https://www.genspark.ai/api/files/s/dW3ZUzhG) (26.8 MB)
+> **Estado del Proyecto**: ✅ Frontend completado (100%) | ⏳ Backend pendiente  
+> **Última actualización**: 2026-01-06  
+> **App en producción**: https://locutorio.com.ve 🚀
+
+---
+
+## 📋 ARCHIVOS DE PLANIFICACIÓN
+
+Este proyecto tiene **4 archivos de planificación** para gestionar el trabajo:
+
+| Archivo | Descripción | Cuándo usarlo |
+|---------|-------------|---------------|
+| **[`RESUMEN.md`](./RESUMEN.md)** | Vista ultra-rápida (1 pantalla) | **Siempre** - Para recordar dónde estás |
+| **[`ESTADO-ACTUAL.md`](./ESTADO-ACTUAL.md)** | Resumen ejecutivo completo | Inicio de sesión, planificación semanal |
+| **[`CHECKLIST-RAPIDO.md`](./CHECKLIST-RAPIDO.md)** | Lista de checkboxes simple | Trabajo diario, marcar tareas ✓ |
+| **[`PLAN_DE_TRABAJO.md`](./PLAN_DE_TRABAJO.md)** | Plan detallado (12 fases) | Planificación profunda, roadmap completo |
 
 ---
 
@@ -16,6 +27,18 @@
 - **Meta de usuarios**: 200,000 registrados
 - **Usuarios activos diarios**: 10,000-15,000 simultáneos
 - **Diferenciador clave**: NO es "otro Facebook" - enfoque en comunidad sobre individualismo
+
+### 📊 Progreso Actual
+
+```
+Proyecto completo:  ████████░░░░░░░░░░░░ 25%
+
+Fase 1 (Frontend):  ████████████████████ 100% ✅ COMPLETADO
+Fase 2 (Completar): ████████░░░░░░░░░░░░  40% 🚧 EN PROGRESO
+Fase 3+ (Backend):  ░░░░░░░░░░░░░░░░░░░░   0% ⏳ PENDIENTE
+```
+
+**Tiempo estimado restante:** 10-14 semanas (3-4 meses)
 
 ---
 
@@ -95,9 +118,11 @@ Ventana flotante completamente funcional con **10 modalidades diferentes**:
 - **Autenticación**: JWT
 
 ### **Infraestructura**
-- **Desarrollo**: Cloudflare Pages
-- **Producción Final**: Tu webhosting contratado
-- **Backup**: NAS personal (para respaldos automáticos)
+- **Producción**: Vercel (https://locutorio.com.ve)
+- **Dominio**: locutorio.com.ve (Donweb DNS)
+- **HTTPS**: Certificado SSL válido ✅
+- **Git**: Deployments automáticos desde GitHub
+- **Hosting futuro**: Por migrar a webhosting contratado (con backend real)
 
 ---
 
@@ -133,20 +158,20 @@ npm run start        # Servidor de producción
 npm run lint         # Verificar código
 ```
 
-### **Con PM2 (para desarrollo en sandbox)**
+### **Ver Archivos de Planificación**
 
 ```bash
-# Iniciar con PM2
-pm2 start ecosystem.config.cjs
+# Vista ultra-rápida (1 pantalla)
+code RESUMEN.md
 
-# Ver logs
-pm2 logs locutorio --nostream
+# Resumen ejecutivo
+code ESTADO-ACTUAL.md
 
-# Reiniciar
-pm2 restart locutorio
+# Checklist de tareas
+code CHECKLIST-RAPIDO.md
 
-# Detener
-pm2 stop locutorio
+# Plan completo (12 fases)
+code PLAN_DE_TRABAJO.md
 ```
 
 ---
@@ -370,30 +395,44 @@ className={`clase-base ${condicion ? 'clase-activa' : 'clase-inactiva'}`}
 
 ## 🚧 Roadmap Futuro
 
-### **Corto Plazo (Próximas 2 semanas)**
-- [ ] Crear página `/amigos`
-- [ ] Identificar y crear páginas 404
-- [ ] Testing exhaustivo de UI
+### **🔥 Inmediato (Esta semana)**
+- [ ] Completar 7 tutoriales pendientes
+- [ ] Crear 8 páginas legales/ayuda (About, Términos, FAQ, etc.)
+
+### **Corto Plazo (Próximas 2-3 semanas)**
+- [ ] Configurar Supabase (backend)
+- [ ] Diseñar schema completo de base de datos
+- [ ] Configurar Storage buckets
 
 ### **Medio Plazo (1-2 meses)**
-- [ ] Implementar backend con Hono
-- [ ] Base de datos Cloudflare D1
-- [ ] API REST completa
-- [ ] WebSocket para chat real-time
+- [ ] Implementar autenticación real (Supabase Auth)
+- [ ] Crear API routes (usuarios, chat, álbumes, etc.)
+- [ ] Conectar frontend con backend
+- [ ] Implementar chat real-time
 
 ### **Largo Plazo (3-6 meses)**
-- [ ] Migración a servidor final
-- [ ] Sistema de autenticación real
-- [ ] Notificaciones push
-- [ ] App móvil (React Native?)
-- [ ] Sistema de bots para testing
+- [ ] Sistema de pagos (PLUS+)
+- [ ] Verificación IA de perfiles
+- [ ] Panel de administración
+- [ ] Testing completo
+- [ ] Beta testing con usuarios reales
+- [ ] Lanzamiento público
+
+**📋 Ver más detalles:** Consulta [`PLAN_DE_TRABAJO.md`](./PLAN_DE_TRABAJO.md) para el roadmap completo de 12 fases.
 
 ---
 
-## 📞 Contacto y Soporte
+## 📞 Contacto y Enlaces
 
+- **App en Producción**: https://locutorio.com.ve 🚀
 - **GitHub**: [cratos38/locutorio](https://github.com/cratos38/locutorio)
-- **Backup del Proyecto**: [Descargar aquí](https://www.genspark.ai/api/files/s/dW3ZUzhG)
+- **Vercel Dashboard**: https://vercel.com/dashboard
+
+### 📂 Archivos de Planificación del Proyecto
+- **Vista rápida**: [`RESUMEN.md`](./RESUMEN.md)
+- **Estado actual**: [`ESTADO-ACTUAL.md`](./ESTADO-ACTUAL.md)
+- **Checklist**: [`CHECKLIST-RAPIDO.md`](./CHECKLIST-RAPIDO.md)
+- **Plan completo**: [`PLAN_DE_TRABAJO.md`](./PLAN_DE_TRABAJO.md)
 
 ---
 
@@ -407,8 +446,10 @@ Este proyecto es privado y propiedad exclusiva del creador. Todos los derechos r
 
 Proyecto desarrollado con dedicación para crear una red social única para la comunidad venezolana.
 
-**Última actualización**: 19 de diciembre de 2025
+**Última actualización**: 2026-01-06
 
 ---
 
 > 💡 **Nota**: Este README será actualizado continuamente conforme avance el desarrollo del proyecto.
+> 
+> 📊 **Progreso actual**: ~25% completado | Frontend ✅ | Backend ⏳
