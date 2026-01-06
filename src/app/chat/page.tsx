@@ -28,6 +28,9 @@ import { useMessages } from "@/contexts/MessagesContext";
 import { useSearchParams } from "next/navigation";
 import FloatingMessagesWindow from "@/components/FloatingMessagesWindow";
 
+// Force dynamic rendering for this page
+export const dynamic = 'force-dynamic';
+
 function ChatRoomsContent() {
   const { openMessages } = useMessages();
   const searchParams = useSearchParams();
