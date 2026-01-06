@@ -399,7 +399,7 @@ export default function FotoAlbumesTutorialPage() {
               <div className="w-full">
                 <h3 className="text-2xl font-bold text-white mb-3">💬 Comentarios en Fotos</h3>
                 <p className="text-connect-muted mb-4">
-                  Puedes comentar en las fotos de los álbumes. Hay dos tipos de comentarios:
+                  Los usuarios pueden comentar en tus fotos. Como dueño del álbum, tú decides la visibilidad de los comentarios.
                 </p>
 
                 <div className="grid md:grid-cols-2 gap-4">
@@ -414,11 +414,11 @@ export default function FotoAlbumesTutorialPage() {
                       <h4 className="font-bold text-white">Comentarios Públicos</h4>
                     </div>
                     <p className="text-sm text-connect-muted mb-3">
-                      Por defecto, tus comentarios son públicos. Todos los que pueden ver la foto pueden leer tu comentario.
+                      <strong>Por defecto:</strong> Todos los comentarios que recibe tu foto son públicos. Cualquier usuario que pueda ver la foto puede leer todos los comentarios.
                     </p>
                     <div className="bg-green-500/10 p-3 rounded-lg border border-green-500/20">
                       <p className="text-xs text-green-400">
-                        ✓ Visibles para todos los usuarios con acceso al álbum
+                        ✓ Los usuarios escriben comentarios y todos los demás pueden leerlos
                       </p>
                     </div>
                   </div>
@@ -434,24 +434,51 @@ export default function FotoAlbumesTutorialPage() {
                       <h4 className="font-bold text-white">Privados (PLUS+) 🔒</h4>
                     </div>
                     <p className="text-sm text-connect-muted mb-3">
-                      Haz clic en "Privado (PLUS+)" antes de enviar. Solo tú verás este comentario. Ideal para notas personales.
+                      <strong>Solo para el dueño con PLUS+:</strong> Si activas esta opción, SOLO TÚ podrás ver todos los comentarios que otros usuarios dejan en tu foto. Los demás usuarios no verán ningún comentario.
                     </p>
                     <div className="bg-orange-500/10 p-3 rounded-lg border border-orange-500/20">
                       <p className="text-xs text-orange-400">
-                        🔒 Solo visible para ti • Aparece con indicador "Privado (solo tú lo ves)"
+                        🔒 Solo el dueño del álbum ve los comentarios de todos • Ideal para feedback privado
                       </p>
                     </div>
                   </div>
                 </div>
 
                 <div className="mt-4 bg-connect-bg-dark p-5 rounded-xl border border-connect-border">
-                  <h4 className="font-bold text-white mb-3">Cómo comentar:</h4>
-                  <div className="space-y-2 text-sm text-connect-muted">
-                    <div>1. Abre la foto en el visualizador</div>
-                    <div>2. Escribe tu comentario en el panel lateral derecho</div>
-                    <div>3. Elige "Público" o "Privado (PLUS+)"</div>
-                    <div>4. Presiona Enter o haz clic en "Enviar"</div>
-                    <div className="text-xs text-primary pt-2">💡 Usa Shift + Enter para escribir varias líneas</div>
+                  <h4 className="font-bold text-white mb-3">Cómo funciona:</h4>
+                  <div className="space-y-3 text-sm">
+                    <div className="bg-connect-bg-dark/50 p-3 rounded-lg border border-connect-border">
+                      <div className="font-bold text-white mb-1">👥 Para comentar (cualquier usuario):</div>
+                      <div className="text-connect-muted">
+                        1. Abre la foto<br/>
+                        2. Escribe tu comentario en el panel lateral<br/>
+                        3. Presiona Enter o haz clic en "Enviar"<br/>
+                        <span className="text-xs text-primary">💡 Usa Shift + Enter para escribir varias líneas</span>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-orange-500/10 p-3 rounded-lg border border-orange-500/20">
+                      <div className="font-bold text-white mb-1">👑 Para el dueño del álbum (PLUS+):</div>
+                      <div className="text-connect-muted">
+                        • <strong>Botón "Público":</strong> Todos ven todos los comentarios (por defecto)<br/>
+                        • <strong>Botón "Privado (PLUS+)":</strong> Solo tú ves los comentarios que otros usuarios escriben<br/>
+                        • Puedes cambiar entre público/privado en cualquier momento
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-4 bg-primary/10 p-4 rounded-xl border border-primary/30">
+                  <div className="flex items-start gap-3">
+                    <svg className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                    </svg>
+                    <div>
+                      <div className="font-bold text-white mb-1">📌 Resumen:</div>
+                      <p className="text-sm text-connect-muted">
+                        Los usuarios comentan libremente en tus fotos. Tú, como dueño, decides si esos comentarios son visibles para todos (público) o solo para ti (privado con PLUS+). Es perfecto para recibir feedback sin que otros lo vean.
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
