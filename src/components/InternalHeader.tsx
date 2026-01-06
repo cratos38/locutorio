@@ -120,6 +120,16 @@ export default function InternalHeader() {
             >
               Encuentros
             </Link>
+            <Link 
+              href="/tutorial" 
+              className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                pathname === '/tutorial' || pathname?.startsWith('/tutorial/') 
+                  ? 'text-primary bg-primary/10' 
+                  : 'text-white hover:text-primary hover:bg-white/5'
+              }`}
+            >
+              Tutoriales
+            </Link>
           </nav>
 
           {/* Actions */}
