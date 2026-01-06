@@ -270,6 +270,11 @@ export default function ChatRoomsPage() {
   useEffect(() => {
     const action = searchParams.get('action');
     if (action === 'create') {
+      // TODO: Cuando implementes autenticación, verificar aquí si hay sesión
+      // if (!isLoggedIn) {
+      //   router.push('/login');
+      //   return;
+      // }
       setShowCreateRoomModal(true);
     }
   }, [searchParams]);
