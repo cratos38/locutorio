@@ -8,6 +8,12 @@ export default function PerfilPage() {
   const params = useParams();
   const username = params.username as string;
 
+  // 🔗 CONEXIÓN CON DASHBOARD
+  // Este perfil muestra datos dinámicos que vienen desde:
+  // 1) statusText: "¿Qué estás pensando?" del Dashboard
+  // 2) presenceStatus: Online/Ocupado/Invisible del Dashboard
+  // TODO: Cuando tengamos backend, obtener de /api/users/[username]
+  
   // Simulando datos del perfil (esto vendría de la base de datos)
   const profile = {
     username: username,
@@ -16,8 +22,16 @@ export default function PerfilPage() {
     city: "Madrid",
     country: "España",
     avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuBcAgJzBVY0VcA1ICIc8GlT1M1eiu5Og95ubTpOa58bFlu9OV7QmjTZH1cbQBwbPhtvFKip_HyKq7atWt0zzANSMDAC_wrJi67kz8SXvn-HnWmPBihZZc3BAfUyEZ7TOAs4LhWokU66QRGD6Lhq2RYxETUZKEeHUzBCVw0BiuXDqP1lYEwLeNcffCadpUuZggEMO_dPmEceKo3MQ6C2rOGG5yHNZlrhQNjpnrQwZB36kSlcM_HfVWyMRoN6UQ6gNvgLzfLeM1B3VVpJ",
+    
+    // 🟢 ESTADO DE PRESENCIA - Conectado desde Dashboard
+    presenceStatus: 'online' as 'online' | 'busy' | 'invisible', // TODO: Obtener del backend
     online: true,
     lastSeen: "En línea",
+    
+    // 💭 ESTADO MENTAL - "¿Qué estás pensando?"
+    // Este campo viene del input del Dashboard donde el usuario escribe su estado actual
+    statusText: "Disfrutando de un café ☕ mientras planeo mis próximos viajes ✈️",
+    
     bio: "Amante de la música, viajes y fotografía. Siempre buscando nuevas aventuras.",
     interests: ["Música", "Viajes", "Fotografía", "Cine", "Deportes"],
     height: "178 cm",
@@ -64,14 +78,44 @@ export default function PerfilPage() {
                     alt={profile.name}
                     className="w-32 h-32 rounded-full object-cover border-4 border-connect-border"
                   />
-                  {profile.online && (
-                    <span className="absolute bottom-2 right-2 w-6 h-6 bg-primary border-4 border-connect-card rounded-full"></span>
+                  {/* Indicador de estado de presencia */}
+                  {profile.presenceStatus !== 'invisible' && (
+                    <span 
+                      className={`absolute bottom-2 right-2 w-6 h-6 border-4 border-connect-card rounded-full ${
+                        profile.presenceStatus === 'online' 
+                          ? 'bg-green-500' 
+                          : profile.presenceStatus === 'busy'
+                          ? 'bg-orange-500'
+                          : 'bg-gray-500'
+                      }`}
+                      title={
+                        profile.presenceStatus === 'online' 
+                          ? 'Online' 
+                          : profile.presenceStatus === 'busy'
+                          ? 'Ocupado'
+                          : 'Offline'
+                      }
+                    ></span>
                   )}
+                  {/* Si está invisible, no se muestra nada (aparece como offline) */}
                 </div>
 
                 <h1 className="text-2xl font-bold font-heading mb-1">{profile.name}</h1>
                 <p className="text-connect-muted mb-2">@{profile.username}</p>
-                <p className="text-sm text-primary mb-4">{profile.lastSeen}</p>
+                {/* Texto de estado según presenceStatus */}
+                <p className="text-sm mb-4">
+                  <span className={`${
+                    profile.presenceStatus === 'online' 
+                      ? 'text-green-500' 
+                      : profile.presenceStatus === 'busy'
+                      ? 'text-orange-500'
+                      : 'text-gray-400'
+                  }`}>
+                    {profile.presenceStatus === 'online' && '🟢 En línea'}
+                    {profile.presenceStatus === 'busy' && '🟠 Ocupado'}
+                    {profile.presenceStatus === 'invisible' && 'Última vez: hace 2 horas'}
+                  </span>
+                </p>
 
                 <div className="flex gap-2 mb-6">
                   <Button className="flex-1 bg-primary hover:brightness-110 text-connect-bg-dark font-bold shadow-[0_0_20px_rgba(43,238,121,0.3)]">
@@ -117,6 +161,26 @@ export default function PerfilPage() {
 
           {/* Right Column - Details */}
           <div className="lg:col-span-2 space-y-6">
+            {/* 💭 Pensando... - Estado actual del usuario */}
+            {profile.statusText && (
+              <div className="bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20 rounded-xl p-6 shadow-lg">
+                <div className="flex items-start gap-3">
+                  <div className="mt-1">
+                    <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                    </svg>
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-sm font-semibold text-primary mb-2 flex items-center gap-2">
+                      Pensando...
+                      <span className="text-xs text-connect-muted font-normal">hace 5 min</span>
+                    </h3>
+                    <p className="text-white leading-relaxed">{profile.statusText}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* About Me */}
             <div className="bg-connect-card border border-connect-border rounded-xl p-6">
               <h2 className="text-xl font-bold font-heading mb-4 flex items-center gap-2">
