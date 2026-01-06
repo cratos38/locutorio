@@ -175,16 +175,47 @@ export default function ChatTutorialPage() {
                       <svg className="w-6 h-6 text-primary" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm2-7h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/>
                       </svg>
-                      <h4 className="font-bold text-white">Sala Permanente</h4>
+                      <h4 className="font-bold text-white flex items-center gap-2">
+                        Sala Permanente
+                        <span className="text-xs bg-primary/20 text-primary px-2 py-0.5 rounded-full">PLUS+</span>
+                      </h4>
                     </div>
                     <p className="text-sm text-connect-muted mb-3">
                       Funciona 24/7, incluso sin ti. Crea una comunidad duradera alrededor de tu tema favorito.
                     </p>
-                    <div className="flex items-center gap-2 text-xs text-primary">
-                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
-                      </svg>
-                      <span>Siempre disponible para todos</span>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 text-xs text-primary">
+                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                        </svg>
+                        <span>Siempre disponible para todos</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs text-orange-400">
+                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                        </svg>
+                        <span>Requiere servicio PLUS+</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs text-orange-400">
+                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
+                        </svg>
+                        <span>Se elimina tras 7 días sin actividad</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-6 bg-orange-500/10 p-4 rounded-xl border border-orange-500/20">
+                  <div className="flex items-start gap-3">
+                    <svg className="w-5 h-5 text-orange-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                    </svg>
+                    <div>
+                      <div className="font-bold text-white mb-1">⚠️ Política de salas permanentes:</div>
+                      <p className="text-sm text-connect-muted">
+                        Las salas permanentes sin actividad durante <strong>7 días consecutivos</strong> serán eliminadas automáticamente. Esto ayuda a mantener el servidor limpio y eficiente. Si una sala tiene al menos un mensaje o un visitante en 7 días, permanece activa.
+                      </p>
                     </div>
                   </div>
                 </div>
