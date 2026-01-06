@@ -19,7 +19,7 @@
  * - PERMANENTE: Solo usuarios PLUS+, persiste después del creador, se elimina si vacía 7+ días
  */
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, Suspense } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
@@ -28,7 +28,7 @@ import { useMessages } from "@/contexts/MessagesContext";
 import { useSearchParams } from "next/navigation";
 import FloatingMessagesWindow from "@/components/FloatingMessagesWindow";
 
-export default function ChatRoomsPage() {
+function ChatRoomsContent() {
   const { openMessages } = useMessages();
   const searchParams = useSearchParams();
   const roomFromUrl = searchParams.get('room');
@@ -1943,5 +1943,13 @@ export default function ChatRoomsPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function ChatRoomsPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-connect-bg-dark flex items-center justify-center"><div className="text-white">Cargando chat...</div></div>}>
+      <ChatRoomsContent />
+    </Suspense>
   );
 }
