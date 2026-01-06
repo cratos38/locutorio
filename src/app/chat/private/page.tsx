@@ -123,95 +123,285 @@
 //    - Si es primera vez con este usuario → SÍ aplica restricción
 //
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// 🚫 SISTEMA DE BLOQUEO Y DENUNCIA (DERECHO BILATERAL)
+// 🚫 SISTEMA DE BLOQUEO EN MENSAJES PRIVADOS (MP)
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //
-// ⚠️ IMPORTANTE: Tanto el sender como el receiver pueden bloquear o denunciar
-//    en cualquier momento, independiente de quién inició la conversación.
-//    Es un derecho BILATERAL (ambos tienen los mismos derechos).
+// ⚠️ IMPORTANTE: MP es un espacio PRIVADO. Nadie tiene obligación de hablar contigo.
+//    Si alguien te bloquea, es su derecho a la privacidad.
 //
-// BLOQUEAR USUARIO:
-// ----------------
-// Disponible para: TODOS (ambas partes de la conversación)
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// BLOQUEAR USUARIO EN MP (Derecho bilateral pero asimétrico):
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//
+// Disponible para: TODOS (cualquiera puede bloquear a cualquiera)
+//
+// Ubicación del botón:
+//   - En la ventana de MP, lado derecho
+//   - Lista de todas las personas con las que has hablado
+//   - La persona seleccionada muestra toda la conversación
+//   - Botón "🚫 Bloquear" visible en la conversación
 //
 // Acciones:
-//   - Botón "🚫 Bloquear" en la conversación
-//   - Confirmación: "¿Bloquear a [username]?"
-//   - Opciones: [Bloquear] [Cancelar]
+//   - Click en "🚫 Bloquear"
+//   - Confirmación simple: "¿Confirmar bloqueo?"
+//   - [Confirmar] [Cancelar]
+//   - ⚠️ NO se necesita explicar por qué bloqueas
 //
-// Efectos del bloqueo:
+// Efectos del bloqueo (ASIMÉTRICO):
+//
 //   1. Usuario bloqueado NO puede:
-//      - Enviarte más mensajes
-//      - Ver tus fotos privadas
-//      - Ver tu estado (apareces como "Usuario no disponible")
-//      - Verte en búsquedas
-//   2. Tú (quien bloquea) NO puedes:
-//      - Enviarle mensajes al bloqueado
-//      - Ver su perfil
-//      - Ver sus fotos
-//   3. Conversación existente:
-//      - Se oculta para ambos
-//      - Historial se guarda (recuperable si desbloqueas)
+//      ❌ Enviarte mensajes privados (MP)
+//      ✅ VER tu perfil (puede visitar)
+//      ✅ VER tus fotos públicas (puede ver)
+//      ✅ HABLAR en chat público contigo (puede hablar)
+//      ✅ VERTE online/offline (ve tu estado)
+//
+//   2. Tú (quien bloqueó) SÍ puedes:
+//      ✅ Ver su perfil
+//      ✅ Ver sus fotos
+//      ✅ Hablar en chat público con él
+//      ✅ ENVIARLE MP si quieres (bloqueo es de un solo lado)
+//
+//   3. Si intentan enviarte MP:
+//      - Mensaje: "No se puede enviar. El destinatario no desea recibir mensajes de ti"
+//      - O: "Usuario te tiene bloqueado"
+//
+// ⚠️ CRÍTICO: El bloqueo es UNILATERAL
+//   - Si Juan bloquea a María → María NO puede escribir a Juan
+//   - Pero Juan SÍ puede escribir a María (si quiere)
+//   - María SÍ puede ver perfil de Juan, hablar en chat público, etc.
+//   - Solo está bloqueada para ENVIAR MP a Juan
 //
 // Desbloquear:
 //   - Ir a Configuración → Usuarios bloqueados
-//   - Lista completa de bloqueados
+//   - Lista completa de usuarios que TÚ bloqueaste
 //   - Botón "Desbloquear" por cada usuario
-//   - Al desbloquear: conversación vuelve a estar disponible
+//   - Al desbloquear: esa persona puede enviarte MP de nuevo
 //
-// DENUNCIAR USUARIO:
+// ⚠️ IMPORTANTE: Bloqueo en MP es PERMANENTE (hasta que desbloquees)
+//   - NO se puede protestar
+//   - NO hay revisión por moderadores
+//   - Es un derecho a la privacidad
+//   - Si quieres hablar con alguien bloqueado, TÚ puedes desbloquear
+//
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ⚠️ SISTEMA DE DENUNCIA EN MENSAJES PRIVADOS (MP)
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//
+// ⚠️ MUY IMPORTANTE: Denunciar es SERIO. Es como denunciar en la vida real.
+//    Denunciar por motivos falsos se llama INFAMIA y puedes ser baneado TÚ.
+//
+// ¿Cuándo denunciar?
 // -----------------
-// Disponible para: TODOS (ambas partes de la conversación)
+// ✅ Denunciar SI el usuario:
+//   - Envía contenido sexual explícito sin consentimiento
+//   - Acosa o amenaza
+//   - Suplanta identidad
+//   - Solicita dinero / estafa
+//   - Envía spam repetitivo
+//   - Usa lenguaje discriminatorio (racismo, homofobia, etc.)
 //
-// Motivos de denuncia:
+// ❌ NO denunciar si:
+//   - El usuario te dice "eres guapa" o "me gustas" (puedes bloquearlo, no denunciar)
+//   - No te gusta la conversación (usa bloquear, no denunciar)
+//   - Te bloqueó primero y te ofendiste (esto es INFAMIA, serás baneado TÚ)
+//   - Simplemente no quieres hablar (usa bloquear)
+//
+// Motivos válidos de denuncia:
+// ---------------------------
 //   1. Spam
-//   2. Acoso
-//   3. Contenido inapropiado (fotos, mensajes)
+//   2. Acoso / Amenazas
+//   3. Contenido sexual explícito no solicitado
 //   4. Suplantación de identidad
-//   5. Lenguaje ofensivo
-//   6. Solicitud de dinero / estafa
-//   7. Otro (describir)
+//   5. Lenguaje discriminatorio (racismo, sexismo, homofobia)
+//   6. Solicitud de dinero / Estafa
+//   7. Otro (con descripción obligatoria)
 //
 // Proceso de denuncia:
+// -------------------
 //   1. Botón "⚠️ Denunciar" en la conversación
-//   2. Modal con opciones de motivo
-//   3. Campo de texto opcional: "Describe el problema"
-//   4. Checkbox: "¿Deseas también bloquear a este usuario?"
-//   5. Botón: [Enviar denuncia] [Cancelar]
+//   2. Modal con lista de motivos
+//   3. Seleccionar motivo (obligatorio)
+//   4. Campo de texto: "Describe el problema" (obligatorio)
+//   5. Checkbox: "¿Deseas también bloquear a este usuario?" (opcional)
+//   6. Advertencia: "Las denuncias falsas pueden resultar en ban de tu cuenta"
+//   7. Botones: [Enviar denuncia] [Cancelar]
 //
 // Efectos de la denuncia:
-//   - Denuncia se envía a moderadores
-//   - Conversación se marca para revisión
+// ----------------------
+//   - Denuncia se envía a moderadores (robot + humanos)
+//   - Conversación completa se guarda para revisión
+//   - Usuario denunciado RECIBE NOTIFICACIÓN ⚠️ (tiene derecho a saber)
+//   - Notificación incluye:
+//     * "Has sido denunciado en mensajes privados"
+//     * Motivo de la denuncia
+//     * Puede responder y defenderse
 //   - Si seleccionaste bloquear: bloqueo inmediato
-//   - Usuario denunciado NO recibe notificación
-//   - Acumulación de denuncias:
-//     * 1-2 denuncias: revisión manual
-//     * 3-4 denuncias: advertencia al usuario
-//     * 5+ denuncias: suspensión temporal (24-48h)
-//     * 10+ denuncias: ban permanente
-//
-// Protección contra denuncias falsas:
-//   - Sistema detecta patrones de denuncias falsas
-//   - Si denuncias frecuentemente sin motivo:
-//     * Tu cuenta puede ser revisada
-//     * Tus denuncias tienen menos peso
-//     * Puedes recibir advertencia
 //
 // Revisión de denuncias (moderadores):
-//   - Panel de moderación
-//   - Lista de denuncias pendientes
-//   - Ver conversación completa
-//   - Ver fotos compartidas
-//   - Ver historial del usuario denunciado
-//   - Acciones:
-//     * Aprobar denuncia → advertir o banear usuario
-//     * Rechazar denuncia → marcar como falsa
-//     * Pedir más información
+// -----------------------------------
+//   - Robot analiza primero (palabras clave, imágenes)
+//   - Si robot detecta violación clara → acción automática
+//   - Si no es claro → revisión manual (24-48h)
+//   - Moderadores ven:
+//     * Conversación completa
+//     * Historial del denunciado (denuncias previas)
+//     * Historial del denunciante (si denuncia mucho)
+//   
+//   Decisiones posibles:
+//     * Aprobar denuncia → advertir o banear denunciado
+//     * Rechazar denuncia → denunciante recibe advertencia por denuncia falsa
+//     * Banear denunciante → si es infamia evidente (ej: denunciar porque te bloquearon)
 //
-// Ejemplos de uso:
-//   - Juan bloquea a María → María no puede contactarlo más
-//   - María denuncia a Juan → Moderadores revisan, Juan puede ser advertido/baneado
-//   - Ambos se bloquean mutuamente → Ninguno puede contactar al otro
+// Protección contra denuncias falsas:
+// -----------------------------------
+//   - Sistema detecta patrones de denuncias falsas
+//   - Si denuncias frecuentemente sin motivo:
+//     * Recibes advertencia por abuso del sistema
+//     * Tus denuncias tienen menos peso (revisión más estricta)
+//     * Puedes ser baneado temporalmente
+//     * En casos graves: ban permanente
+//     * En casos muy graves: denuncia a la policía (por infamia/difamación)
+//
+// Acumulación de denuncias recibidas:
+// -----------------------------------
+//   1-2 denuncias: Revisión manual
+//   3 denuncias: Advertencia al usuario + revisión
+//   5 denuncias: Suspensión temporal (24h) + revisión exhaustiva
+//   10+ denuncias: Ban permanente (si se confirman)
+//
+// Derecho a defensa:
+// -----------------
+//   - Usuario denunciado SIEMPRE recibe notificación
+//   - Puede ver el motivo de la denuncia
+//   - Puede responder y explicar su versión
+//   - Puede demostrar que es mentira
+//   - Moderadores revisan AMBAS versiones
+//
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// DIFERENCIA: MP vs CHAT PÚBLICO
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//
+// ¿Por qué MP y Chat son tan diferentes?
+//
+// MENSAJES PRIVADOS (MP):
+// ----------------------
+// - Es un espacio PRIVADO
+// - Nadie tiene obligación de hablar contigo
+// - Si envías mensaje sin que te pidan, rompes su privacidad
+// - Por eso el mensaje debe ser aceptado
+// - Si te bloquean, no puedes protestar (es su derecho)
+// - Bloqueo es permanente hasta que la persona desbloquee
+// - Razón: Privacidad personal
+//
+// CHAT PÚBLICO:
+// ------------
+// - Es un espacio PÚBLICO
+// - Si entras, es lógico que todos tienen derecho a hablarte
+// - Si no quieres que te hablen, no entres en sala pública
+// - NO se puede bloquear individualmente en sala
+// - Sistema de denuncia colectivo: 10 denuncias únicas → bloqueo automático
+// - Bloqueos temporales: 1h → 10h → 24h (escala)
+// - Puedes protestar y explicar al admin
+// - Razón: Espacio público compartido
+//
+// Ejemplo de INFAMIA (denuncia falsa):
+// ------------------------------------
+// ❌ MAL:
+//   1. Juan bloquea a María en MP (su derecho a privacidad)
+//   2. María se ofende: "¡Te voy a enseñar, pendejo, a quién vas a bloquear!"
+//   3. María denuncia a Juan por "acoso"
+//   4. Moderador revisa: Juan solo ejerció su derecho a bloquear
+//   5. RESULTADO: María recibe advertencia por infamia
+//   6. Si María repite: María es baneada
+//
+// ✅ BIEN:
+//   1. Juan bloquea a María
+//   2. María piensa: "Ok, no quiere hablar conmigo"
+//   3. María sigue con su vida
+//   4. Fin
+//
+// ⚠️ Frontera legal:
+//   - Denunciar falsamente puede ser difamación
+//   - En casos graves: la plataforma puede denunciarte a la policía
+//   - Cada cosa tiene sus fronteras legales
+//
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 📢 SISTEMA DE DENUNCIA EN CHAT PÚBLICO (DIFERENTE A MP)
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//
+// ⚠️ NOTA: Esta sección documenta el chat público para comparación.
+//    El sistema es COMPLETAMENTE DIFERENTE a MP.
+//
+// En chat público NO se puede bloquear individualmente:
+// ----------------------------------------------------
+// - Chat público es espacio compartido
+// - Si no cumple reglamento → denuncia colectiva
+// - NO puedes bloquear a alguien solo para ti
+// - Razón: Si está en sala, todos lo ven o nadie lo ve
+//
+// Sistema de denuncias colectivas en chat público:
+// -----------------------------------------------
+//   - Requiere 10 denuncias de USUARIOS ÚNICOS
+//   - Es decir: 10 users DIFERENTES denuncian al mismo usuario
+//   - Esto activa BLOQUEO AUTOMÁTICO
+//
+// Efectos del bloqueo en chat público:
+// -----------------------------------
+//   1. Primera vez (10 denuncias):
+//      - Bloqueado por 1 HORA
+//      - Puede estar en sala
+//      - Puede leer mensajes
+//      - NO puede escribir mensajes
+//
+//   2. Segunda vez (después de 1h, otras 10 denuncias):
+//      - Bloqueado por 10 HORAS
+//      - Mismo efecto: puede leer, no escribir
+//
+//   3. Tercera vez (después de 10h, otras 10 denuncias):
+//      - Bloqueado por 24 HORAS
+//      - Mismo efecto: puede leer, no escribir
+//
+//   4. Si continúa: revisión manual y posible ban permanente
+//
+// Derecho a protesta en chat público:
+// ----------------------------------
+//   ✅ Puedes protestar
+//   ✅ Puedes enviar mensaje al admin
+//   ✅ Puedes explicar que es mentira
+//   ✅ Puedes demostrar que mensajes no eran contra reglas
+//   
+//   Razón: 10 denuncias son ban automático sin revisión inicial.
+//   A veces hay gente maliciosa que hace denuncias falsas en grupo.
+//
+// Protección contra denuncias maliciosas en chat:
+// ----------------------------------------------
+//   - Admin revisa el caso cuando protestas
+//   - Ve conversación completa
+//   - Si denuncias eran falsas:
+//     * Usuarios que denunciaron falsamente reciben advertencia
+//     * En casos graves: ban a los denunciantes
+//   - Si denuncias eran justificadas:
+//     * Bloqueo se mantiene o se extiende
+//
+// ¿Por qué 10 denuncias en chat público?
+// -------------------------------------
+//   - Para evitar abuso de una sola persona
+//   - Requiere consenso de múltiples usuarios
+//   - Protege de vendetas personales
+//   - Permite respuesta rápida ante problemas reales
+//
+// RESUMEN: MP vs CHAT PÚBLICO
+// ---------------------------
+//
+// | Aspecto | MP (Privado) | Chat (Público) |
+// |---------|--------------|----------------|
+// | Bloqueo individual | ✅ Sí | ❌ No |
+// | Bloqueo automático | ❌ No | ✅ Sí (10 denuncias) |
+// | Derecho a protesta | ❌ No | ✅ Sí |
+// | Permanencia bloqueo | Hasta desbloquear | Temporal (1h/10h/24h) |
+// | Notificación al denunciado | ✅ Sí | ✅ Sí (pero después) |
+// | Revisión humana inicial | ✅ Sí | ❌ No (automático) |
 //
 // Definiciones:
 //   - "NUEVA CONVERSACIÓN": Primer MP a alguien con quien NUNCA hablaste
