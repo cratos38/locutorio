@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { useParams, useRouter } from "next/navigation";
 import InternalHeader from "@/components/InternalHeader";
 
+export const runtime = 'edge';
+
 export default function AlbumDetailPage() {
   const params = useParams();
   const router = useRouter();

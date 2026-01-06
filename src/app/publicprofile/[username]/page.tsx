@@ -4,6 +4,8 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
+export const runtime = 'edge';
+
 export default function PerfilPage() {
   const params = useParams();
   const username = params.username as string;
