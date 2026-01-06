@@ -1,5 +1,150 @@
 'use client'
 
+// ====================================================================
+// PÁGINA DE SEGURIDAD Y VERIFICACIONES - DOCUMENTACIÓN COMPLETA
+// ====================================================================
+//
+// Esta página maneja:
+// 1. Verificación de teléfono (WhatsApp/Telegram)
+// 2. Verificación de identidad con ID (cédula/DNI/pasaporte)
+// 3. Seguridad de la cuenta (cambio de contraseña, sesiones, etc.)
+//
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 📱 VERIFICACIÓN DE TELÉFONO (WhatsApp/Telegram)
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//
+// CUÁNDO SE HACE:
+//   • Después de verificar email
+//   • Opcional pero recomendada
+//   • Banner en dashboard: "¿Quieres ganar 30 días gratis de PLUS? Verifica tu teléfono"
+//
+// OPCIONES:
+//   1. WhatsApp
+//   2. Telegram
+//
+// PROCESO (TODO: Implementar PhoneVerificationModal.tsx):
+// -------------------------------------------------------
+// 1. Usuario hace click en "Verificar teléfono con WhatsApp" o "Telegram"
+// 2. Se abre PhoneVerificationModal:
+//    • Dropdown de código de país (+58, +1, +34, etc.)
+//    • Input de número de teléfono
+//    • Botón "Enviar código"
+// 3. Backend (POST /api/auth/verify-phone/send-code):
+//    • Formatear número completo: +58 412 1234567
+//    • Generar código de 6 dígitos
+//    • Guardar en tabla verification_codes:
+//      {
+//        id: uuid,
+//        user_id: uuid (del JWT),
+//        code: string (encriptado),
+//        type: 'phone',
+//        phone_number: string,
+//        method: 'whatsapp' | 'telegram',
+//        expires_at: NOW() + 60 segundos,
+//        attempts: 0
+//      }
+//    • Enviar código por WhatsApp o Telegram (API externa)
+// 4. Frontend muestra input de código:
+//    • Input de 6 dígitos
+//    • Temporizador: 60 segundos
+//    • Botón "Verificar"
+//    • Botón "Reenviar código" (habilitado después de 60s)
+// 5. Verificación (POST /api/auth/verify-phone/confirm-code):
+//    • Validar código
+//    • Validar que no expiró (60s)
+//    • Validar attempts < 3
+//    • Si correcto:
+//      - Actualizar users.phone_verified = true
+//      - Actualizar users.phone_number = phone
+//      - 🎁 Otorgar 30 días de PLUS gratis
+//      - Cerrar modal
+//    • Si incorrecto:
+//      - Incrementar attempts
+//      - Mostrar error
+//
+// BENEFICIOS AL VERIFICAR TELÉFONO:
+//   ✅ Se eliminan límites de mensajes en chat
+//   ✅ Puede iniciar conversaciones nuevas (MP)
+//   ⚠️ Límite: Máximo 10 nuevos usuarios/día para primer MP
+//   ✅ Mensajes ilimitados con usuarios con los que ya se comunica
+//   ✅ Puede crear salas TEMPORALES
+//   ✅ Se otorgan 30 días de PLUS gratis
+//
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 🆔 VERIFICACIÓN DE IDENTIDAD CON ID
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//
+// ⚠️ IMPORTANTE:
+// Verificación de ID NO requiere PLUS.
+// DISPONIBLE PARA TODOS los usuarios.
+// AL CONTRARIO: Verificando tu ID obtienes PLUS gratis.
+//
+// QUÉ ES:
+//   • Usuario sube foto de su cédula/DNI/pasaporte
+//   • Se compara la foto del documento con la foto de perfil
+//   • Usa IA para verificar que es la misma persona
+//   • NO expone el nombre real del usuario
+//   • Solo confirma: "Esta persona es real y su edad es correcta"
+//
+// BENEFICIOS:
+//   • Badge de "Verificado Real" (✓) en el perfil
+//   • 🎁 30 días de PLUS gratis
+//   • Mayor confianza de otros usuarios
+//
+// PROCESO (TODO: Implementar):
+// ---------------------------
+// 1. Usuario hace click en "Verificar mi identidad"
+// 2. Se abre modal/página de verificación:
+//    • Instrucciones claras
+//    • Ejemplo de foto aceptada
+//    • Input para subir foto de documento (cédula/DNI/pasaporte)
+//    • Input para subir selfie sosteniendo el documento
+// 3. Backend (POST /api/auth/verify-id):
+//    • Validar que ambas fotos existen
+//    • Subir a Supabase Storage: bucket 'id-verification'
+//    • Llamar a API de verificación facial (AWS Rekognition, Azure Face API)
+//    • Comparar:
+//      - Foto de perfil del usuario
+//      - Foto del documento
+//      - Selfie con documento
+//    • Extraer fecha de nacimiento del documento
+//    • Comparar con fecha de nacimiento registrada
+//    • Si todo coincide (match >= 90%):
+//      - Actualizar users.id_verified = true
+//      - Actualizar users.age_verified = true
+//      - 🎁 Otorgar 30 días de PLUS gratis
+//      - Crear registro en tabla id_verifications:
+//        {
+//          id: uuid,
+//          user_id: uuid,
+//          status: 'approved',
+//          verified_at: timestamp,
+//          match_score: float
+//        }
+//    • Si no coincide:
+//      - status: 'rejected'
+//      - Mostrar: "La verificación falló. Por favor intenta de nuevo"
+// 4. Tiempo de verificación:
+//    • Automática (IA): 1-5 minutos
+//    • Si requiere revisión manual: 24-48 horas
+// 5. Después de verificar:
+//    • Badge "✓ Verificado" aparece en:
+//      - Foto de perfil
+//      - Perfil público
+//      - Búsquedas
+//    • Notificación: "Tu perfil ha sido verificado"
+//
+// QUÉ PASA SI SE RECHAZA:
+//   • Mensaje: "No pudimos verificar tu identidad. Asegúrate de que:"
+//     - La foto del documento sea clara
+//     - La fecha de nacimiento coincida
+//     - La foto de perfil muestre tu cara claramente
+//   • Puede intentar de nuevo (máximo 3 intentos por mes)
+//
+// ====================================================================
+// FIN DE LA DOCUMENTACIÓN - security/page.tsx
+// ====================================================================
+
 import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'

@@ -151,7 +151,8 @@ async function resizeImage(file: File, maxWidth: number = 400): Promise<File> {
 //   - Cara claramente visible (50%+)
 //   - Centrada en el cuadro
 //   - Sin filtros excesivos
-// • Puede subir hasta 6 fotos
+// • Puede subir TODAS las fotos que quiera (SIN LÍMITE)
+// • ⚠️ IMPORTANTE: Eliminado el límite de 6 fotos de perfil
 // • Marca una como "principal" (⭐)
 // • Todas quedan en estado "pendiente" hasta aprobación
 //
@@ -273,220 +274,14 @@ async function resizeImage(file: File, maxWidth: number = 400): Promise<File> {
 //    → Puede solicitar reenvío de código
 //
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// 📱 FASE 4: VERIFICACIÓN DE TELÉFONO (OPCIONAL pero recomendada)
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ✅ SIGUIENTE PASO: VERIFICACIÓN DE TELÉFONO
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //
-// ⚠️ IMPORTANTE: La verificación de teléfono NO se hace en esta página
+// ⚠️ La verificación de teléfono NO se hace en esta página.
 // Se hace DESPUÉS de verificar email, en:
-//   - /dashboard (banner/notificación)
 //   - /security (sección "Verificación de teléfono")
-//   - /userprofile (pestaña "Seguridad")
-//
-// CUÁNDO SE VERIFICA:
-//   • NO es obligatorio inmediatamente después del email
-//   • Se puede hacer en cualquier momento
-//   • Banner en dashboard: "¿Quieres ganar 30 días gratis de PLUS? Verifica tu teléfono"
-//
-// OPCIONES DE VERIFICACIÓN:
-//   1. WhatsApp
-//   2. Telegram
-//
-// PROCESO (TODO: Crear componente PhoneVerificationModal.tsx):
-// -----------------------------------------------------------
-// 1. Usuario hace click en "Verificar teléfono con WhatsApp" o "Telegram"
-// 2. Se abre PhoneVerificationModal:
-//    • Dropdown de código de país (+58, +1, +34, etc.)
-//    • Input de número de teléfono
-//    • Botón "Enviar código"
-// 3. Backend (POST /api/auth/verify-phone/send-code):
-//    • Formatear número completo: +58 412 1234567
-//    • Generar código de 6 dígitos
-//    • Guardar en tabla verification_codes:
-//      {
-//        id: uuid,
-//        user_id: uuid (del JWT),
-//        code: string (encriptado),
-//        type: 'phone',
-//        phone_number: string,
-//        method: 'whatsapp' | 'telegram',
-//        expires_at: NOW() + 60 segundos,
-//        attempts: 0
-//      }
-//    • Enviar código por WhatsApp o Telegram (API externa)
-// 4. Frontend muestra input de código:
-//    • Input de 6 dígitos
-//    • Temporizador: 60 segundos
-//    • Botón "Verificar"
-//    • Botón "Reenviar código" (habilitado después de 60s)
-// 5. Verificación (POST /api/auth/verify-phone/confirm-code):
-//    • Validar código
-//    • Validar que no expiró (60s)
-//    • Validar attempts < 3
-//    • Si correcto:
-//      - Actualizar users.phone_verified = true
-//      - Actualizar users.phone_number = phone
-//      - 🎁 Otorgar 30 días de PLUS gratis
-//      - Cerrar modal
-//    • Si incorrecto:
-//      - Incrementar attempts
-//      - Mostrar error
-//
-// DIFERENCIA CON EMAIL:
-//   • El modal de teléfono SÍ se puede cerrar (tiene X)
-//   • Si el usuario cierra el modal, puede verificar después
-//   • Mientras no verifique, tiene restricciones (ver FASE 6)
-//
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// 🆔 FASE 5: VERIFICACIÓN DE IDENTIDAD (ID) - OPCIONAL
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//
-// ⚠️ CORRECCIÓN IMPORTANTE:
-// Verificación de ID NO requiere PLUS.
-// AL CONTRARIO: Verificando tu ID obtienes PLUS gratis.
-// DISPONIBLE PARA TODOS los usuarios.
-//
-// UBICACIÓN: /security → sección "Verificación de identidad"
-//
-// QUÉ ES:
-//   • Usuario sube foto de su cédula/DNI/pasaporte
-//   • Se compara la foto del documento con la foto de perfil
-//   • Usa IA para verificar que es la misma persona
-//   • NO expone el nombre real del usuario
-//   • Solo confirma: "Esta persona es real y su edad es correcta"
-//
-// BENEFICIOS:
-//   • Badge de "Verificado Real" (✓) en el perfil
-//   • 🎁 30 días de PLUS gratis
-//   • Mayor confianza de otros usuarios
-//
-// PROCESO (TODO: Implementar en /security):
-// ----------------------------------------
-// 1. Usuario hace click en "Verificar mi identidad"
-// 2. Se abre modal/página de verificación:
-//    • Instrucciones claras
-//    • Ejemplo de foto aceptada
-//    • Input para subir foto de documento (cédula/DNI/pasaporte)
-//    • Input para subir selfie sosteniendo el documento
-// 3. Backend (POST /api/auth/verify-id):
-//    • Validar que ambas fotos existen
-//    • Subir a Supabase Storage: bucket 'id-verification'
-//    • Llamar a API de verificación facial (AWS Rekognition, Azure Face API)
-//    • Comparar:
-//      - Foto de perfil del usuario
-//      - Foto del documento
-//      - Selfie con documento
-//    • Extraer fecha de nacimiento del documento
-//    • Comparar con fecha de nacimiento registrada
-//    • Si todo coincide (match >= 90%):
-//      - Actualizar users.id_verified = true
-//      - Actualizar users.age_verified = true
-//      - 🎁 Otorgar 30 días de PLUS gratis
-//      - Crear registro en tabla id_verifications:
-//        {
-//          id: uuid,
-//          user_id: uuid,
-//          status: 'approved',
-//          verified_at: timestamp,
-//          match_score: float
-//        }
-//    • Si no coincide:
-//      - status: 'rejected'
-//      - Mostrar: "La verificación falló. Por favor intenta de nuevo"
-// 4. Tiempo de verificación:
-//    • Automática (IA): 1-5 minutos
-//    • Si requiere revisión manual: 24-48 horas
-// 5. Después de verificar:
-//    • Badge "✓ Verificado" aparece en:
-//      - Foto de perfil
-//      - Perfil público
-//      - Búsquedas
-//    • Notificación: "Tu perfil ha sido verificado"
-//
-// QUÉ PASA SI SE RECHAZA:
-//   • Mensaje: "No pudimos verificar tu identidad. Asegúrate de que:"
-//     - La foto del documento sea clara
-//     - La fecha de nacimiento coincida
-//     - La foto de perfil muestre tu cara claramente
-//   • Puede intentar de nuevo (máximo 3 intentos por mes)
-//
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// 🎁 FASE 6: BONIFICACIONES PLUS
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//
-// TABLA DE BONIFICACIONES:
-// -----------------------
-// ┌─────────────────────────────────────────┬──────────────────────┐
-// │ Acción                                  │ Bonificación         │
-// ├─────────────────────────────────────────┼──────────────────────┤
-// │ Completar perfil al menos 70%          │ 10 días gratis PLUS  │
-// │ Establecer foto de perfil real         │ 10 días gratis PLUS  │
-// │ Subir al menos 3 fotos                 │ 10 días gratis PLUS  │
-// │ Verificar email                        │ OBLIGATORIO (sin $)  │
-// │ Verificar teléfono (WhatsApp/Telegram) │ 30 días gratis PLUS  │
-// │ Validar identidad con ID               │ 30 días gratis PLUS  │
-// │ Por cada amigo invitado registrado     │ 10 días PLUS         │
-// ├─────────────────────────────────────────┼──────────────────────┤
-// │ TOTAL ACUMULABLE                       │ Hasta 90 días (3 m)  │
-// └─────────────────────────────────────────┴──────────────────────┘
-//
-// ⚠️ LO QUE PLUS **NO** INCLUYE:
-// -------------------------------
-//   ❌ NO hay límites diferentes de mensajes en chat (igual para todos con teléfono verificado)
-//   ❌ NO hay límites diferentes de MP (10 nuevos usuarios/día para TODOS)
-//   ❌ NO existen comentarios privados en fotos (todos son públicos)
-//   ❌ NO hay perfil destacado en búsquedas (búsqueda por filtros, no por orden)
-//   ❌ NO hay límite de álbumes (ilimitado para TODOS)
-//   ❌ NO hay límite de fotos por álbum (ilimitado para TODOS)
-//   ❌ NO hay prioridad en verificación de ID (todos iguales)
-//
-// ✅ LO QUE PLUS **SÍ** INCLUYE:
-// -------------------------------
-//   ✅ Salas de Chat Permanentes (vs solo temporales)
-//   ✅ Ver quién visitó tu perfil (sin PLUS no puedes ver quién)
-//   ✅ Ver quién visitó tus álbumes (sin PLUS no puedes ver quién)
-//   ✅ Ver quién te envió encuentro (sin PLUS no puedes ver quién)
-//   ✅ Ocultar comentarios públicos en tus fotos (sin PLUS siempre visibles)
-//   ✅ Sin publicidad
-//   ✅ Modo invisible
-//   ✅ Estadísticas avanzadas
-//
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// 🚫 FASE 7: RESTRICCIONES SIN VERIFICACIÓN
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//
-// SI NO VERIFICASTE EMAIL:
-// -----------------------
-// ❌ BLOQUEO TOTAL hasta verificar
-// ❌ No puedes acceder a ninguna función
-// ❌ Solo ves el modal de verificación
-//
-// SI NO VERIFICASTE TELÉFONO:
-// --------------------------
-// ⚠️ Límites de mensajes en CHAT (todas las salas combinadas):
-//   • Semana 1: 100 mensajes/día en TODAS las salas
-//   • Semana 2: 50 mensajes/día en TODAS las salas
-//   • Semana 3: 20 mensajes/día en TODAS las salas
-//   • Semana 4+: 10 mensajes/día en TODAS las salas
-//
-// ⚠️ Límites de Mensajes Privados (MP):
-//   • ❌ NO puede iniciar conversaciones nuevas (enviar primer MP)
-//   • ✅ SÍ puede responder si alguien le escribe primero
-//   • ✅ Mensajes ilimitados con usuarios con los que ya se comunica
-//
-// Motivación: Evitar spam y cuentas falsas
-//
-// AL VERIFICAR TELÉFONO (con o sin PLUS):
-// ---------------------------------------
-//   ✅ Se eliminan límites de mensajes en chat
-//   ✅ Puede iniciar conversaciones nuevas (MP)
-//   ⚠️ Límite: Máximo 10 nuevos usuarios/día para primer MP
-//      Ejemplo: Si envías 1 mensaje a Juan → puedes enviar primer mensaje a 9 personas más
-//      Ejemplo: Si envías 3 mensajes a Pedro → puedes enviar primer mensaje a 9 personas más
-//   ✅ Mensajes ilimitados con usuarios con los que ya se comunica
-//   ✅ Puede crear salas TEMPORALES
-//   ✅ Se otorgan 30 días de PLUS gratis
-//
-// ⚠️ IMPORTANTE: El límite de "10 nuevos usuarios/día" aplica a TODOS (con y sin PLUS)
+//   - Ver documentación completa en: src/app/security/page.tsx
 //
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // 🔧 MODO EDICIÓN (editMode=true)
