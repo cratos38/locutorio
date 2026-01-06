@@ -300,7 +300,8 @@ La diferencia es CONCEPTUAL, pero el flujo es el mismo:
 ### Beneficio:
 - Badge de "Verificado Real" (✓) en el perfil
 - 30 días de PLUS gratis
-- **Requisito para ciertas funciones PLUS**
+- **DISPONIBLE PARA TODOS** (no requiere PLUS)
+- **AL CONTRARIO:** Verificando tu ID obtienes PLUS gratis
 
 ### Proceso:
 
@@ -377,13 +378,13 @@ La diferencia es CONCEPTUAL, pero el flujo es el mismo:
    - Usuarios normales: Solo salas TEMPORALES (desaparecen al salir)
    - PLUS: Puede crear salas PERMANENTES que persisten
 
-2. **Sin límites de mensajes:**
-   - Usuarios normales: Límites diarios (ver sección 6)
-   - PLUS: Mensajes ilimitados
+2. **Más mensajes permitidos:**
+   - Usuarios normales: Límites escalonados si NO verifican teléfono
+   - PLUS: Límites más generosos (pero NO ilimitados)
 
-3. **Mensajes Privados ilimitados:**
+3. **Mensajes Privados:**
    - Usuarios normales: Límite de 10 MP por día
-   - PLUS: MP ilimitados
+   - PLUS: Límite más alto (ej: 50 MP por día)
 
 4. **Comentarios privados en fotos:**
    - Usuarios normales: Solo comentarios públicos
@@ -411,8 +412,8 @@ La diferencia es CONCEPTUAL, pero el flujo es el mismo:
 10. **Modo invisible:**
     - PLUS puede navegar sin que otros vean sus visitas
 
-11. **Verificación de identidad (ID):**
-    - Solo disponible para usuarios PLUS
+11. **Prioridad en verificación de identidad:**
+    - Disponible para TODOS, pero PLUS tiene procesamiento prioritario
 
 12. **Estadísticas avanzadas:**
     - Gráficos de visitas, popularidad, etc.

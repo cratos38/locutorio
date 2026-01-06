@@ -92,32 +92,419 @@ async function resizeImage(file: File, maxWidth: number = 400): Promise<File> {
 }
 
 // =================== COMPONENTE: CREAR PERFIL ===================
+// 
+// ====================================================================
+// FLUJO COMPLETO DE REGISTRO Y VERIFICACIÓN - DOCUMENTACIÓN COMPLETA
+// ====================================================================
+//
 // Este componente maneja DOS modos:
 // 1. MODO REGISTRO (editMode=false): Usuario nuevo creando su cuenta
 // 2. MODO EDICIÓN (editMode=true): Usuario existente editando sus datos básicos
 //
-// FLUJO MODO REGISTRO:
-// 1. Usuario rellena formulario completo (nombre, email x2, password x2, datos básicos, foto)
-// 2. Usuario elige: "Crear y Empezar" o "Crear y Completar Perfil"
-// 3. Se envía registro al backend → genera código de verificación
-// 4. Se muestra EmailVerificationModal (componente a crear) - BLOQUEA TODA LA APP
-// 5. Usuario introduce código de 6 dígitos del email
-// 6. Si código correcto:
-//    a) "Crear y Empezar" → Redirige a /dashboard (ya logeado)
-//    b) "Crear y Completar Perfil" → Redirige a /userprofile?edit=true (ya logeado)
-// 7. [OPCIONAL] Usuario puede verificar teléfono después (WhatsApp/Telegram) → 30 días PLUS gratis
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 📝 FASE 1: FORMULARIO DE REGISTRO
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //
-// FLUJO MODO EDICIÓN:
+// CAMPOS OBLIGATORIOS:
+// -------------------
+// • Nombre (apodo/nick):
+//   - Mínimo 3 caracteres, máximo 12
+//   - Solo letras, números, guión bajo
+//   - Verificación en tiempo real (debounce 500ms)
+//   - API: GET /api/check-username?username=XXX
+//   - Muestra: ✓ disponible | ! ya en uso | spinner verificando
+//
+// • Email (escribir DOS VECES): ✅ Campo emailConfirm existe
+//   - Campo 1: email
+//   - Campo 2: emailConfirm (debe coincidir)
+//   - Validación de formato
+//   - Verificación de que no esté registrado en DB
+//
+// • Contraseña (escribir DOS VECES): ✅ Campo passwordConfirm existe
+//   - Campo 1: password
+//   - Campo 2: passwordConfirm (debe coincidir)
+//   - ⚠️ IMPORTANTE: Mínimo 8 CARACTERES (NO "puntos")
+//   - Debe incluir: mayúscula, minúscula, número, símbolo
+//
+// • Sexo:
+//   - Solo 2 opciones: Hombre / Mujer
+//
+// • Fecha de nacimiento:
+//   - Debe ser real (se usa para verificación +18)
+//   - Solo se puede cambiar 1 vez después del registro
+//   - Crítico para acceso a salas +18
+//
+// • País (dropdown): Por defecto Venezuela (VE)
+// • Ciudad (dropdown dinámico según país)
+// • ¿Qué buscas?: Amistad, Pareja, Conversación, etc.
+// • ¿Dónde buscas?: País y opcionalmente ciudad
+//
+// FOTO DE PERFIL (sidebar izquierdo):
+// ----------------------------------
+// • Se sube DURANTE el registro (NO después) ✅
+// • Proporción 10:13
+// • Máximo 5MB original → redimensiona a 400px ancho
+// • Formatos: JPG, PNG
+// • Requisitos:
+//   - Foto real y actual (máximo 6 meses)
+//   - Una sola persona
+//   - Cara claramente visible (50%+)
+//   - Centrada en el cuadro
+//   - Sin filtros excesivos
+// • Puede subir hasta 6 fotos
+// • Marca una como "principal" (⭐)
+// • Todas quedan en estado "pendiente" hasta aprobación
+//
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 🚀 FASE 2: ENVÍO DEL FORMULARIO
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//
+// DOS BOTONES AL FINAL:
+// ---------------------
+// 1. "Crear y Empezar":
+//    → Registro mínimo
+//    → Puede completar perfil después
+//    → Redirige a verificación de email
+//
+// 2. "Crear y Completar Perfil":
+//    → Mismo flujo inicial
+//    → Después de verificar email, redirige a edición de perfil
+//
+// AL HACER CLIC EN CUALQUIER BOTÓN:
+// ---------------------------------
+// BACKEND debe (TODO: Implementar API /api/auth/register):
+//   1. Validar todos los campos
+//   2. Verificar email único en DB
+//   3. Verificar nick único en DB
+//   4. Hash de contraseña (bcrypt)
+//   5. Generar código de verificación de 6 dígitos aleatorio (ej: 482735)
+//   6. Guardar en tabla users:
+//      {
+//        id: uuid,
+//        nick: string,
+//        email: string,
+//        password_hash: string,
+//        sex: string,
+//        birth_date: date,
+//        country_code: string,
+//        city: string,
+//        email_verified: false,  ← IMPORTANTE
+//        phone_verified: false,  ← IMPORTANTE
+//        id_verified: false,     ← IMPORTANTE
+//        created_at: timestamp
+//      }
+//   7. Guardar en tabla verification_codes:
+//      {
+//        id: uuid,
+//        user_id: uuid (FK),
+//        code: string (encriptado con bcrypt),
+//        type: 'email',
+//        expires_at: NOW() + 60 segundos,  ← DECISIÓN FINAL: 60 segundos
+//        attempts: 0,
+//        created_at: timestamp
+//      }
+//   8. Enviar email con código usando servicio de email (ej: SendGrid, AWS SES)
+//   9. Responder: { success: true, user_id: uuid }
+//
+// FRONTEND debe (TODO: Implementar EmailVerificationModal):
+//   1. Recibir respuesta exitosa del backend
+//   2. Abrir EmailVerificationModal AUTOMÁTICAMENTE
+//   3. Modal BLOQUEA TODA LA APP (no se puede cerrar con X, ESC, click fuera)
+//
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 📧 FASE 3: VERIFICACIÓN DE EMAIL (CRÍTICA)
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//
+// MODAL DE VERIFICACIÓN (TODO: Crear componente EmailVerificationModal.tsx):
+// --------------------------------------------------------------------------
+// Elementos del modal:
+//   • Título: "Verifica tu correo electrónico"
+//   • Texto: "Hemos enviado un código de 6 dígitos a [email]"
+//   • Input de 6 dígitos (solo números, auto-focus)
+//   • Temporizador: Cuenta regresiva de 60 segundos
+//   • Botón "Verificar" (deshabilitado si no hay 6 dígitos)
+//   • Botón "Reenviar código" (deshabilitado hasta que expire el timer)
+//   • Link: "¿No recibiste el código? Revisa spam"
+//
+// Restricciones del modal:
+//   ❌ NO tiene botón X (cerrar)
+//   ❌ NO se cierra haciendo clic fuera
+//   ❌ NO se cierra con tecla ESC
+//   ✅ SOLO se cierra al verificar correctamente
+//   ✅ Opciones: "Verificar" o "Reenviar código"
+//
+// FLUJO DE VERIFICACIÓN:
+// ---------------------
+// 1. Usuario introduce código de 6 dígitos
+// 2. Click en "Verificar"
+// 3. Frontend envía: POST /api/auth/verify-email { code, user_id }
+// 4. Backend valida:
+//    - Código correcto (comparar con bcrypt)
+//    - No expirado (expires_at > NOW())
+//    - Máximo 3 intentos (attempts < 3)
+//
+// SI CÓDIGO ES CORRECTO:
+//   ✅ Actualizar users.email_verified = true
+//   ✅ Generar JWT token de sesión
+//   ✅ Cerrar modal
+//   ✅ Redirigir según botón usado:
+//      - "Crear y Empezar" → /dashboard (ya logeado)
+//      - "Crear y Completar Perfil" → /userprofile?edit=true (ya logeado)
+//
+// SI CÓDIGO ES INCORRECTO:
+//   ❌ Incrementar attempts en DB
+//   ❌ Mostrar error: "Código incorrecto. Te quedan X intentos"
+//   ❌ Si attempts >= 3:
+//      - Mostrar: "Demasiados intentos. Por favor solicita un nuevo código"
+//      - Habilitar botón "Reenviar código"
+//
+// SI CÓDIGO EXPIRA (60 segundos):
+//   ⏱️ Mostrar: "El código ha expirado"
+//   ⏱️ Habilitar botón "Reenviar código"
+//   ⏱️ Al reenviar:
+//      - Generar nuevo código
+//      - Resetear timer a 60s
+//      - Resetear attempts a 0
+//      - Enviar nuevo email
+//
+// ⚠️ ¿QUÉ PASA SI EL USUARIO CIERRA EL NAVEGADOR?
+//    → Al reabrir: detectar que hay usuario sin email_verified
+//    → Mostrar modal de verificación inmediatamente
+//    → Puede solicitar reenvío de código
+//
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 📱 FASE 4: VERIFICACIÓN DE TELÉFONO (OPCIONAL pero recomendada)
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//
+// ⚠️ IMPORTANTE: La verificación de teléfono NO se hace en esta página
+// Se hace DESPUÉS de verificar email, en:
+//   - /dashboard (banner/notificación)
+//   - /security (sección "Verificación de teléfono")
+//   - /userprofile (pestaña "Seguridad")
+//
+// CUÁNDO SE VERIFICA:
+//   • NO es obligatorio inmediatamente después del email
+//   • Se puede hacer en cualquier momento
+//   • Banner en dashboard: "¿Quieres ganar 30 días gratis de PLUS? Verifica tu teléfono"
+//
+// OPCIONES DE VERIFICACIÓN:
+//   1. WhatsApp
+//   2. Telegram
+//
+// PROCESO (TODO: Crear componente PhoneVerificationModal.tsx):
+// -----------------------------------------------------------
+// 1. Usuario hace click en "Verificar teléfono con WhatsApp" o "Telegram"
+// 2. Se abre PhoneVerificationModal:
+//    • Dropdown de código de país (+58, +1, +34, etc.)
+//    • Input de número de teléfono
+//    • Botón "Enviar código"
+// 3. Backend (POST /api/auth/verify-phone/send-code):
+//    • Formatear número completo: +58 412 1234567
+//    • Generar código de 6 dígitos
+//    • Guardar en tabla verification_codes:
+//      {
+//        id: uuid,
+//        user_id: uuid (del JWT),
+//        code: string (encriptado),
+//        type: 'phone',
+//        phone_number: string,
+//        method: 'whatsapp' | 'telegram',
+//        expires_at: NOW() + 60 segundos,
+//        attempts: 0
+//      }
+//    • Enviar código por WhatsApp o Telegram (API externa)
+// 4. Frontend muestra input de código:
+//    • Input de 6 dígitos
+//    • Temporizador: 60 segundos
+//    • Botón "Verificar"
+//    • Botón "Reenviar código" (habilitado después de 60s)
+// 5. Verificación (POST /api/auth/verify-phone/confirm-code):
+//    • Validar código
+//    • Validar que no expiró (60s)
+//    • Validar attempts < 3
+//    • Si correcto:
+//      - Actualizar users.phone_verified = true
+//      - Actualizar users.phone_number = phone
+//      - 🎁 Otorgar 30 días de PLUS gratis
+//      - Cerrar modal
+//    • Si incorrecto:
+//      - Incrementar attempts
+//      - Mostrar error
+//
+// DIFERENCIA CON EMAIL:
+//   • El modal de teléfono SÍ se puede cerrar (tiene X)
+//   • Si el usuario cierra el modal, puede verificar después
+//   • Mientras no verifique, tiene restricciones (ver FASE 6)
+//
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 🆔 FASE 5: VERIFICACIÓN DE IDENTIDAD (ID) - OPCIONAL
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//
+// ⚠️ CORRECCIÓN IMPORTANTE:
+// Verificación de ID NO requiere PLUS.
+// AL CONTRARIO: Verificando tu ID obtienes PLUS gratis.
+// DISPONIBLE PARA TODOS los usuarios.
+//
+// UBICACIÓN: /security → sección "Verificación de identidad"
+//
+// QUÉ ES:
+//   • Usuario sube foto de su cédula/DNI/pasaporte
+//   • Se compara la foto del documento con la foto de perfil
+//   • Usa IA para verificar que es la misma persona
+//   • NO expone el nombre real del usuario
+//   • Solo confirma: "Esta persona es real y su edad es correcta"
+//
+// BENEFICIOS:
+//   • Badge de "Verificado Real" (✓) en el perfil
+//   • 🎁 30 días de PLUS gratis
+//   • Mayor confianza de otros usuarios
+//
+// PROCESO (TODO: Implementar en /security):
+// ----------------------------------------
+// 1. Usuario hace click en "Verificar mi identidad"
+// 2. Se abre modal/página de verificación:
+//    • Instrucciones claras
+//    • Ejemplo de foto aceptada
+//    • Input para subir foto de documento (cédula/DNI/pasaporte)
+//    • Input para subir selfie sosteniendo el documento
+// 3. Backend (POST /api/auth/verify-id):
+//    • Validar que ambas fotos existen
+//    • Subir a Supabase Storage: bucket 'id-verification'
+//    • Llamar a API de verificación facial (AWS Rekognition, Azure Face API)
+//    • Comparar:
+//      - Foto de perfil del usuario
+//      - Foto del documento
+//      - Selfie con documento
+//    • Extraer fecha de nacimiento del documento
+//    • Comparar con fecha de nacimiento registrada
+//    • Si todo coincide (match >= 90%):
+//      - Actualizar users.id_verified = true
+//      - Actualizar users.age_verified = true
+//      - 🎁 Otorgar 30 días de PLUS gratis
+//      - Crear registro en tabla id_verifications:
+//        {
+//          id: uuid,
+//          user_id: uuid,
+//          status: 'approved',
+//          verified_at: timestamp,
+//          match_score: float
+//        }
+//    • Si no coincide:
+//      - status: 'rejected'
+//      - Mostrar: "La verificación falló. Por favor intenta de nuevo"
+// 4. Tiempo de verificación:
+//    • Automática (IA): 1-5 minutos
+//    • Si requiere revisión manual: 24-48 horas
+// 5. Después de verificar:
+//    • Badge "✓ Verificado" aparece en:
+//      - Foto de perfil
+//      - Perfil público
+//      - Búsquedas
+//    • Notificación: "Tu perfil ha sido verificado"
+//
+// QUÉ PASA SI SE RECHAZA:
+//   • Mensaje: "No pudimos verificar tu identidad. Asegúrate de que:"
+//     - La foto del documento sea clara
+//     - La fecha de nacimiento coincida
+//     - La foto de perfil muestre tu cara claramente
+//   • Puede intentar de nuevo (máximo 3 intentos por mes)
+//
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 🎁 FASE 6: BONIFICACIONES PLUS
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//
+// TABLA DE BONIFICACIONES:
+// -----------------------
+// ┌─────────────────────────────────────────┬──────────────────────┐
+// │ Acción                                  │ Bonificación         │
+// ├─────────────────────────────────────────┼──────────────────────┤
+// │ Completar perfil al menos 70%          │ 10 días gratis PLUS  │
+// │ Establecer foto de perfil real         │ 10 días gratis PLUS  │
+// │ Subir al menos 3 fotos                 │ 10 días gratis PLUS  │
+// │ Verificar email                        │ OBLIGATORIO (sin $)  │
+// │ Verificar teléfono (WhatsApp/Telegram) │ 30 días gratis PLUS  │
+// │ Validar identidad con ID               │ 30 días gratis PLUS  │
+// │ Por cada amigo invitado registrado     │ 10 días PLUS         │
+// ├─────────────────────────────────────────┼──────────────────────┤
+// │ TOTAL ACUMULABLE                       │ Hasta 90 días (3 m)  │
+// └─────────────────────────────────────────┴──────────────────────┘
+//
+// ⚠️ CORRECCIÓN IMPORTANTE: PLUS NO ES "ILIMITADO"
+// ------------------------------------------------
+// PLUS NO incluye:
+//   ❌ Mensajes ilimitados (sigue teniendo límites, pero más altos)
+//   ❌ Mensajes privados ilimitados (límite más alto, ej: 50/día vs 10/día)
+//
+// PLUS SÍ incluye:
+//   ✅ Salas de Chat Permanentes (vs solo temporales)
+//   ✅ Más mensajes permitidos (límites más altos)
+//   ✅ Comentarios privados en fotos
+//   ✅ Ver quién visitó tu perfil
+//   ✅ Sin publicidad
+//   ✅ Perfil destacado en búsquedas
+//   ✅ Álbumes ilimitados (vs 3 máximo)
+//   ✅ Fotos ilimitadas por álbum (vs 20 máximo)
+//   ✅ Modo invisible
+//   ✅ Prioridad en verificación de ID
+//   ✅ Estadísticas avanzadas
+//
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 🚫 FASE 7: RESTRICCIONES SIN VERIFICACIÓN
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//
+// SI NO VERIFICASTE EMAIL:
+// -----------------------
+// ❌ BLOQUEO TOTAL hasta verificar
+// ❌ No puedes acceder a ninguna función
+// ❌ Solo ves el modal de verificación
+//
+// SI NO VERIFICASTE TELÉFONO:
+// --------------------------
+// ⚠️ Límites de mensajes en chat (escalonados por semana):
+//   • Semana 1: ~100 mensajes/día
+//   • Semana 2: ~50 mensajes/día
+//   • Semana 3: ~20 mensajes/día
+//   • Semana 4+: ~10 mensajes/día
+//
+// ⚠️ Límites de mensajes privados (MP):
+//   • Máximo 10 MP por día
+//
+// ⚠️ No puedes:
+//   • Crear salas de chat (ni temporales ni permanentes)
+//   • Ver quién visitó tu perfil
+//   • Hacer comentarios privados en fotos
+//
+// Motivación: Evitar spam y cuentas falsas
+//
+// AL VERIFICAR TELÉFONO:
+//   ✅ Se eliminan todos los límites de mensajes
+//   ✅ Se permite crear salas TEMPORALES
+//   ✅ Se otorgan 30 días de PLUS gratis
+//
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 🔧 MODO EDICIÓN (editMode=true)
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//
+// FLUJO:
 // 1. Usuario ya logeado edita sus datos básicos
 // 2. Click en "Guardar Cambios" → actualiza DB → vuelve a su perfil
+// 3. NO requiere verificación de email (ya verificado)
 //
-// VERIFICACIÓN DE TELÉFONO (después de email):
-// - Se hace en /userprofile o /security (no en esta página)
-// - Usuario elige: WhatsApp o Telegram
-// - Introduce número de teléfono con código de país
-// - Recibe código de 6 dígitos vía WhatsApp/Telegram
-// - Introduce código en PhoneVerificationModal (componente a crear)
-// - Si código correcto: phone_verified=true + 30 días PLUS gratis
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 📝 NOTAS FINALES
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//
+// ✅ Email y contraseña SE ESCRIBEN DOS VECES
+// ✅ "8 puntos" es ERROR → debe ser "8 caracteres"
+// ✅ NO existe "inicio de sesión por primera vez"
+// ✅ Foto se sube DURANTE el registro (no después)
+// ✅ Verificación de teléfono viene DESPUÉS de email
+// ✅ Verificación de ID disponible para TODOS (no solo PLUS)
+// ✅ PLUS NO es "mensajes ilimitados"
+//
+// ====================================================================
+// FIN DE LA DOCUMENTACIÓN COMPLETA
+// ====================================================================
 //
 function CrearPerfilForm() {
   const router = useRouter();
