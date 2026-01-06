@@ -429,23 +429,25 @@ async function resizeImage(file: File, maxWidth: number = 400): Promise<File> {
 // │ TOTAL ACUMULABLE                       │ Hasta 90 días (3 m)  │
 // └─────────────────────────────────────────┴──────────────────────┘
 //
-// ⚠️ CORRECCIÓN IMPORTANTE: PLUS NO ES "ILIMITADO"
-// ------------------------------------------------
-// PLUS NO incluye:
-//   ❌ Mensajes ilimitados (sigue teniendo límites, pero más altos)
-//   ❌ Mensajes privados ilimitados (límite más alto, ej: 50/día vs 10/día)
+// ⚠️ LO QUE PLUS **NO** INCLUYE:
+// -------------------------------
+//   ❌ NO hay límites diferentes de mensajes en chat (igual para todos con teléfono verificado)
+//   ❌ NO hay límites diferentes de MP (10 nuevos usuarios/día para TODOS)
+//   ❌ NO existen comentarios privados en fotos (todos son públicos)
+//   ❌ NO hay perfil destacado en búsquedas (búsqueda por filtros, no por orden)
+//   ❌ NO hay límite de álbumes (ilimitado para TODOS)
+//   ❌ NO hay límite de fotos por álbum (ilimitado para TODOS)
+//   ❌ NO hay prioridad en verificación de ID (todos iguales)
 //
-// PLUS SÍ incluye:
+// ✅ LO QUE PLUS **SÍ** INCLUYE:
+// -------------------------------
 //   ✅ Salas de Chat Permanentes (vs solo temporales)
-//   ✅ Más mensajes permitidos (límites más altos)
-//   ✅ Comentarios privados en fotos
-//   ✅ Ver quién visitó tu perfil
+//   ✅ Ver quién visitó tu perfil (sin PLUS no puedes ver quién)
+//   ✅ Ver quién visitó tus álbumes (sin PLUS no puedes ver quién)
+//   ✅ Ver quién te envió encuentro (sin PLUS no puedes ver quién)
+//   ✅ Ocultar comentarios públicos en tus fotos (sin PLUS siempre visibles)
 //   ✅ Sin publicidad
-//   ✅ Perfil destacado en búsquedas
-//   ✅ Álbumes ilimitados (vs 3 máximo)
-//   ✅ Fotos ilimitadas por álbum (vs 20 máximo)
 //   ✅ Modo invisible
-//   ✅ Prioridad en verificación de ID
 //   ✅ Estadísticas avanzadas
 //
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -460,26 +462,31 @@ async function resizeImage(file: File, maxWidth: number = 400): Promise<File> {
 //
 // SI NO VERIFICASTE TELÉFONO:
 // --------------------------
-// ⚠️ Límites de mensajes en chat (escalonados por semana):
-//   • Semana 1: ~100 mensajes/día
-//   • Semana 2: ~50 mensajes/día
-//   • Semana 3: ~20 mensajes/día
-//   • Semana 4+: ~10 mensajes/día
+// ⚠️ Límites de mensajes en CHAT (todas las salas combinadas):
+//   • Semana 1: 100 mensajes/día en TODAS las salas
+//   • Semana 2: 50 mensajes/día en TODAS las salas
+//   • Semana 3: 20 mensajes/día en TODAS las salas
+//   • Semana 4+: 10 mensajes/día en TODAS las salas
 //
-// ⚠️ Límites de mensajes privados (MP):
-//   • Máximo 10 MP por día
-//
-// ⚠️ No puedes:
-//   • Crear salas de chat (ni temporales ni permanentes)
-//   • Ver quién visitó tu perfil
-//   • Hacer comentarios privados en fotos
+// ⚠️ Límites de Mensajes Privados (MP):
+//   • ❌ NO puede iniciar conversaciones nuevas (enviar primer MP)
+//   • ✅ SÍ puede responder si alguien le escribe primero
+//   • ✅ Mensajes ilimitados con usuarios con los que ya se comunica
 //
 // Motivación: Evitar spam y cuentas falsas
 //
-// AL VERIFICAR TELÉFONO:
-//   ✅ Se eliminan todos los límites de mensajes
-//   ✅ Se permite crear salas TEMPORALES
+// AL VERIFICAR TELÉFONO (con o sin PLUS):
+// ---------------------------------------
+//   ✅ Se eliminan límites de mensajes en chat
+//   ✅ Puede iniciar conversaciones nuevas (MP)
+//   ⚠️ Límite: Máximo 10 nuevos usuarios/día para primer MP
+//      Ejemplo: Si envías 1 mensaje a Juan → puedes enviar primer mensaje a 9 personas más
+//      Ejemplo: Si envías 3 mensajes a Pedro → puedes enviar primer mensaje a 9 personas más
+//   ✅ Mensajes ilimitados con usuarios con los que ya se comunica
+//   ✅ Puede crear salas TEMPORALES
 //   ✅ Se otorgan 30 días de PLUS gratis
+//
+// ⚠️ IMPORTANTE: El límite de "10 nuevos usuarios/día" aplica a TODOS (con y sin PLUS)
 //
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // 🔧 MODO EDICIÓN (editMode=true)

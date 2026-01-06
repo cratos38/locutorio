@@ -378,45 +378,41 @@ La diferencia es CONCEPTUAL, pero el flujo es el mismo:
    - Usuarios normales: Solo salas TEMPORALES (desaparecen al salir)
    - PLUS: Puede crear salas PERMANENTES que persisten
 
-2. **Más mensajes permitidos:**
-   - Usuarios normales: Límites escalonados si NO verifican teléfono
-   - PLUS: Límites más generosos (pero NO ilimitados)
-
-3. **Mensajes Privados:**
-   - Usuarios normales: Límite de 10 MP por día
-   - PLUS: Límite más alto (ej: 50 MP por día)
-
-4. **Comentarios privados en fotos:**
-   - Usuarios normales: Solo comentarios públicos
-   - PLUS: Puede hacer comentarios privados (solo los ve el dueño)
-
-5. **Ver quién visitó tu perfil:**
+2. **Ver quién visitó tu perfil:**
    - Usuarios normales: No pueden ver quién visitó
    - PLUS: Ve lista completa con fecha/hora
+
+3. **Ver quién visitó tus álbumes:**
+   - Usuarios normales: No pueden ver quién visitó
+   - PLUS: Ve lista completa con fecha/hora
+
+4. **Ver quién te envió encuentro:**
+   - Usuarios normales: No pueden ver quién les envió encuentro
+   - PLUS: Ve lista completa
+
+5. **Ocultar comentarios en tus fotos:**
+   - Usuarios normales: Comentarios SIEMPRE públicos
+   - PLUS: Puede ocultar comentarios públicos en sus fotos (solo él los ve)
 
 6. **Sin publicidad:**
    - Usuarios normales: Ven anuncios
    - PLUS: Navegación sin publicidad
 
-7. **Perfil destacado en búsquedas:**
-   - PLUS aparece primero en resultados de búsqueda
+7. **Modo invisible:**
+   - PLUS puede navegar sin que otros vean sus visitas
 
-8. **Álbumes ilimitados:**
-   - Usuarios normales: Máximo 3 álbumes
-   - PLUS: Álbumes ilimitados
+8. **Estadísticas avanzadas:**
+   - Gráficos de visitas, popularidad, etc.
 
-9. **Fotos ilimitadas por álbum:**
-   - Usuarios normales: Máximo 20 fotos por álbum
-   - PLUS: Fotos ilimitadas por álbum
+### ⚠️ LO QUE PLUS **NO** INCLUYE:
 
-10. **Modo invisible:**
-    - PLUS puede navegar sin que otros vean sus visitas
-
-11. **Prioridad en verificación de identidad:**
-    - Disponible para TODOS, pero PLUS tiene procesamiento prioritario
-
-12. **Estadísticas avanzadas:**
-    - Gráficos de visitas, popularidad, etc.
+❌ **NO** hay límites diferentes de mensajes en chat (igual para todos)
+❌ **NO** hay límites diferentes de MP (igual para todos)
+❌ **NO** hay comentarios privados en fotos (todos son públicos)
+❌ **NO** hay perfil destacado en búsquedas (búsqueda por filtros)
+❌ **NO** hay límite de álbumes (ilimitado para todos)
+❌ **NO** hay límite de fotos por álbum (ilimitado para todos)
+❌ **NO** hay prioridad en verificación de ID (todos iguales)
 
 ### 🎁 Formas de obtener PLUS gratis:
 
@@ -440,26 +436,32 @@ La diferencia es CONCEPTUAL, pero el flujo es el mismo:
 
 ### ⚠️ Si NO verificaste TELÉFONO:
 
-**Límites de mensajes en chat:**
-- **Semana 1:** ~100 mensajes/día
-- **Semana 2:** ~50 mensajes/día
-- **Semana 3:** ~20 mensajes/día
-- **Semana 4+:** ~10 mensajes/día
+**Límites de mensajes en CHAT (todas las salas combinadas):**
+- **Semana 1:** 100 mensajes/día en TODAS las salas
+- **Semana 2:** 50 mensajes/día en TODAS las salas
+- **Semana 3:** 20 mensajes/día en TODAS las salas
+- **Semana 4+:** 10 mensajes/día en TODAS las salas
 
-**Límites de mensajes privados (MP):**
-- Máximo 10 MP por día
-
-**No puedes:**
-- Crear salas de chat (ni temporales ni permanentes)
-- Ver quién visitó tu perfil
-- Hacer comentarios privados en fotos
+**Límites de Mensajes Privados (MP):**
+- ❌ **NO puede iniciar conversaciones nuevas** (enviar primer MP)
+- ✅ **SÍ puede responder** si alguien le escribe primero
+- ✅ **Mensajes ilimitados** con usuarios con los que ya se comunica
 
 **Motivación:** Evitar spam y cuentas falsas
 
-### 🔓 Al verificar teléfono:
-- Se eliminan todos los límites de mensajes
-- Se permite crear salas TEMPORALES
-- Se otorgan 30 días de PLUS gratis
+### ✅ Si verificaste TELÉFONO (con o sin PLUS):
+
+**Límites de mensajes en CHAT:**
+- ✅ **Sin límites** en número de mensajes por día en salas
+
+**Límites de Mensajes Privados (MP):**
+- ✅ **Puede iniciar conversaciones nuevas**
+- ⚠️ **Máximo 10 nuevos usuarios por día** (primer mensaje)
+  - Ejemplo: Si envía 1 mensaje a Juan → puede enviar primer mensaje a 9 personas más
+  - Ejemplo: Si envía 3 mensajes a Pedro → puede enviar primer mensaje a 9 personas más
+- ✅ **Mensajes ilimitados** con usuarios con los que ya se comunica
+
+**IMPORTANTE:** La restricción de "10 nuevos usuarios/día" aplica tanto a usuarios normales como PLUS.
 
 ---
 
@@ -467,14 +469,13 @@ La diferencia es CONCEPTUAL, pero el flujo es el mismo:
 
 ### 📷 Límites:
 
-**Usuarios normales:**
-- Máximo 3 álbumes
-- Máximo 20 fotos por álbum
-- Total: 60 fotos máximo
+**TODOS los usuarios (con y sin PLUS):**
+- ✅ Álbumes ilimitados
+- ✅ Fotos ilimitadas por álbum
+- Ejemplo: Puedes crear 100 álbumes si quieres
+- Ejemplo: Puedes poner 500 fotos en un álbum si deseas
 
-**Usuarios PLUS:**
-- Álbumes ilimitados
-- Fotos ilimitadas por álbum
+**NO hay diferencia entre usuarios normales y PLUS en cantidad de álbumes/fotos**
 
 ### Privacidad de álbumes:
 
@@ -537,15 +538,18 @@ Cada foto puede tener su propia configuración:
 
 ## 8. SISTEMA DE COMENTARIOS
 
-### 💬 Tipos de comentarios:
+### 💬 Tipo de comentarios:
 
-1. **Comentarios públicos:**
-   - Los ve todo el mundo
-   - Disponible para todos los usuarios
+**TODOS los comentarios son PÚBLICOS:**
+- Todos los usuarios pueden leer todos los comentarios
+- Todos los usuarios pueden escribir comentarios
+- ❌ **NO existen comentarios privados**
 
-2. **Comentarios privados:**
-   - Solo los ve el dueño de la foto
-   - Solo disponible para usuarios PLUS
+**Excepción PLUS:**
+- Si el dueño de la foto tiene PLUS, puede:
+  - ✅ Ocultar los comentarios que otros hicieron en su foto
+  - Resultado: Los comentarios siguen existiendo, pero solo el dueño los ve
+  - Otros usuarios no ven los comentarios públicos ocultos
 
 ### Reglas:
 
@@ -560,9 +564,9 @@ Cada foto puede tener su propia configuración:
 ### Permisos:
 
 **El dueño de la foto puede:**
-- Ver todos los comentarios (públicos + privados)
+- Ver todos los comentarios
 - Eliminar cualquier comentario
-- Con PLUS: Ocultar comentarios de ciertos usuarios
+- Con PLUS: Ocultar comentarios públicos (solo él los ve)
 
 **El que hizo el comentario puede:**
 - Editar su comentario
@@ -571,7 +575,7 @@ Cada foto puede tener su propia configuración:
 ### Notificaciones:
 
 **El dueño recibe notificación cuando:**
-- Alguien comenta su foto (público o privado)
+- Alguien comenta su foto
 - Alguien responde a su comentario
 
 ---
@@ -583,26 +587,33 @@ Cada foto puede tener su propia configuración:
 1. **Visita a perfil:**
    - Entrar a `/publicprofile/[username]`
 
-2. **Visita a foto:**
-   - Ver una foto en un álbum
-   - Hacer click en una foto
+2. **Visita a álbum:**
+   - Ver un álbum completo
+
+3. **Visita a foto:**
+   - Ver una foto específica en un álbum
 
 **NOTA:** Cada visita se registra con:
 - user_id (quién visitó)
-- visited_user_id o photo_id (qué visitó)
+- visited_user_id, album_id o photo_id (qué visitó)
 - timestamp (cuándo)
 
 ### Quién puede ver visitas:
 
 **Usuarios normales:**
-- No pueden ver quién visitó su perfil
-- Pueden ver **cuántas veces** fue visitado su perfil
-- Pueden ver **cuántas veces** fue vista cada foto
+- ❌ No pueden ver quién visitó su perfil
+- ❌ No pueden ver quién visitó sus álbumes
+- ❌ No pueden ver quién envió encuentro
+- ✅ Pueden ver **cuántas veces** fue visitado su perfil
+- ✅ Pueden ver **cuántas veces** fue visitado cada álbum
+- ✅ Pueden ver **cuántas veces** fue vista cada foto
 - Mensaje: "Tu perfil fue visitado 15 veces" (sin nombres)
 
 **Usuarios PLUS:**
-- Ven la lista completa de quién visitó su perfil
-- Ven quién vio cada foto específica
+- ✅ Ven la lista completa de quién visitó su perfil
+- ✅ Ven quién visitó cada álbum
+- ✅ Ven quién vio cada foto específica
+- ✅ Ven quién les envió encuentro
 - Con fecha/hora exacta
 - Ejemplo: "Ana_M visitó tu perfil hace 2 horas"
 
@@ -688,14 +699,13 @@ Cada foto puede tener su propia configuración:
 
 ### Límites:
 
-**Usuarios normales:**
-- Máximo 5 "Me gusta" por día
-- Pueden ver 20 perfiles por día
+**TODOS los usuarios (con y sin PLUS):**
+- ✅ "Me gusta" ilimitados
+- ✅ Perfiles ilimitados por día
 
-**Usuarios PLUS:**
-- "Me gusta" ilimitados
-- Perfiles ilimitados por día
-- Ven quién les dio "Me gusta" sin hacer match
+**Diferencia con PLUS:**
+- Usuarios normales: ❌ No pueden ver quién les dio "Me gusta" sin hacer match
+- Usuarios PLUS: ✅ Ven quién les dio "Me gusta" sin necesidad de match
 
 ### Match:
 
