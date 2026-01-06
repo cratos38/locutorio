@@ -1,6 +1,6 @@
 # 🌐 Locutorio - Red Social Venezolana
 
-> **Estado del Proyecto**: ✅ Frontend completado (100%) | ⏳ Backend pendiente  
+> **Estado del Proyecto**: ✅ Frontend 90% completado | ✅ Supabase cuenta creada | ⏳ Backend pendiente  
 > **Última actualización**: 2026-01-06  
 > **App en producción**: https://locutorio.com.ve 🚀
 
@@ -31,14 +31,16 @@ Este proyecto tiene **4 archivos de planificación** para gestionar el trabajo:
 ### 📊 Progreso Actual
 
 ```
-Proyecto completo:  ████████░░░░░░░░░░░░ 25%
+Proyecto completo:  ██████████░░░░░░░░░░ 35%
 
-Fase 1 (Frontend):  ████████████████████ 100% ✅ COMPLETADO
-Fase 2 (Completar): ████████░░░░░░░░░░░░  40% 🚧 EN PROGRESO
-Fase 3+ (Backend):  ░░░░░░░░░░░░░░░░░░░░   0% ⏳ PENDIENTE
+Frontend:           ██████████████████░░  90% 🚧 Falta: tutoriales + /amigos
+Backend (Supabase): █░░░░░░░░░░░░░░░░░░░   5% ✅ Cuenta creada
+API/Auth:           ░░░░░░░░░░░░░░░░░░░░   0% ⏳ Pendiente
 ```
 
-**Tiempo estimado restante:** 10-14 semanas (3-4 meses)
+**Frontend falta (10%):** Revisar 7 tutoriales + crear página /amigos  
+**Backend:** ✅ Cuenta Supabase creada, schema de DB pendiente  
+**Tiempo estimado restante:** 8-12 semanas (2-3 meses)
 
 ---
 
@@ -396,13 +398,16 @@ className={`clase-base ${condicion ? 'clase-activa' : 'clase-inactiva'}`}
 ## 🚧 Roadmap Futuro
 
 ### **🔥 Inmediato (Esta semana)**
-- [ ] Completar 7 tutoriales pendientes
-- [ ] Crear 8 páginas legales/ayuda (About, Términos, FAQ, etc.)
+- [ ] Revisar y editar 7 tutoriales existentes
+- [ ] Crear página `/amigos` (gestión de amigos)
+- [ ] (Opcional) Páginas legales: About, Términos, FAQ
 
 ### **Corto Plazo (Próximas 2-3 semanas)**
-- [ ] Configurar Supabase (backend)
-- [ ] Diseñar schema completo de base de datos
-- [ ] Configurar Storage buckets
+- [x] Crear cuenta en Supabase ✅
+- [ ] Crear proyecto de base de datos en Supabase
+- [ ] Diseñar schema completo de base de datos (16 tablas)
+- [ ] Crear tablas en Supabase
+- [ ] Configurar Storage buckets (avatars, photos, stories, covers)
 
 ### **Medio Plazo (1-2 meses)**
 - [ ] Implementar autenticación real (Supabase Auth)

@@ -7,15 +7,16 @@
 
 ## 🎯 AHORA MISMO
 
-**Fase actual:** Completar frontend (tutoriales + páginas legales)
+**Fase actual:** Finalizar frontend (revisar tutoriales + página amigos)
 
 **Siguiente tarea:** 
-- [ ] Completar 7 tutoriales pendientes
-- [ ] Crear 8 páginas legales/ayuda
+- [ ] Revisar y editar 7 tutoriales existentes
+- [ ] Crear página `/amigos`
+- [ ] Después: Diseñar schema de base de datos en Supabase
 
-**Después:**
-- Configurar Supabase (backend)
-- Diseñar base de datos
+**Backend:**
+- ✅ Cuenta Supabase creada
+- ⏳ Schema de DB pendiente
 
 ---
 
@@ -32,16 +33,18 @@
 
 ## ✅ FUNCIONA
 
-- Frontend completo (UI)
+- Frontend ~90% completo (UI)
 - Deployment: https://locutorio.com.ve
 - HTTPS con SSL válido
 - Git workflow automático
+- ✅ Cuenta Supabase creada
 
 ---
 
 ## ❌ NO FUNCIONA (pendiente)
 
-- Backend / Base de datos
+- 10% frontend: revisar tutoriales + página /amigos
+- Backend / Base de datos (schema pendiente)
 - Autenticación real
 - Chat real
 - Subida de fotos
@@ -60,14 +63,15 @@
 ## 🔢 PROGRESO
 
 ```
-Proyecto: ████████░░░░░░░░░░░░ 25%
+Proyecto: █████████████░░░░░░░ 35%
 
-Fase 1: ████████████████████ 100% ✅
-Fase 2: ████████░░░░░░░░░░░░  40% 🚧
-Fase 3+: ░░░░░░░░░░░░░░░░░░░░   0% ⏳
+Frontend: ██████████████████░░  90% 🚧
+Backend:  ░░░░░░░░░░░░░░░░░░░░   0% ⏳
 ```
 
-**Tiempo estimado:** 10-14 semanas restantes
+**Frontend falta:** Revisar/editar tutoriales + página /amigos  
+**Supabase:** ✅ Cuenta ya creada  
+**Tiempo estimado:** 8-12 semanas restantes
 
 ---
 
@@ -90,5 +94,5 @@ git log --oneline -5
 ---
 
 **🎯 Objetivo:** Red social completa para Venezuela  
-**📊 Progreso total:** ~25%  
-**🔥 Siguiente:** Tutoriales + Páginas legales
+**📊 Progreso total:** ~35%  
+**🔥 Siguiente:** Revisar tutoriales + página /amigos → Diseñar schema DB en Supabase

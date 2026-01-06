@@ -8,15 +8,21 @@
 ## 🎯 RESUMEN EJECUTIVO
 
 ### ✅ Lo que FUNCIONA:
-- **Frontend completo**: Todas las páginas UI implementadas (inicio, chat, personas, álbumes, perfil, etc.)
+- **Frontend ~90% completo**: Todas las páginas UI implementadas (inicio, chat, personas, álbumes, perfil, etc.)
 - **Deployment en producción**: App deployada en Vercel con dominio personalizado
 - **Dominio y HTTPS**: https://locutorio.com.ve funcionando con SSL válido
 - **Navegación**: Sistema de rutas completo con App Router de Next.js
 - **Componentes UI**: Diseño visual completo con shadcn/ui y Tailwind CSS
 - **Git workflow**: Deployments automáticos desde GitHub
+- **Supabase**: ✅ Cuenta creada (pendiente: diseñar schema)
 
-### ❌ Lo que NO funciona (pendiente):
-- **Backend**: No existe base de datos ni APIs reales
+### ⏳ Lo que falta en Frontend (10%):
+- **Tutoriales**: Revisar y editar 7 tutoriales existentes
+- **Página /amigos**: Crear página de gestión de amigos
+- **Páginas legales**: About, Términos, FAQ, etc. (opcional)
+
+### ❌ Lo que NO funciona (Backend - pendiente):
+- **Backend**: No existe base de datos configurada (schema pendiente)
 - **Autenticación**: Login/registro simulado, sin validación real
 - **Chat**: UI completa pero sin mensajes reales (hardcoded)
 - **Subida de fotos**: No funciona, sin Storage configurado
@@ -28,14 +34,14 @@
 ## 📍 DÓNDE ESTAMOS AHORA
 
 ```
-[✅ FASE 1: Frontend] ━━━━━━━━━━━━━━━━━━━━━━ 100%
-[🚧 FASE 2: Completar Frontend] ━━━━━━━━░░░░░░░░░░░  40%
-[⏳ FASE 3: Backend/DB] ░░░░░░░░░░░░░░░░░░░░   0%
-[⏳ FASE 4: Autenticación] ░░░░░░░░░░░░░░░░░░░░   0%
-[⏳ FASE 5: API Routes] ░░░░░░░░░░░░░░░░░░░░   0%
+[✅ Frontend básico] ━━━━━━━━━━━━━━━━━━━━━━ 100%
+[🚧 Finalizar Frontend] ━━━━━━━━━━━━━━━━━━░░  90%
+[⏳ Backend/DB] ░░░░░░░░░░░░░░░░░░░░   0%
+[⏳ Autenticación] ░░░░░░░░░░░░░░░░░░░░   0%
+[⏳ API Routes] ░░░░░░░░░░░░░░░░░░░░   0%
 ```
 
-**Progreso general del proyecto: ~25%**
+**Progreso general del proyecto: ~35%**
 
 ---
 
@@ -43,29 +49,28 @@
 
 ### 🎯 Esta semana (Prioridad ALTA):
 
-1. **Completar 7 tutoriales pendientes:**
-   - [ ] Tutorial de Chat/Salas
-   - [ ] Tutorial de Búsqueda/Personas
-   - [ ] Tutorial de Mensajes Privados
-   - [ ] Tutorial de Encuentros
-   - [ ] Tutorial de Historias
-   - [ ] Tutorial de Perfil
-   - [ ] Tutorial de Seguridad
+1. **Finalizar frontend (10% restante):**
+   - [ ] Revisar y editar Tutorial de Chat/Salas
+   - [ ] Revisar y editar Tutorial de Búsqueda/Personas
+   - [ ] Revisar y editar Tutorial de Mensajes Privados
+   - [ ] Revisar y editar Tutorial de Encuentros
+   - [ ] Revisar y editar Tutorial de Historias
+   - [ ] Revisar y editar Tutorial de Perfil
+   - [ ] Revisar y editar Tutorial de Seguridad
+   - [ ] Crear página `/amigos` (gestión de amigos)
 
-2. **Crear 8 páginas legales/ayuda:**
+2. **Opcional (páginas legales):**
    - [ ] Acerca de (`/about`)
    - [ ] Términos y Condiciones
    - [ ] Política de Privacidad
-   - [ ] Protección de Datos
-   - [ ] Ayuda/Soporte
    - [ ] FAQ
-   - [ ] Página 404 personalizada
-   - [ ] Página de Mantenimiento
 
-### 🔜 Próxima semana:
-- Configurar Supabase (backend)
-- Diseñar schema de base de datos
-- Instalar librerías de Supabase
+### 🔜 Próxima semana (Backend):
+- ✅ Cuenta Supabase creada
+- [ ] Diseñar schema completo de base de datos (16 tablas)
+- [ ] Crear tablas en Supabase
+- [ ] Configurar Storage buckets
+- [ ] Instalar librerías `@supabase/supabase-js`
 
 ---
 
@@ -98,8 +103,8 @@ Tienes **2 archivos** para gestionar tareas:
 - **Deployment:** Vercel
 - **Git:** GitHub (cratos38/locutorio)
 
-### Backend (⏳ Pendiente):
-- **Base de Datos:** Supabase (PostgreSQL) - A configurar
+### Backend (⏳ Pendiente - Supabase cuenta creada):
+- **Base de Datos:** Supabase (PostgreSQL) - ✅ Cuenta creada, schema pendiente
 - **Auth:** Supabase Auth - A implementar
 - **Storage:** Supabase Storage - A configurar
 - **Real-time:** Supabase Realtime - A implementar
@@ -211,8 +216,8 @@ Crear una **red social funcional completa** con:
 | Fase | Descripción | Progreso | Estado |
 |------|-------------|----------|--------|
 | 1 | Frontend básico | 100% | ✅ Completado |
-| 2 | Completar frontend | 40% | 🚧 En progreso |
-| 3 | Backend/DB | 0% | ⏳ Pendiente |
+| 2 | Finalizar frontend | 90% | 🚧 En progreso |
+| 3 | Backend/DB (Supabase) | 5% | ⏳ Cuenta creada |
 | 4 | Autenticación | 0% | ⏳ Pendiente |
 | 5 | API Routes | 0% | ⏳ Pendiente |
 | 6 | Integración | 0% | ⏳ Pendiente |
@@ -221,7 +226,7 @@ Crear una **red social funcional completa** con:
 | 9 | Testing | 0% | ⏳ Pendiente |
 | 10 | Lanzamiento | 0% | ⏳ Pendiente |
 
-**Tiempo estimado restante:** 10-14 semanas (3-4 meses)
+**Tiempo estimado restante:** 8-12 semanas (2-3 meses)
 
 ---
 
