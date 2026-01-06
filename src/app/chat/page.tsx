@@ -266,19 +266,6 @@ export default function ChatRoomsPage() {
     }
   }, [roomFromUrl]);
 
-  // Detectar acción desde URL (ej: ?action=create para abrir modal de crear sala)
-  useEffect(() => {
-    const action = searchParams.get('action');
-    if (action === 'create') {
-      // TODO: Cuando implementes autenticación, verificar aquí si hay sesión
-      // if (!isLoggedIn) {
-      //   router.push('/login');
-      //   return;
-      // }
-      setShowCreateRoomModal(true);
-    }
-  }, [searchParams]);
-
   // Auto-scroll input to end when messageText changes (especially for emojis)
   useEffect(() => {
     if (messageInputRef.current) {

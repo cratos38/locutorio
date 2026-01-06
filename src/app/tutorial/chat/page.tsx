@@ -220,17 +220,14 @@ export default function ChatTutorialPage() {
                   </div>
                 </div>
 
-                <Link href="/chat?action=create" className="w-full mt-6">
+                <Link href="/create-profile" className="w-full mt-6">
                   <Button className="w-full bg-primary text-connect-bg-dark hover:brightness-110 font-bold">
                     <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
                     </svg>
-                    Crear Mi Primera Sala
+                    Únete para Crear Salas
                   </Button>
                 </Link>
-                <p className="text-xs text-connect-muted text-center mt-2">
-                  * Requiere iniciar sesión en LoCuToRiO
-                </p>
               </div>
             </div>
           </Card>
