@@ -3,32 +3,15 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import Link from "next/link";
+import InternalHeader from "@/components/InternalHeader";
 
 export default function TutorialPage() {
   return (
-    <div className="relative flex h-screen w-full flex-col overflow-hidden bg-connect-bg-dark text-white font-display">
-      <header className="flex w-full items-center justify-between px-6 py-6 md:px-10 z-10">
-        <Link href="/" className="flex items-center gap-2">
-          <div className="size-8 text-primary bg-primary/20 rounded-full flex items-center justify-center">
-            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-            </svg>
-          </div>
-          <span className="text-xl font-bold tracking-tight">LoCuToRiO</span>
-        </Link>
-
-        <Link
-          href="/"
-          className="group flex cursor-pointer items-center justify-center rounded-full bg-transparent px-4 py-2 text-sm font-medium text-slate-400 transition-colors hover:text-primary hover:bg-white/5"
-        >
-          <span>Saltar tutorial</span>
-          <svg className="ml-1 w-[18px] h-[18px] transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
-        </Link>
-      </header>
-
-      <main className="flex flex-1 flex-col items-center justify-center relative w-full px-4">
+    <div className="min-h-screen bg-connect-bg-dark text-white font-display">
+      {/* Use internal header for logged-in users */}
+      <InternalHeader />
+      
+      <main className="flex flex-col items-center justify-center relative w-full px-4 py-12">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[100px] pointer-events-none"></div>
 
         <div className="flex flex-col w-full max-w-[1024px] z-10 gap-8 md:gap-12">
