@@ -471,15 +471,16 @@ export default function AlbumesPage() {
                   <div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg bg-connect-bg-dark">
                     <AlbumCarousel albumId={album.id} privacy={album.privacy} />
 
-                    {/* Privacy Badge - More visible and clear */}
-                    <div className={`absolute top-2 right-2 rounded-lg px-3 py-1.5 text-xs font-bold backdrop-blur-md flex items-center gap-1.5 shadow-lg z-10 ${
-                      album.privacy === 'publico' ? 'bg-green-500/90 text-white border border-green-400/50' :
-                      album.privacy === 'amigos' ? 'bg-blue-500/90 text-white border border-blue-400/50' :
-                      'bg-orange-500/90 text-white border border-orange-400/50'
-                    }`}>
-                      <span className="text-base">{privacy.icon}</span>
-                      <span className="hidden sm:inline">{privacy.label}</span>
-                    </div>
+                    {/* Privacy Badge - Only for restricted albums */}
+                    {album.privacy !== 'publico' && (
+                      <div className={`absolute top-2 right-2 rounded-lg px-3 py-1.5 text-xs font-bold backdrop-blur-md flex items-center gap-1.5 shadow-lg z-10 ${
+                        album.privacy === 'amigos' ? 'bg-blue-500/90 text-white border border-blue-400/50' :
+                        'bg-orange-500/90 text-white border border-orange-400/50'
+                      }`}>
+                        <span className="text-base">{privacy.icon}</span>
+                        <span className="hidden sm:inline">{privacy.label}</span>
+                      </div>
+                    )}
 
                     {/* Lock Overlay for Protected */}
                     {album.privacy === "protegido" && (
