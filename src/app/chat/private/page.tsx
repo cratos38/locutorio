@@ -72,8 +72,9 @@
 //
 // ⚠️ CRÍTICO: "Aceptar" NO significa que debes responder:
 //    - Puedes aceptar y NO responder
-//    - Puedes aceptar y después BLOQUEAR al usuario
-//    - Puedes aceptar y después DENUNCIAR por mensajes inapropiados
+//    - Puedes aceptar y después BLOQUEAR al usuario (cualquiera de los dos)
+//    - Puedes aceptar y después DENUNCIAR por mensajes inapropiados (cualquiera de los dos)
+//    - Bloquear y denunciar son derechos bilaterales (ambos pueden hacerlo)
 //
 // Ejemplo de flujo:
 //   1. Juan envía primer MP a María
@@ -91,7 +92,7 @@
 //   6. Si María elige "Aceptar":
 //      - Conversación activa
 //      - Ambos pueden escribir libremente
-//      - María puede después bloquear o denunciar si es necesario
+//      - AMBOS pueden después bloquear o denunciar si es necesario (derecho bilateral)
 //
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // 📸 RESTRICCIÓN DE FOTOS EN NUEVAS CONVERSACIONES (ANTI-SPAM)
@@ -120,6 +121,97 @@
 // ⚠️ IMPORTANTE: Esta restricción aplica solo a NUEVAS conversaciones
 //    - Si ya tenías conversación activa antes → NO aplica restricción
 //    - Si es primera vez con este usuario → SÍ aplica restricción
+//
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 🚫 SISTEMA DE BLOQUEO Y DENUNCIA (DERECHO BILATERAL)
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//
+// ⚠️ IMPORTANTE: Tanto el sender como el receiver pueden bloquear o denunciar
+//    en cualquier momento, independiente de quién inició la conversación.
+//    Es un derecho BILATERAL (ambos tienen los mismos derechos).
+//
+// BLOQUEAR USUARIO:
+// ----------------
+// Disponible para: TODOS (ambas partes de la conversación)
+//
+// Acciones:
+//   - Botón "🚫 Bloquear" en la conversación
+//   - Confirmación: "¿Bloquear a [username]?"
+//   - Opciones: [Bloquear] [Cancelar]
+//
+// Efectos del bloqueo:
+//   1. Usuario bloqueado NO puede:
+//      - Enviarte más mensajes
+//      - Ver tus fotos privadas
+//      - Ver tu estado (apareces como "Usuario no disponible")
+//      - Verte en búsquedas
+//   2. Tú (quien bloquea) NO puedes:
+//      - Enviarle mensajes al bloqueado
+//      - Ver su perfil
+//      - Ver sus fotos
+//   3. Conversación existente:
+//      - Se oculta para ambos
+//      - Historial se guarda (recuperable si desbloqueas)
+//
+// Desbloquear:
+//   - Ir a Configuración → Usuarios bloqueados
+//   - Lista completa de bloqueados
+//   - Botón "Desbloquear" por cada usuario
+//   - Al desbloquear: conversación vuelve a estar disponible
+//
+// DENUNCIAR USUARIO:
+// -----------------
+// Disponible para: TODOS (ambas partes de la conversación)
+//
+// Motivos de denuncia:
+//   1. Spam
+//   2. Acoso
+//   3. Contenido inapropiado (fotos, mensajes)
+//   4. Suplantación de identidad
+//   5. Lenguaje ofensivo
+//   6. Solicitud de dinero / estafa
+//   7. Otro (describir)
+//
+// Proceso de denuncia:
+//   1. Botón "⚠️ Denunciar" en la conversación
+//   2. Modal con opciones de motivo
+//   3. Campo de texto opcional: "Describe el problema"
+//   4. Checkbox: "¿Deseas también bloquear a este usuario?"
+//   5. Botón: [Enviar denuncia] [Cancelar]
+//
+// Efectos de la denuncia:
+//   - Denuncia se envía a moderadores
+//   - Conversación se marca para revisión
+//   - Si seleccionaste bloquear: bloqueo inmediato
+//   - Usuario denunciado NO recibe notificación
+//   - Acumulación de denuncias:
+//     * 1-2 denuncias: revisión manual
+//     * 3-4 denuncias: advertencia al usuario
+//     * 5+ denuncias: suspensión temporal (24-48h)
+//     * 10+ denuncias: ban permanente
+//
+// Protección contra denuncias falsas:
+//   - Sistema detecta patrones de denuncias falsas
+//   - Si denuncias frecuentemente sin motivo:
+//     * Tu cuenta puede ser revisada
+//     * Tus denuncias tienen menos peso
+//     * Puedes recibir advertencia
+//
+// Revisión de denuncias (moderadores):
+//   - Panel de moderación
+//   - Lista de denuncias pendientes
+//   - Ver conversación completa
+//   - Ver fotos compartidas
+//   - Ver historial del usuario denunciado
+//   - Acciones:
+//     * Aprobar denuncia → advertir o banear usuario
+//     * Rechazar denuncia → marcar como falsa
+//     * Pedir más información
+//
+// Ejemplos de uso:
+//   - Juan bloquea a María → María no puede contactarlo más
+//   - María denuncia a Juan → Moderadores revisan, Juan puede ser advertido/baneado
+//   - Ambos se bloquean mutuamente → Ninguno puede contactar al otro
 //
 // Definiciones:
 //   - "NUEVA CONVERSACIÓN": Primer MP a alguien con quien NUNCA hablaste

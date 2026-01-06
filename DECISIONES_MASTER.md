@@ -910,8 +910,8 @@ Cada foto puede tener su propia configuración:
 **Si eliges "Aceptar":**
 - ✅ Conversación activa
 - ⚠️ "Aceptar" NO significa que debes responder
-- ⚠️ Puedes aceptar y después BLOQUEAR al usuario
-- ⚠️ Puedes aceptar y después DENUNCIAR por mensajes inapropiados
+- ⚠️ AMBOS pueden después BLOQUEAR al otro usuario (derecho bilateral)
+- ⚠️ AMBOS pueden después DENUNCIAR por mensajes inapropiados (derecho bilateral)
 - Aceptar solo abre el canal de comunicación
 
 ### 📸 Restricción de fotos en nuevas conversaciones:
