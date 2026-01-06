@@ -95,9 +95,21 @@ function CrearPerfilForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect");
+  const editMode = searchParams.get("edit") === "true"; // Detectar modo edición
+  
+  // Simular si el usuario está logueado (en producción, esto vendría de un contexto de autenticación)
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  
+  // Estado de verificación de nombre (apodo)
+  const [nombreStatus, setNombreStatus] = useState<"idle" | "checking" | "available" | "taken">("idle");
+  const [nombreCheckTimeout, setNombreCheckTimeout] = useState<NodeJS.Timeout | null>(null);
   
   const [profileData, setProfileData] = useState({
     nombre: "",
+    email: "",
+    emailConfirm: "",
+    password: "",
+    passwordConfirm: "",
     sexo: "",
     fechaNacimiento: "",
     paisCodigo: "VE", // Código del país donde vive
@@ -111,6 +123,50 @@ function CrearPerfilForm() {
     buscarParejaCiudad: "", // Solo si es el mismo país
     buscarParejaEstado: "", // Solo si es el mismo país
   });
+  
+  // Cargar datos del usuario si está en modo edición
+  useEffect(() => {
+    // TODO: En producción, verificar si el usuario está logueado
+    // const user = getLoggedInUser();
+    // setIsLoggedIn(!!user);
+    
+    // Simular usuario logueado en modo edición
+    if (editMode) {
+      setIsLoggedIn(true);
+      // TODO: Cargar datos del backend
+      // const userData = await fetchUserProfile();
+      // Simulación de datos pre-cargados
+      setProfileData({
+        nombre: "Ana_M",
+        email: "ana@example.com",
+        emailConfirm: "ana@example.com",
+
+        password: "********",
+        passwordConfirm: "********",
+        sexo: "mujer",
+        fechaNacimiento: "2000-05-15",
+        paisCodigo: "VE",
+        paisNombre: "Venezuela",
+        ciudad: "Caracas",
+        estado: "Distrito Capital",
+        queBusca: "pareja",
+        buscarParejaPaisCodigo: "VE",
+        buscarParejaPaisNombre: "Venezuela",
+        buscarParejaCiudad: "Caracas",
+        buscarParejaEstado: "Distrito Capital",
+      });
+      
+      // Simulación de fotos pre-cargadas
+      setFotos([
+        {
+          id: "1",
+          url: "https://lh3.googleusercontent.com/aida-public/AB6AXuCYofTvqVt_2Lu8sae20y2yL8U1RSfBdI4CTdq11IzKkQGmmLnacepHa6_RDA63mrE6WYKmUvPX4Df-kx3DaUGM6S3SCk0GEu-sr3DwKsy8ejCWJOgg554w3KwDj2D74_RZQ4HrEu_CIjtNnY9B7ydy_ur9Xski9wL9YcmK7Bkoxvti-rpSbFyiqiM1qmytWWqJDMFCOMd3_x-YHcLpZdviE8Nt5gVZxmRAU8FOq6Ddci9LVMO-hhvrngkyNDslvWLfJmfFwAEc_mtw",
+          esPrincipal: true,
+          estado: "aprobada"
+        }
+      ]);
+    }
+  }, [editMode]);
 
   // Estado para fotos de perfil
   const [fotos, setFotos] = useState<Array<{
@@ -242,10 +298,17 @@ function CrearPerfilForm() {
     e.preventDefault();
     
     // Guardar datos básicos en la base de datos
-    console.log("Datos básicos guardados:", profileData);
+    console.log(editMode ? "Datos actualizados:" : "Datos básicos guardados:", profileData);
     
-    // Redirigir a perfil detallado
-    router.push("/ajustes/perfil?from=registro");
+    if (editMode) {
+      // Modo edición: Volver al perfil del usuario
+      alert("Datos básicos actualizados exitosamente");
+      router.push("/publicprofile/" + profileData.nombre); // O usar el username real
+    } else {
+      // Modo registro: Redirigir al dashboard
+      alert("¡Registro completado! Bienvenido a LoCuToRiO");
+      router.push("/dashboard");
+    }
   };
 
   const handleSkip = () => {
@@ -261,10 +324,7 @@ function CrearPerfilForm() {
   };
 
   return (
-    <div className="min-h-screen bg-forest-dark">
-      {/* Background decorative elements */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-neon-green/5 rounded-full blur-[100px] pointer-events-none" />
-
+    <div className="min-h-screen bg-gradient-to-br from-[#0f2820] via-connect-bg-dark to-[#0a1812]">
       <div className="container mx-auto px-4 py-8 relative z-10">
         {/* Logo/Header */}
         <div className="text-center mb-8">
@@ -276,21 +336,39 @@ function CrearPerfilForm() {
             </div>
             <span className="text-3xl font-bold tracking-tight text-white">LoCuToRiO</span>
           </Link>
-          <h1 className="text-3xl font-bold text-white mb-2">¡Bienvenido!</h1>
-          <p className="text-gray-400">Cuéntanos un poco sobre ti para empezar</p>
+          
+          {/* Botón Volver */}
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <Link 
+              href={isLoggedIn ? "/userprofile" : "/"}
+              className="inline-flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+              <span className="text-sm font-medium">Volver</span>
+            </Link>
+          </div>
+          
+          <h1 className="text-3xl font-bold text-white mb-2">
+            {editMode ? "Editar Datos Básicos" : "¡Bienvenido!"}
+          </h1>
+          <p className="text-gray-400">
+            {editMode ? "Actualiza tu información básica" : "Cuéntanos un poco sobre ti para empezar"}
+          </p>
         </div>
 
         {/* Layout con Sidebar + Contenido */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
           {/* Sidebar izquierdo con foto */}
           <div className="lg:col-span-1">
-            <div className="bg-forest-dark/60 backdrop-blur-sm border border-neon-green/20 rounded-xl p-4 shadow-lg sticky top-24 space-y-4">
+            <div className="bg-connect-bg-dark/60 backdrop-blur-sm border border-connect-border rounded-xl p-4 shadow-lg sticky top-24 space-y-4">
               
               {/* =================== FOTO DE PERFIL (EN SIDEBAR) =================== */}
               <div className="space-y-3">
                 {/* Carta de foto con proporción 10:13 */}
                 <div 
-                  className="relative rounded-xl overflow-hidden bg-forest-dark border border-neon-green/20 cursor-pointer"
+                  className="relative rounded-xl overflow-hidden bg-connect-bg-dark border border-connect-border cursor-pointer"
                   style={{ aspectRatio: '10/13' }}
                   onDragOver={(e) => {
                     e.preventDefault();
@@ -461,22 +539,160 @@ function CrearPerfilForm() {
 
           {/* Contenido derecho: Formulario de Datos básicos */}
           <div className="lg:col-span-3">
-            <div className="bg-forest-dark/60 backdrop-blur-sm border border-neon-green/20 rounded-2xl p-8 shadow-xl shadow-neon-green/5">
+            <div className="bg-connect-bg-dark/60 backdrop-blur-sm border border-connect-border rounded-2xl p-8 shadow-xl shadow-neon-green/5">
               <form onSubmit={handleContinue} className="space-y-6">
-            {/* Nombre */}
+            {/* Nombre (apodo) */}
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">
-                Nombre <span className="text-red-400">*</span>
+                Nombre (apodo) <span className="text-red-400">*</span>
+              </label>
+              <div className="relative">
+                <Input
+                  type="text"
+                  placeholder="Tu apodo (máximo 12 caracteres incluido letras, símbolos, números y espacio)"
+                  value={profileData.nombre}
+                  maxLength={12}
+                  onChange={(e) => {
+                    const newName = e.target.value;
+                    setProfileData({ ...profileData, nombre: newName });
+                    
+                    // Limpiar timeout anterior
+                    if (nombreCheckTimeout) clearTimeout(nombreCheckTimeout);
+                    
+                    if (newName.length >= 3 && !editMode) {
+                      setNombreStatus("checking");
+                      
+                      // Verificar disponibilidad después de 500ms
+                      const timeout = setTimeout(async () => {
+                        try {
+                          const response = await fetch(`/api/check-username?username=${encodeURIComponent(newName)}`);
+                          const data = await response.json();
+                          setNombreStatus(data.available ? "available" : "taken");
+                        } catch (err) {
+                          setNombreStatus("idle");
+                        }
+                      }, 500);
+                      
+                      setNombreCheckTimeout(timeout);
+                    } else {
+                      setNombreStatus("idle");
+                    }
+                  }}
+                  className={`bg-connect-bg-dark/80 text-white placeholder:text-gray-500 transition-all ${
+                    nombreStatus === "available" ? "border-2 border-green-500" :
+                    nombreStatus === "taken" ? "border-2 border-orange-500" :
+                    "border border-connect-border"
+                  }`}
+                  required
+                  disabled={editMode}
+                />
+                {/* Icono de estado */}
+                {nombreStatus !== "idle" && !editMode && (
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                    {nombreStatus === "checking" && (
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-400"></div>
+                    )}
+                    {nombreStatus === "available" && (
+                      <span className="text-green-500 text-xl">✓</span>
+                    )}
+                    {nombreStatus === "taken" && (
+                      <span className="text-orange-500 text-xl">!</span>
+                    )}
+                  </div>
+                )}
+              </div>
+              <div className="mt-1 space-y-1">
+                <p className="text-xs text-gray-400">
+                  💡 No es necesario poner tu nombre verdadero. Elige un apodo que te guste.
+                </p>
+                {nombreStatus === "available" && !editMode && (
+                  <p className="text-xs text-green-400">
+                    ✅ Este nick está disponible
+                  </p>
+                )}
+                {nombreStatus === "taken" && !editMode && (
+                  <p className="text-xs text-orange-400">
+                    ⚠️ Este nick ya está en uso. Elige otro.
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Email */}
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Correo electrónico <span className="text-red-400">*</span>
               </label>
               <Input
-                type="text"
-                placeholder="Tu nombre"
-                value={profileData.nombre}
-                onChange={(e) => setProfileData({ ...profileData, nombre: e.target.value })}
-                className="bg-forest-dark/80 border-forest-light text-white placeholder:text-gray-500"
+                type="email"
+                placeholder="tu@email.com"
+                value={profileData.email}
+                onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
+                className="bg-connect-bg-dark/80 border-connect-border text-white placeholder:text-gray-500"
                 required
+                disabled={editMode}
               />
+              {!editMode && (
+                <p className="text-xs text-orange-400 mt-2">
+                  ⚠️ Solo puedes registrar <strong>un nick</strong> a <strong>un email</strong>. No se permiten múltiples cuentas.
+                </p>
+              )}
             </div>
+
+            {/* Confirmar Email */}
+            {!editMode && (
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Confirmar correo electrónico <span className="text-red-400">*</span>
+                </label>
+                <Input
+                  type="email"
+                  placeholder="Repite tu correo"
+                  value={profileData.emailConfirm}
+                  onChange={(e) => setProfileData({ ...profileData, emailConfirm: e.target.value })}
+                  className="bg-connect-bg-dark/80 border-connect-border text-white placeholder:text-gray-500"
+                  required
+                />
+              </div>
+            )}
+
+
+            {/* Contraseña */}
+            {!editMode && (
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Contraseña <span className="text-red-400">*</span>
+                </label>
+                <Input
+                  type="password"
+                  placeholder="Mínimo 8 caracteres"
+                  value={profileData.password}
+                  onChange={(e) => setProfileData({ ...profileData, password: e.target.value })}
+                  className="bg-connect-bg-dark/80 border-connect-border text-white placeholder:text-gray-500"
+                  required
+                />
+                <p className="text-xs text-gray-400 mt-1">
+                  Debe incluir al menos mayúsculas, minúsculas y números
+                </p>
+              </div>
+            )}
+
+            {/* Confirmar Contraseña */}
+            {!editMode && (
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Confirmar contraseña <span className="text-red-400">*</span>
+                </label>
+                <Input
+                  type="password"
+                  placeholder="Repite tu contraseña"
+                  value={profileData.passwordConfirm}
+                  onChange={(e) => setProfileData({ ...profileData, passwordConfirm: e.target.value })}
+                  className="bg-connect-bg-dark/80 border-connect-border text-white placeholder:text-gray-500"
+                  required
+                />
+              </div>
+            )}
 
             {/* Sexo */}
             <div>
@@ -490,7 +706,7 @@ function CrearPerfilForm() {
                     className={`flex items-center justify-center gap-2 p-3 rounded-lg border cursor-pointer transition-all ${
                       profileData.sexo === option.toLowerCase()
                         ? "bg-neon-green/20 border-neon-green text-neon-green"
-                        : "bg-forest-dark/60 border-forest-light text-gray-400 hover:border-neon-green/50"
+                        : "bg-connect-bg-dark/60 border-connect-border text-gray-400 hover:border-neon-green/50"
                     }`}
                   >
                     <input
@@ -517,9 +733,15 @@ function CrearPerfilForm() {
                 type="date"
                 value={profileData.fechaNacimiento}
                 onChange={(e) => setProfileData({ ...profileData, fechaNacimiento: e.target.value })}
-                className="bg-forest-dark/80 border-forest-light text-white"
+                className="bg-connect-bg-dark/80 border-connect-border text-white"
                 required
               />
+              <div className="mt-2 p-3 bg-orange-500/10 border border-orange-500/30 rounded-lg">
+                <p className="text-xs text-orange-300">
+                  ⚠️ <strong>Por favor, pon tu fecha de nacimiento real.</strong> Luego se puede cambiar solo <strong>una vez</strong>. 
+                  En caso de verificación de perfil con ID, no sería posible verificar con fecha de nacimiento incorrecta.
+                </p>
+              </div>
             </div>
 
             {/* Ubicación */}
@@ -531,7 +753,7 @@ function CrearPerfilForm() {
                 <select
                   value={profileData.paisCodigo}
                   onChange={handleCountryChange}
-                  className="w-full px-4 py-2 bg-forest-dark/80 border border-forest-light rounded-lg text-white focus:border-neon-green focus:ring-1 focus:ring-neon-green"
+                  className="w-full px-4 py-2 bg-connect-bg-dark/80 border border-connect-border rounded-lg text-white focus:border-primary/50 focus:outline-none"
                   required
                 >
                   <option value="">Selecciona tu país</option>
@@ -550,7 +772,7 @@ function CrearPerfilForm() {
                 <select
                   value={profileData.ciudad}
                   onChange={(e) => setProfileData({ ...profileData, ciudad: e.target.value })}
-                  className="w-full px-4 py-2 bg-forest-dark/80 border border-forest-light rounded-lg text-white focus:border-neon-green focus:ring-1 focus:ring-neon-green"
+                  className="w-full px-4 py-2 bg-connect-bg-dark/80 border border-connect-border rounded-lg text-white focus:border-primary/50 focus:outline-none"
                   required
                   disabled={!profileData.paisCodigo}
                 >
@@ -584,7 +806,7 @@ function CrearPerfilForm() {
               <select
                 value={profileData.queBusca}
                 onChange={(e) => setProfileData({ ...profileData, queBusca: e.target.value })}
-                className="w-full px-4 py-2 rounded-lg bg-forest-dark/80 border border-forest-light text-white focus:border-neon-green focus:outline-none"
+                className="w-full px-4 py-2 rounded-lg bg-connect-bg-dark/80 border border-connect-border text-white focus:border-primary/50 focus:outline-none"
                 required
               >
                 <option value="">Seleccionar...</option>
@@ -605,7 +827,7 @@ function CrearPerfilForm() {
                 <select
                   value={profileData.buscarParejaPaisCodigo}
                   onChange={handleBuscarParejaCountryChange}
-                  className="w-full px-4 py-2 bg-forest-dark/80 border border-forest-light rounded-lg text-white focus:border-neon-green focus:ring-1 focus:ring-neon-green"
+                  className="w-full px-4 py-2 bg-connect-bg-dark/80 border border-connect-border rounded-lg text-white focus:border-primary/50 focus:outline-none"
                   required
                 >
                   <option value="">Selecciona un país</option>
@@ -627,7 +849,7 @@ function CrearPerfilForm() {
                     <select
                       value={profileData.buscarParejaCiudad}
                       onChange={(e) => setProfileData({ ...profileData, buscarParejaCiudad: e.target.value })}
-                      className="w-full px-4 py-2 bg-forest-dark/80 border border-forest-light rounded-lg text-white focus:border-neon-green focus:ring-1 focus:ring-neon-green"
+                      className="w-full px-4 py-2 bg-connect-bg-dark/80 border border-connect-border rounded-lg text-white focus:border-primary/50 focus:outline-none"
                     >
                       <option value="">Cualquier ciudad</option>
                       {buscarAvailableCities.map((city, index) => (
@@ -660,31 +882,50 @@ function CrearPerfilForm() {
             </div>
 
             {/* Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-forest-light">
-              <Button
-                type="submit"
-                className="flex-1 bg-neon-green text-forest-dark hover:brightness-110 hover:shadow-lg hover:shadow-neon-green/30 font-bold py-6 text-base"
-              >
-                Continuar - Perfil Detallado →
-              </Button>
-              
-              <Button
-                type="button"
-                onClick={handleSkip}
-                variant="ghost"
-                className="flex-1 bg-forest-light/30 text-gray-300 hover:bg-forest-light/50 hover:text-white border border-forest-light py-6 text-base"
-              >
-                Saltar - Llenar luego
-              </Button>
+            <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-connect-border">
+              {editMode ? (
+                <Button
+                  type="submit"
+                  className="flex-1 bg-neon-green text-forest-dark hover:brightness-110 hover:shadow-lg hover:shadow-neon-green/30 font-bold py-6 text-base"
+                >
+                  💾 Guardar Cambios
+                </Button>
+              ) : (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      // TODO: Crear cuenta y redirigir a /dashboard
+                      alert("Crear y Empezar → /dashboard");
+                    }}
+                    className="flex-1 bg-transparent border border-[#2BEE79]/50 text-white hover:text-[#2BEE79] shadow-[0_0_15px_rgba(43,238,121,0.3)] hover:shadow-[0_0_20px_rgba(43,238,121,0.4)] font-bold py-6 text-base rounded-lg transition-all"
+                  >
+                    Crear y Empezar
+                  </button>
+                  
+                  <button
+                    type="button"
+                    onClick={() => {
+                      // TODO: Crear cuenta y redirigir a /userprofile
+                      alert("Crear y Completar Perfil → /userprofile");
+                    }}
+                    className="flex-1 bg-transparent border border-[#2BEE79]/50 text-white hover:text-[#2BEE79] shadow-[0_0_15px_rgba(43,238,121,0.3)] hover:shadow-[0_0_20px_rgba(43,238,121,0.4)] py-6 text-base font-semibold rounded-lg transition-all"
+                  >
+                    Crear y Completar Perfil
+                  </button>
+                </>
+              )}
             </div>
           </form>
 
           {/* Info */}
-          <div className="mt-6 p-4 bg-neon-green/10 border border-neon-green/30 rounded-lg">
-            <p className="text-xs text-gray-300 text-center">
-              💡 Puedes completar tu perfil detallado más tarde desde tu espacio personal
-            </p>
-          </div>
+          {!editMode && (
+            <div className="mt-6 p-4 bg-neon-green/10 border border-neon-green/30 rounded-lg">
+              <p className="text-xs text-gray-300 text-center">
+                💡 Al crear tu cuenta, aceptas nuestros <a href="/about/terminos" className="text-neon-green hover:brightness-110">Términos y condiciones</a> y <a href="/about/proteccion-datos" className="text-neon-green hover:brightness-110">Política de privacidad</a>
+              </p>
+            </div>
+          )}
             </div>
           </div>
         </div>
@@ -696,7 +937,7 @@ function CrearPerfilForm() {
 export default function CrearPerfilPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-forest-dark flex items-center justify-center">
+      <div className="min-h-screen bg-connect-bg-dark flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-neon-green"></div>
       </div>
     }>

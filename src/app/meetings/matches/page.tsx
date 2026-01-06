@@ -290,7 +290,7 @@ export default function MatchesPage() {
 
                     {/* Actions */}
                     <div className="grid grid-cols-2 gap-3">
-                      <Link href={`/perfil/${match.name.toLowerCase()}`}>
+                      <Link href={`/publicprofile/${match.name.toLowerCase()}`}>
                         <Button
                           variant="outline"
                           className="w-full bg-transparent border-connect-border text-white hover:bg-white/5"

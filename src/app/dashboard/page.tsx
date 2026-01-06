@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import InternalHeader from "@/components/InternalHeader";
 import { useMessages } from "@/contexts/MessagesContext";
+import PhoneVerificationModal from "@/components/PhoneVerificationModal";
+import { useRouter } from "next/navigation";
 
 type CoffeeUser = {
   id: number;
@@ -17,9 +19,105 @@ type CoffeeUser = {
 };
 
 export default function InicioPage() {
+  const router = useRouter();
   const { openMessages } = useMessages();
   const [statusText, setStatusText] = useState("");
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [favoriteSalas, setFavoriteSalas] = useState<string[]>([]);
+  
+  // Estado de verificación
+  const [isPhoneVerified, setIsPhoneVerified] = useState(false); // TODO: Obtener del backend
+  const [showPhoneModal, setShowPhoneModal] = useState(false);
+
+  // Cargar salas favoritas desde localStorage y escuchar cambios
+  useEffect(() => {
+    const loadFavorites = () => {
+      const savedFavorites = localStorage.getItem('chatFavorites');
+      if (savedFavorites) {
+        setFavoriteSalas(JSON.parse(savedFavorites));
+      } else {
+        // Por defecto
+        setFavoriteSalas(["citas", "charla", "ligar"]);
+      }
+    };
+    
+    // Cargar al inicio
+    loadFavorites();
+    
+    // Escuchar cambios en localStorage
+    window.addEventListener('storage', loadFavorites);
+    
+    // Custom event para cambios en la misma pestaña
+    const handleFavoritesUpdate = () => {
+      loadFavorites();
+    };
+    window.addEventListener('favoritesUpdated', handleFavoritesUpdate);
+    
+    return () => {
+      window.removeEventListener('storage', loadFavorites);
+      window.removeEventListener('favoritesUpdated', handleFavoritesUpdate);
+    };
+  }, []);
+
+  // Mapeo de IDs de salas a sus datos (todas las salas disponibles)
+  const allRooms: Record<string, {name: string, icon: string, color: string, users: number}> = {
+    // Principales
+    "citas": { name: "Citas", icon: "💬", color: "bg-blue-500/20 text-blue-400", users: 351 },
+    "charla": { name: "Charla", icon: "😊", color: "bg-yellow-500/20 text-yellow-400", users: 120 },
+    "encuentros": { name: "Encuentros", icon: "☕", color: "bg-green-500/20 text-green-400", users: 89 },
+    "jovenes-alma": { name: "Jóvenes de Alma", icon: "🎯", color: "bg-purple-500/20 text-purple-400", users: 67 },
+    "romantica": { name: "Romántica", icon: "💕", color: "bg-pink-500/20 text-pink-400", users: 54 },
+    
+    // Ciudades
+    "caracas": { name: "Caracas", icon: "📍", color: "bg-red-500/20 text-red-400", users: 128 },
+    "maracaibo": { name: "Maracaibo", icon: "📍", color: "bg-blue-500/20 text-blue-400", users: 95 },
+    "valencia": { name: "Valencia", icon: "📍", color: "bg-green-500/20 text-green-400", users: 76 },
+    "barquisimeto": { name: "Barquisimeto", icon: "📍", color: "bg-yellow-500/20 text-yellow-400", users: 54 },
+    "merida": { name: "Mérida", icon: "📍", color: "bg-purple-500/20 text-purple-400", users: 42 },
+    "barinas": { name: "Barinas", icon: "📍", color: "bg-orange-500/20 text-orange-400", users: 31 },
+    
+    // Intereses
+    "pc-juegos": { name: "PC y Juegos", icon: "🎮", color: "bg-indigo-500/20 text-indigo-400", users: 112 },
+    "motorizados": { name: "Motorizados", icon: "🏍️", color: "bg-red-500/20 text-red-400", users: 67 },
+    "automobil": { name: "Automóvil", icon: "🚗", color: "bg-blue-500/20 text-blue-400", users: 58 },
+    "emo": { name: "EMO", icon: "🖤", color: "bg-purple-500/20 text-purple-400", users: 45 },
+    "jesus-te-ama": { name: "Jesús te ama", icon: "✝️", color: "bg-yellow-500/20 text-yellow-400", users: 89 },
+    "metal-music": { name: "Metal Music", icon: "🤘", color: "bg-gray-500/20 text-gray-400", users: 72 },
+    "futbol": { name: "Fútbol", icon: "⚽", color: "bg-green-500/20 text-green-400", users: 134 },
+    "turistica": { name: "Turística", icon: "🗺️", color: "bg-cyan-500/20 text-cyan-400", users: 51 },
+    "fitness": { name: "Fitness", icon: "💪", color: "bg-orange-500/20 text-orange-400", users: 98 },
+    "rockabilly": { name: "Rockabilly", icon: "🎸", color: "bg-pink-500/20 text-pink-400", users: 34 },
+    "programadores": { name: "Programadores", icon: "💻", color: "bg-blue-500/20 text-blue-400", users: 87 },
+    "agricultura": { name: "Agricultura", icon: "🌾", color: "bg-green-500/20 text-green-400", users: 29 },
+    "crianza": { name: "Crianza", icon: "👶", color: "bg-yellow-500/20 text-yellow-400", users: 62 },
+    
+    // Extranjeros
+    "colombia": { name: "Colombia", icon: "🇨🇴", color: "bg-yellow-500/20 text-yellow-400", users: 156 },
+    "brasil": { name: "Brasil", icon: "🇧🇷", color: "bg-green-500/20 text-green-400", users: 142 },
+    "eeuu": { name: "EEUU", icon: "🇺🇸", color: "bg-blue-500/20 text-blue-400", users: 98 },
+    "eu": { name: "EU", icon: "🇪🇺", color: "bg-indigo-500/20 text-indigo-400", users: 76 },
+    "argentina": { name: "Argentina", icon: "🇦🇷", color: "bg-cyan-500/20 text-cyan-400", users: 134 },
+    "mexico": { name: "México", icon: "🇲🇽", color: "bg-red-500/20 text-red-400", users: 112 },
+    "chile": { name: "Chile", icon: "🇨🇱", color: "bg-blue-500/20 text-blue-400", users: 67 },
+    "peru": { name: "Perú", icon: "🇵🇪", color: "bg-red-500/20 text-red-400", users: 89 },
+    
+    // Sexuales
+    "ligar": { name: "Ligar", icon: "🔥", color: "bg-pink-500/20 text-pink-400", users: 1445 },
+    "flirteo": { name: "Flirteo", icon: "😘", color: "bg-purple-500/20 text-purple-400", users: 892 },
+    "gay-bi": { name: "Gay & Bi", icon: "🏳️‍🌈", color: "bg-rainbow text-rainbow", users: 321 },
+    "bdsm": { name: "BDSM", icon: "⛓️", color: "bg-red-500/20 text-red-400", users: 234 },
+    "erotica": { name: "Erótica", icon: "💋", color: "bg-pink-500/20 text-pink-400", users: 567 },
+    "fotos-videos": { name: "Fotos y Videos 18+", icon: "📸", color: "bg-orange-500/20 text-orange-400", users: 789 },
+    "fetiche": { name: "Fetiche", icon: "🔗", color: "bg-purple-500/20 text-purple-400", users: 198 },
+  };
+
+  // Calcular las 3 salas más usadas (ordenadas por número de usuarios)
+  const topRooms = useMemo(() => {
+    return Object.entries(allRooms)
+      .map(([id, room]) => ({ id, ...room }))
+      .sort((a, b) => b.users - a.users)
+      .slice(0, 3);
+  }, []);
 
   // Emojis comunes para estado
   const commonEmojis = [
@@ -230,13 +328,13 @@ export default function InicioPage() {
                   </div>
                 </div>
 
-                <Link href="/profile" className="block w-full">
-                  <Button className="w-full py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-white font-medium transition-colors flex items-center justify-center gap-2">
+                <Link href="/userprofile" className="block w-full">
+                  <button className="w-full py-2 rounded-lg transition-all text-gray-400 hover:text-[#2BEE79] hover:bg-transparent hover:border-[#2BEE79]/50 hover:shadow-[0_0_15px_rgba(43,238,121,0.3)] border border-transparent font-medium flex items-center justify-center gap-2">
                     <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                     </svg>
                     Editar Perfil
-                  </Button>
+                  </button>
                 </Link>
               </div>
             </div>
@@ -253,9 +351,9 @@ export default function InicioPage() {
               </div>
 
               <div className="p-2 space-y-1">
-                <button onClick={() => openMessages()} className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition-colors group">
+                <button onClick={() => openMessages()} className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg transition-all text-gray-400 hover:text-[#2BEE79] hover:bg-transparent hover:border-[#2BEE79]/50 hover:shadow-[0_0_15px_rgba(43,238,121,0.3)] border border-transparent group">
                   <div className="flex items-center gap-3">
-                    <svg className="w-5 h-5 group-hover:text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5 group-hover:text-[#2BEE79]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                     </svg>
                     <span>Mensajes</span>
@@ -263,27 +361,27 @@ export default function InicioPage() {
                   <span className="bg-primary text-[#0F1416] text-xs font-bold px-1.5 py-0.5 rounded">3</span>
                 </button>
 
-                <Link href="/chat" className="flex items-center justify-between px-3 py-2.5 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition-colors group">
+                <Link href="/chat" className="flex items-center justify-between px-3 py-2.5 rounded-lg transition-all text-gray-400 hover:text-[#2BEE79] hover:bg-transparent hover:border-[#2BEE79]/50 hover:shadow-[0_0_15px_rgba(43,238,121,0.3)] border border-transparent group">
                   <div className="flex items-center gap-3">
-                    <svg className="w-5 h-5 group-hover:text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5 group-hover:text-[#2BEE79]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
                     </svg>
                     <span>Salas de Chat</span>
                   </div>
                 </Link>
 
-                <Link href="/amigos" className="flex items-center justify-between px-3 py-2.5 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition-colors group">
+                <Link href="/amigos" className="flex items-center justify-between px-3 py-2.5 rounded-lg transition-all text-gray-400 hover:text-[#2BEE79] hover:bg-transparent hover:border-[#2BEE79]/50 hover:shadow-[0_0_15px_rgba(43,238,121,0.3)] border border-transparent group">
                   <div className="flex items-center gap-3">
-                    <svg className="w-5 h-5 group-hover:text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5 group-hover:text-[#2BEE79]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                     </svg>
                     <span>Amigos</span>
                   </div>
                 </Link>
 
-                <Link href="/meetings" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between px-3 py-2.5 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition-colors group">
+                <Link href="/meetings" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between px-3 py-2.5 rounded-lg transition-all text-gray-400 hover:text-[#2BEE79] hover:bg-transparent hover:border-[#2BEE79]/50 hover:shadow-[0_0_15px_rgba(43,238,121,0.3)] border border-transparent group">
                   <div className="flex items-center gap-3">
-                    <svg className="w-5 h-5 group-hover:text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5 group-hover:text-[#2BEE79]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5h8a2 2 0 012 2v9a2 2 0 01-2 2H8a2 2 0 01-2-2V7a2 2 0 012-2zm10 4h1a2 2 0 012 2v1a2 2 0 01-2 2h-1M4 18h16" />
                     </svg>
                     <span>Invitaciones</span>
@@ -291,9 +389,9 @@ export default function InicioPage() {
                   <span className="bg-primary text-[#0F1416] text-xs font-bold px-1.5 py-0.5 rounded">5</span>
                 </Link>
 
-                <Link href="/albums" className="flex items-center justify-between px-3 py-2.5 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition-colors group">
+                <Link href="/albums" className="flex items-center justify-between px-3 py-2.5 rounded-lg transition-all text-gray-400 hover:text-[#2BEE79] hover:bg-transparent hover:border-[#2BEE79]/50 hover:shadow-[0_0_15px_rgba(43,238,121,0.3)] border border-transparent group">
                   <div className="flex items-center gap-3">
-                    <svg className="w-5 h-5 group-hover:text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5 group-hover:text-[#2BEE79]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
                     <span>Álbumes</span>
@@ -302,29 +400,92 @@ export default function InicioPage() {
               </div>
             </div>
 
-            {/* Security */}
-            <div className="bg-[#1A2226] border border-white/5 rounded-xl p-5">
-              <h3 className="font-heading font-bold text-sm text-white flex items-center gap-2 mb-4">
-                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                </svg>
-                Seguridad
+            {/* Security Card */}
+            <div className={`bg-[#1A2226] border rounded-xl p-5 transition-all ${
+              isPhoneVerified 
+                ? "border-white/5" 
+                : "border-orange-500 shadow-[0_0_20px_rgba(249,115,22,0.4)] animate-pulse-glow"
+            }`}>
+              <h3 className="font-heading font-bold text-sm text-white flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
+                  Seguridad
+                </div>
+                {!isPhoneVerified && (
+                  <div className="relative group">
+                    <button className="text-gray-400 hover:text-white transition-colors">
+                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+                      </svg>
+                    </button>
+                    
+                    {/* Tooltip */}
+                    <div className="absolute hidden group-hover:block right-0 top-8 w-80 p-4 rounded-lg bg-gray-900/98 border border-orange-500/50 backdrop-blur-lg shadow-2xl z-50 animate-fade-in">
+                      <h4 className="font-bold mb-3 text-white">💡 Estado de verificación</h4>
+                      
+                      <div className="space-y-3 text-xs">
+                        <div className="space-y-1.5">
+                          <p>• Email: <span className="text-green-400">✓ Verificado</span></p>
+                          <p>• Teléfono: <span className="text-orange-400">✗ Sin verificar</span></p>
+                        </div>
+                        
+                        <div className="pt-2 border-t border-gray-700">
+                          <p className="text-orange-300 font-semibold mb-1.5">Limitaciones actuales:</p>
+                          <ul className="space-y-1 ml-3 text-gray-400">
+                            <li>• Límites de mensajes (100→10/día)</li>
+                            <li>• No puedes enviar MP primero</li>
+                            <li>• No crear salas privadas</li>
+                            <li>• Perfil "No verificado"</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </h3>
+              
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-400">Estado de cuenta</span>
-                  <span className="text-xs font-bold text-primary bg-primary/10 px-2 py-0.5 rounded border border-primary/20">
-                    Protegida
+                  <span className={`text-xs font-bold px-2 py-0.5 rounded border ${
+                    isPhoneVerified
+                      ? "text-primary bg-primary/10 border-primary/20"
+                      : "text-orange-500 bg-orange-500/20 border-orange-500/50 shadow-[0_0_8px_rgba(249,115,22,0.4)]"
+                  }`}>
+                    {isPhoneVerified ? "Protegida" : "Vulnerable"}
                   </span>
                 </div>
+                
+                {/* Progress bar */}
                 <div className="w-full bg-white/5 rounded-full h-1.5">
-                  <div className="bg-primary h-1.5 rounded-full shadow-[0_0_15px_rgba(74,222,128,0.1)]" style={{ width: '100%' }}></div>
+                  <div 
+                    className={`h-1.5 rounded-full transition-all ${
+                      isPhoneVerified 
+                        ? "bg-primary shadow-[0_0_15px_rgba(74,222,128,0.1)]" 
+                        : "bg-orange-500 shadow-[0_0_15px_rgba(249,115,22,0.5)]"
+                    }`}
+                    style={{ width: isPhoneVerified ? '100%' : '50%' }}
+                  ></div>
                 </div>
-                <Link href="/ajustes?tab=seguridad">
-                  <Button variant="outline" className="w-full py-1.5 mt-2 bg-transparent hover:bg-white/5 border border-white/10 text-gray-400 hover:text-white text-xs transition-colors">
-                    Revisar actividad reciente
+                
+                {/* Button */}
+                {isPhoneVerified ? (
+                  <Link href="/security?tab=seguridad">
+                    <Button variant="outline" className="w-full py-1.5 mt-2 bg-transparent hover:bg-white/5 border border-white/10 text-gray-400 hover:text-white text-xs transition-colors">
+                      Revisar actividad reciente
+                    </Button>
+                  </Link>
+                ) : (
+                  <Button 
+                    onClick={() => router.push("/security?tab=seguridad")}
+                    variant="outline"
+                    className="w-full py-1.5 mt-2 bg-transparent hover:bg-white/5 border border-orange-500 text-orange-400 hover:text-orange-300 text-xs transition-all shadow-[0_0_10px_rgba(249,115,22,0.3)] hover:shadow-[0_0_20px_rgba(249,115,22,0.5)]"
+                  >
+                    Verificar Ahora
                   </Button>
-                </Link>
+                )}
               </div>
             </div>
           </div>
@@ -400,7 +561,7 @@ export default function InicioPage() {
                 <div>
                   <h3 className="font-bold text-white text-base mb-2">Me Visitaron</h3>
                   <Link
-                    href="/visitas/me-vieron"
+                    href="/visitas"
                     target="_blank"
                     className="text-sm text-primary font-medium mb-3 hover:underline cursor-pointer inline-block"
                   >
@@ -408,28 +569,28 @@ export default function InicioPage() {
                   </Link>
 
                   <div className="flex -space-x-2 mt-3">
-                    <Link href="/perfil/javier-s" target="_blank">
+                    <Link href="/publicprofile/javier-s" target="_blank">
                       <img
                         src="https://lh3.googleusercontent.com/aida-public/AB6AXuBcAgJzBVY0VcA1ICIc8GlT1M1eiu5Og95ubTpOa58bFlu9OV7QmjTZH1cbQBwbPhtvFKip_HyKq7atWt0zzANSMDAC_wrJi67kz8SXvn-HnWmPBihZZc3BAfUyEZ7TOAs4LhWokU66QRGD6Lhq2RYxETUZKEeHUzBCVw0BiuXDqP1lYEwLeNcffCadpUuZggEMO_dPmEceKo3MQ6C2rOGG5yHNZlrhQNjpnrQwZB36kSlcM_HfVWyMRoN6UQ6gNvgLzfLeM1B3VVpJ"
                         alt="Javier S."
                         className="w-9 h-9 rounded-full border-2 border-connect-bg-dark hover:scale-110 transition-transform cursor-pointer"
                       />
                     </Link>
-                    <Link href="/perfil/laura-g" target="_blank">
+                    <Link href="/publicprofile/laura-g" target="_blank">
                       <img
                         src="https://lh3.googleusercontent.com/aida-public/AB6AXuC_k-QPp7Bm1IORwcSuHrBwaT_cooNKHNEO7JbKB8m3ha0lPXpGDfwzn5chvUYwCPj-s9EoOhcVO8dF1vAaBaSF_i1tPyB_hzk8KO03gjXPyNa6N_QrbNVGTFpDQnDJqg10fnvdppt4JpIGSb5n4ql1Ivdmsn9olN4WVvyYvYvXGFUkTqnZmxxtewOWL7MEejxvXGzyIEmcWxbTMlB2HIf7XruycmsEoo9DgJVX043mkpUuUJhOyS_wCVP3JlP0-kYUXILRCrp8H8ic"
                         alt="Laura G."
                         className="w-9 h-9 rounded-full border-2 border-connect-bg-dark hover:scale-110 transition-transform cursor-pointer"
                       />
                     </Link>
-                    <Link href="/perfil/maria-p" target="_blank">
+                    <Link href="/publicprofile/maria-p" target="_blank">
                       <img
                         src="https://lh3.googleusercontent.com/aida-public/AB6AXuBeeMOB_U1vT493g04GMXkQt_nyAG8MhMlNfzG4z2DYPQKR24ob0HEzimmB96Sd4GhY0YRP-TPyWuknoITGye5AxQIIkUMS6bJlap4RBIO5q_9eDlpkiyd765t4bxfntbtlcCVH1rCWDZMmwPm00connYJnD94blHHAjyt0rEyqSIOeuhOi0cgq-CVpWnR4eVh26kZy9ucxX4cLrs2p0K3JeEK_8H1TCTgJzrmRB0bDkW41xryg77g7H1GG4XFsbwP_wkCMxr-3NlwB"
                         alt="Maria P."
                         className="w-9 h-9 rounded-full border-2 border-connect-bg-dark hover:scale-110 transition-transform cursor-pointer"
                       />
                     </Link>
-                    <Link href="/visitas/me-vieron" target="_blank">
+                    <Link href="/visitas" target="_blank">
                       <div className="w-9 h-9 rounded-full border-2 border-connect-bg-dark bg-connect-card flex items-center justify-center text-xs text-white font-bold hover:bg-white/10 cursor-pointer hover:scale-110 transition-transform">
                         +25
                       </div>
@@ -441,7 +602,7 @@ export default function InicioPage() {
                 <div className="text-right">
                   <h3 className="font-bold text-white text-base mb-2">He Visitado</h3>
                   <Link
-                    href="/visitas/he-visitado"
+                    href="/visitas"
                     target="_blank"
                     className="text-sm text-primary font-medium mb-3 hover:underline cursor-pointer inline-block"
                   >
@@ -449,28 +610,28 @@ export default function InicioPage() {
                   </Link>
 
                   <div className="flex -space-x-2 justify-end mt-3">
-                    <Link href="/perfil/carlos-r" target="_blank">
+                    <Link href="/publicprofile/carlos-r" target="_blank">
                       <img
                         src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGb3wmeflExbrjA88BEWgMoBARwnsWXrjnuX9eX0BtYZqnIuIuV2k_c80FD-aUsIiTHut6e-k4cJzjyk4OERJYc_7V103-NFf7eD9WJOXNYzN4YOa0ulR1gN-hucbZyaIz5RfojyS2OglAr4ickMC-qkdFxcoLvF59IV_i3Kxtk7OBbeQjLB2sX2q9THJ5MpQALQETi5ABgMmTiDxzKtRbbs6RUv1H7KU0c6gcA7w_9cbtihKJ1iEfLVPD4g6KGUSrVkXQuXl421Fk"
                         alt="Carlos R."
                         className="w-9 h-9 rounded-full border-2 border-connect-bg-dark hover:scale-110 transition-transform cursor-pointer"
                       />
                     </Link>
-                    <Link href="/perfil/sofia-m" target="_blank">
+                    <Link href="/publicprofile/sofia-m" target="_blank">
                       <img
                         src="https://lh3.googleusercontent.com/aida-public/AB6AXuCYofTvqVt_2Lu8sae20y2yL8U1RSfBdI4CTdq11IzKkQGmmLnacepHa6_RDA63mrE6WYKmUvPX4Df-kx3DaUGM6S3SCk0GEu-sr3DwKsy8ejCWJOgg554w3KwDj2D74_RZQ4HrEu_CIjtNnY9B7ydy_ur9Xski9wL9YcmK7Bkoxvti-rpSbFyiqiM1qmytWWqJDMFCOMd3_x-YHcLpZdviE8Nt5gVZxmRAU8FOq6Ddci9LVMO-hhvrngkyNDslvWLfJmfFwAEc_mtw"
                         alt="Sofía M."
                         className="w-9 h-9 rounded-full border-2 border-connect-bg-dark hover:scale-110 transition-transform cursor-pointer"
                       />
                     </Link>
-                    <Link href="/perfil/pablo-r" target="_blank">
+                    <Link href="/publicprofile/pablo-r" target="_blank">
                       <img
                         src="https://lh3.googleusercontent.com/aida-public/AB6AXuBcAgJzBVY0VcA1ICIc8GlT1M1eiu5Og95ubTpOa58bFlu9OV7QmjTZH1cbQBwbPhtvFKip_HyKq7atWt0zzANSMDAC_wrJi67kz8SXvn-HnWmPBihZZc3BAfUyEZ7TOAs4LhWokU66QRGD6Lhq2RYxETUZKEeHUzBCVw0BiuXDqP1lYEwLeNcffCadpUuZggEMO_dPmEceKo3MQ6C2rOGG5yHNZlrhQNjpnrQwZB36kSlcM_HfVWyMRoN6UQ6gNvgLzfLeM1B3VVpJ"
                         alt="Pablo R."
                         className="w-9 h-9 rounded-full border-2 border-connect-bg-dark hover:scale-110 transition-transform cursor-pointer"
                       />
                     </Link>
-                    <Link href="/visitas/he-visitado" target="_blank">
+                    <Link href="/visitas" target="_blank">
                       <div className="w-9 h-9 rounded-full border-2 border-connect-bg-dark bg-connect-card flex items-center justify-center text-xs text-white font-bold hover:bg-white/10 cursor-pointer hover:scale-110 transition-transform">
                         +9
                       </div>
@@ -496,7 +657,7 @@ export default function InicioPage() {
 
               <div className="grid grid-cols-6 gap-3">
                 {displayedUsers.map((user) => (
-                  <Link key={user.id} href={`/perfil/${user.username}`} target="_blank" className="group">
+                  <Link key={user.id} href={`/publicprofile/${user.username}`} target="_blank" className="group">
                     <div className="relative aspect-square rounded-lg overflow-hidden mb-1.5 cursor-pointer">
                       <img
                         src={user.avatar}
@@ -709,86 +870,89 @@ export default function InicioPage() {
 
           {/* Right Sidebar */}
           <div className="lg:col-span-3 space-y-6">
-            {/* My Interests */}
-            <div className="bg-[#1A2226] border border-white/5 rounded-xl p-5">
-              <h3 className="font-heading font-bold text-sm text-white mb-4">Mis Intereses</h3>
-              <div className="flex flex-wrap gap-2">
-                <span className="px-2.5 py-1 bg-white/5 hover:bg-white/10 text-xs text-gray-400 hover:text-white rounded-md cursor-pointer transition-colors border border-white/5">
-                  Música
-                </span>
-                <span className="px-2.5 py-1 bg-white/5 hover:bg-white/10 text-xs text-gray-400 hover:text-white rounded-md cursor-pointer transition-colors border border-white/5">
-                  Viajes
-                </span>
-                <span className="px-2.5 py-1 bg-white/5 hover:bg-white/10 text-xs text-gray-400 hover:text-white rounded-md cursor-pointer transition-colors border border-white/5">
-                  Fotografía
-                </span>
-                <span className="px-2.5 py-1 bg-white/5 hover:bg-white/10 text-xs text-gray-400 hover:text-white rounded-md cursor-pointer transition-colors border border-white/5">
-                  Cine
-                </span>
-                <button className="px-2.5 py-1 text-xs text-primary hover:underline flex items-center gap-1">
-                  <svg className="w-[14px] h-[14px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                  </svg>
-                  Añadir
-                </button>
-              </div>
-            </div>
-
-            {/* Salas Favoritas */}
+            {/* Salas de Chat */}
             <div className="bg-connect-card border border-connect-border rounded-xl overflow-hidden">
-              <div className="p-4 border-b border-connect-border bg-white/2 flex justify-between items-center">
-                <div className="flex items-center gap-1.5">
-                  <h3 className="font-heading font-bold text-sm text-white">Salas Favoritas</h3>
-                  <button className="p-1 hover:bg-white/10 rounded transition-colors text-gray-400 hover:text-primary">
-                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+              {/* Header */}
+              <div className="p-4 border-b border-connect-border bg-white/2">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
                     </svg>
+                  </div>
+                  <h3 className="font-heading font-bold text-base text-white">Salas de Chat</h3>
+                  <Link href="/chat" className="ml-auto text-xs text-primary hover:underline">
+                    Ver todas
+                  </Link>
+                </div>
+
+                {/* Search Bar */}
+                <div className="relative">
+                  <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                  <Input
+                    placeholder="Buscar salas"
+                    className="pl-9 bg-connect-bg-dark border-connect-border text-white text-sm h-9"
+                  />
+                </div>
+              </div>
+
+              {/* Mis Salas Favoritas */}
+              <div className="p-3 border-b border-connect-border/50">
+                <h4 className="text-xs font-bold text-gray-400 uppercase mb-2 px-2">Mis Salas Favoritas</h4>
+                <div className="space-y-1">
+                  {favoriteSalas.slice(0, 3).map((roomId) => {
+                    const room = allRooms[roomId];
+                    if (!room) return null;
+                    
+                    return (
+                      <Link 
+                        key={roomId}
+                        href={`/chat?room=${roomId}`} 
+                        className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 cursor-pointer transition-colors group"
+                      >
+                        <div className={`w-10 h-10 ${room.color} rounded-lg flex items-center justify-center text-2xl group-hover:scale-110 transition-transform`}>
+                          {room.icon}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="text-sm font-bold text-white group-hover:text-primary transition-colors">{room.name}</h4>
+                          <p className="text-xs text-connect-muted">{room.users} personas</p>
+                        </div>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Más Usadas */}
+              <div className="p-3">
+                <h4 className="text-xs font-bold text-gray-400 uppercase mb-2 px-2">Más Usadas</h4>
+                <div className="space-y-1">
+                  {topRooms.map((room) => (
+                    <Link 
+                      key={room.id}
+                      href={`/chat?room=${room.id}`} 
+                      className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 cursor-pointer transition-colors group"
+                    >
+                      <div className={`w-10 h-10 ${room.color} rounded-lg flex items-center justify-center text-2xl group-hover:scale-110 transition-transform`}>
+                        {room.icon}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="text-sm font-bold text-white group-hover:text-primary transition-colors">{room.name}</h4>
+                        <p className="text-xs text-connect-muted">{room.users} personas</p>
+                      </div>
+                    </Link>
+                  ))}
+
+                  {/* Botón Crear Sala */}
+                  <button className="w-full flex items-center justify-center gap-2 p-3 mt-2 rounded-lg border-2 border-dashed border-primary/30 hover:border-primary/60 hover:bg-primary/10 transition-all group">
+                    <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    <span className="text-sm font-bold text-primary">Crear sala</span>
                   </button>
                 </div>
-                <Link href="/chat" className="text-xs text-primary hover:underline">
-                  Ver todas
-                </Link>
-              </div>
-
-              <div className="p-3 space-y-2">
-                {/* Room 1 */}
-                <Link href="/chat/general" className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 cursor-pointer transition-colors group">
-                  <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center text-blue-400 group-hover:bg-blue-500/30">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h4 className="text-sm font-bold text-white group-hover:text-primary transition-colors">General</h4>
-                    <p className="text-xs text-connect-muted">245 conectados</p>
-                  </div>
-                </Link>
-
-                {/* Room 2 */}
-                <Link href="/chat/musica" className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 cursor-pointer transition-colors group">
-                  <div className="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center text-purple-400 group-hover:bg-purple-500/30">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
-                    </svg>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h4 className="text-sm font-bold text-white group-hover:text-primary transition-colors">Música</h4>
-                    <p className="text-xs text-connect-muted">128 conectados</p>
-                  </div>
-                </Link>
-
-                {/* Room 3 */}
-                <Link href="/chat/citas" className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 cursor-pointer transition-colors group">
-                  <div className="w-10 h-10 bg-pink-500/20 rounded-lg flex items-center justify-center text-pink-400 group-hover:bg-pink-500/30">
-                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                    </svg>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h4 className="text-sm font-bold text-white group-hover:text-primary transition-colors">Citas</h4>
-                    <p className="text-xs text-connect-muted">89 conectados</p>
-                  </div>
-                </Link>
               </div>
             </div>
 
@@ -929,6 +1093,21 @@ export default function InicioPage() {
           </div>
         </div>
       )}
+      
+      {/* Phone Verification Modal */}
+      {showPhoneModal && (
+        <PhoneVerificationModal
+          onVerifyNow={() => {
+            setShowPhoneModal(false);
+            router.push("/security?tab=seguridad");
+          }}
+          onClose={() => {
+            setShowPhoneModal(false);
+            // El modal se cierra, la tarjeta ya está naranja
+          }}
+        />
+      )}
     </div>
   );
 }
+

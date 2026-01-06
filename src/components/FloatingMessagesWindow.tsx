@@ -266,8 +266,10 @@ export default function FloatingMessagesWindow() {
       }
 
       if (isResizing && windowState === "normal") {
-        const newWidth = Math.max(450, Math.min(1600, e.clientX - windowPosition.x));
-        const newHeight = Math.max(500, Math.min(1000, e.clientY - windowPosition.y));
+        // Calculate new height based on mouse position
+        const newHeight = Math.max(500, Math.min(900, e.clientY - windowPosition.y));
+        // Force width to match height (square aspect ratio)
+        const newWidth = newHeight;
         
         setWindowSize({
           width: newWidth,

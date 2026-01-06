@@ -273,7 +273,7 @@ export default function BusquedaTutorialPage() {
 
         {/* Navigation */}
         <div className="flex justify-between items-center mt-12 pt-8 border-t border-connect-border">
-          <Link href="/connect/tutorial/foto-albumes">
+          <Link href="/tutorial/foto-albumes">
             <Button variant="ghost" className="text-connect-muted hover:text-white">
               ← Anterior: Foto Álbumes
             </Button>

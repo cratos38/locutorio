@@ -43,7 +43,7 @@ export default function BuscarPage() {
           <Link href="/dashboard" className="text-sm font-medium text-gray-400 hover:text-white">Mi Espacio Personal</Link>
           <button onClick={() => openMessages()} className="text-sm font-medium text-gray-400 hover:text-white">Mensajes</button>
           <Link href="/notificaciones" className="text-sm font-medium text-gray-400 hover:text-white">Notificaciones</Link>
-          <Link href="/perfil/editar" className="text-sm font-medium text-gray-400 hover:text-white">Mi Perfil</Link>
+          <Link href="/userprofile" className="text-sm font-medium text-gray-400 hover:text-white">Mi Perfil</Link>
         </nav>
 
         <Button variant="outline" className="hidden md:block bg-connect-card border-connect-border text-white hover:bg-white/5">
@@ -316,7 +316,7 @@ export default function BuscarPage() {
 
                     <div className="flex flex-col gap-2 w-full mt-auto">
                       <Link
-                        href={`/perfil/${user.name.toLowerCase()}`}
+                        href={`/publicprofile/${user.name.toLowerCase()}`}
                         className="py-2 px-4 rounded-full border border-connect-border text-white text-sm font-bold hover:bg-white/5 transition-colors text-center"
                       >
                         Ver Perfil

@@ -7,6 +7,163 @@ import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import InternalHeader from "@/components/InternalHeader";
 
+// Album carousel component
+function AlbumCarousel({ albumId, privacy }: { albumId: number; privacy: string }) {
+  const [photos, setPhotos] = useState<any[]>([]);
+  const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [intervalSpeed, setIntervalSpeed] = useState(3000); // 3 seconds default
+
+  useEffect(() => {
+    // Load photos for this album
+    const photosData = localStorage.getItem(`album_${albumId}_photos`);
+    if (photosData) {
+      const loadedPhotos = JSON.parse(photosData);
+      setPhotos(loadedPhotos);
+    }
+  }, [albumId]);
+
+  useEffect(() => {
+    // Auto-rotate photos for public albums only
+    if (privacy === "publico" && photos.length > 1 && isPlaying) {
+      const interval = setInterval(() => {
+        setCurrentPhotoIndex((prev) => (prev + 1) % photos.length);
+      }, intervalSpeed);
+      return () => clearInterval(interval);
+    }
+  }, [photos.length, privacy, isPlaying, intervalSpeed]);
+
+  if (privacy === "protegido") {
+    return (
+      <div className="w-full h-full flex flex-col items-center justify-center gap-2 bg-gradient-to-br from-orange-500/20 to-red-500/20">
+        <svg className="w-12 h-12 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+        </svg>
+        <p className="text-orange-300 font-bold text-xs">PROTEGIDO</p>
+      </div>
+    );
+  }
+
+  if (privacy === "amigos") {
+    return (
+      <div className="w-full h-full flex flex-col items-center justify-center gap-2 bg-gradient-to-br from-blue-500/20 to-cyan-500/20">
+        <svg className="w-12 h-12 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+        </svg>
+        <p className="text-blue-300 font-bold text-xs">AMIGOS</p>
+      </div>
+    );
+  }
+
+  if (photos.length === 0) {
+    return (
+      <div className="w-full h-full flex items-center justify-center">
+        <svg className="w-16 h-16 text-connect-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+        </svg>
+      </div>
+    );
+  }
+
+  return (
+    <div className="relative w-full h-full group/carousel">
+      {photos.map((photo, index) => (
+        <img
+          key={photo.id}
+          src={photo.url}
+          alt={photo.description || `Photo ${index + 1}`}
+          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
+            index === currentPhotoIndex ? 'opacity-100' : 'opacity-0'
+          }`}
+        />
+      ))}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60 group-hover:opacity-80 transition-opacity"></div>
+      
+      {/* Controls - visible on hover */}
+      {photos.length > 1 && (
+        <div className="absolute top-2 left-2 flex gap-1 opacity-0 group-hover/carousel:opacity-100 transition-opacity z-10">
+          {/* Play/Pause */}
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setIsPlaying(!isPlaying);
+            }}
+            className="p-1.5 bg-black/60 backdrop-blur-sm rounded-lg hover:bg-black/80 transition-colors"
+            title={isPlaying ? 'Pausar' : 'Reproducir'}
+          >
+            {isPlaying ? (
+              <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
+              </svg>
+            ) : (
+              <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z" />
+              </svg>
+            )}
+          </button>
+          
+          {/* Speed control */}
+          <div className="flex gap-1">
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setIntervalSpeed(2000);
+              }}
+              className={`px-2 py-1 text-xs font-bold rounded transition-colors ${
+                intervalSpeed === 2000 
+                  ? 'bg-primary/80 text-connect-bg-dark' 
+                  : 'bg-black/60 text-white hover:bg-black/80'
+              }`}
+              title="Rápido (2s)"
+            >
+              2s
+            </button>
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setIntervalSpeed(3000);
+              }}
+              className={`px-2 py-1 text-xs font-bold rounded transition-colors ${
+                intervalSpeed === 3000 
+                  ? 'bg-primary/80 text-connect-bg-dark' 
+                  : 'bg-black/60 text-white hover:bg-black/80'
+              }`}
+              title="Normal (3s)"
+            >
+              3s
+            </button>
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setIntervalSpeed(5000);
+              }}
+              className={`px-2 py-1 text-xs font-bold rounded transition-colors ${
+                intervalSpeed === 5000 
+                  ? 'bg-primary/80 text-connect-bg-dark' 
+                  : 'bg-black/60 text-white hover:bg-black/80'
+              }`}
+              title="Lento (5s)"
+            >
+              5s
+            </button>
+          </div>
+        </div>
+      )}
+      
+      {/* Photo counter */}
+      {photos.length > 1 && (
+        <div className="absolute bottom-2 left-2 px-2 py-1 bg-black/60 backdrop-blur-sm rounded-full text-white text-xs font-medium z-10">
+          {currentPhotoIndex + 1} / {photos.length}
+        </div>
+      )}
+    </div>
+  );
+}
+
 type Album = {
   id: number;
   title: string;
@@ -312,58 +469,19 @@ export default function AlbumesPage() {
                   className="group relative overflow-hidden rounded-xl bg-connect-card p-2 transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10"
                 >
                   <div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg bg-connect-bg-dark">
-                    {album.privacy === "protegido" ? (
-                      <div className="w-full h-full flex flex-col items-center justify-center gap-2 bg-gradient-to-br from-orange-500/20 to-red-500/20">
-                        <svg className="w-12 h-12 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                        </svg>
-                        <p className="text-orange-300 font-bold text-xs">PROTEGIDO</p>
-                      </div>
-                    ) : album.privacy === "amigos" ? (
-                      <div className="w-full h-full flex flex-col items-center justify-center gap-2 bg-gradient-to-br from-blue-500/20 to-cyan-500/20">
-                        <svg className="w-12 h-12 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                        </svg>
-                        <p className="text-blue-300 font-bold text-xs">AMIGOS</p>
-                      </div>
-                    ) : album.coverImage ? (
-                      <>
-                        <img
-                          src={album.coverImage}
-                          alt={album.title}
-                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60 group-hover:opacity-80 transition-opacity"></div>
-                      </>
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <svg className="w-16 h-16 text-connect-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={1.5}
-                            d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
-                          />
-                        </svg>
-                      </div>
-                    )}
+                    <AlbumCarousel albumId={album.id} privacy={album.privacy} />
 
                     {/* Privacy Badge */}
-                    <div className="absolute top-1.5 right-1.5 rounded-full bg-black/60 px-2 py-0.5 text-[10px] font-bold text-white backdrop-blur-md flex items-center gap-1 border border-white/10">
+                    <div className="absolute top-1.5 right-1.5 rounded-full bg-black/60 px-2 py-0.5 text-[10px] font-bold text-white backdrop-blur-md flex items-center gap-1 border border-white/10 z-10">
                       <span className={privacy.color}>{privacy.icon}</span>
                     </div>
 
                     {/* Lock Overlay for Protected */}
                     {album.privacy === "protegido" && (
-                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
                         <div className="bg-black/50 p-2 rounded-full backdrop-blur-sm">
                           <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                            />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                           </svg>
                         </div>
                       </div>

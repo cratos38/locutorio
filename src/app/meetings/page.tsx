@@ -681,7 +681,7 @@ function EncuentrosContent() {
                     </div>
 
                     <div className="grid grid-cols-2 gap-3">
-                      <Link href={`/perfil/${invitation.name.toLowerCase()}`}>
+                      <Link href={`/publicprofile/${invitation.name.toLowerCase()}`}>
                         <Button
                           variant="outline"
                           className="w-full bg-transparent border-connect-border text-white hover:bg-white/5"

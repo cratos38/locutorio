@@ -64,7 +64,7 @@ export default function MeVieronPage() {
           {visitors.map((visitor) => (
             <Link
               key={visitor.id}
-              href={`/perfil/${visitor.username}`}
+              href={`/publicprofile/${visitor.username}`}
               target="_blank"
               className="group"
             >

@@ -346,7 +346,7 @@ export default function PersonasPage() {
 
                     <div className="flex flex-col gap-2 w-full mt-auto">
                       <Link
-                        href={`/perfil/${user.name.toLowerCase()}`}
+                        href={`/publicprofile/${user.name.toLowerCase()}`}
                         className="py-2 px-4 rounded-full border border-connect-border text-white text-sm font-bold hover:bg-white/5 transition-colors text-center"
                       >
                         Ver Perfil

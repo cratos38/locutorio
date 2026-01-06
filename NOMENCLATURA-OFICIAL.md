@@ -14,11 +14,13 @@ Esta es la **nomenclatura oficial** que SIEMPRE debemos usar al hablar del proye
 |----------------|------|---------|-------|
 | **Inicio** (página principal) | `/` | `src/app/page.tsx` | Landing, Página Principal |
 | **Mi Espacio** | `/dashboard` | `src/app/dashboard/` | Área Personal, Home (logeado) |
-| **Perfil de Usuario** | `/profile` | `src/app/profile/` | Perfil, Datos del Usuario |
+| **Perfil de Usuario** | `/userprofile` | `src/app/userprofile/` | Perfil Editable, Mis Datos |
+| **Perfil Público** | `/publicprofile/[username]` | `src/app/publicprofile/[username]/` | Ver Perfil de Otros |
+| **Seguridad y Configuración** | `/security` | `src/app/security/` | Email, Teléfono, 2FA, Contraseña |
 | **Historias** | `/stories` | `src/app/stories/` | Historias de Éxito |
 | **Tutorial** | `/tutorial` | `src/app/tutorial/` | Guía, Ayuda |
 | **Acerca de** | `/about` | `src/app/about/` | Información, Sobre Nosotros |
-| **Personas** | `/people` | `src/app/people/` | Buscar Perfiles |
+| **Usuarios** | `/people` | `src/app/people/` | Buscar Usuarios |
 | **Chat** | `/chat` | `src/app/chat/` | Salas de Chat |
 | **Álbumes** | `/albums` | `src/app/albums/` | Galería, Fotos |
 | **Mensajes** | (flotante) | `src/components/FloatingMessagesWindow.tsx` | Mensajería Interna |
@@ -89,9 +91,11 @@ NO busques /connect/
 ```
 Para INICIO → Busca: src/app/page.tsx
 Para MI ESPACIO → Busca: src/app/dashboard/
-Para PERFIL DE USUARIO → Busca: src/app/profile/
+Para PERFIL DE USUARIO → Busca: src/app/userprofile/
+Para PERFIL PÚBLICO → Busca: src/app/publicprofile/[username]/
+Para SEGURIDAD Y CONFIGURACIÓN → Busca: src/app/security/
 Para ENCUENTROS → Busca: src/app/meetings/
-Para PERSONAS → Busca: src/app/people/
+Para USUARIOS → Busca: src/app/people/
 Para ÁLBUMES → Busca: src/app/albums/
 Para HISTORIAS → Busca: src/app/stories/
 Para ACERCA DE → Busca: src/app/about/
@@ -104,9 +108,11 @@ Para CREAR PERFIL → Busca: src/app/create-profile/
 // ✅ CORRECTO (rutas en inglés)
 <Link href="/">Inicio</Link>
 <Link href="/dashboard">Mi Espacio</Link>
-<Link href="/profile">Perfil de Usuario</Link>
+<Link href="/userprofile">Perfil de Usuario</Link>
+<Link href="/publicprofile/Ana_M">Perfil Público</Link>
+<Link href="/security">Seguridad y Configuración</Link>
 <Link href="/meetings">Encuentros</Link>
-<Link href="/people">Personas</Link>
+<Link href="/people">Usuarios</Link>
 <Link href="/albums">Álbumes</Link>
 <Link href="/stories">Historias</Link>
 <Link href="/about">Acerca de</Link>
@@ -130,8 +136,13 @@ src/app/
 ├── page.tsx                    ← INICIO (página principal)
 ├── dashboard/
 │   └── page.tsx               ← MI ESPACIO
-├── profile/
+├── userprofile/
 │   └── page.tsx               ← PERFIL DE USUARIO
+├── publicprofile/
+│   └── [username]/
+│       └── page.tsx           ← PERFIL PÚBLICO
+├── security/
+│   └── page.tsx               ← SEGURIDAD Y CONFIGURACIÓN
 ├── stories/
 │   └── page.tsx               ← HISTORIAS
 ├── tutorial/
@@ -139,7 +150,7 @@ src/app/
 ├── about/
 │   └── page.tsx               ← ACERCA DE
 ├── people/
-│   └── page.tsx               ← PERSONAS
+│   └── page.tsx               ← USUARIOS
 ├── chat/
 │   └── page.tsx               ← CHAT
 ├── albums/

@@ -207,7 +207,7 @@ export default function ChatTutorialPage() {
               ← Volver al tutorial
             </Button>
           </Link>
-          <Link href="/connect/tutorial/foto-albumes">
+          <Link href="/tutorial/foto-albumes">
             <Button className="bg-primary text-connect-bg-dark hover:brightness-110">
               Siguiente: Foto Álbumes →
             </Button>

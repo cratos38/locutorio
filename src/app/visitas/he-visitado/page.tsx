@@ -62,7 +62,7 @@ export default function HeVisitadoPage() {
           {visited.map((user) => (
             <Link
               key={user.id}
-              href={`/perfil/${user.username}`}
+              href={`/publicprofile/${user.username}`}
               target="_blank"
               className="group"
             >

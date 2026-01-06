@@ -141,7 +141,7 @@ export default function InternalHeader() {
                 </div>
                 <div className="py-2">
                   <Link
-                    href="/profile"
+                    href="/userprofile"
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={() => setShowMenu(false)}
@@ -153,7 +153,7 @@ export default function InternalHeader() {
                     Mi Perfil
                   </Link>
                   <Link
-                    href="/ajustes"
+                    href="/security"
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={() => setShowMenu(false)}

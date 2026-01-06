@@ -82,20 +82,23 @@ function LoginForm() {
               </div>
             )}
 
-            {/* Username/Locutorio ID */}
+            {/* Username/Email */}
             <div>
               <label htmlFor="username" className="block text-sm font-medium text-white mb-2">
-                Locutorio ID
+                Email o Nick
               </label>
               <Input
                 id="username"
                 type="text"
-                placeholder="Tu nombre de usuario"
+                placeholder="tu@email.com o tu_nick"
                 value={formData.username}
                 onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                 className="bg-connect-bg-dark border-connect-border text-white placeholder:text-connect-muted focus:border-primary"
                 required
               />
+              <p className="text-xs text-gray-400 mt-1">
+                💡 Puedes iniciar sesión con tu <strong>email</strong> o con tu <strong>nick</strong>
+              </p>
             </div>
 
             {/* Password */}

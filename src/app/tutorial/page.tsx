@@ -43,7 +43,7 @@ export default function TutorialPage() {
 
           <div className="w-full relative">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 px-4 md:px-0">
-              <Link href="/connect/tutorial/la-cuenta">
+              <Link href="/tutorial/la-cuenta">
               <Card className="w-full flex flex-col gap-4 rounded-3xl bg-connect-card p-4 shadow-xl border border-white/5 transition-transform hover:-translate-y-1 cursor-pointer hover:border-primary/50">
                 <div className="w-full aspect-[4/3] rounded-2xl bg-black/20 overflow-hidden relative group">
                   <div className="absolute inset-0 bg-gradient-to-br from-green-400 via-emerald-500 to-teal-600 transition-transform duration-500 group-hover:scale-105 flex items-center justify-center">
@@ -66,7 +66,7 @@ export default function TutorialPage() {
               </Card>
               </Link>
 
-              <Link href="/connect/tutorial/chat">
+              <Link href="/tutorial/chat">
               <Card className="w-full flex flex-col gap-4 rounded-3xl bg-connect-card p-4 shadow-xl border border-white/5 transition-transform hover:-translate-y-1 cursor-pointer hover:border-primary/50">
                 <div className="w-full aspect-[4/3] rounded-2xl bg-black/20 overflow-hidden relative group">
                   <div
@@ -90,7 +90,7 @@ export default function TutorialPage() {
               </Card>
               </Link>
 
-              <Link href="/connect/tutorial/foto-albumes">
+              <Link href="/tutorial/foto-albumes">
               <Card className="w-full flex flex-col gap-4 rounded-3xl bg-connect-card p-4 shadow-xl border border-primary/20 transition-transform hover:-translate-y-1 ring-1 ring-primary/20 cursor-pointer hover:border-primary">
                 <div className="w-full aspect-[4/3] rounded-2xl bg-black/20 overflow-hidden relative group">
                   <div
@@ -108,13 +108,13 @@ export default function TutorialPage() {
                 <div className="flex flex-col gap-2 px-2 pb-2">
                   <p className="text-lg font-bold text-white">Foto Álbumes</p>
                   <p className="text-sm text-connect-muted leading-relaxed">
-                    Comparte tu vida con quien tú elijas. Control total sobre la privacidad de tus recuerdos.
+                    Crea álbumes con drag & drop, carrusel automático, comentarios públicos/privados, estadísticas de visitas, likes y descarga. Control total sobre tu privacidad.
                   </p>
                 </div>
               </Card>
               </Link>
 
-              <Link href="/connect/tutorial/busqueda">
+              <Link href="/tutorial/busqueda">
               <Card className="w-full flex flex-col gap-4 rounded-3xl bg-connect-card p-4 shadow-xl border border-white/5 transition-transform hover:-translate-y-1 cursor-pointer hover:border-primary/50">
                 <div className="w-full aspect-[4/3] rounded-2xl bg-black/20 overflow-hidden relative group">
                   <div

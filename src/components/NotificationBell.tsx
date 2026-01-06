@@ -65,7 +65,7 @@ export default function NotificationBell() {
       type: "system",
       title: "Bienvenida",
       message: "¡Completa tu perfil para obtener más visitas!",
-      link: "/perfil/editar",
+      link: "/userprofile",
       time: "Hace 1 día",
       isRead: true,
     },

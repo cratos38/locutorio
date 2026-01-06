@@ -28,7 +28,7 @@ export default function ConnectPage() {
                 Historias
               </Link>
               <Link href="/tutorial" className="text-sm font-medium text-white hover:text-primary transition-colors">
-                Tutorial
+                Tutoriales y Ayuda
               </Link>
               <Link href="/about" className="text-sm font-medium text-white hover:text-primary transition-colors">
                 Acerca de
@@ -48,7 +48,7 @@ export default function ConnectPage() {
                   Iniciar Sesión
                 </Button>
               </Link>
-              <Link href="/register">
+              <Link href="/create-profile">
                 <Button className="bg-primary text-connect-bg-dark hover:brightness-110 font-bold shadow-[0_0_20px_rgba(43,238,121,0.3)]">
                   Únete Ahora
                 </Button>
@@ -224,7 +224,7 @@ export default function ConnectPage() {
                       <p className="text-connect-muted text-sm mt-2 leading-relaxed">
                         Añade tu foto, intereses y lo que buscas. Un perfil completo recibe 10x más visitas y conexiones reales.
                       </p>
-                      <Link href="/connect/tutorial/la-cuenta" className="inline-flex items-center gap-2 mt-3 text-primary text-sm font-medium hover:underline">
+                      <Link href="/tutorial/la-cuenta" className="inline-flex items-center gap-2 mt-3 text-primary text-sm font-medium hover:underline">
                         Aprende más →
                       </Link>
                     </div>
@@ -350,7 +350,7 @@ export default function ConnectPage() {
               <Link href="/about/terminos" className="hover:text-primary transition-colors">
                 Términos de Servicio
               </Link>
-              <Link href="/connect/tutorial/la-cuenta" className="hover:text-primary transition-colors">
+              <Link href="/tutorial/la-cuenta" className="hover:text-primary transition-colors">
                 Soporte
               </Link>
             </div>
