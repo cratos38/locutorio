@@ -4,29 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import Link from "next/link";
 import InternalHeader from "@/components/InternalHeader";
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 
 export default function ChatTutorialPage() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const router = useRouter();
-
-  useEffect(() => {
-    // Simple check: if there's any data in localStorage, assume logged in
-    // TODO: Replace with proper auth check when implemented
-    const hasUserData = localStorage.getItem('currentUser') || 
-                        localStorage.getItem('albums') || 
-                        localStorage.getItem('userSession');
-    setIsLoggedIn(!!hasUserData);
-  }, []);
-
-  const handleCreateRoomClick = () => {
-    if (isLoggedIn) {
-      router.push('/chat');
-    } else {
-      router.push('/create-profile');
-    }
-  };
   return (
     <div className="min-h-screen bg-connect-bg-dark text-white font-display">
       {/* Use internal header for logged-in users */}
@@ -226,16 +205,6 @@ export default function ChatTutorialPage() {
                     </div>
                   </div>
                 </div>
-
-                <Button 
-                  onClick={handleCreateRoomClick}
-                  className="w-full mt-6 bg-primary text-connect-bg-dark hover:brightness-110 font-bold"
-                >
-                  <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-                  </svg>
-                  {isLoggedIn ? 'Crear Mi Primera Sala' : 'Únete para Crear Salas'}
-                </Button>
               </div>
             </div>
           </Card>
