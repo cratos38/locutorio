@@ -1637,6 +1637,18 @@ function AjustesPerfilContent() {
                   <span className="text-sm font-medium">Seguridad y Configuración</span>
                 </Link>
                 
+                {/* Botón Cómo me ven - Ver perfil público */}
+                {/* TODO: Obtener username del sistema de autenticación real */}
+                <Link
+                  href="/publicprofile/anam"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full flex items-center gap-3 px-4 py-2 rounded-lg transition-all text-gray-400 hover:text-[#2BEE79] hover:bg-transparent hover:border-[#2BEE79]/50 hover:shadow-[0_0_15px_rgba(43,238,121,0.3)] border border-transparent"
+                >
+                  <span className="text-xl">👁️</span>
+                  <span className="text-sm font-medium">Cómo me ven</span>
+                </Link>
+                
                 {categories.map((category) => (
                   <button
                     key={category.id}
