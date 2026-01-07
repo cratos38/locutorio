@@ -266,6 +266,7 @@ function AjustesPerfilContent() {
     
     // ===== INFORMACIÓN PRIVADA =====
     escuelasPrivadasPublicas: "",
+    escuelasPrivadasPublicasOtra: "", // Si selecciona "alternativa"
     tusPadresEstan: "",
     economicamenteIndependiente: "",
     nivelIngresos: "",
@@ -1345,7 +1346,7 @@ function AjustesPerfilContent() {
                 { value: "mezcla", label: "Mezcla de públicas y privadas" },
                 { value: "en-casa", label: "Educación en casa" },
                 { value: "alternativa", label: "Educación alternativa" },
-              ])}
+              ], "escuelasPrivadasPublicasOtra")}
             </div>
 
             {/* Familia */}
@@ -1514,6 +1515,8 @@ function AjustesPerfilContent() {
         generos_libros: formData.generosLibros || [],
         deportes_practica: formData.deportesPractica || [],
         ideas_politicas: formData.ideasPoliticas || null,
+        escuelas_privadas_publicas: formData.escuelasPrivadasPublicas || null,
+        escuelas_privadas_publicas_otra: formData.escuelasPrivadasPublicasOtra || null,
         valores_tradicionales: formData.valoresTradicionales || null,
         espiritualidad: formData.espiritualidad || null,
         religion: formData.religion || null,
