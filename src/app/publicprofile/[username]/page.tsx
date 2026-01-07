@@ -105,7 +105,14 @@ export default function PerfilPage() {
             <PhotoManager
               mode="readonly"
               username={username}
-              initialPhotos={profile.fotos || []}
+              initialPhotos={profile.fotos && profile.fotos.length > 0 ? profile.fotos : [
+                {
+                  id: '1',
+                  url: profile.foto_perfil || 'https://via.placeholder.com/400x520?text=Sin+Foto',
+                  esPrincipal: true,
+                  estado: 'aprobada'
+                }
+              ]}
               showCarousel={false}
             />
             
