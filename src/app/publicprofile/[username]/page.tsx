@@ -93,21 +93,55 @@ export default function PerfilPage() {
         </button>
       </header>
 
-      {/* Main Content - 75% width */}
-      <main className="w-[75%] max-w-[1400px] mx-auto px-6 py-8">
+      {/**
+        * =================================================================
+        * CONTENEDOR PRINCIPAL - MISMO ANCHO QUE USERPROFILE
+        * =================================================================
+        * 
+        * PROBLEMA ANTERIOR:
+        * - publicprofile usaba: max-w-[1400px] (1400px)
+        * - userprofile usa: max-w-7xl (1280px)
+        * - Diferencia de 120px hacía que todo se viera distinto
+        * 
+        * SOLUCIÓN:
+        * - Usar max-w-7xl igual que userprofile
+        * - Usar grid de 4 columnas igual que userprofile
+        * - Foto ocupa 1 columna (25%) = 320px aprox
+        * - Contenido ocupa 3 columnas (75%)
+        * 
+        * RESULTADO:
+        * - Foto del mismo tamaño en ambas páginas
+        * - Layout consistente
+        * =================================================================
+        */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
-        {/* Layout: Foto izquierda + Info derecha */}
-        <div className="flex gap-8 mb-12">
+        {/* Grid: 4 columnas (igual que userprofile) */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-12">
           
-          {/* IZQUIERDA: Foto + % Perfil */}
-          <div className="flex-shrink-0 w-[300px]">
+          {/**
+            * =============================================================
+            * COLUMNA IZQUIERDA (1 de 4) - FOTO
+            * =============================================================
+            * 
+            * En userprofile esta columna contiene:
+            * - PhotoManager dentro de tarjeta con padding
+            * - Resultado: ~320px de columna - 32px padding = 288px foto
+            * 
+            * En publicprofile esta columna contiene:
+            * - PhotoGallery directamente (sin tarjeta ni padding)
+            * - Ocupa 1 de 4 columnas = ~320px
+            * - PhotoGallery con w-full hereda ese ancho
+            * 
+            * IMPORTANTE:
+            * Al usar lg:col-span-1 en grid de 4 columnas,
+            * el ancho se calcula automáticamente como 25% del contenedor
+            * (max-w-7xl = 1280px → 1280px × 0.25 = 320px)
+            * =============================================================
+            */}
+          <div className="lg:col-span-1">
             {/**
               * PhotoGallery - Solo la "pantalla del TV"
-              * 
-              * TAMAÑO: 300px de ancho (no 400px)
-              * Razón: En userprofile, PhotoManager tiene una tarjeta de ~300px
-              * con padding de 16px, dejando ~268px para la foto.
-              * Aquí usamos 300px directamente para PhotoGallery sin tarjeta.
               * 
               * En publicprofile usamos SOLO PhotoGallery porque:
               * - No necesitamos el marco (tarjeta contenedora)
@@ -117,6 +151,11 @@ export default function PerfilPage() {
               * 
               * Es como sacar la pantalla del TV y pegarla en la pared.
               * Los "cables" (datos) vienen del perfil pero sin los controles.
+              * 
+              * ANCHO:
+              * - Hereda el ancho de la columna (~320px)
+              * - PhotoGallery tiene w-full para ocupar todo el espacio
+              * - Altura se calcula según ratio 10:13
               */}
             <PhotoGallery
               photos={profile.fotos && profile.fotos.length > 0 ? profile.fotos : [
@@ -144,8 +183,24 @@ export default function PerfilPage() {
             </div>
           </div>
 
-          {/* DERECHA: Info del perfil */}
-          <div className="flex-1">
+          {/**
+            * =============================================================
+            * COLUMNA DERECHA (3 de 4) - CONTENIDO DEL PERFIL
+            * =============================================================
+            * 
+            * Esta columna ocupa 75% del ancho (3 de 4 columnas)
+            * Contiene toda la información del perfil:
+            * - Nombre, edad, ciudad
+            * - Botones de acción (Enviar MP, Invitar a Café, etc.)
+            * - Status del usuario
+            * - Campos del perfil por categorías
+            * 
+            * ANCHO:
+            * - lg:col-span-3 en grid de 4 = 75% del contenedor
+            * - max-w-7xl = 1280px → 1280px × 0.75 = 960px
+            * =============================================================
+            */}
+          <div className="lg:col-span-3">
             
             {/* Nombre, edad, ciudad - SIN tarjeta, directo en fondo */}
             <div className="mb-6">
