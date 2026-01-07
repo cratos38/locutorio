@@ -8,15 +8,22 @@ export const runtime = 'nodejs';
 const getSupabaseAdmin = () => {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
   
-  // TEMPORAL: Usar SERVICE_ROLE_KEY directo (solo para testing)
-  // TODO: Esto debería venir de variables de entorno
-  const serviceRoleKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhiemx4d2J5eHV6ZGFzZmFrc2l5Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2NzcwNTA3OSwiZXhwIjoyMDgzMjgxMDc5fQ.zAlaqe2gLLOQ1KETVxGwlneuyNt3EXclY9h2G1-op8Q';
-  
-  const supabaseServiceKey = serviceRoleKey;
+  // Intentar obtener SERVICE_ROLE_KEY de diferentes fuentes
+  const supabaseServiceKey = 
+    process.env.SUPABASE_SERVICE_KEY ||           // Nombre nuevo
+    process.env.SUPABASE_SERVICE_ROLE_KEY ||      // Nombre viejo
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||  // Fallback
+    '';
   
   console.log('🔧 Configurando Supabase Admin...');
   console.log('📍 URL:', supabaseUrl ? '✅ OK' : '❌ MISSING');
-  console.log('🔑 SERVICE_ROLE_KEY:', supabaseServiceKey ? '✅ OK (hardcoded)' : '❌ MISSING');
+  console.log('🔑 SUPABASE_SERVICE_KEY:', process.env.SUPABASE_SERVICE_KEY ? '✅ OK' : '❌ MISSING');
+  console.log('🔑 SUPABASE_SERVICE_ROLE_KEY:', process.env.SUPABASE_SERVICE_ROLE_KEY ? '✅ OK' : '❌ MISSING');
+  console.log('🔑 Using key from:', 
+    process.env.SUPABASE_SERVICE_KEY ? 'SUPABASE_SERVICE_KEY' :
+    process.env.SUPABASE_SERVICE_ROLE_KEY ? 'SUPABASE_SERVICE_ROLE_KEY' :
+    'ANON_KEY (fallback)'
+  );
   
   if (!supabaseUrl || !supabaseServiceKey) {
     throw new Error('Supabase environment variables not configured');
