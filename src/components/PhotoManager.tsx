@@ -15,6 +15,7 @@ export interface Photo {
 
 interface PhotoManagerProps {
   mode: 'editable' | 'readonly';
+  readonlyView?: boolean; // Mostrar todo pero sin permitir edición (para publicprofile)
   username?: string; // Para cargar fotos desde BD en modo editable
   initialPhotos?: Photo[]; // Para create-profile sin username
   onPhotosChange?: (photos: Photo[]) => void; // Callback cuando cambian las fotos
@@ -75,6 +76,7 @@ async function resizeImage(file: File, maxWidth: number): Promise<File> {
 // =================== COMPONENTE PRINCIPAL ===================
 export default function PhotoManager({
   mode,
+  readonlyView = false,
   username,
   initialPhotos = [],
   onPhotosChange,
@@ -403,7 +405,7 @@ export default function PhotoManager({
         )}
       </div>
 
-      {/* =================== CONTROLES (SOLO EN MODO EDITABLE) =================== */}
+      {/* =================== CONTROLES =================== */}
       {mode === 'editable' && (
         <>
           {/* Controles de carrusel (entre foto y botones) */}
@@ -412,12 +414,13 @@ export default function PhotoManager({
               {/* Toggle ON/OFF */}
               <div className="relative group flex items-center">
                 <button
-                  onClick={() => onCarouselChange?.({
+                  onClick={() => !readonlyView && onCarouselChange?.({
                     enabled: !carouselEnabled,
                     intervalType: carouselIntervalType,
                     intervalValue: carouselIntervalValue,
                   })}
-                  className={`w-10 h-5 rounded-full border transition-all ${
+                  disabled={readonlyView}
+                  className={`w-10 h-5 rounded-full border transition-all ${readonlyView ? 'opacity-60 cursor-not-allowed' : ''} ${
                     carouselEnabled 
                       ? 'bg-emerald-950/50 border-neon-green shadow-[0_0_10px_rgba(43,238,121,0.5)]' 
                       : 'bg-gray-900/50 border-gray-700'
@@ -444,7 +447,8 @@ export default function PhotoManager({
                       max="6"
                       step="1"
                       value={getSliderValue()}
-                      onChange={(e) => handleSliderChange(parseInt(e.target.value))}
+                      onChange={(e) => !readonlyView && handleSliderChange(parseInt(e.target.value))}
+                      disabled={readonlyView}
                       className="w-full h-1 bg-transparent rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-neon-green [&::-webkit-slider-thumb]:shadow-[0_0_8px_rgba(43,238,121,0.8)] [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:-mt-1 [&::-webkit-slider-runnable-track]:bg-neon-green/30 [&::-webkit-slider-runnable-track]:h-0.5 [&::-webkit-slider-runnable-track]:rounded-full [&::-webkit-slider-runnable-track]:shadow-[0_0_6px_rgba(43,238,121,0.4)]"
                       style={{
                         background: `linear-gradient(to right, #2bee79 0%, #2bee79 ${(getSliderValue() / 6) * 100}%, rgba(43,238,121,0.2) ${(getSliderValue() / 6) * 100}%, rgba(43,238,121,0.2) 100%)`
@@ -458,8 +462,9 @@ export default function PhotoManager({
                   {/* Toggle Orden/Aleatorio */}
                   <div className="relative group flex items-center">
                     <button
-                      onClick={() => setCarouselOrder(carouselOrder === 'sequential' ? 'random' : 'sequential')}
-                      className={`w-10 h-5 rounded-full border transition-all ${
+                      onClick={() => !readonlyView && setCarouselOrder(carouselOrder === 'sequential' ? 'random' : 'sequential')}
+                      disabled={readonlyView}
+                      className={`w-10 h-5 rounded-full border transition-all ${readonlyView ? 'opacity-60 cursor-not-allowed' : ''} ${
                         carouselOrder === 'random'
                           ? 'bg-emerald-950/50 border-neon-green shadow-[0_0_10px_rgba(43,238,121,0.5)]'
                           : 'bg-emerald-950/50 border-neon-green/50'
@@ -480,41 +485,43 @@ export default function PhotoManager({
             </div>
           )}
 
-          {/* Botones de acción */}
-          <div className="grid grid-cols-3 gap-2">
-            {/* Subir */}
-            <button
-              onClick={() => {
-                const input = document.createElement('input');
-                input.type = 'file';
-                input.accept = 'image/jpeg,image/png';
-                input.onchange = (e) => {
-                  const file = (e.target as HTMLInputElement).files?.[0];
-                  if (file) handlePhotoUpload(file);
-                };
-                input.click();
-              }}
-              className="text-xs px-3 py-1.5 rounded-lg transition-all border text-[#2BEE79] border-[#2BEE79]/50 shadow-[0_0_10px_rgba(43,238,121,0.2)] hover:border-[#2BEE79] hover:shadow-[0_0_20px_rgba(43,238,121,0.4)]"
-            >
-              Subir
-            </button>
-            
-            {/* Eliminar */}
-            <button
-              onClick={handleDeletePhoto}
-              className="text-xs px-3 py-1.5 rounded-lg transition-all border text-[#2BEE79] border-[#2BEE79]/50 shadow-[0_0_10px_rgba(43,238,121,0.2)] hover:border-[#2BEE79] hover:shadow-[0_0_20px_rgba(43,238,121,0.4)]"
-            >
-              Eliminar
-            </button>
-            
-            {/* Marcar como principal */}
-            <button
-              onClick={handleSetPrincipal}
-              className="text-xs px-3 py-1.5 rounded-lg transition-all border text-[#2BEE79] border-[#2BEE79]/50 shadow-[0_0_10px_rgba(43,238,121,0.2)] hover:border-[#2BEE79] hover:shadow-[0_0_20px_rgba(43,238,121,0.4)]"
-            >
-              Principal
-            </button>
-          </div>
+          {/* Botones de acción (ocultos en readonlyView) */}
+          {!readonlyView && (
+            <div className="grid grid-cols-3 gap-2">
+              {/* Subir */}
+              <button
+                onClick={() => {
+                  const input = document.createElement('input');
+                  input.type = 'file';
+                  input.accept = 'image/jpeg,image/png';
+                  input.onchange = (e) => {
+                    const file = (e.target as HTMLInputElement).files?.[0];
+                    if (file) handlePhotoUpload(file);
+                  };
+                  input.click();
+                }}
+                className="text-xs px-3 py-1.5 rounded-lg transition-all border text-[#2BEE79] border-[#2BEE79]/50 shadow-[0_0_10px_rgba(43,238,121,0.2)] hover:border-[#2BEE79] hover:shadow-[0_0_20px_rgba(43,238,121,0.4)]"
+              >
+                Subir
+              </button>
+              
+              {/* Eliminar */}
+              <button
+                onClick={handleDeletePhoto}
+                className="text-xs px-3 py-1.5 rounded-lg transition-all border text-[#2BEE79] border-[#2BEE79]/50 shadow-[0_0_10px_rgba(43,238,121,0.2)] hover:border-[#2BEE79] hover:shadow-[0_0_20px_rgba(43,238,121,0.4)]"
+              >
+                Eliminar
+              </button>
+              
+              {/* Marcar como principal */}
+              <button
+                onClick={handleSetPrincipal}
+                className="text-xs px-3 py-1.5 rounded-lg transition-all border text-[#2BEE79] border-[#2BEE79]/50 shadow-[0_0_10px_rgba(43,238,121,0.2)] hover:border-[#2BEE79] hover:shadow-[0_0_20px_rgba(43,238,121,0.4)]"
+              >
+                Principal
+              </button>
+            </div>
+          )}
         </>
       )}
 

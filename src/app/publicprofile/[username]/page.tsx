@@ -101,9 +101,10 @@ export default function PerfilPage() {
           
           {/* IZQUIERDA: Foto + % Perfil */}
           <div className="flex-shrink-0 w-[400px]">
-            {/* PhotoManager en modo readonly */}
+            {/* PhotoManager - mismo componente que en userprofile pero sin edición */}
             <PhotoManager
-              mode="readonly"
+              mode="editable"
+              readonlyView={true}
               username={username}
               initialPhotos={profile.fotos && profile.fotos.length > 0 ? profile.fotos : [
                 {
@@ -113,7 +114,10 @@ export default function PerfilPage() {
                   estado: 'aprobada'
                 }
               ]}
-              showCarousel={false}
+              showCarousel={true}
+              carouselEnabled={profile.carousel_enabled || false}
+              carouselIntervalType={profile.carousel_interval_type || 'minutes'}
+              carouselIntervalValue={profile.carousel_interval_value || 5}
             />
             
             {/* Barra de % Perfil completado */}
