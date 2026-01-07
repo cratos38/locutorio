@@ -218,27 +218,34 @@ export default function PhotoManager({
     
     try {
       setLoading(true);
-      const response = await fetch(`/api/profile?username=${username}`);
+      console.log(`📥 Cargando fotos para usuario: ${username}`);
+      
+      const response = await fetch(`/api/photos?username=${username}`);
       
       if (!response.ok) {
-        console.error('Error al cargar perfil');
+        console.error('Error al cargar fotos');
         return;
       }
       
       const result = await response.json();
       
-      // TODO: Cuando tengamos la tabla profile_photos, cargar desde ahí
-      // Por ahora, simular con foto_perfil
-      if (result.data?.foto_perfil) {
-        setPhotos([{
-          id: '1',
-          url: result.data.foto_perfil,
-          esPrincipal: true,
-          estado: 'aprobada'
-        }]);
+      if (result.success && result.photos && result.photos.length > 0) {
+        // Convertir fotos de BD al formato Photo
+        const loadedPhotos: Photo[] = result.photos.map((photo: any) => ({
+          id: photo.id,
+          url: photo.url,
+          esPrincipal: photo.is_principal,
+          estado: photo.estado as 'pendiente' | 'aprobada' | 'rechazada'
+        }));
+        
+        console.log(`✅ ${loadedPhotos.length} fotos cargadas desde BD`);
+        setPhotos(loadedPhotos);
+      } else {
+        console.log('ℹ️ No hay fotos en la BD');
+        setPhotos([]);
       }
     } catch (error) {
-      console.error('Error al cargar fotos:', error);
+      console.error('❌ Error al cargar fotos:', error);
     } finally {
       setLoading(false);
     }
@@ -267,6 +274,8 @@ export default function PhotoManager({
   // =================== COMPLETAR RECORTE ===================
   const handleCropComplete = async (croppedImageUrl: string) => {
     try {
+      setLoading(true);
+      
       // Convertir blob URL a File
       const response = await fetch(croppedImageUrl);
       const blob = await response.blob();
@@ -276,22 +285,70 @@ export default function PhotoManager({
       const resizedFile = await resizeImage(file, 400);
       console.log(`Tamaño final: ${(resizedFile.size / 1024).toFixed(2)}KB`);
 
-      // Crear nueva foto
-      const url = URL.createObjectURL(resizedFile);
-      const newPhoto: Photo = {
-        id: Date.now().toString(),
-        url: url,
-        esPrincipal: photos.length === 0,
-        estado: 'pendiente',
-        file: resizedFile,
-      };
+      // Si tenemos username, subir a Supabase
+      if (username) {
+        console.log('📤 Subiendo foto a Supabase...');
+        
+        // Crear FormData
+        const formData = new FormData();
+        formData.append('file', resizedFile);
+        formData.append('username', username);
+        formData.append('isPrincipal', (photos.length === 0).toString());
+        
+        // Subir a API
+        const uploadResponse = await fetch('/api/photos/upload', {
+          method: 'POST',
+          body: formData
+        });
+        
+        const uploadResult = await uploadResponse.json();
+        
+        if (!uploadResponse.ok) {
+          throw new Error(uploadResult.error || 'Error al subir foto');
+        }
+        
+        console.log('✅ Foto subida exitosamente:', uploadResult);
+        
+        // Crear nueva foto con URL de Supabase
+        const newPhoto: Photo = {
+          id: uploadResult.photo.id,
+          url: uploadResult.photo.url,
+          esPrincipal: uploadResult.photo.isPrincipal,
+          estado: uploadResult.photo.estado as 'pendiente' | 'aprobada' | 'rechazada',
+        };
+        
+        setPhotos(prev => [...prev, newPhoto]);
+        setCurrentPhotoIndex(photos.length);
+        
+        // Notificar cambio
+        if (onPhotosChange) {
+          onPhotosChange([...photos, newPhoto]);
+        }
+      } else {
+        // Sin username, guardar solo en memoria (modo local)
+        const url = URL.createObjectURL(resizedFile);
+        const newPhoto: Photo = {
+          id: Date.now().toString(),
+          url: url,
+          esPrincipal: photos.length === 0,
+          estado: 'pendiente',
+          file: resizedFile,
+        };
 
-      setPhotos(prev => [...prev, newPhoto]);
-      setCurrentPhotoIndex(photos.length);
+        setPhotos(prev => [...prev, newPhoto]);
+        setCurrentPhotoIndex(photos.length);
+        
+        if (onPhotosChange) {
+          onPhotosChange([...photos, newPhoto]);
+        }
+      }
+      
       setImageToCrop(null);
+      setLoading(false);
     } catch (error) {
       console.error('Error al procesar la imagen recortada:', error);
-      alert('Error al procesar la imagen. Inténtalo de nuevo.');
+      alert(`Error al subir la foto: ${error instanceof Error ? error.message : 'Error desconocido'}`);
+      setLoading(false);
     }
   };
 
