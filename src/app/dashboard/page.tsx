@@ -394,10 +394,6 @@ export default function InicioPage() {
                     <span className="text-xs text-gray-400">Visitas</span>
                   </div>
                 </div>
-                    <span className="block font-bold text-white text-lg">89%</span>
-                    <span className="text-xs text-gray-400">Completo</span>
-                  </div>
-                </div>
 
                 <Link href="/userprofile" className="block w-full">
                   <button className="w-full py-2 rounded-lg transition-all text-gray-400 hover:text-[#2BEE79] hover:bg-transparent hover:border-[#2BEE79]/50 hover:shadow-[0_0_15px_rgba(43,238,121,0.3)] border border-transparent font-medium flex items-center justify-center gap-2">
