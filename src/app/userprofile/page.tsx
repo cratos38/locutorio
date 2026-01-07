@@ -1332,6 +1332,22 @@ function AjustesPerfilContent() {
               ])}
             </div>
 
+            {/* Tipo de educación */}
+            <div className="bg-connect-bg-dark/60 backdrop-blur-sm border border-connect-border rounded-xl p-6 shadow-lg">
+              <div className="flex items-center gap-2 mb-6">
+                <span className="text-gray-400">🔒</span>
+                <h3 className="text-xl font-bold text-neon-green">Tipo de educación</h3>
+              </div>
+
+              {renderSelectField("¿Estudiaste en escuelas privadas o públicas?", "escuelasPrivadasPublicas", [
+                { value: "publicas", label: "Escuelas públicas" },
+                { value: "privadas", label: "Escuelas privadas" },
+                { value: "mezcla", label: "Mezcla de públicas y privadas" },
+                { value: "en-casa", label: "Educación en casa" },
+                { value: "alternativa", label: "Educación alternativa" },
+              ])}
+            </div>
+
             {/* Familia */}
             <div className="bg-connect-bg-dark/60 backdrop-blur-sm border border-connect-border rounded-xl p-6 shadow-lg">
               <div className="flex items-center gap-2 mb-6">
