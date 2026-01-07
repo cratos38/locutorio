@@ -100,7 +100,7 @@ export default function PhotoGallery({
   if (photos.length === 0) {
     return (
       <div 
-        className={`relative rounded-xl overflow-hidden bg-connect-bg-dark/30 border-2 border-dashed border-connect-border flex items-center justify-center ${className}`}
+        className={`relative w-full rounded-xl overflow-hidden bg-connect-bg-dark/30 border-2 border-dashed border-connect-border flex items-center justify-center ${className}`}
         style={{ aspectRatio: '10/13' }}
       >
         <div className="text-center p-8">
@@ -115,7 +115,7 @@ export default function PhotoGallery({
 
   return (
     <div 
-      className={`relative rounded-xl overflow-hidden shadow-2xl cursor-pointer group ${className}`}
+      className={`relative w-full rounded-xl overflow-hidden shadow-2xl cursor-pointer group ${className}`}
       style={{ aspectRatio: '10/13' }}
       onClick={onClick}
     >
