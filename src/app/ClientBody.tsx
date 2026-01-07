@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { AuthProvider } from "@/contexts/AuthContext";
 import { MessagesProvider } from "@/contexts/MessagesContext";
 import FloatingMessagesWindow from "@/components/FloatingMessagesWindow";
 
@@ -16,11 +17,13 @@ export default function ClientBody({
   }, []);
 
   return (
-    <MessagesProvider>
-      <div className="antialiased">
-        {children}
-        <FloatingMessagesWindow />
-      </div>
-    </MessagesProvider>
+    <AuthProvider>
+      <MessagesProvider>
+        <div className="antialiased">
+          {children}
+          <FloatingMessagesWindow />
+        </div>
+      </MessagesProvider>
+    </AuthProvider>
   );
 }

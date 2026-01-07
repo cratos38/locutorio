@@ -1,67 +1,55 @@
-"use client";
+'use client';
 
-import { useState, Suspense } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { useAuth } from '@/contexts/AuthContext';
 
-function LoginForm() {
+export default function LoginPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const redirect = searchParams.get("redirect");
-
+  const { login } = useAuth();
+  
   const [formData, setFormData] = useState({
-    username: "",
-    password: "",
+    email: '',
+    password: '',
   });
-  const [error, setError] = useState("");
+  
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Shortcut para admin (desarrollo)
+  const fillAdmin = () => {
+    setFormData({
+      email: 'admin@admin.com',
+      password: 'admin',
+    });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
+    setError('');
+    setLoading(true);
 
-    // Validación básica
-    if (!formData.username || !formData.password) {
-      setError("Por favor completa todos los campos");
-      return;
-    }
-
-    // Aquí iría la lógica de autenticación real
-    console.log("Login:", formData);
-
-    // Verificar si el usuario ya tiene perfil creado
-    // Por ahora, simulamos que YA tiene perfil (esto se validará con el backend)
-    const usuarioTienePerfil = true; // Cambiar a false solo para usuarios nuevos
-
-    if (usuarioTienePerfil) {
-      // Si hay redirect (viene de página pública), usar replace para no dejar login en historial
-      // Si NO hay redirect (navegación interna), usar push normal
-      if (redirect) {
-        router.replace(redirect); // No dejar login en historial
-      } else {
-        router.push("/dashboard"); // Navegación normal
-      }
-    } else {
-      // Si es primera vez, crear perfil (guardamos redirect para después)
-      if (redirect) {
-        router.replace(`/create-profile?redirect=${redirect}`);
-      } else {
-        router.push("/create-profile");
-      }
+    try {
+      await login(formData.email, formData.password);
+      
+      // Redirigir a mi-espacio después del login
+      router.push('/mi-espacio');
+    } catch (err: any) {
+      console.error('Error en login:', err);
+      setError(err.message || 'Error al iniciar sesión. Verifica tus credenciales.');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-connect-bg-dark flex items-center justify-center px-4 font-display">
-      {/* Background decorative elements */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[100px] pointer-events-none" />
-
-      <div className="w-full max-w-md z-10">
-        {/* Logo/Header */}
+    <div className="min-h-screen bg-gradient-to-br from-[#0f2820] via-connect-bg-dark to-[#0a1812] flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        {/* Logo */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-2 mb-4">
-            <div className="size-12 text-primary bg-primary/20 rounded-full flex items-center justify-center">
+            <div className="size-12 text-neon-green bg-neon-green/20 rounded-full flex items-center justify-center">
               <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
               </svg>
@@ -69,131 +57,80 @@ function LoginForm() {
             <span className="text-3xl font-bold tracking-tight text-white">LoCuToRiO</span>
           </Link>
           <h1 className="text-2xl font-bold text-white mb-2">Iniciar Sesión</h1>
-          <p className="text-connect-muted">Bienvenido de vuelta</p>
+          <p className="text-gray-400">Ingresa tus credenciales para continuar</p>
         </div>
 
-        {/* Login Form */}
-        <div className="bg-connect-card border border-connect-border rounded-2xl p-8 shadow-xl">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Error message */}
-            {error && (
-              <div className="bg-red-500/10 border border-red-500/50 text-red-500 px-4 py-3 rounded-lg text-sm">
-                {error}
-              </div>
-            )}
-
-            {/* Username/Email */}
-            <div>
-              <label htmlFor="username" className="block text-sm font-medium text-white mb-2">
-                Email o Nick
-              </label>
-              <Input
-                id="username"
-                type="text"
-                placeholder="tu@email.com o tu_nick"
-                value={formData.username}
-                onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                className="bg-connect-bg-dark border-connect-border text-white placeholder:text-connect-muted focus:border-primary"
-                required
-              />
-              <p className="text-xs text-gray-400 mt-1">
-                💡 Puedes iniciar sesión con tu <strong>email</strong> o con tu <strong>nick</strong>
-              </p>
-            </div>
-
-            {/* Password */}
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <label htmlFor="password" className="block text-sm font-medium text-white">
-                  Contraseña
-                </label>
-                <Link
-                  href="/recuperar-contrasena"
-                  className="text-sm text-primary hover:brightness-125 transition-all"
-                >
-                  ¿Olvidaste tu contraseña?
-                </Link>
-              </div>
-              <Input
-                id="password"
-                type="password"
-                placeholder="Tu contraseña"
-                value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                className="bg-connect-bg-dark border-connect-border text-white placeholder:text-connect-muted focus:border-primary"
-                required
-              />
-            </div>
-
-            {/* Remember me */}
-            <div className="flex items-center">
-              <input
-                id="remember"
-                type="checkbox"
-                className="w-4 h-4 rounded border-connect-border bg-connect-bg-dark text-primary focus:ring-primary focus:ring-offset-0"
-              />
-              <label htmlFor="remember" className="ml-2 text-sm text-connect-muted">
-                Mantener sesión iniciada
-              </label>
-            </div>
-
-            {/* Submit button */}
-            <Button
-              type="submit"
-              className="w-full bg-primary text-connect-bg-dark hover:brightness-110 hover:shadow-[0_0_20px_rgba(43,238,121,0.3)] font-bold h-12"
-            >
-              Iniciar Sesión
-            </Button>
-          </form>
-
-          {/* Divider */}
-          <div className="relative my-6">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-connect-border" />
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="bg-connect-card px-4 text-connect-muted">o</span>
-            </div>
+        {/* Formulario */}
+        <form onSubmit={handleSubmit} className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 space-y-4">
+          {/* Email */}
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              Email
+            </label>
+            <input
+              type="email"
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-neon-green/50 focus:ring-1 focus:ring-neon-green/50"
+              placeholder="tu@email.com"
+              required
+            />
           </div>
 
-          {/* Sign up link */}
-          <div className="text-center">
-            <p className="text-connect-muted text-sm">
-              ¿No tienes una cuenta?{" "}
-              <Link
-                href="/register"
-                className="text-primary font-semibold hover:brightness-125 transition-all"
-              >
-                Regístrate gratis
+          {/* Password */}
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              Contraseña
+            </label>
+            <input
+              type="password"
+              value={formData.password}
+              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-neon-green/50 focus:ring-1 focus:ring-neon-green/50"
+              placeholder="••••••••"
+              required
+            />
+          </div>
+
+          {/* Error */}
+          {error && (
+            <div className="p-3 bg-red-500/10 border border-red-500/50 rounded-lg">
+              <p className="text-sm text-red-400">{error}</p>
+            </div>
+          )}
+
+          {/* Botón Submit */}
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-transparent border border-[#2BEE79]/50 text-white hover:text-[#2BEE79] shadow-[0_0_15px_rgba(43,238,121,0.3)] hover:shadow-[0_0_20px_rgba(43,238,121,0.4)] font-bold py-3 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
+          </button>
+
+          {/* Shortcut Admin (solo desarrollo) */}
+          <button
+            type="button"
+            onClick={fillAdmin}
+            className="w-full text-xs text-gray-500 hover:text-neon-green transition-colors"
+          >
+            🔧 Usar cuenta admin (desarrollo)
+          </button>
+
+          {/* Links */}
+          <div className="text-center space-y-2 pt-4">
+            <p className="text-sm text-gray-400">
+              ¿No tienes cuenta?{' '}
+              <Link href="/create-profile" className="text-neon-green hover:brightness-110">
+                Regístrate aquí
               </Link>
             </p>
+            <Link href="/" className="block text-sm text-gray-500 hover:text-gray-300">
+              ← Volver al inicio
+            </Link>
           </div>
-        </div>
-
-        {/* Back to home */}
-        <div className="text-center mt-6">
-          <Link
-            href="/"
-            className="text-sm text-connect-muted hover:text-primary transition-colors inline-flex items-center gap-2"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-            Volver al inicio
-          </Link>
-        </div>
+        </form>
       </div>
     </div>
-  );
-}
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-
-export default function LoginPage() {
-  return (
-    <Suspense fallback={<div className="min-h-screen bg-connect-bg-dark flex items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div></div>}>
-      <LoginForm />
-    </Suspense>
   );
 }

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import PhotoManager, { Photo } from "@/components/PhotoManager";
+import { useAuth } from "@/contexts/AuthContext";
 
 // =================== UTILIDAD: REDIMENSIONAR IMAGEN ===================
 /**
@@ -97,6 +98,9 @@ type CategoryType = "algo-sobre-mi" | "relaciones" | "cultura" | "estilo-vida" |
 type YesNoResponse = "no-respondo" | "no" | "si" | "";
 
 function AjustesPerfilContent() {
+  // Hook de autenticación
+  const { user } = useAuth();
+  
   const searchParams = useSearchParams();
   const tabParam = searchParams.get("tab") as CategoryType | null;
   
@@ -1638,9 +1642,8 @@ function AjustesPerfilContent() {
                 </Link>
                 
                 {/* Botón Cómo me ven - Ver perfil público */}
-                {/* TODO: Obtener username del sistema de autenticación real */}
                 <Link
-                  href="/publicprofile/anam"
+                  href={`/publicprofile/${user?.username || 'demo'}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-full flex items-center gap-3 px-4 py-2 rounded-lg transition-all text-gray-400 hover:text-[#2BEE79] hover:bg-transparent hover:border-[#2BEE79]/50 hover:shadow-[0_0_15px_rgba(43,238,121,0.3)] border border-transparent"
