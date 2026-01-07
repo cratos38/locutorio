@@ -101,10 +101,8 @@ export default function PerfilPage() {
           
           {/* IZQUIERDA: Foto + % Perfil */}
           <div className="flex-shrink-0 w-[400px]">
-            {/* PhotoManager - mismo componente que en userprofile pero sin edición */}
+            {/* PhotoManager - mismo tamaño y apariencia pero sin edición */}
             <PhotoManager
-              mode="editable"
-              readonlyView={true}
               username={username}
               initialPhotos={profile.fotos && profile.fotos.length > 0 ? profile.fotos : [
                 {
@@ -114,6 +112,10 @@ export default function PerfilPage() {
                   estado: 'aprobada'
                 }
               ]}
+              canUpload={false}
+              canDelete={false}
+              canSetPrincipal={false}
+              canToggleCarousel={false}
               showCarousel={true}
               carouselEnabled={profile.carousel_enabled || false}
               carouselIntervalType={profile.carousel_interval_type || 'minutes'}

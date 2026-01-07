@@ -1591,9 +1591,12 @@ function AjustesPerfilContent() {
             {/* Tarjeta de foto */}
             <div className="bg-connect-bg-dark/60 backdrop-blur-sm border border-connect-border rounded-xl p-4 shadow-lg">
               <PhotoManager
-                mode="editable"
                 username="anam"
                 initialPhotos={formData.fotos}
+                canUpload={true}
+                canDelete={true}
+                canSetPrincipal={true}
+                canToggleCarousel={true}
                 onPhotosChange={(photos) => {
                   setFormData(prev => ({ ...prev, fotos: photos }));
                 }}

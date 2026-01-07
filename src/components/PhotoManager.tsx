@@ -14,15 +14,24 @@ export interface Photo {
 }
 
 interface PhotoManagerProps {
-  mode: 'editable' | 'readonly';
-  readonlyView?: boolean; // Mostrar todo pero sin permitir edición (para publicprofile)
-  username?: string; // Para cargar fotos desde BD en modo editable
-  initialPhotos?: Photo[]; // Para create-profile sin username
-  onPhotosChange?: (photos: Photo[]) => void; // Callback cuando cambian las fotos
-  showCarousel?: boolean; // Mostrar configuración de carrusel
+  // Datos
+  username?: string; // Usuario actual (para cargar desde BD)
+  initialPhotos?: Photo[]; // Fotos iniciales (para create-profile sin login)
+  
+  // Permisos de edición
+  canUpload?: boolean; // Puede subir fotos
+  canDelete?: boolean; // Puede eliminar fotos
+  canSetPrincipal?: boolean; // Puede marcar como principal
+  canToggleCarousel?: boolean; // Puede activar/desactivar carrusel
+  
+  // Configuración del carrusel
+  showCarousel?: boolean; // Mostrar sección de carrusel
   carouselEnabled?: boolean;
   carouselIntervalType?: 'minutes' | 'hours' | 'days';
   carouselIntervalValue?: number;
+  
+  // Callbacks
+  onPhotosChange?: (photos: Photo[]) => void;
   onCarouselChange?: (config: {
     enabled: boolean;
     intervalType: 'minutes' | 'hours' | 'days';
@@ -75,15 +84,17 @@ async function resizeImage(file: File, maxWidth: number): Promise<File> {
 
 // =================== COMPONENTE PRINCIPAL ===================
 export default function PhotoManager({
-  mode,
-  readonlyView = false,
   username,
   initialPhotos = [],
-  onPhotosChange,
+  canUpload = true,
+  canDelete = true,
+  canSetPrincipal = true,
+  canToggleCarousel = true,
   showCarousel = false,
   carouselEnabled = false,
   carouselIntervalType = 'minutes',
   carouselIntervalValue = 5,
+  onPhotosChange,
   onCarouselChange,
 }: PhotoManagerProps) {
   const [photos, setPhotos] = useState<Photo[]>(initialPhotos);
@@ -143,10 +154,10 @@ export default function PhotoManager({
 
   // Cargar fotos desde BD si hay username
   useEffect(() => {
-    if (mode === 'editable' && username) {
+    if (username) {
       loadPhotosFromDB();
     }
-  }, [mode, username]);
+  }, [username]);
 
   // Notificar cambios a componente padre
   useEffect(() => {
@@ -189,7 +200,7 @@ export default function PhotoManager({
 
   // =================== SUBIR FOTO ===================
   const handlePhotoUpload = async (file: File) => {
-    if (mode === 'readonly') return;
+    if (!canUpload) return;
 
     try {
       // Validar tamaño máximo (5MB)
@@ -293,11 +304,11 @@ export default function PhotoManager({
   }
 
   return (
-    <div className={mode === 'editable' ? 'space-y-3' : ''}>
+    <div className={canUpload || canDelete || canSetPrincipal ? 'space-y-3' : ''}>
       {/* =================== FOTO PRINCIPAL =================== */}
       <div 
         className={`relative rounded-xl overflow-hidden ${
-          mode === 'editable' 
+          canUpload || canDelete || canSetPrincipal
             ? 'bg-connect-bg-dark border border-connect-border' 
             : 'shadow-2xl'
         } cursor-pointer group`}
@@ -305,12 +316,12 @@ export default function PhotoManager({
         onMouseEnter={() => setShowCarouselMenu(true)}
         onMouseLeave={() => setShowCarouselMenu(false)}
         onDragOver={(e) => {
-          if (mode === 'readonly') return;
+          if (!canUpload) return;
           e.preventDefault();
           e.stopPropagation();
         }}
         onDrop={(e) => {
-          if (mode === 'readonly') return;
+          if (!canUpload) return;
           e.preventDefault();
           e.stopPropagation();
           const file = e.dataTransfer.files?.[0];
@@ -381,7 +392,7 @@ export default function PhotoManager({
           <div 
             className="flex flex-col items-center justify-center h-full p-4 text-center cursor-pointer hover:bg-white/5 transition-all"
             onClick={() => {
-              if (mode === 'readonly') return;
+              if (!canUpload) return;
               const input = document.createElement('input');
               input.type = 'file';
               input.accept = 'image/jpeg,image/png';
@@ -394,9 +405,9 @@ export default function PhotoManager({
           >
             <div className="text-4xl mb-2">📸</div>
             <p className="text-gray-400 text-sm mb-1">
-              {mode === 'readonly' ? 'Sin fotos' : 'Subir foto o arrastra aquí'}
+              {!canUpload ? 'Sin fotos' : 'Subir foto o arrastra aquí'}
             </p>
-            {mode === 'editable' && (
+            {canUpload && (
               <p className="text-gray-500 text-xs">
                 JPG o PNG • Máx. 5 MB
               </p>
@@ -406,7 +417,7 @@ export default function PhotoManager({
       </div>
 
       {/* =================== CONTROLES =================== */}
-      {mode === 'editable' && (
+      {(showCarousel || canUpload || canDelete || canSetPrincipal) && (
         <>
           {/* Controles de carrusel (entre foto y botones) */}
           {photos.length >= 1 && (
@@ -414,13 +425,13 @@ export default function PhotoManager({
               {/* Toggle ON/OFF */}
               <div className="relative group flex items-center">
                 <button
-                  onClick={() => !readonlyView && onCarouselChange?.({
+                  onClick={() => canToggleCarousel && onCarouselChange?.({
                     enabled: !carouselEnabled,
                     intervalType: carouselIntervalType,
                     intervalValue: carouselIntervalValue,
                   })}
-                  disabled={readonlyView}
-                  className={`w-10 h-5 rounded-full border transition-all ${readonlyView ? 'opacity-60 cursor-not-allowed' : ''} ${
+                  disabled={!canToggleCarousel}
+                  className={`w-10 h-5 rounded-full border transition-all ${!canToggleCarousel ? 'opacity-60 cursor-not-allowed' : ''} ${
                     carouselEnabled 
                       ? 'bg-emerald-950/50 border-neon-green shadow-[0_0_10px_rgba(43,238,121,0.5)]' 
                       : 'bg-gray-900/50 border-gray-700'
@@ -447,8 +458,8 @@ export default function PhotoManager({
                       max="6"
                       step="1"
                       value={getSliderValue()}
-                      onChange={(e) => !readonlyView && handleSliderChange(parseInt(e.target.value))}
-                      disabled={readonlyView}
+                      onChange={(e) => canToggleCarousel && handleSliderChange(parseInt(e.target.value))}
+                      disabled={!canToggleCarousel}
                       className="w-full h-1 bg-transparent rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-neon-green [&::-webkit-slider-thumb]:shadow-[0_0_8px_rgba(43,238,121,0.8)] [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:-mt-1 [&::-webkit-slider-runnable-track]:bg-neon-green/30 [&::-webkit-slider-runnable-track]:h-0.5 [&::-webkit-slider-runnable-track]:rounded-full [&::-webkit-slider-runnable-track]:shadow-[0_0_6px_rgba(43,238,121,0.4)]"
                       style={{
                         background: `linear-gradient(to right, #2bee79 0%, #2bee79 ${(getSliderValue() / 6) * 100}%, rgba(43,238,121,0.2) ${(getSliderValue() / 6) * 100}%, rgba(43,238,121,0.2) 100%)`
@@ -462,9 +473,9 @@ export default function PhotoManager({
                   {/* Toggle Orden/Aleatorio */}
                   <div className="relative group flex items-center">
                     <button
-                      onClick={() => !readonlyView && setCarouselOrder(carouselOrder === 'sequential' ? 'random' : 'sequential')}
-                      disabled={readonlyView}
-                      className={`w-10 h-5 rounded-full border transition-all ${readonlyView ? 'opacity-60 cursor-not-allowed' : ''} ${
+                      onClick={() => canToggleCarousel && setCarouselOrder(carouselOrder === 'sequential' ? 'random' : 'sequential')}
+                      disabled={!canToggleCarousel}
+                      className={`w-10 h-5 rounded-full border transition-all ${!canToggleCarousel ? 'opacity-60 cursor-not-allowed' : ''} ${
                         carouselOrder === 'random'
                           ? 'bg-emerald-950/50 border-neon-green shadow-[0_0_10px_rgba(43,238,121,0.5)]'
                           : 'bg-emerald-950/50 border-neon-green/50'
@@ -485,41 +496,47 @@ export default function PhotoManager({
             </div>
           )}
 
-          {/* Botones de acción (ocultos en readonlyView) */}
-          {!readonlyView && (
+          {/* Botones de acción */}
+          {(canUpload || canDelete || canSetPrincipal) && (
             <div className="grid grid-cols-3 gap-2">
               {/* Subir */}
-              <button
-                onClick={() => {
-                  const input = document.createElement('input');
-                  input.type = 'file';
-                  input.accept = 'image/jpeg,image/png';
-                  input.onchange = (e) => {
-                    const file = (e.target as HTMLInputElement).files?.[0];
-                    if (file) handlePhotoUpload(file);
-                  };
-                  input.click();
-                }}
-                className="text-xs px-3 py-1.5 rounded-lg transition-all border text-[#2BEE79] border-[#2BEE79]/50 shadow-[0_0_10px_rgba(43,238,121,0.2)] hover:border-[#2BEE79] hover:shadow-[0_0_20px_rgba(43,238,121,0.4)]"
-              >
-                Subir
-              </button>
+              {canUpload && (
+                <button
+                  onClick={() => {
+                    const input = document.createElement('input');
+                    input.type = 'file';
+                    input.accept = 'image/jpeg,image/png';
+                    input.onchange = (e) => {
+                      const file = (e.target as HTMLInputElement).files?.[0];
+                      if (file) handlePhotoUpload(file);
+                    };
+                    input.click();
+                  }}
+                  className="text-xs px-3 py-1.5 rounded-lg transition-all border text-[#2BEE79] border-[#2BEE79]/50 shadow-[0_0_10px_rgba(43,238,121,0.2)] hover:border-[#2BEE79] hover:shadow-[0_0_20px_rgba(43,238,121,0.4)]"
+                >
+                  Subir
+                </button>
+              )}
               
               {/* Eliminar */}
-              <button
-                onClick={handleDeletePhoto}
-                className="text-xs px-3 py-1.5 rounded-lg transition-all border text-[#2BEE79] border-[#2BEE79]/50 shadow-[0_0_10px_rgba(43,238,121,0.2)] hover:border-[#2BEE79] hover:shadow-[0_0_20px_rgba(43,238,121,0.4)]"
-              >
-                Eliminar
-              </button>
+              {canDelete && (
+                <button
+                  onClick={handleDeletePhoto}
+                  className="text-xs px-3 py-1.5 rounded-lg transition-all border text-[#2BEE79] border-[#2BEE79]/50 shadow-[0_0_10px_rgba(43,238,121,0.2)] hover:border-[#2BEE79] hover:shadow-[0_0_20px_rgba(43,238,121,0.4)]"
+                >
+                  Eliminar
+                </button>
+              )}
               
               {/* Marcar como principal */}
-              <button
-                onClick={handleSetPrincipal}
-                className="text-xs px-3 py-1.5 rounded-lg transition-all border text-[#2BEE79] border-[#2BEE79]/50 shadow-[0_0_10px_rgba(43,238,121,0.2)] hover:border-[#2BEE79] hover:shadow-[0_0_20px_rgba(43,238,121,0.4)]"
-              >
-                Principal
-              </button>
+              {canSetPrincipal && (
+                <button
+                  onClick={handleSetPrincipal}
+                  className="text-xs px-3 py-1.5 rounded-lg transition-all border text-[#2BEE79] border-[#2BEE79]/50 shadow-[0_0_10px_rgba(43,238,121,0.2)] hover:border-[#2BEE79] hover:shadow-[0_0_20px_rgba(43,238,121,0.4)]"
+                >
+                  Principal
+                </button>
+              )}
             </div>
           )}
         </>

@@ -459,12 +459,15 @@ function CrearPerfilForm() {
               
               {/* =================== FOTO DE PERFIL (EN SIDEBAR) =================== */}
               <PhotoManager
-                mode="editable"
                 initialPhotos={fotos}
+                canUpload={true}
+                canDelete={true}
+                canSetPrincipal={true}
+                canToggleCarousel={true}
                 onPhotosChange={(photos) => {
                   setFotos(photos);
                 }}
-                showCarousel={false}
+                showCarousel={true}
               />
             </div>
           </div>
