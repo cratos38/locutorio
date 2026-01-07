@@ -4,7 +4,7 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
-import PhotoManager from "@/components/PhotoManager";
+import PhotoGallery, { Photo } from "@/components/PhotoGallery";
 
 export const runtime = 'edge';
 
@@ -101,10 +101,20 @@ export default function PerfilPage() {
           
           {/* IZQUIERDA: Foto + % Perfil */}
           <div className="flex-shrink-0 w-[400px]">
-            {/* PhotoManager - mismo tamaño y apariencia pero sin edición */}
-            <PhotoManager
-              username={username}
-              initialPhotos={profile.fotos && profile.fotos.length > 0 ? profile.fotos : [
+            {/**
+              * PhotoGallery - Solo la "pantalla del TV"
+              * 
+              * En publicprofile usamos SOLO PhotoGallery porque:
+              * - No necesitamos el marco (tarjeta contenedora)
+              * - No necesitamos botones de edición
+              * - No necesitamos controles de carrusel
+              * - Solo queremos mostrar las fotos con navegación
+              * 
+              * Es como sacar la pantalla del TV y pegarla en la pared.
+              * Los "cables" (datos) vienen del perfil pero sin los controles.
+              */}
+            <PhotoGallery
+              photos={profile.fotos && profile.fotos.length > 0 ? profile.fotos : [
                 {
                   id: '1',
                   url: profile.foto_perfil || 'https://via.placeholder.com/400x520?text=Sin+Foto',
@@ -112,14 +122,6 @@ export default function PerfilPage() {
                   estado: 'aprobada'
                 }
               ]}
-              canUpload={false}
-              canDelete={false}
-              canSetPrincipal={false}
-              canToggleCarousel={false}
-              showCarousel={true}
-              carouselEnabled={profile.carousel_enabled || false}
-              carouselIntervalType={profile.carousel_interval_type || 'minutes'}
-              carouselIntervalValue={profile.carousel_interval_value || 5}
             />
             
             {/* Barra de % Perfil completado */}

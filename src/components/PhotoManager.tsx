@@ -3,6 +3,52 @@
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import ImageCropper from "@/components/ImageCropper";
+import PhotoGallery, { Photo as GalleryPhoto } from "@/components/PhotoGallery";
+
+/**
+ * =============================================================================
+ * PhotoManager - El "TV Completo"
+ * =============================================================================
+ * 
+ * PROPÓSITO:
+ * Este es el componente COMPLETO que incluye:
+ * 1. PhotoGallery (la pantalla)
+ * 2. Tarjeta contenedora (el marco del TV)
+ * 3. Controles de carrusel (mandos del TV)
+ * 4. Botones de acción (subir, eliminar, marcar principal)
+ * 5. Editor de recorte de imagen
+ * 
+ * ANALOGÍA DEL TV:
+ * - PhotoGallery = Pantalla (solo muestra)
+ * - PhotoManager = TV completo (pantalla + marco + controles + funcionalidad)
+ * 
+ * ARQUITECTURA:
+ * PhotoManager usa PhotoGallery internamente y le agrega:
+ * - Capa contenedora (tarjeta con borde y padding)
+ * - Controles del carrusel (toggle ON/OFF, slider de velocidad, orden)
+ * - Botones de acción (Subir, Eliminar, Principal)
+ * - Lógica de subida y edición de fotos
+ * - Integración con BD (cargar/guardar)
+ * 
+ * PERMISOS GRANULARES:
+ * Cada funcionalidad se puede habilitar/deshabilitar:
+ * - canUpload: permite subir nuevas fotos
+ * - canDelete: permite eliminar fotos
+ * - canSetPrincipal: permite marcar foto como principal
+ * - canToggleCarousel: permite configurar carrusel automático
+ * 
+ * USO:
+ * - create-profile: todos los permisos habilitados
+ * - userprofile: todos los permisos habilitados
+ * - mi-espacio: todos los permisos habilitados
+ * - publicprofile: NO usa este componente, usa PhotoGallery directamente
+ * 
+ * SINCRONIZACIÓN:
+ * - Si tiene username: carga fotos desde BD automáticamente
+ * - Si NO tiene username: usa initialPhotos (para create-profile sin login)
+ * - Callbacks (onPhotosChange, onCarouselChange) para notificar cambios al padre
+ * =============================================================================
+ */
 
 // =================== TIPOS ===================
 export interface Photo {
@@ -305,16 +351,22 @@ export default function PhotoManager({
 
   return (
     <div className={canUpload || canDelete || canSetPrincipal ? 'space-y-3' : ''}>
-      {/* =================== FOTO PRINCIPAL =================== */}
+      {/**
+        * =================== GALERÍA DE FOTOS ===================
+        * 
+        * Aquí usamos PhotoGallery (la "pantalla del TV") pero le agregamos:
+        * 1. Wrapper con drag & drop (si canUpload está habilitado)
+        * 2. Capa de tarjeta contenedora (el "marco del TV")
+        * 
+        * Si hay fotos: muestra PhotoGallery
+        * Si NO hay fotos: muestra área de subida con drag & drop
+        */}
       <div 
-        className={`relative rounded-xl overflow-hidden ${
+        className={`relative ${
           canUpload || canDelete || canSetPrincipal
-            ? 'bg-connect-bg-dark border border-connect-border' 
-            : 'shadow-2xl'
-        } cursor-pointer group`}
-        style={{ aspectRatio: '10/13' }}
-        onMouseEnter={() => setShowCarouselMenu(true)}
-        onMouseLeave={() => setShowCarouselMenu(false)}
+            ? 'bg-connect-bg-dark border border-connect-border rounded-xl p-4' 
+            : ''
+        }`}
         onDragOver={(e) => {
           if (!canUpload) return;
           e.preventDefault();
@@ -333,64 +385,29 @@ export default function PhotoManager({
         }}
       >
         {photos.length > 0 ? (
-          <>
-            {/* Foto actual */}
-            <img 
-              src={photos[currentPhotoIndex].url} 
-              alt="Foto de perfil"
-              className="w-full h-full object-cover"
-            />
-            
-            {/* Badges */}
-            <div className="absolute top-2 right-2 flex flex-col gap-1">
-              {photos[currentPhotoIndex].estado === 'pendiente' && (
-                <span className="bg-orange-500/90 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-full">
-                  🕐
-                </span>
-              )}
-              {photos[currentPhotoIndex].estado === 'aprobada' && (
-                <span className="bg-green-500/90 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-full">
-                  ✅
-                </span>
-              )}
-              {photos[currentPhotoIndex].estado === 'rechazada' && (
-                <span className="bg-red-500/90 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-full">
-                  ❌
-                </span>
-              )}
-              {photos[currentPhotoIndex].esPrincipal && (
-                <span className="bg-neon-green/90 backdrop-blur-sm text-forest-dark text-xs px-2 py-1 rounded-full font-bold">
-                  ⭐
-                </span>
-              )}
-            </div>
-            
-            {/* Navegación */}
-            {photos.length > 1 && (
-              <>
-                <button
-                  onClick={handlePrevPhoto}
-                  className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/80 text-white rounded-full w-8 h-8 flex items-center justify-center transition-all text-sm"
-                >
-                  ‹
-                </button>
-                <button
-                  onClick={handleNextPhoto}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/80 text-white rounded-full w-8 h-8 flex items-center justify-center transition-all text-sm"
-                >
-                  ›
-                </button>
-              </>
-            )}
-            
-            {/* Contador */}
-            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 bg-black/70 backdrop-blur-sm text-white text-xs px-3 py-1 rounded-full">
-              Foto {currentPhotoIndex + 1} de {photos.length}
-            </div>
-          </>
+          // Tenemos fotos: usar PhotoGallery
+          <PhotoGallery
+            photos={photos}
+            currentIndex={currentPhotoIndex}
+            onIndexChange={setCurrentPhotoIndex}
+            onClick={() => {
+              if (!canUpload) return;
+              // Al hacer click en la foto, abrir selector de archivos
+              const input = document.createElement('input');
+              input.type = 'file';
+              input.accept = 'image/jpeg,image/png';
+              input.onchange = (e) => {
+                const file = (e.target as HTMLInputElement).files?.[0];
+                if (file) handlePhotoUpload(file);
+              };
+              input.click();
+            }}
+          />
         ) : (
+          // NO hay fotos: mostrar área de subida con drag & drop
           <div 
-            className="flex flex-col items-center justify-center h-full p-4 text-center cursor-pointer hover:bg-white/5 transition-all"
+            className="relative rounded-xl overflow-hidden bg-connect-bg-dark/30 border-2 border-dashed border-connect-border flex items-center justify-center cursor-pointer hover:bg-white/5 transition-all"
+            style={{ aspectRatio: '10/13' }}
             onClick={() => {
               if (!canUpload) return;
               const input = document.createElement('input');
@@ -403,20 +420,30 @@ export default function PhotoManager({
               input.click();
             }}
           >
-            <div className="text-4xl mb-2">📸</div>
-            <p className="text-gray-400 text-sm mb-1">
-              {!canUpload ? 'Sin fotos' : 'Subir foto o arrastra aquí'}
-            </p>
-            {canUpload && (
-              <p className="text-gray-500 text-xs">
-                JPG o PNG • Máx. 5 MB
+            <div className="text-center p-8">
+              <div className="text-4xl mb-2">📸</div>
+              <p className="text-gray-400 text-sm mb-1">
+                {!canUpload ? 'Sin fotos' : 'Subir foto o arrastra aquí'}
               </p>
-            )}
+              {canUpload && (
+                <p className="text-gray-500 text-xs">
+                  JPG o PNG • Máx. 5 MB
+                </p>
+              )}
+            </div>
           </div>
         )}
       </div>
 
-      {/* =================== CONTROLES =================== */}
+      {/**
+        * =================== CONTROLES DEL CARRUSEL Y BOTONES ===================
+        * 
+        * Esta es la parte del "TV" que NO está en la pantalla:
+        * - Controles del carrusel (toggle, slider, orden)
+        * - Botones de acción (Subir, Eliminar, Principal)
+        * 
+        * Solo se muestran si hay al menos un permiso habilitado
+        */}
       {(showCarousel || canUpload || canDelete || canSetPrincipal) && (
         <>
           {/* Controles de carrusel (entre foto y botones) */}
