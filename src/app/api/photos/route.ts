@@ -18,13 +18,23 @@ const getSupabaseClient = () => {
 /**
  * API para obtener fotos de perfil de un usuario
  * 
- * GET /api/photos?username=<username>
+ * GET /api/photos?username=<username>&showAll=<true|false>
+ * 
+ * Parámetros:
+ * - username: nombre de usuario (requerido)
+ * - showAll: si es 'true', muestra TODAS las fotos (incluso pendientes)
+ *            si es 'false' o no se proporciona, solo muestra aprobadas
+ * 
+ * Uso:
+ * - Para perfil público: /api/photos?username=anam (solo aprobadas)
+ * - Para dueño del perfil: /api/photos?username=anam&showAll=true (todas)
  */
 export async function GET(request: NextRequest) {
   try {
     const supabase = getSupabaseClient();
     const { searchParams } = new URL(request.url);
     const username = searchParams.get('username');
+    const showAll = searchParams.get('showAll') === 'true';
     
     if (!username) {
       return NextResponse.json(
@@ -33,7 +43,7 @@ export async function GET(request: NextRequest) {
       );
     }
     
-    console.log(`📥 Obteniendo fotos para usuario: ${username}`);
+    console.log(`📥 Obteniendo fotos para usuario: ${username} (showAll: ${showAll})`);
     
     // Buscar user_id por username
     const { data: userData, error: userError } = await supabase
@@ -52,12 +62,20 @@ export async function GET(request: NextRequest) {
     
     const userId = userData.id;
     
-    // Obtener fotos del usuario ordenadas
-    const { data: photos, error: photosError } = await supabase
+    // Construir query de fotos
+    let query = supabase
       .from('profile_photos')
       .select('*')
-      .eq('user_id', userId)
-      .order('is_principal', { ascending: false }) // Principal primero
+      .eq('user_id', userId);
+    
+    // Si NO showAll, filtrar solo aprobadas
+    if (!showAll) {
+      query = query.eq('estado', 'aprobada');
+    }
+    
+    // Ordenar: principal primero, luego por orden, luego por fecha
+    const { data: photos, error: photosError } = await query
+      .order('is_principal', { ascending: false })
       .order('orden', { ascending: true })
       .order('created_at', { ascending: false });
     
