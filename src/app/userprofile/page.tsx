@@ -116,6 +116,79 @@ function AjustesPerfilContent() {
     }
   }, [tabParam, activeCategory]);
   
+  // Cargar datos del usuario al montar el componente
+  useEffect(() => {
+    const loadUserProfile = async () => {
+      if (!user?.username) return;
+      
+      try {
+        console.log('🔄 Cargando perfil de:', user.username);
+        
+        // Cargar datos del perfil
+        const response = await fetch(`/api/profile?username=${user.username}`);
+        
+        if (!response.ok) {
+          console.warn('⚠️ Usuario no tiene perfil guardado aún');
+          return; // Usuario nuevo, usar valores por defecto
+        }
+        
+        const data = await response.json();
+        console.log('✅ Perfil cargado:', data);
+        
+        // Actualizar formData con los datos del usuario
+        setFormData(prev => ({
+          ...prev,
+          nombre: data.nombre || user.username,
+          edad: data.edad?.toString() || '',
+          genero: data.genero || '',
+          ciudad: data.ciudad || '',
+          fotoPerfil: data.foto_perfil || '',
+          statusText: data.status_text || '',
+          altura: data.altura?.toString() || '',
+          peso: data.peso?.toString() || '',
+          tipoCuerpo: data.tipo_cuerpo || '',
+          colorOjos: data.color_ojos || '',
+          colorCabello: data.color_cabello || '',
+          signoZodiacal: data.signo_zodiacal || '',
+          educacion: data.educacion || '',
+          etnia: data.etnia || '',
+          vivesEn: data.vives_en || '',
+          idiomas: data.idiomas || [],
+          trabajas: data.trabajas || false,
+          enQueTrabaja: data.en_que_trabaja || '',
+          // ... agregar más campos según necesites
+        }));
+        
+        // Cargar fotos del usuario
+        const photosResponse = await fetch(`/api/photos?username=${user.username}&showAll=true`);
+        
+        if (photosResponse.ok) {
+          const photosData = await photosResponse.json();
+          console.log('✅ Fotos cargadas:', photosData.photos?.length || 0);
+          
+          if (photosData.photos && photosData.photos.length > 0) {
+            const mappedPhotos = photosData.photos.map((photo: any) => ({
+              id: photo.id.toString(),
+              url: photo.url,
+              esPrincipal: photo.is_principal || false,
+              estado: photo.estado as 'pendiente' | 'aprobada' | 'rechazada'
+            }));
+            
+            setFormData(prev => ({
+              ...prev,
+              fotos: mappedPhotos
+            }));
+          }
+        }
+        
+      } catch (error) {
+        console.error('❌ Error al cargar perfil:', error);
+      }
+    };
+    
+    loadUserProfile();
+  }, [user]);
+  
   // Función para cambiar de categoría y hacer scroll al inicio
   const handleCategoryChange = (category: CategoryType) => {
     setActiveCategory(category);

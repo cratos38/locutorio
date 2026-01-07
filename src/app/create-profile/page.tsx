@@ -508,8 +508,8 @@ function CrearPerfilForm() {
       // 3. MOSTRAR MENSAJE DE ÉXITO
       alert("¡Perfil creado exitosamente! Bienvenido a LoCuToRiO\n\nRevisa tu email para verificar tu cuenta.");
 
-      // 4. REDIRIGIR A MI-ESPACIO
-      router.push("/mi-espacio");
+      // 4. REDIRIGIR A USERPROFILE (espacio personal)
+      router.push("/userprofile");
       
     } catch (error) {
       console.error("❌ Error al crear perfil:", error);
