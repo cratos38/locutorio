@@ -1473,6 +1473,8 @@ function AjustesPerfilContent() {
         orden_mantenimiento: formData.ordenMantenimiento || null,
       };
       
+      console.log('📤 Enviando datos del perfil:', profileData);
+      
       const response = await fetch('/api/profile', {
         method: 'POST',
         headers: {
@@ -1481,16 +1483,28 @@ function AjustesPerfilContent() {
         body: JSON.stringify(profileData),
       });
       
+      console.log('📥 Respuesta del servidor:', response.status);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ Error del servidor:', errorText);
+        alert(`❌ Error del servidor (${response.status})\n\n${errorText.substring(0, 200)}`);
+        return;
+      }
+      
       const result = await response.json();
+      console.log('✅ Resultado:', result);
       
       if (result.success) {
         alert(`✅ Perfil guardado correctamente!\n\nPerfil completado: ${result.profileCompletion}%\n\nPuedes verlo en: /publicprofile/${username}`);
+        // Redirigir automáticamente
+        window.location.href = `/publicprofile/${username}`;
       } else {
         alert(`❌ Error al guardar: ${result.error}`);
       }
-    } catch (error) {
-      console.error('Error al guardar perfil:', error);
-      alert('❌ Error al guardar el perfil. Revisa la consola.');
+    } catch (error: any) {
+      console.error('❌ Error al guardar perfil:', error);
+      alert(`❌ Error al guardar el perfil:\n\n${error.message}\n\nRevisa la consola para más detalles.`);
     }
   };
 

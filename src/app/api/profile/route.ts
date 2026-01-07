@@ -20,6 +20,8 @@ export async function POST(request: NextRequest) {
     const supabase = getSupabaseClient();
     const data = await request.json();
     
+    console.log('📥 API recibió datos:', Object.keys(data));
+    
     // Calcular porcentaje de completado del perfil
     const totalFields = 50; // Aproximado de campos importantes
     let filledFields = 0;
@@ -33,7 +35,10 @@ export async function POST(request: NextRequest) {
     
     const profileCompletion = Math.round((filledFields / totalFields) * 100);
     
+    console.log(`📊 Perfil completado: ${profileCompletion}% (${filledFields}/${totalFields} campos)`);
+    
     // Insertar o actualizar en Supabase
+    console.log('💾 Guardando en Supabase...');
     const { data: result, error } = await supabase
       .from('users')
       .upsert({
@@ -47,14 +52,23 @@ export async function POST(request: NextRequest) {
       .single();
     
     if (error) {
-      console.error('Supabase error:', error);
-      return NextResponse.json({ error: error.message }, { status: 400 });
+      console.error('❌ Supabase error:', error);
+      return NextResponse.json({ 
+        success: false,
+        error: `Supabase error: ${error.message}`,
+        details: error 
+      }, { status: 400 });
     }
     
+    console.log('✅ Perfil guardado exitosamente');
     return NextResponse.json({ success: true, data: result, profileCompletion });
-  } catch (error) {
-    console.error('API error:', error);
-    return NextResponse.json({ error: 'Error al guardar el perfil' }, { status: 500 });
+  } catch (error: any) {
+    console.error('❌ API error:', error);
+    return NextResponse.json({ 
+      success: false,
+      error: `Error al guardar el perfil: ${error.message}`,
+      stack: error.stack 
+    }, { status: 500 });
   }
 }
 
