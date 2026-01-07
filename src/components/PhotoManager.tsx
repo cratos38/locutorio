@@ -289,15 +289,35 @@ export default function PhotoManager({
       if (username) {
         console.log('📤 Subiendo foto a Supabase...');
         
+        // Obtener token de sesión de Supabase
+        let authToken = '';
+        try {
+          // Intentar obtener token del localStorage de Supabase
+          const supabaseAuth = localStorage.getItem('sb-hbzlxwbyxuzdasfaksiy-auth-token');
+          if (supabaseAuth) {
+            const authData = JSON.parse(supabaseAuth);
+            authToken = authData.access_token || '';
+          }
+        } catch (e) {
+          console.warn('⚠️ No se pudo obtener token de autenticación');
+        }
+        
         // Crear FormData
         const formData = new FormData();
         formData.append('file', resizedFile);
         formData.append('username', username);
         formData.append('isPrincipal', (photos.length === 0).toString());
         
+        // Preparar headers
+        const headers: HeadersInit = {};
+        if (authToken) {
+          headers['Authorization'] = `Bearer ${authToken}`;
+        }
+        
         // Subir a API
         const uploadResponse = await fetch('/api/photos/upload', {
           method: 'POST',
+          headers,
           body: formData
         });
         
