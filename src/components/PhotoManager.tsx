@@ -256,18 +256,128 @@ export default function PhotoManager({
     if (!canUpload) return;
 
     try {
+      setLoading(true);
+      
       // Validar tamaño máximo (5MB)
       if (file.size > 5 * 1024 * 1024) {
         alert("La imagen es muy grande. Máximo 5MB.");
+        setLoading(false);
         return;
       }
 
-      // Abrir editor de recorte
-      const url = URL.createObjectURL(file);
-      setImageToCrop(url);
+      console.log('📤 Subiendo foto directamente (sin cropper)...');
+      
+      // Redimensionar la imagen directamente
+      const resizedFile = await resizeImage(file, 800); // Tamaño más grande que antes
+      console.log(`Tamaño final: ${(resizedFile.size / 1024).toFixed(2)}KB`);
+
+      // Si tenemos username, subir a Supabase
+      if (username) {
+        console.log('📤 Subiendo foto a Supabase...');
+        
+        // Obtener token de sesión de Supabase
+        let authToken = '';
+        try {
+          const supabaseAuth = localStorage.getItem('sb-hbzlxwbyxuzdasfaksiy-auth-token');
+          if (supabaseAuth) {
+            const authData = JSON.parse(supabaseAuth);
+            authToken = authData.access_token || '';
+          }
+        } catch (e) {
+          console.warn('⚠️ No se pudo obtener token de autenticación');
+        }
+        
+        // Crear FormData
+        const formData = new FormData();
+        formData.append('file', resizedFile);
+        formData.append('username', username);
+        formData.append('isPrincipal', (photos.length === 0).toString());
+        
+        // Preparar headers
+        const headers: HeadersInit = {};
+        if (authToken) {
+          headers['Authorization'] = `Bearer ${authToken}`;
+        }
+        
+        console.log('📤 Enviando a /api/photos/upload con:', {
+          username,
+          isPrincipal: photos.length === 0,
+          fileSize: resizedFile.size,
+          hasAuthToken: !!authToken
+        });
+        
+        // Subir a API
+        const uploadResponse = await fetch('/api/photos/upload', {
+          method: 'POST',
+          headers,
+          body: formData
+        });
+        
+        console.log('📥 Respuesta del servidor:', {
+          status: uploadResponse.status,
+          ok: uploadResponse.ok
+        });
+        
+        const uploadResult = await uploadResponse.json();
+        console.log('📥 Contenido de la respuesta:', uploadResult);
+        
+        if (!uploadResponse.ok) {
+          console.error('❌ Error del servidor:', uploadResult);
+          throw new Error(uploadResult.error || `Error del servidor: ${uploadResponse.status}`);
+        }
+        
+        console.log('✅ Foto subida exitosamente:', uploadResult);
+        
+        // Crear nueva foto con URL de Supabase
+        const newPhoto: Photo = {
+          id: uploadResult.photo.id,
+          url: uploadResult.photo.url,
+          esPrincipal: uploadResult.photo.isPrincipal,
+          estado: uploadResult.photo.estado as 'pendiente' | 'aprobada' | 'rechazada',
+        };
+        
+        setPhotos(prev => [...prev, newPhoto]);
+        setCurrentPhotoIndex(photos.length);
+        
+        // Notificar cambio
+        if (onPhotosChange) {
+          onPhotosChange([...photos, newPhoto]);
+        }
+        
+        alert('✅ Foto subida exitosamente!');
+      } else {
+        // Sin username, guardar solo en memoria (modo local)
+        const url = URL.createObjectURL(resizedFile);
+        const newPhoto: Photo = {
+          id: Date.now().toString(),
+          url: url,
+          esPrincipal: photos.length === 0,
+          estado: 'pendiente',
+          file: resizedFile,
+        };
+
+        setPhotos(prev => [...prev, newPhoto]);
+        setCurrentPhotoIndex(photos.length);
+        
+        if (onPhotosChange) {
+          onPhotosChange([...photos, newPhoto]);
+        }
+      }
+      
+      setLoading(false);
     } catch (error) {
-      console.error('Error al procesar la imagen:', error);
-      alert('Error al procesar la imagen. Inténtalo de nuevo.');
+      console.error('❌ Error al subir la foto:', error);
+      console.error('❌ Stack trace:', error instanceof Error ? error.stack : 'N/A');
+      
+      let errorMessage = 'Error desconocido';
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      } else if (typeof error === 'string') {
+        errorMessage = error;
+      }
+      
+      alert(`Error al subir la foto:\n\n${errorMessage}\n\nRevisa la consola (F12) para más detalles.`);
+      setLoading(false);
     }
   };
 
