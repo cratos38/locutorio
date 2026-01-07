@@ -284,7 +284,7 @@ function AjustesPerfilContent() {
   const categories = [
     { id: "algo-sobre-mi" as CategoryType, label: "Algo sobre mí", icon: "👤" },
     { id: "relaciones" as CategoryType, label: "Relaciones", icon: "💑" },
-    { id: "cultura" as CategoryType, label: "Cultura", icon: "🎭" },
+    { id: "cultura" as CategoryType, label: "Intereses", icon: "🎭" },
     { id: "estilo-vida" as CategoryType, label: "Estilo de vida", icon: "🏃" },
     { id: "informacion-privada" as CategoryType, label: "Información privada", icon: "🔒" },
   ];
@@ -471,6 +471,13 @@ function AjustesPerfilContent() {
   ) => {
     const value = formData[field] as string;
     
+    // Handler especial para campos numéricos (comportamiento tipo Excel)
+    const handleNumericFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+      if (type === "number") {
+        e.target.select(); // Selecciona todo el texto al hacer foco
+      }
+    };
+    
     return (
       <div className="mb-6">
         <label className="block text-sm font-medium text-gray-300 mb-3">
@@ -490,6 +497,7 @@ function AjustesPerfilContent() {
               type={type}
               value={value}
               onChange={(e) => handleInputChange(field, e.target.value)}
+              onFocus={handleNumericFocus}
               placeholder={placeholder}
               className="flex-1 bg-connect-bg-dark border border-connect-border text-gray-200 focus:border-neon-green"
             />
@@ -667,7 +675,6 @@ function AjustesPerfilContent() {
 
               {renderInputField("Defínete en una frase", "defineteEnFrase", "textarea", "Ej: Una persona sincera, alegre y aventurera")}
               {renderInputField("Cuéntanos algo tuyo", "cuentanosAlgoTuyo", "textarea", "Comparte algo interesante sobre ti...")}
-              {renderInputField("Intereses (separados con una coma)", "intereses", "text", "Ej: Fotografía, viajar, cocina italiana")}
               {renderInputField("¿Cómo sería tu primera cita ideal?", "primeraCitaIdeal", "textarea", "Describe tu cita ideal...")}
             </div>
           </div>
@@ -993,6 +1000,7 @@ function AjustesPerfilContent() {
                 { value: "si-bastante", label: "Sí, bastante" },
                 { value: "mas-o-menos", label: "Más o menos" },
                 { value: "muy-poco", label: "Muy poco" },
+                { value: "para-nada", label: "Para nada" },
               ])}
             </div>
 
@@ -1041,9 +1049,9 @@ function AjustesPerfilContent() {
       case "estilo-vida":
         return (
           <div className="space-y-6">
-            {/* Qué haces normalmente */}
+            {/* Actividades en tiempo libre */}
             <div className="bg-connect-bg-dark/60 backdrop-blur-sm border border-connect-border rounded-xl p-6 shadow-lg">
-              <h3 className="text-xl font-bold text-neon-green mb-6">¿Qué haces normalmente?</h3>
+              <h3 className="text-xl font-bold text-neon-green mb-6">Actividades en tiempo libre</h3>
 
               {renderCheckboxes("Marca tus actividades:", "queHaces", [
                 { value: "cocinar", label: "Cocinar" },
