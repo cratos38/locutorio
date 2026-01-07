@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import ImageCropper from "@/components/ImageCropper";
 
 // =================== UTILIDAD: REDIMENSIONAR IMAGEN ===================
 /**
@@ -103,6 +104,10 @@ function AjustesPerfilContent() {
     tabParam || "algo-sobre-mi"
   );
   
+  // Estados para Image Cropper
+  const [imageToCrop, setImageToCrop] = useState<string | null>(null);
+  const [fileToUpload, setFileToUpload] = useState<File | null>(null);
+  
   // Estado para navegación de fotos
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
   
@@ -121,17 +126,28 @@ function AjustesPerfilContent() {
         return;
       }
       
-      // Redimensionar imagen automáticamente
-      const resizedFile = await resizeImage(file, 400);
+      // Crear URL temporal para el cropper
+      const url = URL.createObjectURL(file);
+      setImageToCrop(url);
+      setFileToUpload(file);
+    } catch (error) {
+      console.error('Error al procesar la imagen:', error);
+      alert('Error al procesar la imagen. Inténtalo de nuevo.');
+    }
+  };
+  
+  // Handler para cuando se completa el recorte
+  const handleCropComplete = async (croppedImageUrl: string) => {
+    try {
+      // Convertir el blob URL a File
+      const response = await fetch(croppedImageUrl);
+      const blob = await response.blob();
+      const file = new File([blob], fileToUpload?.name || 'cropped-image.jpg', { type: 'image/jpeg' });
       
-      // Verificar tamaño después de redimensionar
-      console.log(`Tamaño original: ${(file.size / 1024).toFixed(2)}KB → Tamaño final: ${(resizedFile.size / 1024).toFixed(2)}KB`);
-      
-      // Crear URL temporal
-      const url = URL.createObjectURL(resizedFile);
+      // Crear la foto recortada
       const newPhoto = {
         id: Date.now().toString(),
-        url: url,
+        url: croppedImageUrl,
         esPrincipal: formData.fotos.length === 0,
         estado: 'pendiente' as const
       };
@@ -141,10 +157,23 @@ function AjustesPerfilContent() {
         fotos: [...prev.fotos, newPhoto]
       }));
       setCurrentPhotoIndex(formData.fotos.length);
+      
+      // Cerrar el cropper
+      setImageToCrop(null);
+      setFileToUpload(null);
     } catch (error) {
-      console.error('Error al procesar la imagen:', error);
-      alert('Error al procesar la imagen. Inténtalo de nuevo.');
+      console.error('Error al guardar imagen recortada:', error);
+      alert('Error al guardar la imagen. Inténtalo de nuevo.');
     }
+  };
+  
+  // Handler para cancelar el recorte
+  const handleCropCancel = () => {
+    if (imageToCrop) {
+      URL.revokeObjectURL(imageToCrop);
+    }
+    setImageToCrop(null);
+    setFileToUpload(null);
   };
   
   // Cambiar categoría si cambia el parámetro tab
@@ -1855,6 +1884,16 @@ function AjustesPerfilContent() {
           </div>
         </div>
       </div>
+      
+      {/* Image Cropper Modal */}
+      {imageToCrop && (
+        <ImageCropper
+          imageSrc={imageToCrop}
+          onCropComplete={handleCropComplete}
+          onCancel={handleCropCancel}
+          aspectRatio={10 / 13}
+        />
+      )}
     </div>
   );
 }
