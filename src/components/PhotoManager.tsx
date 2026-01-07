@@ -294,7 +294,11 @@ export default function PhotoManager({
     <div className={mode === 'editable' ? 'space-y-3' : ''}>
       {/* =================== FOTO PRINCIPAL =================== */}
       <div 
-        className="relative rounded-xl overflow-hidden bg-connect-bg-dark border border-connect-border cursor-pointer group"
+        className={`relative rounded-xl overflow-hidden ${
+          mode === 'editable' 
+            ? 'bg-connect-bg-dark border border-connect-border' 
+            : 'shadow-2xl'
+        } cursor-pointer group`}
         style={{ aspectRatio: '10/13' }}
         onMouseEnter={() => setShowCarouselMenu(true)}
         onMouseLeave={() => setShowCarouselMenu(false)}
