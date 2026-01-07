@@ -7,11 +7,16 @@ export const runtime = 'nodejs';
 // Crear cliente de Supabase con SERVICE_ROLE_KEY para operaciones administrativas
 const getSupabaseAdmin = () => {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+  
+  // TEMPORAL: Usar SERVICE_ROLE_KEY directo (solo para testing)
+  // TODO: Esto debería venir de variables de entorno
+  const serviceRoleKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhiemx4d2J5eHV6ZGFzZmFrc2l5Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2NzcwNTA3OSwiZXhwIjoyMDgzMjgxMDc5fQ.zAlaqe2gLLOQ1KETVxGwlneuyNt3EXclY9h2G1-op8Q';
+  
+  const supabaseServiceKey = serviceRoleKey;
   
   console.log('🔧 Configurando Supabase Admin...');
   console.log('📍 URL:', supabaseUrl ? '✅ OK' : '❌ MISSING');
-  console.log('🔑 SERVICE_ROLE_KEY:', process.env.SUPABASE_SERVICE_ROLE_KEY ? '✅ OK' : '❌ MISSING (using ANON_KEY)');
+  console.log('🔑 SERVICE_ROLE_KEY:', supabaseServiceKey ? '✅ OK (hardcoded)' : '❌ MISSING');
   
   if (!supabaseUrl || !supabaseServiceKey) {
     throw new Error('Supabase environment variables not configured');
