@@ -437,21 +437,83 @@ function CrearPerfilForm() {
         return;
       }
 
-      // TODO: Aquí iría el proceso completo de registro:
-      // 1. Crear cuenta en Supabase Auth
-      // 2. Enviar email de verificación
-      // 3. Guardar perfil en base de datos
-      // 4. Redirigir a dashboard o mi-espacio
+      console.log("📤 Iniciando registro de usuario...");
 
-      console.log("Guardando perfil:", profileData);
-      console.log("Fotos:", fotos);
+      // 1. REGISTRAR USUARIO (Auth + perfil en DB)
+      const registerResponse = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          nombre: profileData.nombre,
+          email: profileData.email,
+          password: profileData.password,
+          sexo: profileData.sexo,
+          fechaNacimiento: profileData.fechaNacimiento,
+          paisCodigo: profileData.paisCodigo,
+          paisNombre: profileData.paisNombre,
+          ciudad: profileData.ciudad,
+          estado: profileData.estado,
+          queBusca: profileData.queBusca,
+          buscarParejaPaisCodigo: profileData.buscarParejaPaisCodigo,
+          buscarParejaPaisNombre: profileData.buscarParejaPaisNombre,
+          buscarParejaCiudad: profileData.buscarParejaCiudad,
+          buscarParejaEstado: profileData.buscarParejaEstado,
+        }),
+      });
 
-      // Por ahora, redirigir directamente
-      alert("¡Perfil creado exitosamente! Bienvenido a LoCuToRiO");
+      const registerResult = await registerResponse.json();
+
+      if (!registerResponse.ok) {
+        throw new Error(registerResult.error || 'Error al registrar usuario');
+      }
+
+      console.log("✅ Usuario registrado:", registerResult.user.username);
+
+      // 2. SUBIR FOTO (si existe)
+      if (fotos.length > 0 && fotos[0].url) {
+        console.log("📤 Subiendo foto de perfil...");
+        
+        try {
+          // Convertir URL de blob a File
+          const response = await fetch(fotos[0].url);
+          const blob = await response.blob();
+          const file = new File([blob], 'foto-perfil.jpg', { type: 'image/jpeg' });
+
+          const formData = new FormData();
+          formData.append('file', file);
+          formData.append('username', profileData.nombre);
+          formData.append('isPrincipal', 'true');
+
+          const uploadResponse = await fetch('/api/photos/upload', {
+            method: 'POST',
+            body: formData
+          });
+
+          const uploadResult = await uploadResponse.json();
+
+          if (uploadResponse.ok) {
+            console.log("✅ Foto subida exitosamente");
+          } else {
+            console.warn("⚠️ Error al subir foto:", uploadResult.error);
+            // No bloqueamos el registro si falla la foto
+          }
+        } catch (photoError) {
+          console.warn("⚠️ Error al procesar foto:", photoError);
+          // No bloqueamos el registro si falla la foto
+        }
+      }
+
+      // 3. MOSTRAR MENSAJE DE ÉXITO
+      alert("¡Perfil creado exitosamente! Bienvenido a LoCuToRiO\n\nRevisa tu email para verificar tu cuenta.");
+
+      // 4. REDIRIGIR A MI-ESPACIO
       router.push("/mi-espacio");
+      
     } catch (error) {
-      console.error("Error al crear perfil:", error);
-      alert("Hubo un error al crear el perfil. Inténtalo de nuevo.");
+      console.error("❌ Error al crear perfil:", error);
+      alert(`Hubo un error al crear el perfil:\n${error instanceof Error ? error.message : 'Error desconocido'}`);
     }
   };
 
@@ -476,17 +538,80 @@ function CrearPerfilForm() {
         return;
       }
 
-      // TODO: Mismo proceso de registro que arriba
+      console.log("📤 Iniciando registro de usuario...");
 
-      console.log("Guardando perfil para completar:", profileData);
-      console.log("Fotos:", fotos);
+      // 1. REGISTRAR USUARIO (mismo proceso que "Crear y Empezar")
+      const registerResponse = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          nombre: profileData.nombre,
+          email: profileData.email,
+          password: profileData.password,
+          sexo: profileData.sexo,
+          fechaNacimiento: profileData.fechaNacimiento,
+          paisCodigo: profileData.paisCodigo,
+          paisNombre: profileData.paisNombre,
+          ciudad: profileData.ciudad,
+          estado: profileData.estado,
+          queBusca: profileData.queBusca,
+          buscarParejaPaisCodigo: profileData.buscarParejaPaisCodigo,
+          buscarParejaPaisNombre: profileData.buscarParejaPaisNombre,
+          buscarParejaCiudad: profileData.buscarParejaCiudad,
+          buscarParejaEstado: profileData.buscarParejaEstado,
+        }),
+      });
 
-      // Redirigir a userprofile en modo edición
-      alert("¡Perfil creado! Ahora puedes completar tu información");
+      const registerResult = await registerResponse.json();
+
+      if (!registerResponse.ok) {
+        throw new Error(registerResult.error || 'Error al registrar usuario');
+      }
+
+      console.log("✅ Usuario registrado:", registerResult.user.username);
+
+      // 2. SUBIR FOTO (si existe)
+      if (fotos.length > 0 && fotos[0].url) {
+        console.log("📤 Subiendo foto de perfil...");
+        
+        try {
+          const response = await fetch(fotos[0].url);
+          const blob = await response.blob();
+          const file = new File([blob], 'foto-perfil.jpg', { type: 'image/jpeg' });
+
+          const formData = new FormData();
+          formData.append('file', file);
+          formData.append('username', profileData.nombre);
+          formData.append('isPrincipal', 'true');
+
+          const uploadResponse = await fetch('/api/photos/upload', {
+            method: 'POST',
+            body: formData
+          });
+
+          const uploadResult = await uploadResponse.json();
+
+          if (uploadResponse.ok) {
+            console.log("✅ Foto subida exitosamente");
+          } else {
+            console.warn("⚠️ Error al subir foto:", uploadResult.error);
+          }
+        } catch (photoError) {
+          console.warn("⚠️ Error al procesar foto:", photoError);
+        }
+      }
+
+      // 3. MOSTRAR MENSAJE DE ÉXITO
+      alert("¡Perfil creado exitosamente!\n\nAhora puedes completar tu información adicional.\n\nRevisa tu email para verificar tu cuenta.");
+
+      // 4. REDIRIGIR A USERPROFILE EN MODO EDICIÓN
       router.push("/userprofile?edit=true");
+      
     } catch (error) {
-      console.error("Error al crear perfil:", error);
-      alert("Hubo un error al crear el perfil. Inténtalo de nuevo.");
+      console.error("❌ Error al crear perfil:", error);
+      alert(`Hubo un error al crear el perfil:\n${error instanceof Error ? error.message : 'Error desconocido'}`);
     }
   };
 
