@@ -233,6 +233,9 @@ function AjustesPerfilContent() {
     queHaces: [] as string[], // ["cocinar", "deporte", "bailar", etc.]
     nivelCocinar: "", // Solo si marcó "cocinar"
     nivelBailar: "", // Solo si marcó "bailar"
+    nivelLeer: "", // Solo si marcó "leer"
+    nivelCine: "", // Solo si marcó "cine"
+    nivelViajar: "", // Solo si marcó "viajar"
     
     teEjercitas: "",
     eresAmbicioso: "", // NUEVO: super-ambicioso | ambicioso | algo-ambicioso | no-ambicioso
@@ -320,6 +323,9 @@ function AjustesPerfilContent() {
           ...(field === "pasatiempos" && value === "deporte" && { deportesPractica: [] }),
           ...(field === "queHaces" && value === "cocinar" && { nivelCocinar: "" }),
           ...(field === "queHaces" && value === "bailar" && { nivelBailar: "" }),
+          ...(field === "queHaces" && value === "leer" && { nivelLeer: "" }),
+          ...(field === "queHaces" && value === "cine" && { nivelCine: "" }),
+          ...(field === "queHaces" && value === "viajar" && { nivelViajar: "" }),
         };
       }
     });
@@ -411,8 +417,8 @@ function AjustesPerfilContent() {
           ))}
         </select>
         
-        {/* Input de texto si selecciona "otro" */}
-        {value === "otro" && otroField && (
+        {/* Input de texto si selecciona "otro" o "otra" */}
+        {(value === "otro" || value === "otra") && otroField && (
           <div className="mt-3">
             <Input
               type="text"
@@ -631,11 +637,6 @@ function AjustesPerfilContent() {
                     placeholder="Ej: Ingeniero de software, Profesor, Comerciante..."
                     className="w-full bg-connect-bg-dark border border-connect-border text-gray-200 focus:border-neon-green"
                   />
-                  {formData.enQueTrabaja && (
-                    <div className="mt-3 text-sm text-gray-400">
-                      → {formData.enQueTrabaja}
-                    </div>
-                  )}
                 </>
               )}
             </div>
@@ -1062,6 +1063,8 @@ function AjustesPerfilContent() {
                     className="w-full px-4 py-2 bg-connect-bg-dark border border-connect-border rounded-lg text-gray-200 focus:border-neon-green"
                   >
                     <option value="">Selecciona...</option>
+                    <option value="odio-cocinar">Odio cocinar</option>
+                    <option value="no-se-pero-tengo">No sé pero tengo que comer</option>
                     <option value="solo-necesario">Solo lo necesario</option>
                     <option value="me-gusta">Me gusta</option>
                     <option value="me-encanta">Me encanta</option>
@@ -1084,6 +1087,70 @@ function AjustesPerfilContent() {
                     <option value="frecuentemente">Frecuentemente</option>
                     <option value="de-vez-cuando">De vez en cuando</option>
                     <option value="no-bailo">No bailo, no me gusta bailar</option>
+                  </select>
+                </div>
+              )}
+
+              {/* Expansión para Leer */}
+              {formData.queHaces.includes("leer") && (
+                <div className="bg-white/5 border border-neon-green/30 rounded-lg p-4 mt-4">
+                  <p className="text-sm font-medium text-gray-300 mb-3">¿Cuánto te gusta leer?</p>
+                  <select
+                    value={formData.nivelLeer}
+                    onChange={(e) => handleInputChange("nivelLeer", e.target.value)}
+                    className="w-full px-4 py-2 bg-connect-bg-dark border border-connect-border rounded-lg text-gray-200 focus:border-neon-green"
+                  >
+                    <option value="">Selecciona...</option>
+                    <option value="no-se-leer">Ni sé leer</option>
+                    <option value="nunca-leo">Nunca leo nada</option>
+                    <option value="esporadicamente">Leo esporádicamente</option>
+                    <option value="bastante">Leo bastante</option>
+                    <option value="frecuentemente">Leo frecuentemente en todos sitios</option>
+                    <option value="adicto">Estoy adicto a la lectura</option>
+                  </select>
+                </div>
+              )}
+
+              {/* Expansión para Ir al cine */}
+              {formData.queHaces.includes("cine") && (
+                <div className="bg-white/5 border border-neon-green/30 rounded-lg p-4 mt-4">
+                  <p className="text-sm font-medium text-gray-300 mb-3">¿Qué tal el cine?</p>
+                  <select
+                    value={formData.nivelCine}
+                    onChange={(e) => handleInputChange("nivelCine", e.target.value)}
+                    className="w-full px-4 py-2 bg-connect-bg-dark border border-connect-border rounded-lg text-gray-200 focus:border-neon-green"
+                  >
+                    <option value="">Selecciona...</option>
+                    <option value="odio-salas">Odio salas llenas de gente</option>
+                    <option value="claustrofobia">Voy pero tengo claustrofobia</option>
+                    <option value="prefiero-no">Si no es obligatorio, prefiero no ir</option>
+                    <option value="a-veces">A veces</option>
+                    <option value="sin-problema">Sí, voy sin problema</option>
+                    <option value="solo-buenas">Voy solo si hay buena premiere</option>
+                    <option value="frecuentemente">Voy al cine frecuentemente y solo</option>
+                    <option value="fanatico">Soy fanático de cine, películas y todo ese rollo</option>
+                  </select>
+                </div>
+              )}
+
+              {/* Expansión para Viajar */}
+              {formData.queHaces.includes("viajar") && (
+                <div className="bg-white/5 border border-neon-green/30 rounded-lg p-4 mt-4">
+                  <p className="text-sm font-medium text-gray-300 mb-3">¿Qué tal viajar?</p>
+                  <select
+                    value={formData.nivelViajar}
+                    onChange={(e) => handleInputChange("nivelViajar", e.target.value)}
+                    className="w-full px-4 py-2 bg-connect-bg-dark border border-connect-border rounded-lg text-gray-200 focus:border-neon-green"
+                  >
+                    <option value="">Selecciona...</option>
+                    <option value="odio-viajar">Odio viajar</option>
+                    <option value="solo-necesario">Viajo solo si es absolutamente necesario</option>
+                    <option value="cortas-distancias">Viajo, pero solo cortas distancias</option>
+                    <option value="viajo">Viajo</option>
+                    <option value="mucho-trabajo-no-gusta">Viajo mucho porque es parte de mi trabajo y no me gusta</option>
+                    <option value="mucho-trabajo-gusta">Viajo mucho porque es parte de mi trabajo y me gusta</option>
+                    <option value="mucho-quisiera-mas">Viajo mucho y desearía viajar más</option>
+                    <option value="viajero-nato">Estoy un viajero nato, quisiera ir a cada rincón del mundo</option>
                   </select>
                 </div>
               )}
@@ -1448,6 +1515,9 @@ function AjustesPerfilContent() {
         que_haces: formData.queHaces || null,
         nivel_cocinar: formData.nivelCocinar || null,
         nivel_bailar: formData.nivelBailar || null,
+        nivel_leer: formData.nivelLeer || null,
+        nivel_cine: formData.nivelCine || null,
+        nivel_viajar: formData.nivelViajar || null,
         te_ejercitas: formData.teEjercitas || null,
         eres_ambicioso: formData.eresAmbicioso || null,
         
