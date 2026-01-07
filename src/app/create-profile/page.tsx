@@ -528,11 +528,9 @@ function CrearPerfilForm() {
         }
       }
 
-      // 3. MOSTRAR MENSAJE DE ÉXITO
-      alert("¡Perfil creado exitosamente! Bienvenido a LoCuToRiO\n\nRevisa tu email para verificar tu cuenta.");
-
-      // 4. REDIRIGIR A DASHBOARD (Mi Espacio)
-      router.push("/dashboard");
+      // 3. MOSTRAR MENSAJE DE ÉXITO Y REDIRIGIR A VERIFICACIÓN
+      // Redirigir a página de verificación de email
+      router.push(`/verify-email?email=${encodeURIComponent(profileData.email)}`);
       
     } catch (error) {
       console.error("❌ Error al crear perfil:", error);
@@ -650,10 +648,8 @@ function CrearPerfilForm() {
       }
 
       // 3. MOSTRAR MENSAJE DE ÉXITO
-      alert("¡Perfil creado exitosamente!\n\nAhora puedes completar tu información adicional.\n\nRevisa tu email para verificar tu cuenta.");
-
-      // 4. REDIRIGIR A USERPROFILE EN MODO EDICIÓN
-      router.push("/userprofile?edit=true");
+      // 3. REDIRIGIR A PÁGINA DE VERIFICACIÓN
+      router.push(`/verify-email?email=${encodeURIComponent(profileData.email)}`);
       
     } catch (error) {
       console.error("❌ Error al crear perfil:", error);
