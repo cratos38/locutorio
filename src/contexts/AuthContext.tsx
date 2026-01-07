@@ -38,15 +38,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const checkSession = async () => {
     try {
+      console.log('🔍 Verificando sesión...');
       const { data: { session } } = await supabase.auth.getSession();
       
+      console.log('📋 Sesión:', {
+        exists: !!session,
+        userId: session?.user?.id,
+        email: session?.user?.email,
+      });
+      
       if (session?.user) {
+        console.log('👤 Cargando datos del usuario:', session.user.id);
         await loadUserData(session.user.id);
       } else {
+        console.log('❌ No hay sesión activa');
         setUser(null);
       }
     } catch (error) {
-      console.error('Error al verificar sesión:', error);
+      console.error('❌ Error al verificar sesión:', error);
       setUser(null);
     } finally {
       setLoading(false);
@@ -55,22 +64,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const loadUserData = async (userId: string) => {
     try {
+      console.log('📡 Buscando usuario en tabla users:', userId);
+      
       const { data, error } = await supabase
         .from('users')
         .select('id, username, email, is_admin')
         .eq('id', userId)
         .single();
 
-      if (error) throw error;
+      console.log('📥 Resultado de la consulta:', {
+        found: !!data,
+        data,
+        error: error?.message,
+      });
 
-      setUser({
+      if (error) {
+        console.error('❌ Error en consulta:', error);
+        throw error;
+      }
+
+      const userData = {
         id: data.id,
         username: data.username,
         email: data.email,
         isAdmin: data.is_admin || false,
-      });
+      };
+      
+      console.log('✅ Usuario cargado:', userData);
+      setUser(userData);
     } catch (error) {
-      console.error('Error al cargar datos del usuario:', error);
+      console.error('❌ Error al cargar datos del usuario:', error);
       setUser(null);
     }
   };
