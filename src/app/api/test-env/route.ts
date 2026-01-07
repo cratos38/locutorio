@@ -7,10 +7,17 @@ export async function GET() {
     env_vars: {
       SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL ? '✅ EXISTS' : '❌ MISSING',
       ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? '✅ EXISTS' : '❌ MISSING',
+      
+      // Intentar encontrar SERVICE_ROLE_KEY con diferentes nombres
+      NEXT_PUBLIC_SERVICE_KEY: process.env.NEXT_PUBLIC_SUPABASE_SERVICE_KEY ? '✅ EXISTS' : '❌ MISSING',
       SERVICE_KEY: process.env.SUPABASE_SERVICE_KEY ? '✅ EXISTS' : '❌ MISSING',
       SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY ? '✅ EXISTS' : '❌ MISSING',
       
       // Mostrar primeros 10 caracteres (seguro)
+      NEXT_PUBLIC_SERVICE_KEY_preview: process.env.NEXT_PUBLIC_SUPABASE_SERVICE_KEY 
+        ? process.env.NEXT_PUBLIC_SUPABASE_SERVICE_KEY.substring(0, 10) + '...' 
+        : 'NOT FOUND',
+      
       SERVICE_KEY_preview: process.env.SUPABASE_SERVICE_KEY 
         ? process.env.SUPABASE_SERVICE_KEY.substring(0, 10) + '...' 
         : 'NOT FOUND',
@@ -22,6 +29,7 @@ export async function GET() {
       // Ver todas las variables que empiezan con SUPABASE
       all_supabase_vars: Object.keys(process.env)
         .filter(key => key.includes('SUPABASE'))
+        .sort()
         .map(key => `${key}: ${process.env[key] ? 'EXISTS' : 'MISSING'}`)
     }
   });

@@ -9,17 +9,21 @@ const getSupabaseAdmin = () => {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
   
   // Intentar obtener SERVICE_ROLE_KEY de diferentes fuentes
+  // WORKAROUND: Vercel solo pasa variables con NEXT_PUBLIC_ prefix
   const supabaseServiceKey = 
-    process.env.SUPABASE_SERVICE_KEY ||           // Nombre nuevo
-    process.env.SUPABASE_SERVICE_ROLE_KEY ||      // Nombre viejo
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||  // Fallback
+    process.env.NEXT_PUBLIC_SUPABASE_SERVICE_KEY ||  // Workaround para Vercel
+    process.env.SUPABASE_SERVICE_KEY ||              // Nombre corto
+    process.env.SUPABASE_SERVICE_ROLE_KEY ||         // Nombre largo
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||     // Fallback
     '';
   
   console.log('🔧 Configurando Supabase Admin...');
   console.log('📍 URL:', supabaseUrl ? '✅ OK' : '❌ MISSING');
+  console.log('🔑 NEXT_PUBLIC_SUPABASE_SERVICE_KEY:', process.env.NEXT_PUBLIC_SUPABASE_SERVICE_KEY ? '✅ OK' : '❌ MISSING');
   console.log('🔑 SUPABASE_SERVICE_KEY:', process.env.SUPABASE_SERVICE_KEY ? '✅ OK' : '❌ MISSING');
   console.log('🔑 SUPABASE_SERVICE_ROLE_KEY:', process.env.SUPABASE_SERVICE_ROLE_KEY ? '✅ OK' : '❌ MISSING');
   console.log('🔑 Using key from:', 
+    process.env.NEXT_PUBLIC_SUPABASE_SERVICE_KEY ? 'NEXT_PUBLIC_SUPABASE_SERVICE_KEY (workaround)' :
     process.env.SUPABASE_SERVICE_KEY ? 'SUPABASE_SERVICE_KEY' :
     process.env.SUPABASE_SERVICE_ROLE_KEY ? 'SUPABASE_SERVICE_ROLE_KEY' :
     'ANON_KEY (fallback)'
