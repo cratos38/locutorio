@@ -354,17 +354,23 @@ export default function PhotoManager({
       {/**
         * =================== GALERÍA DE FOTOS ===================
         * 
-        * Aquí usamos PhotoGallery (la "pantalla del TV") pero le agregamos:
-        * 1. Wrapper con drag & drop (si canUpload está habilitado)
-        * 2. Capa de tarjeta contenedora (el "marco del TV")
+        * ARQUITECTURA DE 2 CAPAS (NO 3):
+        * ---------------------------
+        * Capa A (Tarjeta): bg + border + rounded
+        * Capa B (Foto): PhotoGallery que ocupa TODO el espacio de A
         * 
-        * Si hay fotos: muestra PhotoGallery
-        * Si NO hay fotos: muestra área de subida con drag & drop
+        * IMPORTANTE: NO agregar padding entre A y B
+        * Si agregamos padding (p-4), se crea una capa intermedia que hace
+        * que PhotoGallery se vea más pequeña (problema de 3 capas).
+        * 
+        * DRAG & DROP:
+        * El wrapper maneja drag & drop pero SIN padding.
+        * PhotoGallery ocupa 100% del espacio disponible.
         */}
       <div 
         className={`relative ${
           canUpload || canDelete || canSetPrincipal
-            ? 'bg-connect-bg-dark border border-connect-border rounded-xl p-4' 
+            ? 'bg-connect-bg-dark border border-connect-border rounded-xl overflow-hidden' 
             : ''
         }`}
         onDragOver={(e) => {
