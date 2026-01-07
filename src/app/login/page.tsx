@@ -33,8 +33,8 @@ export default function LoginPage() {
     try {
       await login(formData.email, formData.password);
       
-      // Redirigir a userprofile después del login (espacio personal del usuario)
-      router.push('/userprofile');
+      // Redirigir a dashboard (Mi Espacio) después del login
+      router.push('/dashboard');
     } catch (err: any) {
       console.error('Error en login:', err);
       setError(err.message || 'Error al iniciar sesión. Verifica tus credenciales.');

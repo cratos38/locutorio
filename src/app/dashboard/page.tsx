@@ -8,6 +8,7 @@ import InternalHeader from "@/components/InternalHeader";
 import { useMessages } from "@/contexts/MessagesContext";
 import PhoneVerificationModal from "@/components/PhoneVerificationModal";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
 
 type CoffeeUser = {
   id: number;
@@ -20,10 +21,22 @@ type CoffeeUser = {
 
 export default function InicioPage() {
   const router = useRouter();
+  const { user } = useAuth(); // Hook de autenticación
   const { openMessages } = useMessages();
   const [statusText, setStatusText] = useState("");
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [favoriteSalas, setFavoriteSalas] = useState<string[]>([]);
+  
+  // Estado del perfil del usuario
+  const [profileData, setProfileData] = useState({
+    nombre: user?.username || '',
+    edad: 0,
+    ciudad: '',
+    foto_perfil: '',
+    amigos_count: 0,
+    fotos_count: 0,
+    visitas_count: 0,
+  });
   
   // Estado de presencia del usuario
   const [presenceStatus, setPresenceStatus] = useState<'online' | 'busy' | 'invisible'>('online');
@@ -32,6 +45,48 @@ export default function InicioPage() {
   // Estado de verificación
   const [isPhoneVerified, setIsPhoneVerified] = useState(false); // TODO: Obtener del backend
   const [showPhoneModal, setShowPhoneModal] = useState(false);
+
+  // Cargar datos del usuario
+  useEffect(() => {
+    const loadUserData = async () => {
+      if (!user?.username) return;
+      
+      try {
+        console.log('🔄 Cargando perfil de dashboard:', user.username);
+        
+        // Cargar perfil
+        const profileResponse = await fetch(`/api/profile?username=${user.username}`);
+        if (profileResponse.ok) {
+          const data = await profileResponse.json();
+          
+          // Cargar fotos para obtener el count
+          const photosResponse = await fetch(`/api/photos?username=${user.username}`);
+          let photosCount = 0;
+          if (photosResponse.ok) {
+            const photosData = await photosResponse.json();
+            photosCount = photosData.photos?.length || 0;
+          }
+          
+          setProfileData({
+            nombre: data.nombre || user.username,
+            edad: data.edad || 0,
+            ciudad: data.ciudad || data.vives_en || '',
+            foto_perfil: data.foto_perfil || '',
+            amigos_count: 0, // TODO: Implementar conteo de amigos
+            fotos_count: photosCount,
+            visitas_count: 0, // TODO: Implementar conteo de visitas
+          });
+          
+          setStatusText(data.status_text || '');
+          console.log('✅ Datos de dashboard cargados');
+        }
+      } catch (error) {
+        console.error('❌ Error al cargar datos del dashboard:', error);
+      }
+    };
+    
+    loadUserData();
+  }, [user]);
 
   // Cargar salas favoritas desde localStorage y escuchar cambios
   useEffect(() => {
@@ -301,32 +356,44 @@ export default function InicioPage() {
               <div className="relative flex flex-col items-center text-center">
                 <div className="relative mb-4">
                   <img
-                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuCYofTvqVt_2Lu8sae20y2yL8U1RSfBdI4CTdq11IzKkQGmmLnacepHa6_RDA63mrE6WYKmUvPX4Df-kx3DaUGM6S3SCk0GEu-sr3DwKsy8ejCWJOgg554w3KwDj2D74_RZQ4HrEu_CIjtNnY9B7ydy_ur9Xski9wL9YcmK7Bkoxvti-rpSbFyiqiM1qmytWWqJDMFCOMd3_x-YHcLpZdviE8Nt5gVZxmRAU8FOq6Ddci9LVMO-hhvrngkyNDslvWLfJmfFwAEc_mtw"
-                    alt="Ana M."
+                    src={profileData.foto_perfil || "https://via.placeholder.com/96x96?text=" + (profileData.nombre?.charAt(0) || 'U')}
+                    alt={profileData.nombre}
                     className="w-24 h-24 rounded-full border-4 border-[#1A2226] shadow-lg object-cover"
                   />
-                  <button className="absolute bottom-0 right-0 p-1.5 bg-[#1A2226] border border-white/10 rounded-full text-primary hover:bg-primary hover:text-[#0F1416] transition-colors">
+                  <Link 
+                    href="/userprofile"
+                    className="absolute bottom-0 right-0 p-1.5 bg-[#1A2226] border border-white/10 rounded-full text-primary hover:bg-primary hover:text-[#0F1416] transition-colors"
+                  >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                     </svg>
-                  </button>
+                  </Link>
                 </div>
 
-                <h2 className="text-xl font-bold font-heading text-white">Ana M.</h2>
-                <p className="text-sm text-gray-400 mb-4">26 años • Madrid</p>
+                <h2 className="text-xl font-bold font-heading text-white">{profileData.nombre || user?.username || 'Usuario'}</h2>
+                <p className="text-sm text-gray-400 mb-4">
+                  {profileData.edad > 0 && `${profileData.edad} años`}
+                  {profileData.edad > 0 && profileData.ciudad && ' • '}
+                  {profileData.ciudad}
+                  {!profileData.edad && !profileData.ciudad && 'Completa tu perfil'}
+                </p>
 
                 <div className="w-full h-px bg-white/5 mb-4"></div>
 
                 <div className="w-full flex justify-between text-sm mb-4">
                   <div className="text-center">
-                    <span className="block font-bold text-white text-lg">128</span>
+                    <span className="block font-bold text-white text-lg">{profileData.amigos_count}</span>
                     <span className="text-xs text-gray-400">Amigos</span>
                   </div>
                   <div className="text-center">
-                    <span className="block font-bold text-white text-lg">45</span>
+                    <span className="block font-bold text-white text-lg">{profileData.fotos_count}</span>
                     <span className="text-xs text-gray-400">Fotos</span>
                   </div>
                   <div className="text-center">
+                    <span className="block font-bold text-white text-lg">{profileData.visitas_count}</span>
+                    <span className="text-xs text-gray-400">Visitas</span>
+                  </div>
+                </div>
                     <span className="block font-bold text-white text-lg">89%</span>
                     <span className="text-xs text-gray-400">Completo</span>
                   </div>
