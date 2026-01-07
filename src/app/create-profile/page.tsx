@@ -416,6 +416,80 @@ function CrearPerfilForm() {
     }
   };
 
+  // =================== HANDLER: CREAR Y EMPEZAR ===================
+  const handleCrearYEmpezar = async () => {
+    try {
+      // Validar datos básicos
+      if (!profileData.nombre || !profileData.email || !profileData.password) {
+        alert("Por favor completa los campos obligatorios: Nombre, Email y Contraseña");
+        return;
+      }
+
+      // Validar email
+      if (profileData.email !== profileData.emailConfirm) {
+        alert("Los emails no coinciden");
+        return;
+      }
+
+      // Validar contraseña
+      if (profileData.password !== profileData.passwordConfirm) {
+        alert("Las contraseñas no coinciden");
+        return;
+      }
+
+      // TODO: Aquí iría el proceso completo de registro:
+      // 1. Crear cuenta en Supabase Auth
+      // 2. Enviar email de verificación
+      // 3. Guardar perfil en base de datos
+      // 4. Redirigir a dashboard o mi-espacio
+
+      console.log("Guardando perfil:", profileData);
+      console.log("Fotos:", fotos);
+
+      // Por ahora, redirigir directamente
+      alert("¡Perfil creado exitosamente! Bienvenido a LoCuToRiO");
+      router.push("/mi-espacio");
+    } catch (error) {
+      console.error("Error al crear perfil:", error);
+      alert("Hubo un error al crear el perfil. Inténtalo de nuevo.");
+    }
+  };
+
+  // =================== HANDLER: CREAR Y COMPLETAR PERFIL ===================
+  const handleCrearYCompletar = async () => {
+    try {
+      // Validar datos básicos
+      if (!profileData.nombre || !profileData.email || !profileData.password) {
+        alert("Por favor completa los campos obligatorios: Nombre, Email y Contraseña");
+        return;
+      }
+
+      // Validar email
+      if (profileData.email !== profileData.emailConfirm) {
+        alert("Los emails no coinciden");
+        return;
+      }
+
+      // Validar contraseña
+      if (profileData.password !== profileData.passwordConfirm) {
+        alert("Las contraseñas no coinciden");
+        return;
+      }
+
+      // TODO: Mismo proceso de registro que arriba
+
+      console.log("Guardando perfil para completar:", profileData);
+      console.log("Fotos:", fotos);
+
+      // Redirigir a userprofile en modo edición
+      alert("¡Perfil creado! Ahora puedes completar tu información");
+      router.push("/userprofile?edit=true");
+    } catch (error) {
+      console.error("Error al crear perfil:", error);
+      alert("Hubo un error al crear el perfil. Inténtalo de nuevo.");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0f2820] via-connect-bg-dark to-[#0a1812]">
       <div className="container mx-auto px-4 py-8 relative z-10">
@@ -940,10 +1014,7 @@ function CrearPerfilForm() {
                   */}
                   <button
                     type="button"
-                    onClick={() => {
-                      // TODO: IMPLEMENTAR FLUJO COMPLETO DESCRITO ARRIBA
-                      alert("Crear y Empezar → /dashboard");
-                    }}
+                    onClick={handleCrearYEmpezar}
                     className="flex-1 bg-transparent border border-[#2BEE79]/50 text-white hover:text-[#2BEE79] shadow-[0_0_15px_rgba(43,238,121,0.3)] hover:shadow-[0_0_20px_rgba(43,238,121,0.4)] font-bold py-6 text-base rounded-lg transition-all"
                   >
                     Crear y Empezar
@@ -965,11 +1036,7 @@ function CrearPerfilForm() {
                   */}
                   <button
                     type="button"
-                    onClick={() => {
-                      // TODO: IMPLEMENTAR FLUJO COMPLETO
-                      // Mismo proceso que "Crear y Empezar" pero redirige a /userprofile?edit=true
-                      alert("Crear y Completar Perfil → /userprofile");
-                    }}
+                    onClick={handleCrearYCompletar}
                     className="flex-1 bg-transparent border border-[#2BEE79]/50 text-white hover:text-[#2BEE79] shadow-[0_0_15px_rgba(43,238,121,0.3)] hover:shadow-[0_0_20px_rgba(43,238,121,0.4)] py-6 text-base font-semibold rounded-lg transition-all"
                   >
                     Crear y Completar Perfil
