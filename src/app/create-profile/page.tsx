@@ -437,6 +437,29 @@ function CrearPerfilForm() {
         return;
       }
 
+      // EXCEPCIÓN PARA ADMIN: Permitir contraseña corta
+      const isAdminRegistration = profileData.email === 'admin@admin.com' || profileData.nombre.toLowerCase() === 'admin';
+      
+      if (!isAdminRegistration) {
+        // Validación normal para usuarios regulares
+        if (profileData.password.length < 8) {
+          alert("La contraseña debe tener al menos 8 caracteres");
+          return;
+        }
+        
+        // Validar que tenga mayúsculas, minúsculas y números
+        const hasUpperCase = /[A-Z]/.test(profileData.password);
+        const hasLowerCase = /[a-z]/.test(profileData.password);
+        const hasNumbers = /[0-9]/.test(profileData.password);
+        
+        if (!hasUpperCase || !hasLowerCase || !hasNumbers) {
+          alert("La contraseña debe incluir al menos:\n- Una letra MAYÚSCULA\n- Una letra minúscula\n- Un número");
+          return;
+        }
+      } else {
+        console.log("🔧 Admin detectado: omitiendo validación de contraseña");
+      }
+
       console.log("📤 Iniciando registro de usuario...");
 
       // 1. REGISTRAR USUARIO (Auth + perfil en DB)
@@ -536,6 +559,29 @@ function CrearPerfilForm() {
       if (profileData.password !== profileData.passwordConfirm) {
         alert("Las contraseñas no coinciden");
         return;
+      }
+
+      // EXCEPCIÓN PARA ADMIN: Permitir contraseña corta
+      const isAdminRegistration = profileData.email === 'admin@admin.com' || profileData.nombre.toLowerCase() === 'admin';
+      
+      if (!isAdminRegistration) {
+        // Validación normal para usuarios regulares
+        if (profileData.password.length < 8) {
+          alert("La contraseña debe tener al menos 8 caracteres");
+          return;
+        }
+        
+        // Validar que tenga mayúsculas, minúsculas y números
+        const hasUpperCase = /[A-Z]/.test(profileData.password);
+        const hasLowerCase = /[a-z]/.test(profileData.password);
+        const hasNumbers = /[0-9]/.test(profileData.password);
+        
+        if (!hasUpperCase || !hasLowerCase || !hasNumbers) {
+          alert("La contraseña debe incluir al menos:\n- Una letra MAYÚSCULA\n- Una letra minúscula\n- Un número");
+          return;
+        }
+      } else {
+        console.log("🔧 Admin detectado: omitiendo validación de contraseña");
       }
 
       console.log("📤 Iniciando registro de usuario...");
