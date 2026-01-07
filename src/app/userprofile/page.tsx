@@ -1378,15 +1378,15 @@ function AjustesPerfilContent() {
 
   const handleSaveAll = async () => {
     try {
-      // Por ahora usaremos un username temporal
-      // TODO: Obtener el username del usuario autenticado
-      const username = 'admin'; // Temporal
-      const email = 'admin@locutorio.com'; // Temporal
+      // Por ahora usaremos el username del usuario conectado
+      // TODO: Obtener del sistema de autenticación real
+      const username = 'anam'; // Ana M
+      const email = 'anam@locutorio.com'; // Ana M
       
       const profileData = {
         username,
         email,
-        nombre: formData.nombre || 'Admin',
+        nombre: formData.nombre || 'Ana M',
         edad: formData.edad || null,
         genero: formData.genero || null,
         ciudad: formData.ciudad || null,
