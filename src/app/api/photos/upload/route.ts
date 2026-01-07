@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-export const runtime = 'edge';
+// Cambiar a Node.js runtime (más compatible)
+export const runtime = 'nodejs';
 
 // Crear cliente de Supabase
 const getSupabaseClient = () => {
@@ -26,23 +27,12 @@ const getSupabaseClient = () => {
  */
 export async function POST(request: NextRequest) {
   try {
-    // Obtener token de autenticación del header
-    const authHeader = request.headers.get('authorization');
-    const token = authHeader?.replace('Bearer ', '');
-    
-    console.log('🔐 Token presente:', !!token);
+    console.log('📥 === INICIO SUBIDA DE FOTO ===');
     
     const supabase = getSupabaseClient();
     
-    // Si hay token, establecer la sesión
-    if (token) {
-      await supabase.auth.setSession({
-        access_token: token,
-        refresh_token: '' // No necesario para esta operación
-      });
-    }
-    
     // Obtener FormData
+    console.log('📦 Obteniendo FormData...');
     const formData = await request.formData();
     const file = formData.get('file') as File;
     const username = formData.get('username') as string;
