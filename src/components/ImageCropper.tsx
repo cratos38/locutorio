@@ -70,7 +70,7 @@ export default function ImageCropper({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/90 flex flex-col">
+    <div className="fixed inset-0 z-[9999] bg-black/90 flex flex-col">
       {/* Header */}
       <div className="bg-connect-bg-dark/80 backdrop-blur-md border-b border-connect-border p-4 flex items-center justify-between">
         <h3 className="text-xl font-bold text-white">Ajustar foto de perfil</h3>
@@ -78,7 +78,7 @@ export default function ImageCropper({
           <Button
             variant="outline"
             onClick={onCancel}
-            className="border-connect-border text-gray-300 hover:bg-white/5"
+            className="border-gray-600 bg-transparent text-gray-300 hover:bg-white/10 hover:text-white"
           >
             Cancelar
           </Button>
@@ -134,8 +134,8 @@ export default function ImageCropper({
 
           {/* Instrucciones */}
           <div className="text-xs text-gray-400 space-y-1">
-            <p>💡 <strong>Arrastra</strong> la imagen para moverla</p>
             <p>💡 <strong>Usa el slider</strong> o <strong>rueda del ratón</strong> para hacer zoom</p>
+            <p>💡 <strong>Mueve la foto</strong> con el ratón para posicionarla</p>
             <p>💡 El área verde es lo que se verá en tu perfil</p>
           </div>
         </div>

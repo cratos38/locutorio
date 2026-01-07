@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import ImageCropper from "@/components/ImageCropper";
 
 // =================== TIPOS ===================
@@ -87,6 +88,56 @@ export default function PhotoManager({
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
   const [imageToCrop, setImageToCrop] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [showCarouselMenu, setShowCarouselMenu] = useState(false);
+  const [carouselOrder, setCarouselOrder] = useState<'sequential' | 'random'>('sequential');
+
+  // Slider intervals: 0=auto(5seg), 1=10min, 2=30min, 3=1h, 4=5h, 5=10h, 6=24h
+  const intervalOptions = [
+    { label: 'Auto (5s)', minutes: 0.083 }, // 5 segundos = 0.083 minutos
+    { label: '10 min', minutes: 10 },
+    { label: '30 min', minutes: 30 },
+    { label: '1 hora', minutes: 60 },
+    { label: '5 horas', minutes: 300 },
+    { label: '10 horas', minutes: 600 },
+    { label: '24 horas', minutes: 1440 },
+  ];
+
+  const getSliderValue = () => {
+    if (!carouselIntervalType || !carouselIntervalValue) return 0;
+    const totalMinutes = carouselIntervalType === 'minutes' ? carouselIntervalValue :
+                         carouselIntervalType === 'hours' ? carouselIntervalValue * 60 :
+                         carouselIntervalValue * 1440;
+    
+    for (let i = intervalOptions.length - 1; i >= 0; i--) {
+      if (totalMinutes >= intervalOptions[i].minutes) return i;
+    }
+    return 0;
+  };
+
+  const handleSliderChange = (sliderValue: number) => {
+    const option = intervalOptions[sliderValue];
+    const minutes = option.minutes;
+    
+    let intervalType: 'minutes' | 'hours' | 'days';
+    let intervalValue: number;
+    
+    if (minutes < 60) {
+      intervalType = 'minutes';
+      intervalValue = minutes;
+    } else if (minutes < 1440) {
+      intervalType = 'hours';
+      intervalValue = minutes / 60;
+    } else {
+      intervalType = 'days';
+      intervalValue = minutes / 1440;
+    }
+    
+    onCarouselChange?.({
+      enabled: carouselEnabled,
+      intervalType,
+      intervalValue,
+    });
+  };
 
   // Cargar fotos desde BD si hay username
   useEffect(() => {
@@ -240,11 +291,13 @@ export default function PhotoManager({
   }
 
   return (
-    <div className="space-y-3">
+    <div className={mode === 'editable' ? 'space-y-3' : ''}>
       {/* =================== FOTO PRINCIPAL =================== */}
       <div 
-        className="relative rounded-xl overflow-hidden bg-connect-bg-dark border border-connect-border cursor-pointer"
+        className="relative rounded-xl overflow-hidden bg-connect-bg-dark border border-connect-border cursor-pointer group"
         style={{ aspectRatio: '10/13' }}
+        onMouseEnter={() => setShowCarouselMenu(true)}
+        onMouseLeave={() => setShowCarouselMenu(false)}
         onDragOver={(e) => {
           if (mode === 'readonly') return;
           e.preventDefault();
@@ -319,7 +372,20 @@ export default function PhotoManager({
             </div>
           </>
         ) : (
-          <div className="flex flex-col items-center justify-center h-full p-4 text-center">
+          <div 
+            className="flex flex-col items-center justify-center h-full p-4 text-center cursor-pointer hover:bg-white/5 transition-all"
+            onClick={() => {
+              if (mode === 'readonly') return;
+              const input = document.createElement('input');
+              input.type = 'file';
+              input.accept = 'image/jpeg,image/png';
+              input.onchange = (e) => {
+                const file = (e.target as HTMLInputElement).files?.[0];
+                if (file) handlePhotoUpload(file);
+              };
+              input.click();
+            }}
+          >
             <div className="text-4xl mb-2">📸</div>
             <p className="text-gray-400 text-sm mb-1">
               {mode === 'readonly' ? 'Sin fotos' : 'Subir foto o arrastra aquí'}
@@ -336,6 +402,80 @@ export default function PhotoManager({
       {/* =================== CONTROLES (SOLO EN MODO EDITABLE) =================== */}
       {mode === 'editable' && (
         <>
+          {/* Controles de carrusel (entre foto y botones) */}
+          {photos.length >= 1 && (
+            <div className="flex items-center gap-3 py-2 px-1 min-h-[40px]">
+              {/* Toggle ON/OFF */}
+              <div className="relative group flex items-center">
+                <button
+                  onClick={() => onCarouselChange?.({
+                    enabled: !carouselEnabled,
+                    intervalType: carouselIntervalType,
+                    intervalValue: carouselIntervalValue,
+                  })}
+                  className={`w-10 h-5 rounded-full border transition-all ${
+                    carouselEnabled 
+                      ? 'bg-emerald-950/50 border-neon-green shadow-[0_0_10px_rgba(43,238,121,0.5)]' 
+                      : 'bg-gray-900/50 border-gray-700'
+                  }`}
+                >
+                  <div className={`w-4 h-4 rounded-full transition-transform shadow-lg ${
+                    carouselEnabled 
+                      ? 'translate-x-5 bg-neon-green shadow-[0_0_8px_rgba(43,238,121,0.8)]' 
+                      : 'translate-x-0.5 bg-gray-600'
+                  }`} />
+                </button>
+                <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-black/50 backdrop-blur-md text-white text-xs rounded-full whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none border border-white/20">
+                  {carouselEnabled ? 'Carrusel ON' : 'Carrusel OFF'}
+                </span>
+              </div>
+
+              {/* Slider de intervalo */}
+              {carouselEnabled && (
+                <>
+                  <div className="w-32 relative group flex items-center">
+                    <input
+                      type="range"
+                      min="0"
+                      max="6"
+                      step="1"
+                      value={getSliderValue()}
+                      onChange={(e) => handleSliderChange(parseInt(e.target.value))}
+                      className="w-full h-1 bg-transparent rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-neon-green [&::-webkit-slider-thumb]:shadow-[0_0_8px_rgba(43,238,121,0.8)] [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:-mt-1 [&::-webkit-slider-runnable-track]:bg-neon-green/30 [&::-webkit-slider-runnable-track]:h-0.5 [&::-webkit-slider-runnable-track]:rounded-full [&::-webkit-slider-runnable-track]:shadow-[0_0_6px_rgba(43,238,121,0.4)]"
+                      style={{
+                        background: `linear-gradient(to right, #2bee79 0%, #2bee79 ${(getSliderValue() / 6) * 100}%, rgba(43,238,121,0.2) ${(getSliderValue() / 6) * 100}%, rgba(43,238,121,0.2) 100%)`
+                      }}
+                    />
+                    <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-black/50 backdrop-blur-md text-white text-xs rounded-full whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none border border-white/20">
+                      {intervalOptions[getSliderValue()].label}
+                    </span>
+                  </div>
+
+                  {/* Toggle Orden/Aleatorio */}
+                  <div className="relative group flex items-center">
+                    <button
+                      onClick={() => setCarouselOrder(carouselOrder === 'sequential' ? 'random' : 'sequential')}
+                      className={`w-10 h-5 rounded-full border transition-all ${
+                        carouselOrder === 'random'
+                          ? 'bg-emerald-950/50 border-neon-green shadow-[0_0_10px_rgba(43,238,121,0.5)]'
+                          : 'bg-emerald-950/50 border-neon-green/50'
+                      }`}
+                    >
+                      <div className={`w-4 h-4 rounded-full transition-transform shadow-lg ${
+                        carouselOrder === 'random'
+                          ? 'translate-x-5 bg-neon-green shadow-[0_0_8px_rgba(43,238,121,0.8)]'
+                          : 'translate-x-0.5 bg-neon-green/60'
+                      }`} />
+                    </button>
+                    <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-black/50 backdrop-blur-md text-white text-xs rounded-full whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none border border-white/20">
+                      {carouselOrder === 'sequential' ? 'En orden' : 'Aleatorio'}
+                    </span>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+
           {/* Botones de acción */}
           <div className="grid grid-cols-3 gap-2">
             {/* Subir */}
@@ -350,98 +490,39 @@ export default function PhotoManager({
                 };
                 input.click();
               }}
-              className="bg-neon-green/10 hover:bg-neon-green/20 text-neon-green border border-neon-green/30 py-2 rounded-lg text-center text-xs transition-all"
+              className="text-xs px-3 py-1.5 rounded-lg transition-all border text-[#2BEE79] border-[#2BEE79]/50 shadow-[0_0_10px_rgba(43,238,121,0.2)] hover:border-[#2BEE79] hover:shadow-[0_0_20px_rgba(43,238,121,0.4)]"
             >
-              📤
+              Subir
             </button>
             
             {/* Eliminar */}
             <button
               onClick={handleDeletePhoto}
-              className="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 py-2 rounded-lg text-center text-xs transition-all"
-              disabled={photos.length === 0}
+              className="text-xs px-3 py-1.5 rounded-lg transition-all border text-[#2BEE79] border-[#2BEE79]/50 shadow-[0_0_10px_rgba(43,238,121,0.2)] hover:border-[#2BEE79] hover:shadow-[0_0_20px_rgba(43,238,121,0.4)]"
             >
-              🗑️
+              Eliminar
             </button>
             
             {/* Marcar como principal */}
             <button
               onClick={handleSetPrincipal}
-              className="bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-300 border border-yellow-500/30 py-2 rounded-lg text-center text-xs transition-all"
-              disabled={photos.length === 0 || photos[currentPhotoIndex]?.esPrincipal}
+              className="text-xs px-3 py-1.5 rounded-lg transition-all border text-[#2BEE79] border-[#2BEE79]/50 shadow-[0_0_10px_rgba(43,238,121,0.2)] hover:border-[#2BEE79] hover:shadow-[0_0_20px_rgba(43,238,121,0.4)]"
             >
-              ⭐
+              Principal
             </button>
           </div>
-
-          {/* Configuración del carrusel */}
-          {showCarousel && photos.length > 1 && (
-            <div className="mt-6 p-4 bg-white/5 rounded-lg border border-neon-green/20">
-              <label className="flex items-center gap-2 mb-4 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={carouselEnabled}
-                  onChange={(e) => onCarouselChange?.({
-                    enabled: e.target.checked,
-                    intervalType: carouselIntervalType,
-                    intervalValue: carouselIntervalValue,
-                  })}
-                  className="w-4 h-4 rounded border-gray-600 text-neon-green focus:ring-neon-green focus:ring-offset-0"
-                />
-                <span className="text-sm text-gray-300">
-                  🎠 Cambiar foto principal automáticamente
-                </span>
-              </label>
-              
-              {carouselEnabled && (
-                <div className="space-y-3">
-                  <div className="flex gap-2">
-                    <input
-                      type="number"
-                      min="1"
-                      value={carouselIntervalValue}
-                      onChange={(e) => onCarouselChange?.({
-                        enabled: carouselEnabled,
-                        intervalType: carouselIntervalType,
-                        intervalValue: Math.max(1, parseInt(e.target.value) || 1),
-                      })}
-                      className="flex-1 px-3 py-2 bg-black/50 border border-gray-700 rounded-lg text-white text-sm focus:border-neon-green focus:ring-1 focus:ring-neon-green"
-                      onFocus={(e) => e.target.select()}
-                    />
-                    <select
-                      value={carouselIntervalType}
-                      onChange={(e) => onCarouselChange?.({
-                        enabled: carouselEnabled,
-                        intervalType: e.target.value as 'minutes' | 'hours' | 'days',
-                        intervalValue: carouselIntervalValue,
-                      })}
-                      className="px-3 py-2 bg-black/50 border border-gray-700 rounded-lg text-white text-sm focus:border-neon-green focus:ring-1 focus:ring-neon-green"
-                    >
-                      <option value="minutes">minutos</option>
-                      <option value="hours">horas</option>
-                      <option value="days">días</option>
-                    </select>
-                  </div>
-                  <p className="text-xs text-gray-500">
-                    La foto principal rotará cada {carouselIntervalValue}{' '}
-                    {carouselIntervalType === 'minutes' ? 'minuto(s)' : 
-                     carouselIntervalType === 'hours' ? 'hora(s)' : 'día(s)'}
-                  </p>
-                </div>
-              )}
-            </div>
-          )}
         </>
       )}
 
       {/* =================== IMAGE CROPPER MODAL =================== */}
-      {imageToCrop && (
+      {imageToCrop && typeof window !== 'undefined' && createPortal(
         <ImageCropper
           imageSrc={imageToCrop}
           onCropComplete={handleCropComplete}
           onCancel={handleCropCancel}
           aspectRatio={10 / 13}
-        />
+        />,
+        document.body
       )}
     </div>
   );

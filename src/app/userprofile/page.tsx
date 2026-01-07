@@ -1544,9 +1544,7 @@ function AjustesPerfilContent() {
       console.log('✅ Resultado:', result);
       
       if (result.success) {
-        alert(`✅ Perfil guardado correctamente!\n\nPerfil completado: ${result.profileCompletion}%\n\nPuedes verlo en: /publicprofile/${username}`);
-        // Redirigir automáticamente
-        window.location.href = `/publicprofile/${username}`;
+        alert(`✅ Perfil guardado correctamente!\n\nPerfil completado: ${result.profileCompletion}%`);
       } else {
         alert(`❌ Error al guardar: ${result.error}`);
       }
@@ -1589,10 +1587,9 @@ function AjustesPerfilContent() {
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Sidebar */}
-          <div className="lg:col-span-1">
-            <div className="bg-connect-bg-dark/60 backdrop-blur-sm border border-connect-border rounded-xl p-4 shadow-lg sticky top-24 space-y-4">
-              
-              {/* =================== FOTO DE PERFIL (EN SIDEBAR) =================== */}
+          <div className="lg:col-span-1 space-y-4">
+            {/* Tarjeta de foto */}
+            <div className="bg-connect-bg-dark/60 backdrop-blur-sm border border-connect-border rounded-xl p-4 shadow-lg">
               <PhotoManager
                 mode="editable"
                 username="anam"
@@ -1613,10 +1610,10 @@ function AjustesPerfilContent() {
                   }));
                 }}
               />
-              
-              {/* Separador */}
-              <div className="border-t border-connect-border"></div>
-              
+            </div>
+
+            {/* Tarjeta de navegación */}
+            <div className="bg-connect-bg-dark/60 backdrop-blur-sm border border-connect-border rounded-xl p-4 shadow-lg">
               {/* Nav de categorías */}
               <nav className="space-y-2">
                 {/* Botón Datos básicos - Redirige a /create-profile */}

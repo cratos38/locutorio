@@ -395,9 +395,8 @@ function CrearPerfilForm() {
     console.log(editMode ? "Datos actualizados:" : "Datos básicos guardados:", profileData);
     
     if (editMode) {
-      // Modo edición: Volver al perfil del usuario
+      // Modo edición: Quedarse en create-profile
       alert("Datos básicos actualizados exitosamente");
-      router.push("/publicprofile/" + profileData.nombre); // O usar el username real
     } else {
       // Modo registro: Redirigir al dashboard
       alert("¡Registro completado! Bienvenido a LoCuToRiO");

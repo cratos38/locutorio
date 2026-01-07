@@ -4,6 +4,7 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
+import PhotoManager from "@/components/PhotoManager";
 
 export const runtime = 'edge';
 
@@ -99,12 +100,13 @@ export default function PerfilPage() {
         <div className="flex gap-8 mb-12">
           
           {/* IZQUIERDA: Foto + % Perfil */}
-          <div className="flex-shrink-0">
-            {/* Foto grande sin borde - Ratio 10:13 (400px x 520px) */}
-            <img
-              src={profile.foto_perfil || "https://via.placeholder.com/400x520?text=Sin+Foto"}
-              alt={profile.nombre || profile.username}
-              className="w-[400px] h-[520px] object-cover rounded-2xl shadow-2xl"
+          <div className="flex-shrink-0 w-[400px]">
+            {/* PhotoManager en modo readonly */}
+            <PhotoManager
+              mode="readonly"
+              username={username}
+              initialPhotos={profile.fotos || []}
+              showCarousel={false}
             />
             
             {/* Barra de % Perfil completado */}
