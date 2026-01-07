@@ -4,16 +4,21 @@ import { createClient } from '@supabase/supabase-js';
 // Cambiar a Node.js runtime (más compatible)
 export const runtime = 'nodejs';
 
-// Crear cliente de Supabase
-const getSupabaseClient = () => {
+// Crear cliente de Supabase con SERVICE_ROLE_KEY para operaciones administrativas
+const getSupabaseAdmin = () => {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
   
-  if (!supabaseUrl || !supabaseKey) {
+  if (!supabaseUrl || !supabaseServiceKey) {
     throw new Error('Supabase environment variables not configured');
   }
   
-  return createClient(supabaseUrl, supabaseKey);
+  return createClient(supabaseUrl, supabaseServiceKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false
+    }
+  });
 };
 
 /**
@@ -29,7 +34,35 @@ export async function POST(request: NextRequest) {
   try {
     console.log('📥 === INICIO SUBIDA DE FOTO ===');
     
-    const supabase = getSupabaseClient();
+    // 🔐 Obtener token de autenticación del header
+    const authHeader = request.headers.get('Authorization');
+    const token = authHeader?.replace('Bearer ', '');
+    
+    console.log('🔑 Token recibido:', token ? '✅ SÍ' : '❌ NO');
+    
+    // Crear cliente de Supabase ADMIN (con SERVICE_ROLE_KEY)
+    const supabase = getSupabaseAdmin();
+    
+    // 🔐 Verificar que el token sea válido
+    if (token) {
+      const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+      
+      if (authError || !user) {
+        console.error('❌ Token inválido:', authError);
+        return NextResponse.json(
+          { error: 'Token de autenticación inválido' },
+          { status: 401 }
+        );
+      }
+      
+      console.log('✅ Usuario autenticado:', user.email);
+    } else {
+      console.warn('⚠️ No se recibió token de autenticación');
+      return NextResponse.json(
+        { error: 'Se requiere autenticación' },
+        { status: 401 }
+      );
+    }
     
     // Obtener FormData
     console.log('📦 Obteniendo FormData...');
