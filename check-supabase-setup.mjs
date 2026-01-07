@@ -68,6 +68,18 @@ async function checkBucket() {
     
     if (error) {
       console.log('❌ Error al listar buckets:', error.message);
+      console.log('   Esto puede significar que necesitas configurar las políticas RLS');
+      console.log('   Ejecuta: supabase-storage-policies.sql en Supabase SQL Editor');
+      return;
+    }
+    
+    if (!data || data.length === 0) {
+      console.log('⚠️  No se pudieron listar los buckets (problema de permisos)');
+      console.log('   Esto es normal si el bucket está recién creado');
+      console.log('   Verifica manualmente en: Dashboard > Storage');
+      console.log('\n📝 Para configurar las políticas RLS:');
+      console.log('   1. Abre Supabase SQL Editor');
+      console.log('   2. Ejecuta el archivo: supabase-storage-policies.sql');
       return;
     }
     
@@ -79,15 +91,12 @@ async function checkBucket() {
     const profilePhotos = data.find(b => b.name === 'profile-photos');
     if (profilePhotos) {
       console.log('\n✅ Bucket "profile-photos" existe');
+      console.log(`   Configuración: ${profilePhotos.public ? '🌍 Público' : '🔒 Privado'}`);
     } else {
-      console.log('\n❌ Bucket "profile-photos" NO existe');
-      console.log('\n📝 Para crearlo, ejecuta este SQL en Supabase Dashboard:');
-      console.log('');
-      console.log('   -- O crea el bucket manualmente en Storage > Create bucket:');
-      console.log('   --   Nombre: profile-photos');
-      console.log('   --   Public: true');
-      console.log('   --   Allowed MIME types: image/jpeg, image/png');
-      console.log('   --   Max file size: 5MB');
+      console.log('\n❌ Bucket "profile-photos" NO aparece en la lista');
+      console.log('   Verifica en: Dashboard > Storage');
+      console.log('\n📝 Si el bucket existe pero no aparece:');
+      console.log('   Ejecuta: supabase-storage-policies.sql en SQL Editor');
     }
   } catch (err) {
     console.log('❌ Error al verificar buckets:', err.message);
