@@ -100,9 +100,14 @@ export default function PerfilPage() {
         <div className="flex gap-8 mb-12">
           
           {/* IZQUIERDA: Foto + % Perfil */}
-          <div className="flex-shrink-0 w-[400px]">
+          <div className="flex-shrink-0 w-[300px]">
             {/**
               * PhotoGallery - Solo la "pantalla del TV"
+              * 
+              * TAMAÑO: 300px de ancho (no 400px)
+              * Razón: En userprofile, PhotoManager tiene una tarjeta de ~300px
+              * con padding de 16px, dejando ~268px para la foto.
+              * Aquí usamos 300px directamente para PhotoGallery sin tarjeta.
               * 
               * En publicprofile usamos SOLO PhotoGallery porque:
               * - No necesitamos el marco (tarjeta contenedora)
