@@ -101,6 +101,19 @@ function AjustesPerfilContent() {
   // Hook de autenticación
   const { user } = useAuth();
   
+  // 🔍 RASTREADOR DE USUARIO
+  useEffect(() => {
+    console.log('═══════════════════════════════════════');
+    console.log('📍 PÁGINA: /userprofile');
+    console.log('👤 Usuario actual:', user ? {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      isAdmin: user.isAdmin
+    } : '❌ NO AUTENTICADO');
+    console.log('═══════════════════════════════════════');
+  }, [user]);
+  
   const searchParams = useSearchParams();
   const tabParam = searchParams.get("tab") as CategoryType | null;
   

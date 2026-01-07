@@ -5,12 +5,29 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import PhotoGallery, { Photo } from "@/components/PhotoGallery";
+import { useAuth } from "@/contexts/AuthContext";
 
 export const runtime = 'edge';
 
 export default function PerfilPage() {
   const params = useParams();
   const username = params.username as string;
+  const { user } = useAuth(); // Hook de autenticación
+  
+  // 🔍 RASTREADOR DE USUARIO
+  useEffect(() => {
+    console.log('═══════════════════════════════════════');
+    console.log('📍 PÁGINA: /publicprofile/' + username);
+    console.log('👁️  Viendo perfil de:', username);
+    console.log('👤 Sesión actual:', user ? {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      isAdmin: user.isAdmin
+    } : '❌ NO AUTENTICADO');
+    console.log('🔐 ¿Es dueño?:', user?.username === username ? '✅ SÍ' : '❌ NO');
+    console.log('═══════════════════════════════════════');
+  }, [user, username]);
   
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);

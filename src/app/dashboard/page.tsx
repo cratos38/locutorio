@@ -23,6 +23,20 @@ export default function InicioPage() {
   const router = useRouter();
   const { user } = useAuth(); // Hook de autenticación
   const { openMessages } = useMessages();
+  
+  // 🔍 RASTREADOR DE USUARIO
+  useEffect(() => {
+    console.log('═══════════════════════════════════════');
+    console.log('📍 PÁGINA: /dashboard (Mi Espacio)');
+    console.log('👤 Usuario actual:', user ? {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      isAdmin: user.isAdmin
+    } : '❌ NO AUTENTICADO');
+    console.log('═══════════════════════════════════════');
+  }, [user]);
+  
   const [statusText, setStatusText] = useState("");
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [favoriteSalas, setFavoriteSalas] = useState<string[]>([]);

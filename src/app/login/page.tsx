@@ -31,12 +31,20 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
+      console.log('═══════════════════════════════════════');
+      console.log('🔐 Iniciando LOGIN...');
+      console.log('📧 Email:', formData.email);
+      console.log('═══════════════════════════════════════');
+      
       await login(formData.email, formData.password);
+      
+      console.log('✅ LOGIN EXITOSO');
+      console.log('🚀 Redirigiendo a /dashboard...');
       
       // Redirigir a dashboard (Mi Espacio) después del login
       router.push('/dashboard');
     } catch (err: any) {
-      console.error('Error en login:', err);
+      console.error('❌ Error en login:', err);
       setError(err.message || 'Error al iniciar sesión. Verifica tus credenciales.');
     } finally {
       setLoading(false);
