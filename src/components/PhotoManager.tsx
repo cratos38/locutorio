@@ -315,16 +315,30 @@ export default function PhotoManager({
         }
         
         // Subir a API
+        console.log('📤 Enviando a /api/photos/upload con:', {
+          username,
+          isPrincipal: photos.length === 0,
+          fileSize: resizedFile.size,
+          hasAuthToken: !!authToken
+        });
+        
         const uploadResponse = await fetch('/api/photos/upload', {
           method: 'POST',
           headers,
           body: formData
         });
         
+        console.log('📥 Respuesta del servidor:', {
+          status: uploadResponse.status,
+          ok: uploadResponse.ok
+        });
+        
         const uploadResult = await uploadResponse.json();
+        console.log('📥 Contenido de la respuesta:', uploadResult);
         
         if (!uploadResponse.ok) {
-          throw new Error(uploadResult.error || 'Error al subir foto');
+          console.error('❌ Error del servidor:', uploadResult);
+          throw new Error(uploadResult.error || `Error del servidor: ${uploadResponse.status}`);
         }
         
         console.log('✅ Foto subida exitosamente:', uploadResult);
@@ -366,8 +380,17 @@ export default function PhotoManager({
       setImageToCrop(null);
       setLoading(false);
     } catch (error) {
-      console.error('Error al procesar la imagen recortada:', error);
-      alert(`Error al subir la foto: ${error instanceof Error ? error.message : 'Error desconocido'}`);
+      console.error('❌ Error al procesar la imagen recortada:', error);
+      console.error('❌ Stack trace:', error instanceof Error ? error.stack : 'N/A');
+      
+      let errorMessage = 'Error desconocido';
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      } else if (typeof error === 'string') {
+        errorMessage = error;
+      }
+      
+      alert(`Error al subir la foto:\n\n${errorMessage}\n\nRevisa la consola (F12) para más detalles.`);
       setLoading(false);
     }
   };
