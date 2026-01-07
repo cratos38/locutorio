@@ -1420,15 +1420,19 @@ function AjustesPerfilContent() {
 
   const handleSaveAll = async () => {
     try {
-      // Por ahora usaremos el username del usuario conectado
-      // TODO: Obtener del sistema de autenticación real
-      const username = 'anam'; // Ana M
-      const email = 'anam@locutorio.com'; // Ana M
+      // Obtener datos del usuario autenticado
+      if (!user) {
+        alert('Debes iniciar sesión para guardar cambios');
+        return;
+      }
+      
+      const username = user.username;
+      const email = user.email;
       
       const profileData = {
         username,
         email,
-        nombre: formData.nombre || 'Ana M',
+        nombre: formData.nombre || username,
         edad: formData.edad || null,
         genero: formData.genero || null,
         ciudad: formData.ciudad || null,
@@ -1595,7 +1599,7 @@ function AjustesPerfilContent() {
             {/* Tarjeta de foto */}
             <div className="bg-connect-bg-dark/60 backdrop-blur-sm border border-connect-border rounded-xl p-4 shadow-lg">
               <PhotoManager
-                username="anam"
+                username={user?.username || 'demo'}
                 initialPhotos={formData.fotos}
                 canUpload={true}
                 canDelete={true}
