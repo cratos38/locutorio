@@ -1,10 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@supabase/supabase-js';
 
 export const runtime = 'edge';
 
+// Crear cliente de Supabase (compatible con Edge Runtime)
+const getSupabaseClient = () => {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+  
+  if (!supabaseUrl || !supabaseKey) {
+    throw new Error('Supabase environment variables not configured');
+  }
+  
+  return createClient(supabaseUrl, supabaseKey);
+};
+
 export async function POST(request: NextRequest) {
   try {
+    const supabase = getSupabaseClient();
     const data = await request.json();
     
     // Calcular porcentaje de completado del perfil
@@ -47,6 +60,7 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
+    const supabase = getSupabaseClient();
     const { searchParams } = new URL(request.url);
     const username = searchParams.get('username');
     
