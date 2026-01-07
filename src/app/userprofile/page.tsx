@@ -120,11 +120,7 @@ function AjustesPerfilContent() {
         return;
       }
       
-      // Validar cantidad máxima
-      if (formData.fotos.length >= 6) {
-        alert("Ya tienes 6 fotos. Elimina una antes de subir otra.");
-        return;
-      }
+      // Sin límite de cantidad de fotos
       
       // Crear URL temporal para el cropper
       const url = URL.createObjectURL(file);
@@ -309,6 +305,11 @@ function AjustesPerfilContent() {
     
     // ===== FOTOS =====
     fotos: [] as { id: string; url: string; esPrincipal: boolean; estado: 'pendiente' | 'aprobada' | 'rechazada' }[],
+    
+    // Configuración de carrusel de fotos
+    carouselEnabled: false,
+    carouselIntervalType: 'minutes' as 'minutes' | 'hours' | 'days',
+    carouselIntervalValue: 5, // 5 minutos por defecto
   });
 
   const categories = [
@@ -1581,6 +1582,11 @@ function AjustesPerfilContent() {
         tiempo_con_familia: formData.tiempoConFamilia || null,
         personalidad_sociable: formData.personalidadSociable || null,
         orden_mantenimiento: formData.ordenMantenimiento || null,
+        
+        // CONFIGURACIÓN DE CARRUSEL DE FOTOS
+        carousel_enabled: formData.carouselEnabled || false,
+        carousel_interval_type: formData.carouselIntervalType || 'minutes',
+        carousel_interval_value: formData.carouselIntervalValue || 5,
       };
       
       console.log('📤 Enviando datos del perfil:', profileData);
@@ -1825,6 +1831,56 @@ function AjustesPerfilContent() {
                     ⭐
                   </button>
                 </div>
+                
+                {/* Configuración del carrusel */}
+                {formData.fotos.length > 1 && (
+                  <div className="mt-6 p-4 bg-white/5 rounded-lg border border-neon-green/20">
+                    <label className="flex items-center gap-2 mb-4 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={formData.carouselEnabled}
+                        onChange={(e) => setFormData(prev => ({ ...prev, carouselEnabled: e.target.checked }))}
+                        className="w-4 h-4 rounded border-gray-600 text-neon-green focus:ring-neon-green focus:ring-offset-0"
+                      />
+                      <span className="text-sm text-gray-300">
+                        🎠 Cambiar foto principal automáticamente
+                      </span>
+                    </label>
+                    
+                    {formData.carouselEnabled && (
+                      <div className="space-y-3">
+                        <div className="flex gap-2">
+                          <input
+                            type="number"
+                            min="1"
+                            value={formData.carouselIntervalValue}
+                            onChange={(e) => setFormData(prev => ({ 
+                              ...prev, 
+                              carouselIntervalValue: Math.max(1, parseInt(e.target.value) || 1) 
+                            }))}
+                            className="flex-1 px-3 py-2 bg-black/50 border border-gray-700 rounded-lg text-white text-sm focus:border-neon-green focus:ring-1 focus:ring-neon-green"
+                            onFocus={(e) => e.target.select()}
+                          />
+                          <select
+                            value={formData.carouselIntervalType}
+                            onChange={(e) => setFormData(prev => ({ 
+                              ...prev, 
+                              carouselIntervalType: e.target.value as 'minutes' | 'hours' | 'days' 
+                            }))}
+                            className="px-3 py-2 bg-black/50 border border-gray-700 rounded-lg text-white text-sm focus:border-neon-green focus:ring-1 focus:ring-neon-green"
+                          >
+                            <option value="minutes">minutos</option>
+                            <option value="hours">horas</option>
+                            <option value="days">días</option>
+                          </select>
+                        </div>
+                        <p className="text-xs text-gray-500">
+                          La foto principal rotará cada {formData.carouselIntervalValue} {formData.carouselIntervalType === 'minutes' ? 'minuto(s)' : formData.carouselIntervalType === 'hours' ? 'hora(s)' : 'día(s)'}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
               
               {/* Separador */}
