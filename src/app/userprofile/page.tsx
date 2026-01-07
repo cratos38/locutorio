@@ -6,7 +6,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import ImageCropper from "@/components/ImageCropper";
+import PhotoManager, { Photo } from "@/components/PhotoManager";
 
 // =================== UTILIDAD: REDIMENSIONAR IMAGEN ===================
 /**
@@ -103,74 +103,6 @@ function AjustesPerfilContent() {
   const [activeCategory, setActiveCategory] = useState<CategoryType>(
     tabParam || "algo-sobre-mi"
   );
-  
-  // Estados para Image Cropper
-  const [imageToCrop, setImageToCrop] = useState<string | null>(null);
-  const [fileToUpload, setFileToUpload] = useState<File | null>(null);
-  
-  // Estado para navegación de fotos
-  const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
-  
-  // =================== HANDLER: PROCESAR FOTO ===================
-  const handlePhotoUpload = async (file: File) => {
-    try {
-      // Validar tamaño máximo original (5MB para permitir fotos grandes)
-      if (file.size > 5 * 1024 * 1024) {
-        alert("La imagen es muy grande. Máximo 5MB.");
-        return;
-      }
-      
-      // Sin límite de cantidad de fotos
-      
-      // Crear URL temporal para el cropper
-      const url = URL.createObjectURL(file);
-      setImageToCrop(url);
-      setFileToUpload(file);
-    } catch (error) {
-      console.error('Error al procesar la imagen:', error);
-      alert('Error al procesar la imagen. Inténtalo de nuevo.');
-    }
-  };
-  
-  // Handler para cuando se completa el recorte
-  const handleCropComplete = async (croppedImageUrl: string) => {
-    try {
-      // Convertir el blob URL a File
-      const response = await fetch(croppedImageUrl);
-      const blob = await response.blob();
-      const file = new File([blob], fileToUpload?.name || 'cropped-image.jpg', { type: 'image/jpeg' });
-      
-      // Crear la foto recortada
-      const newPhoto = {
-        id: Date.now().toString(),
-        url: croppedImageUrl,
-        esPrincipal: formData.fotos.length === 0,
-        estado: 'pendiente' as const
-      };
-      
-      setFormData(prev => ({
-        ...prev,
-        fotos: [...prev.fotos, newPhoto]
-      }));
-      setCurrentPhotoIndex(formData.fotos.length);
-      
-      // Cerrar el cropper
-      setImageToCrop(null);
-      setFileToUpload(null);
-    } catch (error) {
-      console.error('Error al guardar imagen recortada:', error);
-      alert('Error al guardar la imagen. Inténtalo de nuevo.');
-    }
-  };
-  
-  // Handler para cancelar el recorte
-  const handleCropCancel = () => {
-    if (imageToCrop) {
-      URL.revokeObjectURL(imageToCrop);
-    }
-    setImageToCrop(null);
-    setFileToUpload(null);
-  };
   
   // Cambiar categoría si cambia el parámetro tab
   useEffect(() => {
@@ -1661,227 +1593,26 @@ function AjustesPerfilContent() {
             <div className="bg-connect-bg-dark/60 backdrop-blur-sm border border-connect-border rounded-xl p-4 shadow-lg sticky top-24 space-y-4">
               
               {/* =================== FOTO DE PERFIL (EN SIDEBAR) =================== */}
-              <div className="space-y-3">
-                {/* Carta de foto con proporción 10:13 */}
-                <div 
-                  className="relative rounded-xl overflow-hidden bg-connect-bg-dark border border-connect-border cursor-pointer"
-                  style={{ aspectRatio: '10/13' }}
-                  onDragOver={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                  }}
-                  onDrop={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    const file = e.dataTransfer.files?.[0];
-                    if (file && (file.type === 'image/jpeg' || file.type === 'image/png')) {
-                      handlePhotoUpload(file);
-                    } else if (file) {
-                      alert("Solo se permiten imágenes JPG o PNG.");
-                    }
-                  }}
-                >
-                  {formData.fotos.length > 0 ? (
-                    <>
-                      {/* Foto actual */}
-                      <img 
-                        src={formData.fotos[currentPhotoIndex].url} 
-                        alt="Foto de perfil"
-                        className="w-full h-full object-cover"
-                      />
-                      
-                      {/* Badges en esquina superior derecha */}
-                      <div className="absolute top-2 right-2 flex flex-col gap-1">
-                        {formData.fotos[currentPhotoIndex].estado === 'pendiente' && (
-                          <span className="bg-orange-500/90 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-full">
-                            🕐
-                          </span>
-                        )}
-                        {formData.fotos[currentPhotoIndex].estado === 'aprobada' && (
-                          <span className="bg-green-500/90 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-full">
-                            ✅
-                          </span>
-                        )}
-                        {formData.fotos[currentPhotoIndex].estado === 'rechazada' && (
-                          <span className="bg-red-500/90 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-full">
-                            ❌
-                          </span>
-                        )}
-                        {formData.fotos[currentPhotoIndex].esPrincipal && (
-                          <span className="bg-neon-green/90 backdrop-blur-sm text-forest-dark text-xs px-2 py-1 rounded-full font-bold">
-                            ⭐
-                          </span>
-                        )}
-                      </div>
-                      
-                      {/* Navegación con flechas */}
-                      {formData.fotos.length > 1 && (
-                        <>
-                          <button
-                            onClick={() => setCurrentPhotoIndex(prev => 
-                              prev === 0 ? formData.fotos.length - 1 : prev - 1
-                            )}
-                            className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/80 text-white rounded-full w-8 h-8 flex items-center justify-center transition-all text-sm"
-                          >
-                            ◀
-                          </button>
-                          <button
-                            onClick={() => setCurrentPhotoIndex(prev => 
-                              prev === formData.fotos.length - 1 ? 0 : prev + 1
-                            )}
-                            className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/80 text-white rounded-full w-8 h-8 flex items-center justify-center transition-all text-sm"
-                          >
-                            ▶
-                          </button>
-                        </>
-                      )}
-                      
-                      {/* Contador pequeño */}
-                      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 bg-black/70 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-full">
-                        {currentPhotoIndex + 1}/{formData.fotos.length}
-                      </div>
-                    </>
-                  ) : (
-                    // Texto de requisitos cuando no hay fotos (se tapa al subir)
-                    // Hacer toda la carta clickeable con un label
-                    <label className="cursor-pointer block w-full h-full">
-                      <div className="flex flex-col items-center justify-center h-full p-6 text-center hover:bg-neon-green/5 transition-all">
-                        <div className="text-5xl mb-3">📷</div>
-                        <p className="text-neon-green font-medium text-sm mb-2">Subir foto o arrastra aquí</p>
-                        <div className="text-xs text-gray-400 space-y-1">
-                          <p>JPG, PNG • Máx 5MB</p>
-                          <p>Cara visible (50%+)</p>
-                          <p>Sin filtros</p>
-                          <p>Solo tú en la foto</p>
-                          <p className="text-orange-400 mt-2">⏱️ Verificación en máx 24h</p>
-                        </div>
-                      </div>
-                      <input
-                        type="file"
-                        accept="image/jpeg,image/png"
-                        className="hidden"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) {
-                            handlePhotoUpload(file);
-                          }
-                          e.target.value = '';
-                        }}
-                      />
-                    </label>
-                  )}
-                </div>
-                
-                {/* 3 BOTONES */}
-                <div className="grid grid-cols-3 gap-2">
-                  <label className="cursor-pointer">
-                    <div className="bg-neon-green/10 hover:bg-neon-green/20 text-neon-green border border-neon-green/30 py-2 rounded-lg text-center text-xs transition-all font-medium">
-                      📤 Subir
-                    </div>
-                    <input
-                      type="file"
-                      accept="image/jpeg,image/png"
-                      className="hidden"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          handlePhotoUpload(file);
-                        }
-                        // Reset input para permitir subir la misma imagen de nuevo
-                        e.target.value = '';
-                      }}
-                    />
-                  </label>
-                  
-                  <button
-                    onClick={() => {
-                      if (formData.fotos.length === 0) return;
-                      if (confirm('¿Eliminar esta foto?')) {
-                        const newFotos = formData.fotos.filter((_, i) => i !== currentPhotoIndex);
-                        if (formData.fotos[currentPhotoIndex].esPrincipal && newFotos.length > 0) {
-                          newFotos[0].esPrincipal = true;
-                        }
-                        setFormData(prev => ({
-                          ...prev,
-                          fotos: newFotos
-                        }));
-                        setCurrentPhotoIndex(Math.max(0, currentPhotoIndex - 1));
-                      }
-                    }}
-                    className="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 py-2 rounded-lg text-center text-xs transition-all"
-                    disabled={formData.fotos.length === 0}
-                  >
-                    🗑️
-                  </button>
-                  
-                  <button
-                    onClick={() => {
-                      if (formData.fotos.length === 0) return;
-                      setFormData(prev => ({
-                        ...prev,
-                        fotos: prev.fotos.map((f, i) => ({
-                          ...f,
-                          esPrincipal: i === currentPhotoIndex
-                        }))
-                      }));
-                    }}
-                    className="bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-300 border border-yellow-500/30 py-2 rounded-lg text-center text-xs transition-all"
-                    disabled={formData.fotos.length === 0 || formData.fotos[currentPhotoIndex]?.esPrincipal}
-                  >
-                    ⭐
-                  </button>
-                </div>
-                
-                {/* Configuración del carrusel */}
-                {formData.fotos.length > 1 && (
-                  <div className="mt-6 p-4 bg-white/5 rounded-lg border border-neon-green/20">
-                    <label className="flex items-center gap-2 mb-4 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={formData.carouselEnabled}
-                        onChange={(e) => setFormData(prev => ({ ...prev, carouselEnabled: e.target.checked }))}
-                        className="w-4 h-4 rounded border-gray-600 text-neon-green focus:ring-neon-green focus:ring-offset-0"
-                      />
-                      <span className="text-sm text-gray-300">
-                        🎠 Cambiar foto principal automáticamente
-                      </span>
-                    </label>
-                    
-                    {formData.carouselEnabled && (
-                      <div className="space-y-3">
-                        <div className="flex gap-2">
-                          <input
-                            type="number"
-                            min="1"
-                            value={formData.carouselIntervalValue}
-                            onChange={(e) => setFormData(prev => ({ 
-                              ...prev, 
-                              carouselIntervalValue: Math.max(1, parseInt(e.target.value) || 1) 
-                            }))}
-                            className="flex-1 px-3 py-2 bg-black/50 border border-gray-700 rounded-lg text-white text-sm focus:border-neon-green focus:ring-1 focus:ring-neon-green"
-                            onFocus={(e) => e.target.select()}
-                          />
-                          <select
-                            value={formData.carouselIntervalType}
-                            onChange={(e) => setFormData(prev => ({ 
-                              ...prev, 
-                              carouselIntervalType: e.target.value as 'minutes' | 'hours' | 'days' 
-                            }))}
-                            className="px-3 py-2 bg-black/50 border border-gray-700 rounded-lg text-white text-sm focus:border-neon-green focus:ring-1 focus:ring-neon-green"
-                          >
-                            <option value="minutes">minutos</option>
-                            <option value="hours">horas</option>
-                            <option value="days">días</option>
-                          </select>
-                        </div>
-                        <p className="text-xs text-gray-500">
-                          La foto principal rotará cada {formData.carouselIntervalValue} {formData.carouselIntervalType === 'minutes' ? 'minuto(s)' : formData.carouselIntervalType === 'hours' ? 'hora(s)' : 'día(s)'}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
+              <PhotoManager
+                mode="editable"
+                username="anam"
+                initialPhotos={formData.fotos}
+                onPhotosChange={(photos) => {
+                  setFormData(prev => ({ ...prev, fotos: photos }));
+                }}
+                showCarousel={true}
+                carouselEnabled={formData.carouselEnabled}
+                carouselIntervalType={formData.carouselIntervalType}
+                carouselIntervalValue={formData.carouselIntervalValue}
+                onCarouselChange={(config) => {
+                  setFormData(prev => ({
+                    ...prev,
+                    carouselEnabled: config.enabled,
+                    carouselIntervalType: config.intervalType,
+                    carouselIntervalValue: config.intervalValue,
+                  }));
+                }}
+              />
               
               {/* Separador */}
               <div className="border-t border-connect-border"></div>
@@ -1940,16 +1671,6 @@ function AjustesPerfilContent() {
           </div>
         </div>
       </div>
-      
-      {/* Image Cropper Modal */}
-      {imageToCrop && (
-        <ImageCropper
-          imageSrc={imageToCrop}
-          onCropComplete={handleCropComplete}
-          onCancel={handleCropCancel}
-          aspectRatio={10 / 13}
-        />
-      )}
     </div>
   );
 }
