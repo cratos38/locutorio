@@ -411,9 +411,9 @@ export default function PhotoManager({
           />
         ) : (
           // NO hay fotos: mostrar área de subida con drag & drop
-          // Sin border-dashed - solo usa la tarjeta exterior
+          // SIN rounded-xl porque el wrapper exterior ya lo tiene
           <div 
-            className="relative rounded-xl bg-connect-bg-dark/30 flex items-center justify-center cursor-pointer hover:bg-white/5 transition-all"
+            className="relative bg-connect-bg-dark/30 border-2 border-dashed border-connect-border flex items-center justify-center cursor-pointer hover:bg-white/5 transition-all"
             style={{ aspectRatio: '10/13' }}
             onClick={() => {
               if (!canUpload) return;
