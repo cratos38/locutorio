@@ -370,7 +370,7 @@ export default function PhotoManager({
       <div 
         className={`relative ${
           canUpload || canDelete || canSetPrincipal
-            ? 'bg-connect-bg-dark border border-connect-border rounded-xl pb-2' 
+            ? 'bg-connect-bg-dark rounded-xl pb-2' 
             : ''
         }`}
         onDragOver={(e) => {
