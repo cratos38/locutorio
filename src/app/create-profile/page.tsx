@@ -754,14 +754,14 @@ function CrearPerfilForm() {
               <PhotoManager
                 username={editMode && user ? user.username : undefined}
                 initialPhotos={fotos}
-                canUpload={editMode}
-                canDelete={editMode}
-                canSetPrincipal={editMode}
-                canToggleCarousel={editMode}
+                canUpload={true}  // SIEMPRE puede subir (registro o edición)
+                canDelete={true}  // SIEMPRE puede eliminar
+                canSetPrincipal={true}  // SIEMPRE puede marcar principal
+                canToggleCarousel={editMode}  // Solo en edición (usuario avanzado)
                 onPhotosChange={(photos) => {
                   setFotos(photos);
                 }}
-                showCarousel={editMode}
+                showCarousel={editMode}  // Solo en edición
               />
             </div>
           </div>
