@@ -8,6 +8,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCountries } from "../../hooks/useCountries";
 import PhotoManager, { Photo } from "@/components/PhotoManager";
+import { useAuth } from "@/contexts/AuthContext";
 
 // =================== COMPONENTE: CREAR PERFIL ===================
 // 
@@ -231,9 +232,14 @@ function CrearPerfilForm() {
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect");
   const editMode = searchParams.get("edit") === "true"; // Detectar modo edición
+  const { user } = useAuth(); // Hook de autenticación
   
-  // Simular si el usuario está logueado (en producción, esto vendría de un contexto de autenticación)
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  // En modo edición, el usuario DEBE estar logueado
+  const isLoggedIn = editMode ? !!user : false;
+  
+  console.log('📍 PÁGINA: /create-profile');
+  console.log('🔧 Modo:', editMode ? 'EDICIÓN' : 'REGISTRO');
+  console.log('👤 Usuario:', user ? user.username : 'NO AUTENTICADO');
   
   // Estado de verificación de nombre (apodo)
   const [nombreStatus, setNombreStatus] = useState<"idle" | "checking" | "available" | "taken">("idle");
@@ -700,15 +706,16 @@ function CrearPerfilForm() {
               
               {/* =================== FOTO DE PERFIL (EN SIDEBAR) =================== */}
               <PhotoManager
+                username={editMode && user ? user.username : undefined}
                 initialPhotos={fotos}
-                canUpload={true}
-                canDelete={true}
-                canSetPrincipal={true}
-                canToggleCarousel={true}
+                canUpload={editMode}
+                canDelete={editMode}
+                canSetPrincipal={editMode}
+                canToggleCarousel={editMode}
                 onPhotosChange={(photos) => {
                   setFotos(photos);
                 }}
-                showCarousel={true}
+                showCarousel={editMode}
               />
             </div>
           </div>
