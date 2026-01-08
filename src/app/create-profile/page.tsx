@@ -267,14 +267,8 @@ function CrearPerfilForm() {
   
   // Cargar datos del usuario si está en modo edición
   useEffect(() => {
-    // TODO: En producción, verificar si el usuario está logueado
-    // const user = getLoggedInUser();
-    // setIsLoggedIn(!!user);
-    
     // Cargar datos del usuario si está en modo edición
     if (editMode && user) {
-      setIsLoggedIn(true);
-      
       // Cargar perfil del usuario desde la BD
       const loadUserProfile = async () => {
         try {
