@@ -143,7 +143,9 @@ export default function PhotoManager({
   onPhotosChange,
   onCarouselChange,
 }: PhotoManagerProps) {
-  const [photos, setPhotos] = useState<Photo[]>(initialPhotos);
+  // Si hay username, se cargarán fotos desde BD (no usar initialPhotos)
+  // Si NO hay username, usar initialPhotos (para create-profile sin login)
+  const [photos, setPhotos] = useState<Photo[]>(username ? [] : initialPhotos);
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
   const [imageToCrop, setImageToCrop] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
