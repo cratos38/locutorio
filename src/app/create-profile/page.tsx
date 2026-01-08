@@ -271,43 +271,79 @@ function CrearPerfilForm() {
     // const user = getLoggedInUser();
     // setIsLoggedIn(!!user);
     
-    // Simular usuario logueado en modo edición
-    if (editMode) {
+    // Cargar datos del usuario si está en modo edición
+    if (editMode && user) {
       setIsLoggedIn(true);
-      // TODO: Cargar datos del backend
-      // const userData = await fetchUserProfile();
-      // Simulación de datos pre-cargados
-      setProfileData({
-        nombre: "Ana_M",
-        email: "ana@example.com",
-        emailConfirm: "ana@example.com",
-
-        password: "********",
-        passwordConfirm: "********",
-        sexo: "mujer",
-        fechaNacimiento: "2000-05-15",
-        paisCodigo: "VE",
-        paisNombre: "Venezuela",
-        ciudad: "Caracas",
-        estado: "Distrito Capital",
-        queBusca: "pareja",
-        buscarParejaPaisCodigo: "VE",
-        buscarParejaPaisNombre: "Venezuela",
-        buscarParejaCiudad: "Caracas",
-        buscarParejaEstado: "Distrito Capital",
-      });
       
-      // Simulación de fotos pre-cargadas
-      setFotos([
-        {
-          id: "1",
-          url: "https://lh3.googleusercontent.com/aida-public/AB6AXuCYofTvqVt_2Lu8sae20y2yL8U1RSfBdI4CTdq11IzKkQGmmLnacepHa6_RDA63mrE6WYKmUvPX4Df-kx3DaUGM6S3SCk0GEu-sr3DwKsy8ejCWJOgg554w3KwDj2D74_RZQ4HrEu_CIjtNnY9B7ydy_ur9Xski9wL9YcmK7Bkoxvti-rpSbFyiqiM1qmytWWqJDMFCOMd3_x-YHcLpZdviE8Nt5gVZxmRAU8FOq6Ddci9LVMO-hhvrngkyNDslvWLfJmfFwAEc_mtw",
-          esPrincipal: true,
-          estado: "aprobada"
+      // Cargar perfil del usuario desde la BD
+      const loadUserProfile = async () => {
+        try {
+          console.log('📥 Cargando perfil del usuario para edición:', user.username);
+          
+          const response = await fetch(`/api/profile?username=${user.username}`);
+          
+          if (!response.ok) {
+            console.error('❌ Error al cargar perfil');
+            return;
+          }
+          
+          const result = await response.json();
+          
+          if (result.success && result.data) {
+            const profile = result.data;
+            console.log('✅ Perfil cargado para edición:', profile);
+            
+            // Llenar el formulario con los datos del usuario
+            setProfileData({
+              nombre: profile.nombre || user.username,
+              email: user.email || '',
+              emailConfirm: user.email || '',
+              password: '********', // No mostrar password real
+              passwordConfirm: '********',
+              sexo: profile.genero || '',
+              fechaNacimiento: profile.fecha_nacimiento || '',
+              paisCodigo: profile.pais_codigo || 'VE',
+              paisNombre: profile.pais_nombre || 'Venezuela',
+              ciudad: profile.ciudad || '',
+              estado: profile.estado || '',
+              queBusca: profile.que_buscas?.[0] || 'pareja',
+              buscarParejaPaisCodigo: profile.buscar_pareja_pais_codigo || 'VE',
+              buscarParejaPaisNombre: profile.buscar_pareja_pais_nombre || 'Venezuela',
+              buscarParejaCiudad: profile.buscar_pareja_ciudad || '',
+              buscarParejaEstado: profile.buscar_pareja_estado || '',
+            });
+            
+            console.log('✅ Formulario inicializado con datos del usuario');
+          } else {
+            console.log('ℹ️ Usuario sin perfil completo, usando datos básicos');
+            // Usuario sin perfil: solo llenar con datos de auth
+            setProfileData({
+              nombre: user.username,
+              email: user.email || '',
+              emailConfirm: user.email || '',
+              password: '********',
+              passwordConfirm: '********',
+              sexo: '',
+              fechaNacimiento: '',
+              paisCodigo: 'VE',
+              paisNombre: 'Venezuela',
+              ciudad: '',
+              estado: '',
+              queBusca: 'pareja',
+              buscarParejaPaisCodigo: 'VE',
+              buscarParejaPaisNombre: 'Venezuela',
+              buscarParejaCiudad: '',
+              buscarParejaEstado: '',
+            });
+          }
+        } catch (error) {
+          console.error('❌ Error al cargar perfil:', error);
         }
-      ]);
+      };
+      
+      loadUserProfile();
     }
-  }, [editMode]);
+  }, [editMode, user]);
 
   // Estado para fotos de perfil
   const [fotos, setFotos] = useState<Photo[]>([]);
