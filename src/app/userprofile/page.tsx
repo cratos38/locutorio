@@ -212,8 +212,8 @@ function AjustesPerfilContent() {
   // Estado para todos los campos del formulario
   const [formData, setFormData] = useState({
     // ===== ALGO SOBRE MÍ =====
-    altura: "175",
-    peso: "70",
+    altura: "",
+    peso: "",
     tipoCuerpo: "atletico",
     tipoCuerpoOtro: "", // Si selecciona "otro"
     colorOjos: "marrones",
@@ -623,8 +623,8 @@ function AjustesPerfilContent() {
               <h3 className="text-xl font-bold text-neon-green mb-6">Apariencia física</h3>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {renderInputField("Altura", "altura", "number", "175", "cm")}
-                {renderInputField("Peso", "peso", "number", "70", "kg")}
+                {renderInputField("Altura", "altura", "number", "Ej: 175", "cm")}
+                {renderInputField("Peso", "peso", "number", "Ej: 70", "kg")}
               </div>
 
               {renderSelectField("Tipo de cuerpo", "tipoCuerpo", [

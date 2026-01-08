@@ -20,8 +20,8 @@ export default function LoginPage() {
   // Shortcut para admin (desarrollo)
   const fillAdmin = () => {
     setFormData({
-      email: 'admin@admin.com',
-      password: 'admin',
+      email: 'admin@locutorio.com.ve',
+      password: 'admin123',
     });
   };
 
