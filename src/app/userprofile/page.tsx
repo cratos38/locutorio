@@ -1674,9 +1674,22 @@ function AjustesPerfilContent() {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2">Editar Perfil Detallado</h1>
-          <p className="text-gray-400">Completa tu perfil para mejorar tus conexiones</p>
+        <div className="mb-8 flex justify-between items-start">
+          <div>
+            <h1 className="text-3xl font-bold text-white mb-2">Editar Perfil Detallado</h1>
+            <p className="text-gray-400">Completa tu perfil para mejorar tus conexiones</p>
+          </div>
+          
+          {/* Botón Editar Datos Básicos */}
+          <Link
+            href="/create-profile?edit=true"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-connect-primary hover:bg-connect-primary-hover text-white rounded-lg transition-colors"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+            <span>Editar Datos Básicos</span>
+          </Link>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
