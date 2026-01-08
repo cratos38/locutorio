@@ -343,21 +343,10 @@ export default function PhotoManager({
         
         console.log('✅ Foto subida exitosamente:', uploadResult);
         
-        // Crear nueva foto con URL de Supabase
-        const newPhoto: Photo = {
-          id: uploadResult.photo.id,
-          url: uploadResult.photo.url,
-          esPrincipal: uploadResult.photo.isPrincipal,
-          estado: uploadResult.photo.estado as 'pendiente' | 'aprobada' | 'rechazada',
-        };
+        // Recargar TODAS las fotos desde la BD
+        await loadPhotosFromDB();
         
-        setPhotos(prev => [...prev, newPhoto]);
-        setCurrentPhotoIndex(photos.length);
-        
-        // Notificar cambio
-        if (onPhotosChange) {
-          onPhotosChange([...photos, newPhoto]);
-        }
+        alert('✅ Foto subida exitosamente!');
       } else {
         // Sin username, guardar solo en memoria (modo local)
         const url = URL.createObjectURL(resizedFile);
