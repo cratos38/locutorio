@@ -677,17 +677,33 @@ function CrearPerfilForm() {
             <span className="text-3xl font-bold tracking-tight text-white">LoCuToRiO</span>
           </Link>
           
-          {/* Botón Volver */}
-          <div className="flex items-center justify-center gap-2 mb-4">
+          {/* Botones de navegación */}
+          <div className="flex items-center justify-center gap-6 mb-4">
+            {/* Flecha IZQUIERDA: Volver a Inicio (SIEMPRE disponible) */}
             <Link 
-              href={isLoggedIn ? "/userprofile" : "/"}
+              href="/"
               className="inline-flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
+              title="Volver a Inicio"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
               </svg>
-              <span className="text-sm font-medium">Volver</span>
+              <span className="text-sm font-medium">Inicio</span>
             </Link>
+            
+            {/* Flecha DERECHA: Ir a Perfil de Usuario (SOLO si está logueado) */}
+            {isLoggedIn && (
+              <Link 
+                href="/userprofile"
+                className="inline-flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
+                title="Ir a Mi Perfil"
+              >
+                <span className="text-sm font-medium">Mi Perfil</span>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+              </Link>
+            )}
           </div>
           
           <h1 className="text-3xl font-bold text-white mb-2">
