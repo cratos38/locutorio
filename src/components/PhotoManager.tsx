@@ -202,8 +202,12 @@ export default function PhotoManager({
 
   // Cargar fotos desde BD si hay username
   useEffect(() => {
+    console.log('🔄 useEffect de PhotoManager ejecutado. Username:', username);
     if (username) {
+      console.log('✅ Username existe, cargando fotos...');
       loadPhotosFromDB();
+    } else {
+      console.log('❌ No hay username, no se cargan fotos');
     }
   }, [username]);
 
@@ -484,7 +488,10 @@ export default function PhotoManager({
           }
         }}
       >
-        {photos.length > 0 ? (
+        {(() => {
+          console.log('🖼️ RENDER PhotoManager - photos.length:', photos.length);
+          console.log('🖼️ photos:', photos);
+          return photos.length > 0 ? (
           // Tenemos fotos: usar PhotoGallery
           <PhotoGallery
             photos={photos}
@@ -533,7 +540,8 @@ export default function PhotoManager({
               )}
             </div>
           </div>
-        )}
+        );
+        })()}
       </div>
 
       {/**
