@@ -241,7 +241,10 @@ export default function PhotoManager({
         }));
         
         console.log(`✅ ${loadedPhotos.length} fotos cargadas desde BD`);
+        console.log('📸 URLs de las fotos:', loadedPhotos.map(p => p.url));
+        console.log('📸 Estado del array photos ANTES de setPhotos:', photos);
         setPhotos(loadedPhotos);
+        console.log('📸 Estado del array photos DESPUÉS de setPhotos:', loadedPhotos);
       } else {
         console.log('ℹ️ No hay fotos en la BD');
         setPhotos([]);

@@ -1539,7 +1539,7 @@ function AjustesPerfilContent() {
         idiomas: formData.idiomas || [],
         
         // TRABAJO
-        trabajas: formData.trabajas || false,
+        trabajas: formData.trabajas === 'si' ? true : (formData.trabajas === 'no' ? false : null),
         en_que_trabaja: formData.enQueTrabaja || null,
         definete_en_frase: formData.defineteEnFrase || null,
         cuentanos_algo_tuyo: formData.cuentanosAlgoTuyo || null,
@@ -1547,7 +1547,7 @@ function AjustesPerfilContent() {
         primera_cita_ideal: formData.primeraCitaIdeal || null,
         
         // RELACIONES
-        tiene_hijos: formData.tieneHijos || false,
+        tiene_hijos: formData.tieneHijos === 'si' ? true : (formData.tieneHijos === 'no' ? false : null),
         situacion_hijos: formData.situacionHijos || null,
         quiere_tener_hijos: formData.quiereTenerHijos || null,
         estado_civil: formData.estadoCivil || null,
@@ -1558,7 +1558,7 @@ function AjustesPerfilContent() {
         duracion_relacion_larga: formData.duracionRelacionLarga || null,
         
         // VEHÍCULO
-        tiene_vehiculo: formData.tieneVehiculo || false,
+        tiene_vehiculo: formData.tieneVehiculo === 'si' ? true : (formData.tieneVehiculo === 'no' ? false : null),
         
         // MASCOTA
         tiene_mascota: formData.tieneMascota || null,
@@ -1589,17 +1589,17 @@ function AjustesPerfilContent() {
         eres_ambicioso: formData.eresAmbicioso || null,
         
         // Fumar
-        fumas: formData.fumas || null,
+        fumas: formData.fumas === 'si' ? true : (formData.fumas === 'no' ? false : null),
         frecuencia_fumar: formData.frecuenciaFumar || null,
         saldrias_fumador: formData.saldriasFumador || false,
         
         // Beber
-        bebes_alcohol: formData.bebesAlcohol || null,
+        bebes_alcohol: formData.bebesAlcohol === 'si' ? true : (formData.bebesAlcohol === 'no' ? false : null),
         frecuencia_beber: formData.frecuenciaBeber || null,
         saldrias_bebedor: formData.saldriasBebedor || false,
         
         // Drogas
-        usas_drogas: formData.usasDrogas || null,
+        usas_drogas: formData.usasDrogas === 'si' ? true : (formData.usasDrogas === 'no' ? false : null),
         frecuencia_drogas: formData.frecuenciaDrogas || null,
         
         // Otros
@@ -1679,17 +1679,6 @@ function AjustesPerfilContent() {
             <h1 className="text-3xl font-bold text-white mb-2">Editar Perfil Detallado</h1>
             <p className="text-gray-400">Completa tu perfil para mejorar tus conexiones</p>
           </div>
-          
-          {/* Botón Editar Datos Básicos */}
-          <Link
-            href="/create-profile?edit=true"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-connect-primary hover:bg-connect-primary-hover text-white rounded-lg transition-colors"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-            </svg>
-            <span>Editar Datos Básicos</span>
-          </Link>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -1726,9 +1715,9 @@ function AjustesPerfilContent() {
             <div className="bg-connect-bg-dark/60 backdrop-blur-sm border border-connect-border rounded-xl p-4 shadow-lg">
               {/* Nav de categorías */}
               <nav className="space-y-2">
-                {/* Botón Datos básicos - Redirige a /create-profile */}
+                {/* Botón Datos básicos - Redirige a /create-profile?edit=true */}
                 <Link
-                  href="/create-profile"
+                  href="/create-profile?edit=true"
                   className="w-full flex items-center gap-3 px-4 py-2 rounded-lg transition-all text-gray-400 hover:text-[#2BEE79] hover:bg-transparent hover:border-[#2BEE79]/50 hover:shadow-[0_0_15px_rgba(43,238,121,0.3)] border border-transparent"
                 >
                   <span className="text-xl">📝</span>
