@@ -226,7 +226,7 @@ export default function PhotoManager({
       setLoading(true);
       console.log(`📥 Cargando fotos para usuario: ${username}`);
       
-      const response = await fetch(`/api/photos?username=${username}`);
+      const response = await fetch(`/api/photos?username=${username}&showAll=true`);
       
       if (!response.ok) {
         console.error('Error al cargar fotos');
