@@ -1591,12 +1591,12 @@ function AjustesPerfilContent() {
         // Fumar
         fumas: formData.fumas === 'si' ? true : (formData.fumas === 'no' ? false : null),
         frecuencia_fumar: formData.frecuenciaFumar || null,
-        saldrias_fumador: formData.saldriasFumador || false,
+        saldrias_fumador: formData.saldriasFumador || null, // Texto: 'no', 'si', 'me-da-igual'
         
         // Beber
         bebes_alcohol: formData.bebesAlcohol === 'si' ? true : (formData.bebesAlcohol === 'no' ? false : null),
         frecuencia_beber: formData.frecuenciaBeber || null,
-        saldrias_bebedor: formData.saldriasBebedor || false,
+        saldrias_bebedor: formData.saldriasBebedor || null, // Texto: 'no', 'si', 'solo-ocasional', 'solo-social', 'me-da-igual'
         
         // Drogas
         usas_drogas: formData.usasDrogas === 'si' ? true : (formData.usasDrogas === 'no' ? false : null),
