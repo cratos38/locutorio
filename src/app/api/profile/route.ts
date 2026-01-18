@@ -22,43 +22,78 @@ export async function POST(request: NextRequest) {
     
     console.log('📥 API recibió datos:', Object.keys(data));
     
-    // Calcular porcentaje de completado del perfil
-    // Definir campos específicos que cuentan para el porcentaje
-    const profileFields = [
-      // Básicos (20 puntos)
+    // ========================================================================
+    // CÁLCULO DE PORCENTAJE DE PERFIL
+    // ========================================================================
+    // IMPORTANTE: Solo los campos PÚBLICOS cuentan para el porcentaje visible
+    // Los campos PRIVADOS (información-privada) se guardan pero NO suman al %
+    // porque esa sección es opcional y no se muestra en el perfil público
+    // ========================================================================
+    
+    // CAMPOS PÚBLICOS - Estos se muestran en el perfil público
+    const publicFields = [
+      // Básicos (obligatorios para buen perfil)
       'nombre', 'edad', 'genero', 'ciudad', 'foto_perfil',
-      // Sobre mí (15 puntos)
+      // Sobre mí - Información física y básica
       'altura', 'peso', 'tipo_cuerpo', 'color_ojos', 'color_cabello',
       'signo_zodiacal', 'educacion', 'etnia', 'vives_en', 'trabajas',
-      // Presentación (10 puntos)
+      // Presentación - Textos descriptivos
       'definete_en_frase', 'cuentanos_algo_tuyo', 'primera_cita_ideal', 'status_text',
-      // Relaciones (15 puntos)
+      // Relaciones - Lo que busca
       'tiene_hijos', 'quiere_tener_hijos', 'estado_civil', 'que_buscas', 
-      'razon_principal', 'tiempo_en_pareja', 'casarse_importante',
-      // Cultura (15 puntos)
+      'razon_principal', 'casarse_importante', 'duracion_relacion_larga',
+      // Cultura/Intereses - Gustos
       'pasatiempos', 'generos_peliculas', 'generos_musica', 'generos_libros',
       'deportes_practica', 'valores_tradicionales', 'espiritualidad', 'religion',
-      // Estilo de vida (15 puntos)
+      // Estilo de vida
       'que_haces', 'te_ejercitas', 'fumas', 'bebes_alcohol',
       'dieta_especial', 'personalidad_sociable', 'orden_mantenimiento',
-      // Extras (10 puntos)
-      'tiene_vehiculo', 'tiene_mascota', 'habla_otro_idioma', 'idiomas'
+      // Extras
+      'tiene_vehiculo', 'tiene_mascota', 'idiomas'
     ];
     
-    let filledFields = 0;
-    profileFields.forEach(field => {
-      const value = data[field];
-      if (Array.isArray(value) && value.length > 0) {
-        filledFields++;
-      } else if (value !== null && value !== undefined && value !== '' && value !== false) {
-        filledFields++;
-      }
-    });
+    // CAMPOS PRIVADOS - NO se muestran públicamente, solo para algoritmo de búsqueda
+    // Estos NO cuentan para el porcentaje visible
+    const privateFields = [
+      'ideas_politicas',
+      'escuelas_privadas_publicas',
+      'tus_padres_estan',
+      'orden_nacimiento', 
+      'economicamente_independiente',
+      'nivel_ingresos',
+      'importa_nivel_ingresos_pareja',
+      'origen_geografico_privado',
+      'clase_socioeconomica',
+      'saldrias_mas_kilos',
+      'saldrias_con_hijos'
+    ];
     
-    const totalFields = profileFields.length;
-    const profileCompletion = Math.min(100, Math.round((filledFields / totalFields) * 100));
+    // Función helper para contar campos llenos
+    const countFilledFields = (fields: string[]) => {
+      let count = 0;
+      fields.forEach(field => {
+        const value = data[field];
+        if (Array.isArray(value) && value.length > 0) {
+          count++;
+        } else if (value !== null && value !== undefined && value !== '' && value !== false) {
+          count++;
+        }
+      });
+      return count;
+    };
     
-    console.log(`📊 Perfil completado: ${profileCompletion}% (${filledFields}/${totalFields} campos)`);
+    // Calcular porcentaje PÚBLICO (lo que se muestra al usuario)
+    const filledPublicFields = countFilledFields(publicFields);
+    const totalPublicFields = publicFields.length;
+    const profileCompletion = Math.min(100, Math.round((filledPublicFields / totalPublicFields) * 100));
+    
+    // Calcular porcentaje PRIVADO (solo para uso interno/algoritmo)
+    const filledPrivateFields = countFilledFields(privateFields);
+    const totalPrivateFields = privateFields.length;
+    const privateCompletion = Math.round((filledPrivateFields / totalPrivateFields) * 100);
+    
+    console.log(`📊 Perfil PÚBLICO: ${profileCompletion}% (${filledPublicFields}/${totalPublicFields} campos)`);
+    console.log(`🔒 Perfil PRIVADO: ${privateCompletion}% (${filledPrivateFields}/${totalPrivateFields} campos) - No visible`);
     
     // Insertar o actualizar en Supabase
     console.log('💾 Guardando en Supabase...');
@@ -66,7 +101,8 @@ export async function POST(request: NextRequest) {
       .from('users')
       .upsert({
         ...data,
-        profile_completion: profileCompletion,
+        profile_completion: profileCompletion, // Solo campos públicos
+        private_completion: privateCompletion, // Campos privados (para algoritmo de búsqueda)
         updated_at: new Date().toISOString(),
       }, {
         onConflict: 'username'
