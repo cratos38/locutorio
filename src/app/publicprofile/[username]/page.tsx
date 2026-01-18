@@ -12,22 +12,7 @@ export const runtime = 'edge';
 export default function PerfilPage() {
   const params = useParams();
   const username = params.username as string;
-  const { user } = useAuth(); // Hook de autenticación
-  
-  // 🔍 RASTREADOR DE USUARIO
-  useEffect(() => {
-    console.log('═══════════════════════════════════════');
-    console.log('📍 PÁGINA: /publicprofile/' + username);
-    console.log('👁️  Viendo perfil de:', username);
-    console.log('👤 Sesión actual:', user ? {
-      id: user.id,
-      username: user.username,
-      email: user.email,
-      isAdmin: user.isAdmin
-    } : '❌ NO AUTENTICADO');
-    console.log('🔐 ¿Es dueño?:', user?.username === username ? '✅ SÍ' : '❌ NO');
-    console.log('═══════════════════════════════════════');
-  }, [user, username]);
+  const { user } = useAuth();
   
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -55,29 +40,66 @@ export default function PerfilPage() {
     fetchProfile();
   }, [username]);
 
-  // Perfiles similares (simulados por ahora)
+  // Perfiles similares (más pequeños)
   const similarProfiles = [
-    { id: 1, name: "Carlos M.", age: 27, avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuDGb3wmeflExbrjA88BEWgMoBARwnsWXrjnuX9eX0BtYZqnIuIuV2k_c80FD-aUsIiTHut6e-k4cJzjyk4OERJYc_7V103-NFf7eD9WJOXNYzN4YOa0ulR1gN-hucbZyaIz5RfojyS2OglAr4ickMC-qkdFxcoLvF59IV_i3Kxtk7OBbeQjLB2sX2q9THJ5MpQALQETi5ABgMmTiDxzKtRbbs6RUv1H7KU0c6gcA7w_9cbtihKJ1iEfLVPD4g6KGUSrVkXQuXl421Fk" },
-    { id: 2, name: "Miguel R.", age: 30, avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuBcAgJzBVY0VcA1ICIc8GlT1M1eiu5Og95ubTpOa58bFlu9OV7QmjTZH1cbQBwbPhtvFKip_HyKq7atWt0zzANSMDAC_wrJi67kz8SXvn-HnWmPBihZZc3BAfUyEZ7TOAs4LhWokU66QRGD6Lhq2RYxETUZKEeHUzBCVw0BiuXDqP1lYEwLeNcffCadpUuZggEMO_dPmEceKo3MQ6C2rOGG5yHNZlrhQNjpnrQwZB36kSlcM_HfVWyMRoN6UQ6gNvgLzfLeM1B3VVpJ" },
-    { id: 3, name: "David L.", age: 26, avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuBcAgJzBVY0VcA1ICIc8GlT1M1eiu5Og95ubTpOa58bFlu9OV7QmjTZH1cbQBwbPhtvFKip_HyKq7atWt0zzANSMDAC_wrJi67kz8SXvn-HnWmPBihZZc3BAfUyEZ7TOAs4LhWokU66QRGD6Lhq2RYxETUZKEeHUzBCVw0BiuXDqP1lYEwLeNcffCadpUuZggEMO_dPmEceKo3MQ6C2rOGG5yHNZlrhQNjpnrQwZB36kSlcM_HfVWyMRoN6UQ6gNvgLzfLeM1B3VVpJ" },
-    { id: 4, name: "Sergio P.", age: 29, avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuBcAgJzBVY0VcA1ICIc8GlT1M1eiu5Og95ubTpOa58bFlu9OV7QmjTZH1cbQBwbPhtvFKip_HyKq7atWt0zzANSMDAC_wrJi67kz8SXvn-HnWmPBihZZc3BAfUyEZ7TOAs4LhWokU66QRGD6Lhq2RYxETUZKEeHUzBCVw0BiuXDqP1lYEwLeNcffCadpUuZggEMO_dPmEceKo3MQ6C2rOGG5yHNZlrhQNjpnrQwZB36kSlcM_HfVWyMRoN6UQ6gNvgLzfLeM1B3VVpJ" },
-    { id: 5, name: "Antonio F.", age: 31, avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuDGb3wmeflExbrjA88BEWgMoBARwnsWXrjnuX9eX0BtYZqnIuIuV2k_c80FD-aUsIiTHut6e-k4cJzjyk4OERJYc_7V103-NFf7eD9WJOXNYzN4YOa0ulR1gN-hucbZyaIz5RfojyS2OglAr4ickMC-qkdFxcoLvF59IV_i3Kxtk7OBbeQjLB2sX2q9THJ5MpQALQETi5ABgMmTiDxzKtRbbs6RUv1H7KU0c6gcA7w_9cbtihKJ1iEfLVPD4g6KGUSrVkXQuXl421Fk" },
-    { id: 6, name: "Pablo G.", age: 27, avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuBcAgJzBVY0VcA1ICIc8GlT1M1eiu5Og95ubTpOa58bFlu9OV7QmjTZH1cbQBwbPhtvFKip_HyKq7atWt0zzANSMDAC_wrJi67kz8SXvn-HnWmPBihZZc3BAfUyEZ7TOAs4LhWokU66QRGD6Lhq2RYxETUZKEeHUzBCVw0BiuXDqP1lYEwLeNcffCadpUuZggEMO_dPmEceKo3MQ6C2rOGG5yHNZlrhQNjpnrQwZB36kSlcM_HfVWyMRoN6UQ6gNvgLzfLeM1B3VVpJ" },
+    { id: 1, name: "Carlos", age: 27, avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Carlos" },
+    { id: 2, name: "Miguel", age: 30, avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Miguel" },
+    { id: 3, name: "David", age: 26, avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=David" },
+    { id: 4, name: "Sergio", age: 29, avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sergio" },
+    { id: 5, name: "Antonio", age: 31, avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Antonio" },
+    { id: 6, name: "Pablo", age: 27, avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Pablo" },
+    { id: 7, name: "Ana", age: 25, avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Ana" },
+    { id: 8, name: "Laura", age: 28, avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Laura" },
   ];
+
+  // Función para formatear arrays como tags
+  const renderTags = (items: string[] | null | undefined, color: string = 'primary') => {
+    if (!items || items.length === 0) return null;
+    const colorClasses = {
+      primary: 'bg-primary/10 text-primary border-primary/20',
+      blue: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
+      purple: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
+      amber: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+      pink: 'bg-pink-500/10 text-pink-400 border-pink-500/20',
+    };
+    return (
+      <div className="flex flex-wrap gap-1.5">
+        {items.map((item, idx) => (
+          <span 
+            key={idx} 
+            className={`px-2 py-0.5 text-xs rounded-full border ${colorClasses[color as keyof typeof colorClasses] || colorClasses.primary}`}
+          >
+            {item}
+          </span>
+        ))}
+      </div>
+    );
+  };
+
+  // Función para formatear valores con iconos
+  const renderInfoItem = (icon: string, label: string, value: string | number | boolean | null | undefined) => {
+    if (value === null || value === undefined || value === '' || value === false) return null;
+    const displayValue = typeof value === 'boolean' ? (value ? 'Sí' : 'No') : value;
+    return (
+      <div className="flex items-center gap-2 text-sm">
+        <span className="text-base">{icon}</span>
+        <span className="text-gray-400">{label}:</span>
+        <span className="text-white">{displayValue}</span>
+      </div>
+    );
+  };
   
-  // Estado de carga
   if (loading) {
     return (
       <div className="min-h-screen bg-connect-bg-dark text-white flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-neon-green mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
           <p className="text-connect-muted">Cargando perfil...</p>
         </div>
       </div>
     );
   }
   
-  // Estado de error
   if (error || !profile) {
     return (
       <div className="min-h-screen bg-connect-bg-dark text-white flex items-center justify-center">
@@ -93,274 +115,316 @@ export default function PerfilPage() {
 
   return (
     <div className="min-h-screen bg-connect-bg-dark text-white font-display">
-      {/* Header Simple */}
-      <header className="h-16 bg-connect-card border-b border-connect-border flex items-center justify-between px-6">
+      {/* Header compacto */}
+      <header className="h-14 bg-connect-card/80 backdrop-blur-sm border-b border-connect-border flex items-center justify-between px-4 sticky top-0 z-50">
         <Link href="/dashboard" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-          <div className="size-9 bg-primary/20 rounded-lg flex items-center justify-center text-primary">
-            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+          <div className="size-8 bg-primary/20 rounded-lg flex items-center justify-center text-primary">
+            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
               <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
             </svg>
           </div>
-          <span className="text-xl font-bold font-heading tracking-wide">LoCuToRiO</span>
+          <span className="text-lg font-bold font-heading">LoCuToRiO</span>
         </Link>
-        <button onClick={() => window.history.back()} className="text-connect-muted hover:text-white transition-colors">
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <button onClick={() => window.history.back()} className="text-connect-muted hover:text-white transition-colors p-2">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
       </header>
 
-      {/**
-        * =================================================================
-        * CONTENEDOR PRINCIPAL - MISMO ANCHO QUE USERPROFILE
-        * =================================================================
-        * 
-        * PROBLEMA ANTERIOR:
-        * - publicprofile usaba: max-w-[1400px] (1400px)
-        * - userprofile usa: max-w-7xl (1280px)
-        * - Diferencia de 120px hacía que todo se viera distinto
-        * 
-        * SOLUCIÓN:
-        * - Usar max-w-7xl igual que userprofile
-        * - Usar grid de 4 columnas igual que userprofile
-        * - Foto ocupa 1 columna (25%) = 320px aprox
-        * - Contenido ocupa 3 columnas (75%)
-        * 
-        * RESULTADO:
-        * - Foto del mismo tamaño en ambas páginas
-        * - Layout consistente
-        * =================================================================
-        */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        
-        {/* Grid: 4 columnas (igual que userprofile) */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-12">
+      {/* Contenido con scroll */}
+      <main className="max-w-6xl mx-auto px-4 py-6">
+        {/* Grid principal: sidebar izquierdo + contenido */}
+        <div className="flex gap-6">
           
-          {/**
-            * =============================================================
-            * COLUMNA IZQUIERDA (1 de 4) - FOTO
-            * =============================================================
-            * 
-            * En userprofile esta columna contiene:
-            * - PhotoManager dentro de tarjeta con padding
-            * - Resultado: ~320px de columna - 32px padding = 288px foto
-            * 
-            * En publicprofile esta columna contiene:
-            * - PhotoGallery directamente (sin tarjeta ni padding)
-            * - Ocupa 1 de 4 columnas = ~320px
-            * - PhotoGallery con w-full hereda ese ancho
-            * 
-            * IMPORTANTE:
-            * Al usar lg:col-span-1 en grid de 4 columnas,
-            * el ancho se calcula automáticamente como 25% del contenedor
-            * (max-w-7xl = 1280px → 1280px × 0.25 = 320px)
-            * =============================================================
-            */}
-          <div className="lg:col-span-1">
-            {/**
-              * PhotoGallery - Solo la "pantalla del TV"
-              * 
-              * En publicprofile usamos SOLO PhotoGallery porque:
-              * - No necesitamos el marco (tarjeta contenedora)
-              * - No necesitamos botones de edición
-              * - No necesitamos controles de carrusel
-              * - Solo queremos mostrar las fotos con navegación
-              * 
-              * Es como sacar la pantalla del TV y pegarla en la pared.
-              * Los "cables" (datos) vienen del perfil pero sin los controles.
-              * 
-              * ANCHO:
-              * - Hereda el ancho de la columna (~320px)
-              * - PhotoGallery tiene w-full para ocupar todo el espacio
-              * - Altura se calcula según ratio 10:13
-              */}
-            <PhotoGallery
-              photos={profile.fotos && profile.fotos.length > 0 ? profile.fotos : [
-                {
-                  id: '1',
-                  url: profile.foto_perfil || 'https://via.placeholder.com/400x520?text=Sin+Foto',
-                  esPrincipal: true,
-                  estado: 'aprobada'
-                }
-              ]}
-            />
-            
-            {/* Barra de % Perfil completado */}
-            <div className="mt-4">
-              <div className="flex items-center justify-between text-sm mb-2">
-                <span className="text-connect-muted">Perfil completado</span>
-                <span className="text-primary font-bold">{profile.profile_completion || 0}%</span>
+          {/* SIDEBAR IZQUIERDO - Foto + Perfiles similares */}
+          <div className="w-64 flex-shrink-0 space-y-4">
+            {/* Foto - más pequeña */}
+            <div className="sticky top-20">
+              <PhotoGallery
+                photos={profile.fotos && profile.fotos.length > 0 ? profile.fotos : [
+                  {
+                    id: '1',
+                    url: profile.foto_perfil || `https://api.dicebear.com/7.x/avataaars/svg?seed=${profile.username}`,
+                    esPrincipal: true,
+                    estado: 'aprobada'
+                  }
+                ]}
+              />
+              
+              {/* Barra de % completado */}
+              <div className="mt-3">
+                <div className="flex items-center justify-between text-xs mb-1">
+                  <span className="text-connect-muted">Perfil</span>
+                  <span className="text-primary font-bold">{Math.min(100, profile.profile_completion || 0)}%</span>
+                </div>
+                <div className="h-1.5 bg-connect-bg-dark rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-primary rounded-full transition-all"
+                    style={{ width: `${Math.min(100, profile.profile_completion || 0)}%` }}
+                  ></div>
+                </div>
               </div>
-              <div className="h-2 bg-connect-bg-dark rounded-full overflow-hidden">
-                <div 
-                  className="h-full bg-primary rounded-full transition-all"
-                  style={{ width: `${profile.profile_completion || 0}%` }}
-                ></div>
+
+              {/* Perfiles similares - muy compactos */}
+              <div className="mt-6">
+                <h3 className="text-xs font-bold text-gray-400 uppercase mb-3">Perfiles similares</h3>
+                <div className="grid grid-cols-4 gap-2">
+                  {similarProfiles.map((p) => (
+                    <Link
+                      key={p.id}
+                      href={`/publicprofile/${p.name.toLowerCase()}`}
+                      className="group text-center"
+                    >
+                      <div className="w-12 h-12 mx-auto rounded-lg overflow-hidden border border-connect-border group-hover:border-primary/50 transition-colors">
+                        <img src={p.avatar} alt={p.name} className="w-full h-full object-cover" />
+                      </div>
+                      <p className="text-[10px] text-gray-400 mt-1 truncate group-hover:text-primary">{p.name}</p>
+                    </Link>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
 
-          {/**
-            * =============================================================
-            * COLUMNA DERECHA (3 de 4) - CONTENIDO DEL PERFIL
-            * =============================================================
-            * 
-            * Esta columna ocupa 75% del ancho (3 de 4 columnas)
-            * Contiene toda la información del perfil:
-            * - Nombre, edad, ciudad
-            * - Botones de acción (Enviar MP, Invitar a Café, etc.)
-            * - Status del usuario
-            * - Campos del perfil por categorías
-            * 
-            * ANCHO:
-            * - lg:col-span-3 en grid de 4 = 75% del contenedor
-            * - max-w-7xl = 1280px → 1280px × 0.75 = 960px
-            * =============================================================
-            */}
-          <div className="lg:col-span-3">
-            
-            {/* Nombre, edad, ciudad - SIN tarjeta, directo en fondo */}
+          {/* CONTENIDO PRINCIPAL */}
+          <div className="flex-1 min-w-0">
+            {/* Cabecera: Nombre y botones */}
             <div className="mb-6">
-              <h1 className="text-4xl font-bold font-heading mb-2">
-                {profile.nombre || profile.username}, {profile.edad || '?'}
-              </h1>
-              <p className="text-lg text-connect-muted flex items-center gap-2">
-                <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-                {profile.ciudad || 'Ciudad no especificada'}
-              </p>
-            </div>
-
-            {/* Botones de acción */}
-            <div className="flex gap-3 mb-6">
-              <Button className="flex-1 bg-primary hover:brightness-110 text-connect-bg-dark font-bold shadow-[0_0_20px_rgba(43,238,121,0.3)] py-6">
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
-                Enviar MP
-              </Button>
-              <Button variant="outline" className="flex-1 border-amber-500/50 bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 hover:border-amber-500 py-6">
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5h8a2 2 0 012 2v9a2 2 0 01-2 2H8a2 2 0 01-2-2V7a2 2 0 012-2z" />
-                </svg>
-                Invitar a Café
-              </Button>
-              <Button variant="outline" className="flex-1 border-blue-500/50 bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 hover:border-blue-500 py-6">
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-                </svg>
-                Agregar Amigo
-              </Button>
-            </div>
-
-            {/* "¿Qué haces hoy?" - SIN tarjeta, con comillas */}
-            {profile.status_text && (
-              <div className="mb-6 pl-4 border-l-4 border-primary/50">
-                <p className="text-lg text-white italic">
-                  "{profile.status_text}"
-                </p>
-                <p className="text-xs text-connect-muted mt-1">hace 5 min</p>
-              </div>
-            )}
-
-            {/* Gráfico circular: Velocidad de respuesta */}
-            <div className="flex items-center gap-6 mb-8">
-              <div className="relative w-24 h-24">
-                {/* Círculo de progreso (simplificado) */}
-                <svg className="w-24 h-24 transform -rotate-90" viewBox="0 0 100 100">
-                  <circle
-                    cx="50"
-                    cy="50"
-                    r="40"
-                    fill="none"
-                    stroke="rgba(255,255,255,0.1)"
-                    strokeWidth="8"
-                  />
-                  <circle
-                    cx="50"
-                    cy="50"
-                    r="40"
-                    fill="none"
-                    stroke="rgb(43, 238, 121)"
-                    strokeWidth="8"
-                    strokeDasharray="188.4 251.2"
-                    strokeLinecap="round"
-                  />
-                </svg>
-                <div className="absolute inset-0 flex items-center justify-center flex-col">
-                  <span className="text-lg font-bold text-primary">15</span>
-                  <span className="text-[10px] text-connect-muted">min</span>
+              <div className="flex items-start justify-between gap-4 mb-4">
+                <div>
+                  <h1 className="text-3xl font-bold font-heading">
+                    {profile.nombre || profile.username}, {profile.edad || '?'}
+                  </h1>
+                  <p className="text-sm text-connect-muted flex items-center gap-1.5 mt-1">
+                    <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    {profile.ciudad || 'Sin especificar'}
+                  </p>
+                </div>
+                
+                {/* Botones de acción - más finos */}
+                <div className="flex gap-2">
+                  <Button size="sm" className="bg-primary hover:brightness-110 text-connect-bg-dark font-semibold h-9 px-4">
+                    <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                    Mensaje
+                  </Button>
+                  <Button size="sm" variant="outline" className="border-amber-500/50 text-amber-400 hover:bg-amber-500/10 h-9 px-3">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5h8a2 2 0 012 2v9a2 2 0 01-2 2H8a2 2 0 01-2-2V7a2 2 0 012-2z" />
+                    </svg>
+                  </Button>
+                  <Button size="sm" variant="outline" className="border-blue-500/50 text-blue-400 hover:bg-blue-500/10 h-9 px-3">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                    </svg>
+                  </Button>
                 </div>
               </div>
-              <div>
-                <h3 className="text-sm font-bold mb-1">Velocidad de respuesta</h3>
-                <p className="text-xs text-connect-muted">
-                  Responde en promedio en 15 minutos
-                </p>
-              </div>
+
+              {/* Status del usuario */}
+              {profile.status_text && (
+                <div className="bg-connect-card/50 border border-connect-border rounded-lg px-4 py-3">
+                  <p className="text-sm text-white italic">"{profile.status_text}"</p>
+                </div>
+              )}
             </div>
 
-            {/* Bio e intereses */}
+            {/* Grid de secciones */}
             <div className="space-y-4">
-              {profile.cuentanos_algo_tuyo && (
-                <div>
-                  <h3 className="text-sm font-bold text-primary mb-2">Sobre mí</h3>
-                  <p className="text-connect-muted leading-relaxed">{profile.cuentanos_algo_tuyo}</p>
-                </div>
-              )}
               
-              {profile.intereses && (
-                <div>
-                  <h3 className="text-sm font-bold text-primary mb-2">Intereses</h3>
-                  <p className="text-connect-muted leading-relaxed">{profile.intereses}</p>
-                </div>
+              {/* SOBRE MÍ */}
+              {(profile.cuentanos_algo_tuyo || profile.definete_en_frase) && (
+                <section className="bg-connect-card/30 border border-connect-border rounded-xl p-4">
+                  <h2 className="text-sm font-bold text-primary uppercase tracking-wide mb-3 flex items-center gap-2">
+                    <span>👤</span> Sobre mí
+                  </h2>
+                  {profile.definete_en_frase && (
+                    <p className="text-white font-medium mb-2">"{profile.definete_en_frase}"</p>
+                  )}
+                  {profile.cuentanos_algo_tuyo && (
+                    <p className="text-gray-300 text-sm leading-relaxed">{profile.cuentanos_algo_tuyo}</p>
+                  )}
+                </section>
               )}
-              
-              {profile.pasatiempos && profile.pasatiempos.length > 0 && (
-                <div>
-                  <h3 className="text-sm font-bold text-primary mb-2">Pasatiempos</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {profile.pasatiempos.map((hobby: string, index: number) => (
-                      <span
-                        key={index}
-                        className="px-3 py-1 bg-white/5 border border-white/10 text-white rounded-full text-sm"
-                      >
-                        {hobby}
-                      </span>
-                    ))}
+
+              {/* INFORMACIÓN BÁSICA */}
+              <section className="bg-connect-card/30 border border-connect-border rounded-xl p-4">
+                <h2 className="text-sm font-bold text-primary uppercase tracking-wide mb-3 flex items-center gap-2">
+                  <span>📋</span> Información
+                </h2>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  {renderInfoItem('📏', 'Altura', profile.altura ? `${profile.altura} cm` : null)}
+                  {renderInfoItem('⚖️', 'Peso', profile.peso ? `${profile.peso} kg` : null)}
+                  {renderInfoItem('🏋️', 'Cuerpo', profile.tipo_cuerpo)}
+                  {renderInfoItem('👁️', 'Ojos', profile.color_ojos)}
+                  {renderInfoItem('💇', 'Cabello', profile.color_cabello)}
+                  {renderInfoItem('⭐', 'Signo', profile.signo_zodiacal)}
+                  {renderInfoItem('🎓', 'Educación', profile.educacion)}
+                  {renderInfoItem('🌍', 'Etnia', profile.etnia)}
+                  {renderInfoItem('🏠', 'Vive en', profile.vives_en)}
+                  {renderInfoItem('💼', 'Trabaja', profile.trabajas)}
+                  {renderInfoItem('👔', 'Trabajo', profile.en_que_trabaja)}
+                  {renderInfoItem('🚗', 'Vehículo', profile.tiene_vehiculo)}
+                  {renderInfoItem('🐾', 'Mascota', profile.tiene_mascota)}
+                </div>
+              </section>
+
+              {/* RELACIONES */}
+              {(profile.estado_civil || profile.que_buscas || profile.tiene_hijos !== null) && (
+                <section className="bg-connect-card/30 border border-connect-border rounded-xl p-4">
+                  <h2 className="text-sm font-bold text-primary uppercase tracking-wide mb-3 flex items-center gap-2">
+                    <span>💑</span> Relaciones
+                  </h2>
+                  <div className="grid grid-cols-2 gap-3 mb-3">
+                    {renderInfoItem('💍', 'Estado civil', profile.estado_civil)}
+                    {renderInfoItem('👶', 'Tiene hijos', profile.tiene_hijos)}
+                    {renderInfoItem('🍼', 'Quiere hijos', profile.quiere_tener_hijos)}
+                    {renderInfoItem('💒', 'Casarse', profile.casarse_importante)}
+                    {renderInfoItem('⏰', 'Relación larga', profile.duracion_relacion_larga)}
+                  </div>
+                  {profile.que_buscas && profile.que_buscas.length > 0 && (
+                    <div className="mt-3">
+                      <span className="text-xs text-gray-400 block mb-2">Busca:</span>
+                      {renderTags(profile.que_buscas, 'pink')}
+                    </div>
+                  )}
+                  {profile.razon_principal && (
+                    <p className="text-xs text-gray-400 mt-3">
+                      <span className="text-gray-500">Razón principal:</span> {profile.razon_principal}
+                    </p>
+                  )}
+                </section>
+              )}
+
+              {/* PRIMERA CITA IDEAL */}
+              {profile.primera_cita_ideal && (
+                <section className="bg-connect-card/30 border border-connect-border rounded-xl p-4">
+                  <h2 className="text-sm font-bold text-primary uppercase tracking-wide mb-3 flex items-center gap-2">
+                    <span>☕</span> Primera cita ideal
+                  </h2>
+                  <p className="text-gray-300 text-sm leading-relaxed">{profile.primera_cita_ideal}</p>
+                </section>
+              )}
+
+              {/* PASATIEMPOS E INTERESES */}
+              {(profile.pasatiempos?.length > 0 || profile.intereses) && (
+                <section className="bg-connect-card/30 border border-connect-border rounded-xl p-4">
+                  <h2 className="text-sm font-bold text-primary uppercase tracking-wide mb-3 flex items-center gap-2">
+                    <span>🎭</span> Intereses y pasatiempos
+                  </h2>
+                  {profile.intereses && (
+                    <p className="text-gray-300 text-sm mb-3">{profile.intereses}</p>
+                  )}
+                  {profile.pasatiempos && profile.pasatiempos.length > 0 && (
+                    <div className="mb-3">
+                      {renderTags(profile.pasatiempos, 'primary')}
+                    </div>
+                  )}
+                  
+                  {/* Sub-categorías */}
+                  {profile.generos_peliculas?.length > 0 && (
+                    <div className="mt-3">
+                      <span className="text-xs text-gray-500 block mb-1.5">🎬 Películas:</span>
+                      {renderTags(profile.generos_peliculas, 'blue')}
+                    </div>
+                  )}
+                  {profile.generos_musica?.length > 0 && (
+                    <div className="mt-3">
+                      <span className="text-xs text-gray-500 block mb-1.5">🎵 Música:</span>
+                      {renderTags(profile.generos_musica, 'purple')}
+                    </div>
+                  )}
+                  {profile.generos_libros?.length > 0 && (
+                    <div className="mt-3">
+                      <span className="text-xs text-gray-500 block mb-1.5">📚 Libros:</span>
+                      {renderTags(profile.generos_libros, 'amber')}
+                    </div>
+                  )}
+                  {profile.deportes_practica?.length > 0 && (
+                    <div className="mt-3">
+                      <span className="text-xs text-gray-500 block mb-1.5">⚽ Deportes:</span>
+                      {renderTags(profile.deportes_practica, 'primary')}
+                    </div>
+                  )}
+                </section>
+              )}
+
+              {/* ESTILO DE VIDA */}
+              {(profile.fumas !== null || profile.bebes_alcohol !== null || profile.te_ejercitas || profile.dieta_especial) && (
+                <section className="bg-connect-card/30 border border-connect-border rounded-xl p-4">
+                  <h2 className="text-sm font-bold text-primary uppercase tracking-wide mb-3 flex items-center gap-2">
+                    <span>🏃</span> Estilo de vida
+                  </h2>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {renderInfoItem('🏋️', 'Ejercicio', profile.te_ejercitas)}
+                    {renderInfoItem('🚬', 'Fuma', profile.fumas)}
+                    {renderInfoItem('🍷', 'Bebe', profile.bebes_alcohol)}
+                    {renderInfoItem('🥗', 'Dieta', profile.dieta_especial)}
+                    {renderInfoItem('👨‍👩‍👧', 'Familia', profile.tiempo_con_familia)}
+                    {renderInfoItem('🎭', 'Sociable', profile.personalidad_sociable)}
+                    {renderInfoItem('🧹', 'Orden', profile.orden_mantenimiento)}
+                    {renderInfoItem('🚀', 'Ambición', profile.eres_ambicioso)}
+                  </div>
+                  
+                  {profile.que_haces?.length > 0 && (
+                    <div className="mt-3">
+                      <span className="text-xs text-gray-500 block mb-1.5">Actividades:</span>
+                      {renderTags(profile.que_haces, 'primary')}
+                    </div>
+                  )}
+                </section>
+              )}
+
+              {/* VALORES Y CREENCIAS */}
+              {(profile.religion || profile.espiritualidad || profile.valores_tradicionales) && (
+                <section className="bg-connect-card/30 border border-connect-border rounded-xl p-4">
+                  <h2 className="text-sm font-bold text-primary uppercase tracking-wide mb-3 flex items-center gap-2">
+                    <span>🙏</span> Valores y creencias
+                  </h2>
+                  <div className="grid grid-cols-2 gap-3">
+                    {renderInfoItem('⛪', 'Religión', profile.religion)}
+                    {renderInfoItem('🔮', 'Espiritualidad', profile.espiritualidad)}
+                    {renderInfoItem('📜', 'Valores', profile.valores_tradicionales)}
+                    {renderInfoItem('🙏', 'Convicción', profile.convicciones_religiosas)}
+                  </div>
+                </section>
+              )}
+
+              {/* IDIOMAS */}
+              {(profile.idiomas?.length > 0 || profile.habla_otro_idioma?.length > 0) && (
+                <section className="bg-connect-card/30 border border-connect-border rounded-xl p-4">
+                  <h2 className="text-sm font-bold text-primary uppercase tracking-wide mb-3 flex items-center gap-2">
+                    <span>🌐</span> Idiomas
+                  </h2>
+                  {renderTags(profile.idiomas || profile.habla_otro_idioma, 'blue')}
+                </section>
+              )}
+
+              {/* Velocidad de respuesta */}
+              <section className="bg-connect-card/30 border border-connect-border rounded-xl p-4">
+                <div className="flex items-center gap-4">
+                  <div className="relative w-16 h-16">
+                    <svg className="w-16 h-16 transform -rotate-90" viewBox="0 0 100 100">
+                      <circle cx="50" cy="50" r="40" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="8" />
+                      <circle cx="50" cy="50" r="40" fill="none" stroke="rgb(43, 238, 121)" strokeWidth="8" strokeDasharray="188.4 251.2" strokeLinecap="round" />
+                    </svg>
+                    <div className="absolute inset-0 flex items-center justify-center flex-col">
+                      <span className="text-sm font-bold text-primary">15</span>
+                      <span className="text-[8px] text-connect-muted">min</span>
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold">Velocidad de respuesta</h3>
+                    <p className="text-xs text-connect-muted">Responde en promedio en 15 minutos</p>
                   </div>
                 </div>
-              )}
+              </section>
             </div>
-          </div>
-        </div>
-
-        {/* Perfiles Parecidos - Full Width */}
-        <div className="border-t border-connect-border pt-8">
-          <h2 className="text-2xl font-bold font-heading mb-6">Perfiles Parecidos</h2>
-          <div className="grid grid-cols-6 gap-4">
-            {similarProfiles.map((user) => (
-              <Link
-                key={user.id}
-                href={`/publicprofile/${user.name.toLowerCase().replace(' ', '-')}`}
-                className="group"
-              >
-                <div className="relative aspect-[10/13] rounded-xl overflow-hidden mb-2">
-                  <img
-                    src={user.avatar}
-                    alt={user.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                </div>
-                <p className="text-sm font-medium text-center group-hover:text-primary transition-colors">
-                  {user.name}
-                </p>
-                <p className="text-xs text-connect-muted text-center">{user.age} años</p>
-              </Link>
-            ))}
           </div>
         </div>
       </main>

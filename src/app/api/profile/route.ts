@@ -23,17 +23,40 @@ export async function POST(request: NextRequest) {
     console.log('📥 API recibió datos:', Object.keys(data));
     
     // Calcular porcentaje de completado del perfil
-    const totalFields = 50; // Aproximado de campos importantes
-    let filledFields = 0;
+    // Definir campos específicos que cuentan para el porcentaje
+    const profileFields = [
+      // Básicos (20 puntos)
+      'nombre', 'edad', 'genero', 'ciudad', 'foto_perfil',
+      // Sobre mí (15 puntos)
+      'altura', 'peso', 'tipo_cuerpo', 'color_ojos', 'color_cabello',
+      'signo_zodiacal', 'educacion', 'etnia', 'vives_en', 'trabajas',
+      // Presentación (10 puntos)
+      'definete_en_frase', 'cuentanos_algo_tuyo', 'primera_cita_ideal', 'status_text',
+      // Relaciones (15 puntos)
+      'tiene_hijos', 'quiere_tener_hijos', 'estado_civil', 'que_buscas', 
+      'razon_principal', 'tiempo_en_pareja', 'casarse_importante',
+      // Cultura (15 puntos)
+      'pasatiempos', 'generos_peliculas', 'generos_musica', 'generos_libros',
+      'deportes_practica', 'valores_tradicionales', 'espiritualidad', 'religion',
+      // Estilo de vida (15 puntos)
+      'que_haces', 'te_ejercitas', 'fumas', 'bebes_alcohol',
+      'dieta_especial', 'personalidad_sociable', 'orden_mantenimiento',
+      // Extras (10 puntos)
+      'tiene_vehiculo', 'tiene_mascota', 'habla_otro_idioma', 'idiomas'
+    ];
     
-    Object.entries(data).forEach(([key, value]) => {
-      if (key !== 'id' && key !== 'created_at' && key !== 'updated_at') {
-        if (Array.isArray(value) && value.length > 0) filledFields++;
-        else if (value !== null && value !== undefined && value !== '') filledFields++;
+    let filledFields = 0;
+    profileFields.forEach(field => {
+      const value = data[field];
+      if (Array.isArray(value) && value.length > 0) {
+        filledFields++;
+      } else if (value !== null && value !== undefined && value !== '' && value !== false) {
+        filledFields++;
       }
     });
     
-    const profileCompletion = Math.round((filledFields / totalFields) * 100);
+    const totalFields = profileFields.length;
+    const profileCompletion = Math.min(100, Math.round((filledFields / totalFields) * 100));
     
     console.log(`📊 Perfil completado: ${profileCompletion}% (${filledFields}/${totalFields} campos)`);
     
