@@ -77,23 +77,62 @@ export async function GET(request: NextRequest) {
     const supabase = getSupabaseClient();
     const { searchParams } = new URL(request.url);
     const username = searchParams.get('username');
+    const showAllPhotos = searchParams.get('showAllPhotos') === 'true';
     
     if (!username) {
       return NextResponse.json({ error: 'Username requerido' }, { status: 400 });
     }
     
-    const { data, error } = await supabase
+    // 1. Obtener datos del usuario
+    const { data: userData, error: userError } = await supabase
       .from('users')
       .select('*')
       .eq('username', username)
       .single();
     
-    if (error) {
-      console.error('Supabase error:', error);
+    if (userError) {
+      console.error('Supabase error:', userError);
       return NextResponse.json({ error: 'Usuario no encontrado' }, { status: 404 });
     }
     
-    return NextResponse.json({ success: true, data });
+    // 2. Obtener fotos del usuario
+    let photosQuery = supabase
+      .from('profile_photos')
+      .select('id, url, is_principal, estado, orden, created_at')
+      .eq('user_id', userData.id)
+      .order('is_principal', { ascending: false })
+      .order('orden', { ascending: true })
+      .order('created_at', { ascending: false });
+    
+    // Si no es showAllPhotos, solo mostrar aprobadas
+    if (!showAllPhotos) {
+      photosQuery = photosQuery.eq('estado', 'aprobada');
+    }
+    
+    const { data: photosData, error: photosError } = await photosQuery;
+    
+    if (photosError) {
+      console.warn('Error al cargar fotos:', photosError);
+    }
+    
+    // 3. Mapear fotos al formato esperado por PhotoGallery
+    const fotos = (photosData || []).map(photo => ({
+      id: photo.id,
+      url: photo.url,
+      esPrincipal: photo.is_principal,
+      estado: photo.estado === 'aprobada' ? 'aprobada' : 
+              photo.estado === 'rechazada' ? 'rechazada' : 'pendiente'
+    }));
+    
+    // 4. Combinar datos
+    const profileWithPhotos = {
+      ...userData,
+      fotos: fotos
+    };
+    
+    console.log(`📥 Perfil cargado: ${username} con ${fotos.length} fotos`);
+    
+    return NextResponse.json({ success: true, data: profileWithPhotos });
   } catch (error) {
     console.error('API error:', error);
     return NextResponse.json({ error: 'Error al obtener el perfil' }, { status: 500 });
