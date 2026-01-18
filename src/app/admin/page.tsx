@@ -38,11 +38,42 @@ interface Report {
   reported_user: { id: string; username: string; email: string; is_banned: boolean } | null;
 }
 
+interface Photo {
+  id: string;
+  user_id: string;
+  url: string;
+  is_primary: boolean;
+  is_approved: boolean;
+  is_rejected: boolean;
+  rejection_reason: string | null;
+  created_at: string;
+  user: { id: string; username: string; nombre: string; email: string };
+}
+
 interface Stats {
   pendingCount: number;
   urgentCount: number;
   highCount: number;
 }
+
+interface PhotoStats {
+  pendingCount: number;
+  approvedCount: number;
+  rejectedCount: number;
+}
+
+// Razones predefinidas de rechazo
+const REJECTION_REASONS = [
+  'Contenido inapropiado o explícito',
+  'No muestra claramente tu rostro',
+  'Foto de baja calidad o borrosa',
+  'Contiene texto, logos o marcas de agua',
+  'Imagen de otra persona o celebridad',
+  'Foto grupal (debe ser individual)',
+  'Menores de edad en la imagen',
+  'Contenido violento o perturbador',
+  'Otro motivo'
+];
 
 export default function AdminPage() {
   const router = useRouter();
@@ -52,14 +83,20 @@ export default function AdminPage() {
   const [activeTab, setActiveTab] = useState<'users' | 'reports' | 'photos' | 'rooms'>('users');
   const [users, setUsers] = useState<User[]>([]);
   const [reports, setReports] = useState<Report[]>([]);
+  const [photos, setPhotos] = useState<Photo[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
+  const [photoStats, setPhotoStats] = useState<PhotoStats | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [photoStatusFilter, setPhotoStatusFilter] = useState('pending');
   const [isLoading, setIsLoading] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
+  const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
   const [actionReason, setActionReason] = useState('');
   const [banDuration, setBanDuration] = useState<number | null>(null);
+  const [selectedPhotos, setSelectedPhotos] = useState<string[]>([]);
+  const [bulkAction, setBulkAction] = useState<'approve' | 'reject' | null>(null);
   
   // Verificar acceso de admin
   useEffect(() => {
@@ -75,9 +112,11 @@ export default function AdminPage() {
         loadUsers();
       } else if (activeTab === 'reports') {
         loadReports();
+      } else if (activeTab === 'photos') {
+        loadPhotos();
       }
     }
-  }, [user, isAdmin, activeTab, statusFilter]);
+  }, [user, isAdmin, activeTab, statusFilter, photoStatusFilter]);
   
   const loadUsers = async () => {
     if (!user) return;
@@ -121,6 +160,29 @@ export default function AdminPage() {
       }
     } catch (error) {
       console.error('Error cargando reportes:', error);
+    }
+    setIsLoading(false);
+  };
+
+  const loadPhotos = async () => {
+    if (!user) return;
+    setIsLoading(true);
+    try {
+      const params = new URLSearchParams({
+        adminId: user.id,
+        status: photoStatusFilter,
+        limit: '50'
+      });
+      
+      const response = await fetch(`/api/admin/photos?${params}`);
+      const data = await response.json();
+      
+      if (data.success) {
+        setPhotos(data.photos);
+        setPhotoStats(data.stats);
+      }
+    } catch (error) {
+      console.error('Error cargando fotos:', error);
     }
     setIsLoading(false);
   };
@@ -224,6 +286,88 @@ export default function AdminPage() {
       console.error('Error procesando reporte:', error);
     }
   };
+
+  // Acciones de fotos
+  const handlePhotoAction = async (action: 'approve' | 'reject' | 'delete') => {
+    if (!user || !selectedPhoto) return;
+    
+    try {
+      const response = await fetch('/api/admin/photos', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          adminId: user.id,
+          photoId: selectedPhoto.id,
+          action,
+          rejectionReason: actionReason
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        alert(data.message);
+        setSelectedPhoto(null);
+        setActionReason('');
+        loadPhotos();
+      } else {
+        alert(data.error);
+      }
+    } catch (error) {
+      console.error('Error procesando foto:', error);
+    }
+  };
+
+  const handleBulkPhotoAction = async () => {
+    if (!user || !bulkAction || selectedPhotos.length === 0) return;
+    
+    if (!confirm(`¿${bulkAction === 'approve' ? 'Aprobar' : 'Rechazar'} ${selectedPhotos.length} fotos?`)) {
+      return;
+    }
+    
+    try {
+      const response = await fetch('/api/admin/photos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          adminId: user.id,
+          photoIds: selectedPhotos,
+          action: bulkAction,
+          rejectionReason: bulkAction === 'reject' ? actionReason : null
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        alert(data.message);
+        setSelectedPhotos([]);
+        setBulkAction(null);
+        setActionReason('');
+        loadPhotos();
+      } else {
+        alert(data.error);
+      }
+    } catch (error) {
+      console.error('Error procesando fotos en lote:', error);
+    }
+  };
+
+  const togglePhotoSelection = (photoId: string) => {
+    setSelectedPhotos(prev => 
+      prev.includes(photoId) 
+        ? prev.filter(id => id !== photoId)
+        : [...prev, photoId]
+    );
+  };
+
+  const selectAllPhotos = () => {
+    if (selectedPhotos.length === photos.length) {
+      setSelectedPhotos([]);
+    } else {
+      setSelectedPhotos(photos.map(p => p.id));
+    }
+  };
   
   // Renderizar loading o sin acceso
   if (loading) {
@@ -261,7 +405,7 @@ export default function AdminPage() {
       
       <div className="container mx-auto px-4 py-8">
         {/* Tabs */}
-        <div className="flex gap-2 mb-8 border-b border-connect-border pb-4">
+        <div className="flex flex-wrap gap-2 mb-8 border-b border-connect-border pb-4">
           <Button
             variant={activeTab === 'users' ? 'default' : 'outline'}
             onClick={() => setActiveTab('users')}
@@ -279,8 +423,9 @@ export default function AdminPage() {
           <Button
             variant={activeTab === 'photos' ? 'default' : 'outline'}
             onClick={() => setActiveTab('photos')}
+            className={activeTab === 'photos' ? 'bg-blue-500 text-white' : ''}
           >
-            📷 Fotos Pendientes
+            📷 Fotos {photoStats?.pendingCount ? `(${photoStats.pendingCount})` : ''}
           </Button>
           <Button
             variant={activeTab === 'rooms' ? 'default' : 'outline'}
@@ -319,8 +464,8 @@ export default function AdminPage() {
             </div>
             
             {/* Lista de usuarios */}
-            <div className="bg-connect-bg-dark/60 rounded-xl border border-connect-border overflow-hidden">
-              <table className="w-full">
+            <div className="bg-connect-bg-dark/60 rounded-xl border border-connect-border overflow-hidden overflow-x-auto">
+              <table className="w-full min-w-[700px]">
                 <thead className="bg-connect-bg-dark/80">
                   <tr className="text-left text-gray-400 text-sm">
                     <th className="px-4 py-3">Usuario</th>
@@ -501,10 +646,202 @@ export default function AdminPage() {
         
         {/* Tab: Fotos pendientes */}
         {activeTab === 'photos' && (
-          <div className="text-center text-gray-400 py-8">
-            <p className="text-2xl mb-4">📷</p>
-            <p>Módulo de revisión de fotos pendientes</p>
-            <p className="text-sm mt-2">Próximamente...</p>
+          <div className="space-y-6">
+            {/* Stats */}
+            {photoStats && (
+              <div className="grid grid-cols-3 gap-4">
+                <div className="bg-connect-bg-dark/60 rounded-lg p-4 border border-yellow-500/30">
+                  <div className="text-3xl font-bold text-yellow-400">{photoStats.pendingCount}</div>
+                  <div className="text-sm text-gray-400">Pendientes</div>
+                </div>
+                <div className="bg-connect-bg-dark/60 rounded-lg p-4 border border-green-500/30">
+                  <div className="text-3xl font-bold text-green-400">{photoStats.approvedCount}</div>
+                  <div className="text-sm text-gray-400">Aprobadas</div>
+                </div>
+                <div className="bg-connect-bg-dark/60 rounded-lg p-4 border border-red-500/30">
+                  <div className="text-3xl font-bold text-red-400">{photoStats.rejectedCount}</div>
+                  <div className="text-sm text-gray-400">Rechazadas</div>
+                </div>
+              </div>
+            )}
+            
+            {/* Filtros y acciones en lote */}
+            <div className="flex flex-wrap gap-4 items-center justify-between">
+              <div className="flex gap-4 items-center">
+                <select
+                  value={photoStatusFilter}
+                  onChange={(e) => setPhotoStatusFilter(e.target.value)}
+                  className="px-4 py-2 bg-connect-bg-dark/80 border border-connect-border rounded-lg text-white"
+                >
+                  <option value="pending">Pendientes</option>
+                  <option value="approved">Aprobadas</option>
+                  <option value="rejected">Rechazadas</option>
+                  <option value="all">Todas</option>
+                </select>
+                
+                <Button onClick={loadPhotos} variant="outline" size="sm">
+                  🔄 Actualizar
+                </Button>
+              </div>
+              
+              {/* Acciones en lote */}
+              {selectedPhotos.length > 0 && (
+                <div className="flex gap-2 items-center">
+                  <span className="text-sm text-gray-400">
+                    {selectedPhotos.length} seleccionadas
+                  </span>
+                  <Button
+                    size="sm"
+                    className="bg-green-600 hover:bg-green-700"
+                    onClick={() => { setBulkAction('approve'); handleBulkPhotoAction(); }}
+                  >
+                    ✓ Aprobar todas
+                  </Button>
+                  <Button
+                    size="sm"
+                    className="bg-red-600 hover:bg-red-700"
+                    onClick={() => setBulkAction('reject')}
+                  >
+                    ✗ Rechazar todas
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setSelectedPhotos([])}
+                  >
+                    Limpiar
+                  </Button>
+                </div>
+              )}
+            </div>
+            
+            {/* Grid de fotos */}
+            {isLoading ? (
+              <div className="text-center text-gray-400 py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-neon-green mx-auto mb-2"></div>
+                Cargando fotos...
+              </div>
+            ) : photos.length === 0 ? (
+              <div className="text-center text-gray-400 py-12">
+                <p className="text-4xl mb-4">📷</p>
+                <p>No hay fotos {photoStatusFilter === 'pending' ? 'pendientes de revisión' : ''}</p>
+              </div>
+            ) : (
+              <>
+                {/* Seleccionar todas */}
+                <div className="flex items-center gap-2 mb-4">
+                  <input
+                    type="checkbox"
+                    checked={selectedPhotos.length === photos.length && photos.length > 0}
+                    onChange={selectAllPhotos}
+                    className="w-4 h-4 rounded border-gray-500"
+                  />
+                  <span className="text-sm text-gray-400">Seleccionar todas</span>
+                </div>
+                
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                  {photos.map((photo) => (
+                    <div
+                      key={photo.id}
+                      className={`relative bg-connect-bg-dark/60 rounded-xl border overflow-hidden group ${
+                        selectedPhotos.includes(photo.id) 
+                          ? 'border-neon-green' 
+                          : 'border-connect-border hover:border-gray-600'
+                      }`}
+                    >
+                      {/* Checkbox */}
+                      <div className="absolute top-2 left-2 z-10">
+                        <input
+                          type="checkbox"
+                          checked={selectedPhotos.includes(photo.id)}
+                          onChange={() => togglePhotoSelection(photo.id)}
+                          className="w-5 h-5 rounded border-gray-500 bg-black/50"
+                        />
+                      </div>
+                      
+                      {/* Imagen */}
+                      <div 
+                        className="aspect-square cursor-pointer"
+                        onClick={() => setSelectedPhoto(photo)}
+                      >
+                        <img
+                          src={photo.url}
+                          alt="Foto de usuario"
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      
+                      {/* Info del usuario */}
+                      <div className="p-3">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="text-sm font-medium text-white truncate">
+                            @{photo.user?.username}
+                          </div>
+                          {photo.is_primary && (
+                            <span className="text-xs bg-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded">
+                              Principal
+                            </span>
+                          )}
+                        </div>
+                        
+                        <div className="text-xs text-gray-400 mb-2">
+                          {new Date(photo.created_at).toLocaleDateString('es-ES', {
+                            day: '2-digit',
+                            month: 'short',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </div>
+                        
+                        {/* Estado */}
+                        {photo.is_approved && (
+                          <span className="text-xs bg-green-500/20 text-green-400 px-2 py-0.5 rounded">
+                            ✓ Aprobada
+                          </span>
+                        )}
+                        {photo.is_rejected && (
+                          <span className="text-xs bg-red-500/20 text-red-400 px-2 py-0.5 rounded">
+                            ✗ Rechazada
+                          </span>
+                        )}
+                        {!photo.is_approved && !photo.is_rejected && (
+                          <span className="text-xs bg-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded">
+                            ⏳ Pendiente
+                          </span>
+                        )}
+                      </div>
+                      
+                      {/* Acciones rápidas (hover) */}
+                      {!photo.is_approved && !photo.is_rejected && (
+                        <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                          <Button
+                            size="sm"
+                            className="bg-green-600 hover:bg-green-700"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedPhoto(photo);
+                              handlePhotoAction('approve');
+                            }}
+                          >
+                            ✓
+                          </Button>
+                          <Button
+                            size="sm"
+                            className="bg-red-600 hover:bg-red-700"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedPhoto(photo);
+                            }}
+                          >
+                            ✗
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
         )}
         
@@ -641,6 +978,180 @@ export default function AdminPage() {
               </Button>
               
               <Button variant="outline" onClick={() => setSelectedReport(null)}>
+                Cancelar
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: Revisar Foto */}
+      {selectedPhoto && (
+        <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4">
+          <div className="bg-connect-bg-dark rounded-xl border border-connect-border max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-connect-bg-dark border-b border-connect-border px-6 py-4 flex items-center justify-between">
+              <h3 className="text-xl font-bold text-white">
+                Revisar Foto
+              </h3>
+              <Button variant="ghost" onClick={() => { setSelectedPhoto(null); setActionReason(''); }}>
+                ✕
+              </Button>
+            </div>
+            
+            <div className="p-6">
+              <div className="grid md:grid-cols-2 gap-6">
+                {/* Imagen */}
+                <div>
+                  <img
+                    src={selectedPhoto.url}
+                    alt="Foto a revisar"
+                    className="w-full rounded-lg"
+                  />
+                </div>
+                
+                {/* Info y acciones */}
+                <div className="space-y-4">
+                  <div className="bg-connect-bg-dark/60 rounded-lg p-4 border border-connect-border">
+                    <h4 className="font-bold text-white mb-2">Información del usuario</h4>
+                    <div className="text-sm text-gray-400 space-y-1">
+                      <p>Username: <span className="text-neon-green">@{selectedPhoto.user?.username}</span></p>
+                      <p>Nombre: {selectedPhoto.user?.nombre || 'No especificado'}</p>
+                      <p>Email: {selectedPhoto.user?.email}</p>
+                      <p>Subida: {new Date(selectedPhoto.created_at).toLocaleString('es-ES')}</p>
+                      {selectedPhoto.is_primary && (
+                        <p className="text-yellow-400">⭐ Esta es su foto principal</p>
+                      )}
+                    </div>
+                  </div>
+                  
+                  {/* Estado actual */}
+                  <div className="bg-connect-bg-dark/60 rounded-lg p-4 border border-connect-border">
+                    <h4 className="font-bold text-white mb-2">Estado actual</h4>
+                    {selectedPhoto.is_approved && (
+                      <span className="text-green-400">✓ Aprobada</span>
+                    )}
+                    {selectedPhoto.is_rejected && (
+                      <div>
+                        <span className="text-red-400">✗ Rechazada</span>
+                        {selectedPhoto.rejection_reason && (
+                          <p className="text-sm text-gray-400 mt-1">
+                            Motivo: {selectedPhoto.rejection_reason}
+                          </p>
+                        )}
+                      </div>
+                    )}
+                    {!selectedPhoto.is_approved && !selectedPhoto.is_rejected && (
+                      <span className="text-yellow-400">⏳ Pendiente de revisión</span>
+                    )}
+                  </div>
+                  
+                  {/* Acciones */}
+                  {!selectedPhoto.is_approved && !selectedPhoto.is_rejected && (
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm text-gray-400 mb-2">Motivo de rechazo (si aplica)</label>
+                        <select
+                          value={actionReason}
+                          onChange={(e) => setActionReason(e.target.value)}
+                          className="w-full px-4 py-2 bg-connect-bg-dark/80 border border-connect-border rounded-lg text-white"
+                        >
+                          <option value="">Seleccionar motivo...</option>
+                          {REJECTION_REASONS.map((reason) => (
+                            <option key={reason} value={reason}>{reason}</option>
+                          ))}
+                        </select>
+                        {actionReason === 'Otro motivo' && (
+                          <Input
+                            className="mt-2 bg-connect-bg-dark/80 border-connect-border text-white"
+                            placeholder="Especificar motivo..."
+                            onChange={(e) => setActionReason(e.target.value)}
+                          />
+                        )}
+                      </div>
+                      
+                      <div className="flex gap-2">
+                        <Button
+                          className="flex-1 bg-green-600 hover:bg-green-700"
+                          onClick={() => handlePhotoAction('approve')}
+                        >
+                          ✓ Aprobar
+                        </Button>
+                        <Button
+                          className="flex-1 bg-red-600 hover:bg-red-700"
+                          onClick={() => handlePhotoAction('reject')}
+                          disabled={!actionReason}
+                        >
+                          ✗ Rechazar
+                        </Button>
+                      </div>
+                      
+                      <Button
+                        variant="destructive"
+                        className="w-full"
+                        onClick={() => {
+                          if (confirm('¿Eliminar esta foto permanentemente?')) {
+                            handlePhotoAction('delete');
+                          }
+                        }}
+                      >
+                        🗑️ Eliminar permanentemente
+                      </Button>
+                    </div>
+                  )}
+                  
+                  {/* Ver perfil */}
+                  <Link 
+                    href={`/publicprofile/${selectedPhoto.user?.username}`}
+                    target="_blank"
+                    className="block"
+                  >
+                    <Button variant="outline" className="w-full">
+                      👤 Ver perfil del usuario
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: Rechazo en lote */}
+      {bulkAction === 'reject' && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+          <div className="bg-connect-bg-dark rounded-xl border border-connect-border max-w-md w-full p-6">
+            <h3 className="text-xl font-bold text-white mb-4">
+              Rechazar {selectedPhotos.length} fotos
+            </h3>
+            
+            <div className="space-y-4 mb-6">
+              <div>
+                <label className="block text-sm text-gray-400 mb-2">Motivo de rechazo</label>
+                <select
+                  value={actionReason}
+                  onChange={(e) => setActionReason(e.target.value)}
+                  className="w-full px-4 py-2 bg-connect-bg-dark/80 border border-connect-border rounded-lg text-white"
+                >
+                  <option value="">Seleccionar motivo...</option>
+                  {REJECTION_REASONS.map((reason) => (
+                    <option key={reason} value={reason}>{reason}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            
+            <div className="flex gap-2">
+              <Button
+                className="flex-1 bg-red-600 hover:bg-red-700"
+                onClick={handleBulkPhotoAction}
+                disabled={!actionReason}
+              >
+                Rechazar todas
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => { setBulkAction(null); setActionReason(''); }}
+              >
                 Cancelar
               </Button>
             </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
@@ -10,12 +10,13 @@ import { useAuth } from "@/contexts/AuthContext";
 import FloatingMessagesWindow from "@/components/FloatingMessagesWindow";
 
 type Friend = {
-  id: number;
+  id: string;
+  friendshipId: string;
   username: string;
   name: string;
-  age: number;
+  age: number | null;
   city: string;
-  gender: "H" | "M";
+  gender: "H" | "M" | "O";
   avatar: string;
   status: "online" | "away" | "offline";
   statusText?: string;
@@ -26,15 +27,24 @@ type Friend = {
 };
 
 type FriendRequest = {
-  id: number;
+  id: string;
+  requesterId: string;
   username: string;
   name: string;
-  age: number;
+  age: number | null;
   city: string;
-  gender: "H" | "M";
+  gender: "H" | "M" | "O";
   avatar: string;
   requestDate: string;
   mutualFriends: number;
+};
+
+type BlockedUser = {
+  id: string;
+  blockedUserId: string;
+  username: string;
+  name: string;
+  blockedDate: string;
 };
 
 export default function AmigosPage() {
@@ -45,117 +55,81 @@ export default function AmigosPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<"name" | "recent" | "online">("name");
   
-  // Datos de ejemplo - En produccion vendran de la base de datos
-  const [friends, setFriends] = useState<Friend[]>([
-    { 
-      id: 1, 
-      username: "javier_s", 
-      name: "Javier Solis", 
-      age: 28, 
-      city: "Caracas", 
-      gender: "H",
-      avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuBcAgJzBVY0VcA1ICIc8GlT1M1eiu5Og95ubTpOa58bFlu9OV7QmjTZH1cbQBwbPhtvFKip_HyKq7atWt0zzANSMDAC_wrJi67kz8SXvn-HnWmPBihZZc3BAfUyEZ7TOAs4LhWokU66QRGD6Lhq2RYxETUZKEeHUzBCVw0BiuXDqP1lYEwLeNcffCadpUuZggEMO_dPmEceKo3MQ6C2rOGG5yHNZlrhQNjpnrQwZB36kSlcM_HfVWyMRoN6UQ6gNvgLzfLeM1B3VVpJ",
-      status: "online",
-      statusText: "Disponible para chatear",
-      isBestFriend: true,
-      mutualFriends: 12,
-      addedDate: "2024-01-15"
-    },
-    { 
-      id: 2, 
-      username: "laura_g", 
-      name: "Laura Garcia", 
-      age: 25, 
-      city: "Valencia", 
-      gender: "M",
-      avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuC_k-QPp7Bm1IORwcSuHrBwaT_cooNKHNEO7JbKB8m3ha0lPXpGDfwzn5chvUYwCPj-s9EoOhcVO8dF1vAaBaSF_i1tPyB_hzk8KO03gjXPyNa6N_QrbNVGTFpDQnDJqg10fnvdppt4JpIGSb5n4ql1Ivdmsn9olN4WVvyYvYvXGFUkTqnZmxxtewOWL7MEejxvXGzyIEmcWxbTMlB2HIf7XruycmsEoo9DgJVX043mkpUuUJhOyS_wCVP3JlP0-kYUXILRCrp8H8ic",
-      status: "away",
-      statusText: "Ocupada",
-      mutualFriends: 8,
-      addedDate: "2024-02-20"
-    },
-    { 
-      id: 3, 
-      username: "carlos_m", 
-      name: "Carlos Martinez", 
-      age: 30, 
-      city: "Maracaibo", 
-      gender: "H",
-      avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuDGb3wmeflExbrjA88BEWgMoBARwnsWXrjnuX9eX0BtYZqnIuIuV2k_c80FD-aUsIiTHut6e-k4cJzjyk4OERJYc_7V103-NFf7eD9WJOXNYzN4YOa0ulR1gN-hucbZyaIz5RfojyS2OglAr4ickMC-qkdFxcoLvF59IV_i3Kxtk7OBbeQjLB2sX2q9THJ5MpQALQETi5ABgMmTiDxzKtRbbs6RUv1H7KU0c6gcA7w_9cbtihKJ1iEfLVPD4g6KGUSrVkXQuXl421Fk",
-      status: "offline",
-      lastSeen: "Hace 3 horas",
-      mutualFriends: 5,
-      addedDate: "2024-03-10"
-    },
-    { 
-      id: 4, 
-      username: "maria_p", 
-      name: "Maria Perez", 
-      age: 27, 
-      city: "Barquisimeto", 
-      gender: "M",
-      avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuBeeMOB_U1vT493g04GMXkQt_nyAG8MhMlNfzG4z2DYPQKR24ob0HEzimmB96Sd4GhY0YRP-TPyWuknoITGye5AxQIIkUMS6bJlap4RBIO5q_9eDlpkiyd765t4bxfntbtlcCVH1rCWDZMmwPm00connYJnD94blHHAjyt0rEyqSIOeuhOi0cgq-CVpWnR4eVh26kZy9ucxX4cLrs2p0K3JeEK_8H1TCTgJzrmRB0bDkW41xryg77g7H1GG4XFsbwP_wkCMxr-3NlwB",
-      status: "online",
-      statusText: "Explorando",
-      isBestFriend: true,
-      mutualFriends: 15,
-      addedDate: "2023-12-05"
-    },
-    { 
-      id: 5, 
-      username: "sofia_v", 
-      name: "Sofia Vargas", 
-      age: 24, 
-      city: "Merida", 
-      gender: "M",
-      avatar: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400&h=400&fit=crop",
-      status: "online",
-      mutualFriends: 3,
-      addedDate: "2024-04-01"
-    },
-    { 
-      id: 6, 
-      username: "pedro_l", 
-      name: "Pedro Lopez", 
-      age: 32, 
-      city: "Barcelona", 
-      gender: "H",
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop",
-      status: "away",
-      statusText: "Trabajando",
-      mutualFriends: 7,
-      addedDate: "2024-01-28"
-    },
-  ]);
-  
-  const [friendRequests, setFriendRequests] = useState<FriendRequest[]>([
-    {
-      id: 101,
-      username: "elena_g",
-      name: "Elena Gonzalez",
-      age: 26,
-      city: "Caracas",
-      gender: "M",
-      avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&h=200&fit=crop",
-      requestDate: "Hace 2 horas",
-      mutualFriends: 4
-    },
-    {
-      id: 102,
-      username: "diego_r",
-      name: "Diego Rodriguez",
-      age: 29,
-      city: "Valencia",
-      gender: "H",
-      avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop",
-      requestDate: "Ayer",
-      mutualFriends: 2
+  // Estados con datos reales
+  const [friends, setFriends] = useState<Friend[]>([]);
+  const [friendRequests, setFriendRequests] = useState<FriendRequest[]>([]);
+  const [blockedUsers, setBlockedUsers] = useState<BlockedUser[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Cargar datos desde la API
+  const loadFriends = useCallback(async () => {
+    if (!user?.id) return;
+    
+    try {
+      const response = await fetch(`/api/friends?userId=${user.id}&type=friends`);
+      const data = await response.json();
+      
+      if (data.success) {
+        setFriends(data.friends);
+      } else {
+        console.error('Error cargando amigos:', data.error);
+      }
+    } catch (err) {
+      console.error('Error de red cargando amigos:', err);
     }
-  ]);
-  
-  const [blockedUsers] = useState([
-    { id: 201, username: "user_blocked", name: "Usuario Bloqueado", blockedDate: "2024-03-15" }
-  ]);
+  }, [user?.id]);
+
+  const loadRequests = useCallback(async () => {
+    if (!user?.id) return;
+    
+    try {
+      const response = await fetch(`/api/friends?userId=${user.id}&type=requests`);
+      const data = await response.json();
+      
+      if (data.success) {
+        setFriendRequests(data.requests);
+      }
+    } catch (err) {
+      console.error('Error cargando solicitudes:', err);
+    }
+  }, [user?.id]);
+
+  const loadBlocked = useCallback(async () => {
+    if (!user?.id) return;
+    
+    try {
+      const response = await fetch(`/api/friends?userId=${user.id}&type=blocked`);
+      const data = await response.json();
+      
+      if (data.success) {
+        setBlockedUsers(data.blocked);
+      }
+    } catch (err) {
+      console.error('Error cargando bloqueados:', err);
+    }
+  }, [user?.id]);
+
+  // Cargar todos los datos al inicio
+  useEffect(() => {
+    const loadAllData = async () => {
+      if (!user?.id) return;
+      
+      setIsLoading(true);
+      setError(null);
+      
+      try {
+        await Promise.all([loadFriends(), loadRequests(), loadBlocked()]);
+      } catch (err) {
+        setError('Error al cargar datos');
+        console.error(err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    loadAllData();
+  }, [user?.id, loadFriends, loadRequests, loadBlocked]);
 
   // Filtrar amigos
   const filteredFriends = friends
@@ -168,7 +142,7 @@ export default function AmigosPage() {
         const query = searchQuery.toLowerCase();
         return friend.name.toLowerCase().includes(query) || 
                friend.username.toLowerCase().includes(query) ||
-               friend.city.toLowerCase().includes(query);
+               friend.city?.toLowerCase().includes(query);
       }
       return true;
     })
@@ -190,40 +164,133 @@ export default function AmigosPage() {
   const bestFriendsCount = friends.filter(f => f.isBestFriend).length;
 
   // Handlers
-  const handleAcceptRequest = (requestId: number) => {
-    const request = friendRequests.find(r => r.id === requestId);
-    if (request) {
-      const newFriend: Friend = {
-        id: request.id,
-        username: request.username,
-        name: request.name,
-        age: request.age,
-        city: request.city,
-        gender: request.gender,
-        avatar: request.avatar,
-        status: "offline",
-        mutualFriends: request.mutualFriends,
-        addedDate: new Date().toISOString().split('T')[0]
-      };
-      setFriends([...friends, newFriend]);
-      setFriendRequests(friendRequests.filter(r => r.id !== requestId));
+  const handleAcceptRequest = async (requestId: string) => {
+    if (!user?.id) return;
+    
+    try {
+      const response = await fetch('/api/friends', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: user.id,
+          friendshipId: requestId,
+          action: 'accept'
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        // Recargar datos
+        await loadFriends();
+        await loadRequests();
+      } else {
+        alert(data.error);
+      }
+    } catch (err) {
+      console.error('Error aceptando solicitud:', err);
+      alert('Error al aceptar la solicitud');
     }
   };
 
-  const handleRejectRequest = (requestId: number) => {
-    setFriendRequests(friendRequests.filter(r => r.id !== requestId));
-  };
-
-  const handleRemoveFriend = (friendId: number) => {
-    if (confirm("¿Estas seguro de que quieres eliminar a este amigo?")) {
-      setFriends(friends.filter(f => f.id !== friendId));
+  const handleRejectRequest = async (requestId: string) => {
+    if (!user?.id) return;
+    
+    try {
+      const response = await fetch('/api/friends', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: user.id,
+          friendshipId: requestId,
+          action: 'reject'
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        setFriendRequests(prev => prev.filter(r => r.id !== requestId));
+      } else {
+        alert(data.error);
+      }
+    } catch (err) {
+      console.error('Error rechazando solicitud:', err);
     }
   };
 
-  const handleToggleBestFriend = (friendId: number) => {
-    setFriends(friends.map(f => 
-      f.id === friendId ? { ...f, isBestFriend: !f.isBestFriend } : f
-    ));
+  const handleRemoveFriend = async (friendId: string) => {
+    if (!user?.id) return;
+    
+    if (!confirm("¿Estás seguro de que quieres eliminar a este amigo?")) {
+      return;
+    }
+    
+    try {
+      const response = await fetch(
+        `/api/friends?userId=${user.id}&targetUserId=${friendId}&action=remove_friend`,
+        { method: 'DELETE' }
+      );
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        setFriends(prev => prev.filter(f => f.id !== friendId));
+      } else {
+        alert(data.error);
+      }
+    } catch (err) {
+      console.error('Error eliminando amigo:', err);
+    }
+  };
+
+  const handleToggleBestFriend = async (friendId: string) => {
+    if (!user?.id) return;
+    
+    try {
+      const response = await fetch('/api/friends', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: user.id,
+          targetUserId: friendId,
+          action: 'toggle_best_friend'
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        setFriends(prev => prev.map(f => 
+          f.id === friendId ? { ...f, isBestFriend: data.isBestFriend } : f
+        ));
+      } else {
+        alert(data.error);
+      }
+    } catch (err) {
+      console.error('Error actualizando favorito:', err);
+    }
+  };
+
+  const handleUnblock = async (blockedUserId: string) => {
+    if (!user?.id) return;
+    
+    try {
+      const response = await fetch(
+        `/api/friends?userId=${user.id}&targetUserId=${blockedUserId}&action=unblock`,
+        { method: 'DELETE' }
+      );
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        setBlockedUsers(prev => prev.filter(b => b.blockedUserId !== blockedUserId));
+      } else {
+        alert(data.error);
+      }
+    } catch (err) {
+      console.error('Error desbloqueando usuario:', err);
+    }
   };
 
   const getStatusColor = (status: Friend["status"]) => {
@@ -236,11 +303,38 @@ export default function AmigosPage() {
 
   const getStatusText = (status: Friend["status"]) => {
     switch (status) {
-      case "online": return "En linea";
+      case "online": return "En línea";
       case "away": return "Ausente";
       case "offline": return "Desconectado";
     }
   };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    
+    if (diffHours < 1) return 'Hace unos minutos';
+    if (diffHours < 24) return `Hace ${diffHours} hora${diffHours > 1 ? 's' : ''}`;
+    if (diffDays < 7) return `Hace ${diffDays} día${diffDays > 1 ? 's' : ''}`;
+    return date.toLocaleDateString('es-ES');
+  };
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-connect-bg-dark text-white font-display">
+        <InternalHeader />
+        <main className="max-w-7xl mx-auto px-4 py-8">
+          <div className="flex items-center justify-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-connect-bg-dark text-white font-display">
@@ -252,7 +346,7 @@ export default function AmigosPage() {
           <div>
             <h1 className="text-3xl font-bold font-heading mb-2">Mis Amigos</h1>
             <p className="text-connect-muted">
-              {totalFriends} amigos en total - {onlineCount} en linea ahora
+              {totalFriends} amigos en total - {onlineCount} en línea ahora
             </p>
           </div>
           
@@ -289,7 +383,7 @@ export default function AmigosPage() {
               </div>
               <div>
                 <p className="text-2xl font-bold text-primary">{onlineCount}</p>
-                <p className="text-xs text-connect-muted">En Linea</p>
+                <p className="text-xs text-connect-muted">En Línea</p>
               </div>
             </div>
           </div>
@@ -348,7 +442,7 @@ export default function AmigosPage() {
             }`}
           >
             <div className="w-2 h-2 bg-primary rounded-full"></div>
-            En Linea
+            En Línea
             <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
               activeTab === "online" ? 'bg-primary/20 text-primary' : 'bg-white/10'
             }`}>{onlineCount}</span>
@@ -407,7 +501,7 @@ export default function AmigosPage() {
             >
               <option value="name">Ordenar por nombre</option>
               <option value="online">Ordenar por estado</option>
-              <option value="recent">Mas recientes</option>
+              <option value="recent">Más recientes</option>
             </select>
           </div>
         )}
@@ -442,7 +536,7 @@ export default function AmigosPage() {
                     <h3 className="font-bold text-white truncate">{friend.name}</h3>
                     <p className="text-sm text-connect-muted">@{friend.username}</p>
                     <p className="text-xs text-connect-muted mt-1">
-                      {friend.gender} - {friend.age} - {friend.city}
+                      {friend.gender} - {friend.age || '?'} - {friend.city || 'Sin ciudad'}
                     </p>
                   </div>
                 </div>
@@ -453,11 +547,11 @@ export default function AmigosPage() {
                     friend.status === "online" ? "text-primary" : 
                     friend.status === "away" ? "text-orange-400" : "text-gray-500"
                   }`}>
-                    {friend.statusText || friend.lastSeen || getStatusText(friend.status)}
+                    {friend.statusText || (friend.lastSeen ? `Visto ${formatDate(friend.lastSeen)}` : getStatusText(friend.status))}
                   </p>
                   {friend.mutualFriends && friend.mutualFriends > 0 && (
                     <p className="text-xs text-connect-muted mt-1">
-                      {friend.mutualFriends} amigos en comun
+                      {friend.mutualFriends} amigos en común
                     </p>
                   )}
                 </div>
@@ -476,7 +570,6 @@ export default function AmigosPage() {
                   
                   <Link
                     href={`/publicprofile/${friend.username}`}
-                    target="_blank"
                     className="py-2 px-3 bg-white/5 hover:bg-white/10 rounded-lg text-sm font-medium transition-colors"
                   >
                     Ver
@@ -520,9 +613,11 @@ export default function AmigosPage() {
                 <svg className="w-16 h-16 mx-auto mb-4 text-connect-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
-                <h3 className="text-lg font-bold mb-2">No se encontraron amigos</h3>
+                <h3 className="text-lg font-bold mb-2">
+                  {searchQuery ? 'No se encontraron amigos' : 'Aún no tienes amigos'}
+                </h3>
                 <p className="text-connect-muted text-sm mb-4">
-                  {searchQuery ? 'Intenta con otra busqueda' : 'Empieza a conectar con personas'}
+                  {searchQuery ? 'Intenta con otra búsqueda' : 'Empieza a conectar con personas'}
                 </p>
                 <Link href="/usuarios">
                   <Button className="bg-primary hover:brightness-110 text-connect-bg-dark font-bold">
@@ -541,7 +636,7 @@ export default function AmigosPage() {
               friendRequests.map((request) => (
                 <div
                   key={request.id}
-                  className="bg-connect-card border border-connect-border rounded-xl p-4 flex items-center gap-4"
+                  className="bg-connect-card border border-connect-border rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center gap-4"
                 >
                   <img
                     src={request.avatar}
@@ -553,24 +648,25 @@ export default function AmigosPage() {
                     <h3 className="font-bold text-white">{request.name}</h3>
                     <p className="text-sm text-connect-muted">@{request.username}</p>
                     <p className="text-xs text-connect-muted mt-1">
-                      {request.gender} - {request.age} - {request.city}
+                      {request.gender} - {request.age || '?'} - {request.city || 'Sin ciudad'}
                     </p>
                     <p className="text-xs text-connect-muted">
-                      {request.mutualFriends} amigos en comun - {request.requestDate}
+                      {request.mutualFriends > 0 && `${request.mutualFriends} amigos en común - `}
+                      {formatDate(request.requestDate)}
                     </p>
                   </div>
                   
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 w-full sm:w-auto">
                     <Button
                       onClick={() => handleAcceptRequest(request.id)}
-                      className="bg-primary hover:brightness-110 text-connect-bg-dark font-bold"
+                      className="flex-1 sm:flex-none bg-primary hover:brightness-110 text-connect-bg-dark font-bold"
                     >
                       Aceptar
                     </Button>
                     <Button
                       onClick={() => handleRejectRequest(request.id)}
                       variant="outline"
-                      className="border-connect-border text-white hover:bg-white/5"
+                      className="flex-1 sm:flex-none border-connect-border text-white hover:bg-white/5"
                     >
                       Rechazar
                     </Button>
@@ -584,7 +680,7 @@ export default function AmigosPage() {
                 </svg>
                 <h3 className="text-lg font-bold mb-2">No hay solicitudes pendientes</h3>
                 <p className="text-connect-muted text-sm">
-                  Cuando alguien quiera ser tu amigo, aparecera aqui
+                  Cuando alguien quiera ser tu amigo, aparecerá aquí
                 </p>
               </div>
             )}
@@ -595,16 +691,20 @@ export default function AmigosPage() {
         {activeTab === "bloqueados" && (
           <div className="space-y-4">
             {blockedUsers.length > 0 ? (
-              blockedUsers.map((user) => (
+              blockedUsers.map((blocked) => (
                 <div
-                  key={user.id}
+                  key={blocked.id}
                   className="bg-connect-card border border-connect-border rounded-xl p-4 flex items-center justify-between"
                 >
                   <div>
-                    <h3 className="font-bold text-white">{user.name}</h3>
-                    <p className="text-sm text-connect-muted">Bloqueado el {user.blockedDate}</p>
+                    <h3 className="font-bold text-white">{blocked.name}</h3>
+                    <p className="text-sm text-connect-muted">@{blocked.username}</p>
+                    <p className="text-xs text-connect-muted">
+                      Bloqueado {formatDate(blocked.blockedDate)}
+                    </p>
                   </div>
                   <Button
+                    onClick={() => handleUnblock(blocked.blockedUserId)}
                     variant="outline"
                     className="border-connect-border text-white hover:bg-white/5"
                   >
@@ -619,7 +719,7 @@ export default function AmigosPage() {
                 </svg>
                 <h3 className="text-lg font-bold mb-2">No hay usuarios bloqueados</h3>
                 <p className="text-connect-muted text-sm">
-                  Los usuarios que bloquees apareceran aqui
+                  Los usuarios que bloquees aparecerán aquí
                 </p>
               </div>
             )}
