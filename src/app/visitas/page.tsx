@@ -14,7 +14,7 @@ export default function VisitasPage() {
     { id: 2, username: "laura-g", name: "Laura G.", age: 25, city: "Barcelona", gender: "M", time: "Hace 12 min", avatar: "https://ui-avatars.com/api/?name=Laura+G&background=10b981&color=fff", online: false },
     { id: 3, username: "maria-p", name: "Maria P.", age: 27, city: "Valencia", gender: "M", time: "Hace 23 min", avatar: "https://ui-avatars.com/api/?name=Maria+P&background=10b981&color=fff", online: true },
     { id: 4, username: "carlos-r", name: "Carlos R.", age: 30, city: "Sevilla", gender: "H", time: "Hace 45 min", avatar: "https://ui-avatars.com/api/?name=Carlos+R&background=10b981&color=fff", online: true },
-    { id: 5, username: "ana-m", name: "Ana M.", age: 26, city: "Madrid", gender: "M", time: "Hace 1 hora", avatar: "https://ui-avatars.com/api/?name=Ana+M&background=10b981&color=fff", online: false },
+    { id: 5, username: "sofia-v", name: "Sofía V.", age: 26, city: "Madrid", gender: "M", time: "Hace 1 hora", avatar: "https://ui-avatars.com/api/?name=Sofia+V&background=10b981&color=fff", online: false },
     { id: 6, username: "pedro-l", name: "Pedro L.", age: 32, city: "Málaga", gender: "H", time: "Hace 2 horas", avatar: "https://ui-avatars.com/api/?name=Pedro+L&background=10b981&color=fff", online: true },
   ];
 

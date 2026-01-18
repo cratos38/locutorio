@@ -5,12 +5,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useParams, useRouter } from "next/navigation";
 import InternalHeader from "@/components/InternalHeader";
+import { useAuth } from "@/contexts/AuthContext";
 
 export const runtime = 'edge';
 
 export default function AlbumDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const { user } = useAuth();
   const albumId = Number(params.id);
 
   const [album, setAlbum] = useState<any>(null);
@@ -51,7 +53,14 @@ export default function AlbumDetailPage() {
   const [selectedPhotoStats, setSelectedPhotoStats] = useState<number | null>(null);
   const [isPhotoExpanded, setIsPhotoExpanded] = useState(false);
 
-  const currentUser = { id: 1, username: "ana-m", name: "Ana M.", avatar: "https://ui-avatars.com/api/?name=Ana+M&background=10b981&color=fff", friends: [2, 4, 5] };
+  // Usuario dinámico desde AuthContext
+  const currentUser = { 
+    id: user?.id || 0, 
+    username: user?.username || 'usuario', 
+    name: user?.username || 'Usuario', 
+    avatar: 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user?.username || 'U') + '&background=10b981&color=fff', 
+    friends: [] as number[] // TODO: Cargar amigos desde la base de datos
+  };
 
   // Load data only on client
   useEffect(() => {
@@ -145,7 +154,7 @@ export default function AlbumDetailPage() {
       setHasAccess(true);
       setShowPasswordModal(false);
     } else if (album.privacy === "amigos") {
-      const ownerId = album.owner === "ana-m" ? 1 : 2;
+      const ownerId = album.owner === currentUser.username ? currentUser.id : 2;
       setHasAccess(currentUser.friends.includes(ownerId));
       setShowPasswordModal(false);
     } else if (album.privacy === "protegido") {

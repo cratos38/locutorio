@@ -583,7 +583,7 @@ export default function InicioPage() {
                 />
                 <div className="flex-1">
                   <Input
-                    placeholder="¿Qué estás pensando, Ana?"
+                    placeholder={`¿Qué estás pensando, ${profileData.nombre || user?.username || 'Usuario'}?`}
                     value={statusText}
                     onChange={(e) => setStatusText(e.target.value)}
                     className="w-full bg-connect-bg-dark border-connect-border rounded-full px-4 py-2.5 text-sm text-white placeholder-connect-muted"

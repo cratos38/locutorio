@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import InternalHeader from "@/components/InternalHeader";
+import { useAuth } from "@/contexts/AuthContext";
 
 // Album carousel component
 function AlbumCarousel({ albumId, privacy }: { albumId: number; privacy: string }) {
@@ -177,7 +178,12 @@ type Album = {
 };
 
 export default function AlbumesPage() {
-  const currentUser = { id: 1, username: "ana-m", name: "Ana M." };
+  const { user } = useAuth();
+  const currentUser = { 
+    id: user?.id || 0, 
+    username: user?.username || 'usuario', 
+    name: user?.username || 'Usuario' 
+  };
 
   const [selectedFilter, setSelectedFilter] = useState("todo");
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -203,10 +209,10 @@ export default function AlbumesPage() {
     const saved = localStorage.getItem("albums");
     if (saved) {
       const parsedAlbums = JSON.parse(saved);
-      // Actualizar álbumes de Elena a Ana M.
+      // Actualizar álbumes de usuarios previos al usuario actual
       const updatedAlbums = parsedAlbums.map((album: Album) => {
-        if (album.owner === "elena") {
-          return { ...album, owner: "ana-m" };
+        if (album.owner === "elena" || album.owner === "ana-m") {
+          return { ...album, owner: currentUser.username };
         }
         return album;
       });

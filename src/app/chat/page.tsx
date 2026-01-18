@@ -25,13 +25,22 @@ import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import InternalHeader from "@/components/InternalHeader";
 import { useMessages } from "@/contexts/MessagesContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { useSearchParams } from "next/navigation";
 import FloatingMessagesWindow from "@/components/FloatingMessagesWindow";
 
 function ChatRoomsContent() {
   const { openMessages } = useMessages();
+  const { user } = useAuth();
   const searchParams = useSearchParams();
   const roomFromUrl = searchParams?.get('room') || null;
+  
+  // Datos del usuario actual (dinámico desde AuthContext)
+  const currentUser = {
+    id: user?.id || 0,
+    username: user?.username || 'Usuario',
+    avatar: 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user?.username || 'U') + '&background=2bee79&color=0f1416&bold=true'
+  };
   
   const [selectedRoom, setSelectedRoom] = useState("general");
   const [messageText, setMessageText] = useState("");
@@ -469,14 +478,14 @@ function ChatRoomsContent() {
   const basicEmojis = ["😊", "❤️", "👍"];
   const allEmojis = ["😊", "😂", "😍", "🥰", "😘", "😁", "😎", "🤗", "🤔", "😅", "😆", "😉", "❤️", "💕", "💖", "💗", "👍", "👏", "🙌", "🤝", "💪", "✨", "🎉", "🎊", "🔥", "⭐", "🌟", "💫"];
 
-  // Usuarios conectados
+  // Usuarios conectados (ejemplo - en producción vendrá de la base de datos)
   const allConnectedUsers = [
-    { id: 1, username: "Ana_M", avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuCYofTvqVt_2Lu8sae20y2yL8U1RSfBdI4CTdq11IzKkQGmmLnacepHa6_RDA63mrE6WYKmUvPX4Df-kx3DaUGM6S3SCk0GEu-sr3DwKsy8ejCWJOgg554w3KwDj2D74_RZQ4HrEu_CIjtNnY9B7ydy_ur9Xski9wL9YcmK7Bkoxvti-rpSbFyiqiM1qmytWWqJDMFCOMd3_x-YHcLpZdviE8Nt5gVZxmRAU8FOq6Ddci9LVMO-hhvrngkyNDslvWLfJmfFwAEc_mtw", online: true, status: "💬 Activa", age: 26, city: "Caracas", gender: "M", interests: "Música, Cine", hasPhotoAlbum: true },
     { id: 2, username: "Carlos_R", avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuDGb3wmeflExbrjA88BEWgMoBARwnsWXrjnuX9eX0BtYZqnIuIuV2k_c80FD-aUsIiTHut6e-k4cJzjyk4OERJYc_7V103-NFf7eD9WJOXNYzN4YOa0ulR1gN-hucbZyaIz5RfojyS2OglAr4ickMC-qkdFxcoLvF59IV_i3Kxtk7OBbeQjLB2sX2q9THJ5MpQALQETi5ABgMmTiDxzKtRbbs6RUv1H7KU0c6gcA7w_9cbtihKJ1iEfLVPD4g6KGUSrVkXQuXl421Fk", online: true, status: "🎧 Escuchando", age: 28, city: "Valencia", gender: "H", interests: "Deportes, Gaming", hasPhotoAlbum: true },
     { id: 3, username: "Laura_G", avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuC_k-QPp7Bm1IORwcSuHrBwaT_cooNKHNEO7JbKB8m3ha0lPXpGDfwzn5chvUYwCPj-s9EoOhcVO8dF1vAaBaSF_i1tPyB_hzk8KO03gjXPyNa6N_QrbNVGTFpDQnDJqg10fnvdppt4JpIGSb5n4ql1Ivdmsn9olN4WVvyYvYvXGFUkTqnZmxxtewOWL7MEejxvXGzyIEmcWxbTMlB2HIf7XruycmsEoo9DgJVX043mkpUuUJhOyS_wCVP3JlP0-kYUXILRCrp8H8ic", online: true, status: "✍️ Escribiendo...", age: 25, city: "Maracaibo", gender: "M", interests: "Viajes, Fotografía", hasPhotoAlbum: false },
     { id: 4, username: "Javier_S", avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuBcAgJzBVY0VcA1ICIc8GlT1M1eiu5Og95ubTpOa58bFlu9OV7QmjTZH1cbQBwbPhtvFKip_HyKq7atWt0zzANSMDAC_wrJi67kz8SXvn-HnWmPBihZZc3BAfUyEZ7TOAs4LhWokU66QRGD6Lhq2RYxETUZKEeHUzBCVw0BiuXDqP1lYEwLeNcffCadpUuZggEMO_dPmEceKo3MQ6C2rOGG5yHNZlrhQNjpnrQwZB36kSlcM_HfVWyMRoN6UQ6gNvgLzfLeM1B3VVpJ", online: true, status: "👀 Leyendo", age: 30, city: "Barquisimeto", gender: "H", interests: "Música, Cine", hasPhotoAlbum: true },
     { id: 5, username: "Maria_P", avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuBeeMOB_U1vT493g04GMXkQt_nyAG8MhMlNfzG4z2DYPQKR24ob0HEzimmB96Sd4GhY0YRP-TPyWuknoITGye5AxQIIkUMS6bJlap4RBIO5q_9eDlpkiyd765t4bxfntbtlcCVH1rCWDZMmwPm00connYJnD94blHHAjyt0rEyqSIOeuhOi0cgq-CVpWnR4eVh26kZy9ucxX4cLrs2p0K3JeEK_8H1TCTgJzrmRB0bDkW41xryg77g7H1GG4XFsbwP_wkCMxr-3NlwB", online: true, status: "😊", age: 24, city: "Mérida", gender: "M", interests: "Cocina, Arte", hasPhotoAlbum: true },
     { id: 6, username: "Pedro_L", avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuBcAgJzBVY0VcA1ICIc8GlT1M1eiu5Og95ubTpOa58bFlu9OV7QmjTZH1cbQBwbPhtvFKip_HyKq7atWt0zzANSMDAC_wrJi67kz8SXvn-HnWmPBihZZc3BAfUyEZ7TOAs4LhWokU66QRGD6Lhq2RYxETUZKEeHUzBCVw0BiuXDqP1lYEwLeNcffCadpUuZggEMO_dPmEceKo3MQ6C2rOGG5yHNZlrhQNjpnrQwZB36kSlcM_HfVWyMRoN6UQ6gNvgLzfLeM1B3VVpJ", online: false, status: "Ausente", age: 35, city: "Caracas", gender: "H", interests: "Deportes", hasPhotoAlbum: false },
+    { id: 7, username: "Sofia_V", avatar: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400&h=400&fit=crop", online: true, status: "💬 Activa", age: 26, city: "Caracas", gender: "M", interests: "Música, Cine", hasPhotoAlbum: true },
   ];
 
   // Filtrar usuarios
@@ -488,13 +497,12 @@ function ChatRoomsContent() {
     return true;
   });
 
-  // Mensajes iniciales
+  // Mensajes iniciales (en producción vendrán de la base de datos)
   const initialMessages = [
     { id: 1, user: "Carlos_R", avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuDGb3wmeflExbrjA88BEWgMoBARwnsWXrjnuX9eX0BtYZqnIuIuV2k_c80FD-aUsIiTHut6e-k4cJzjyk4OERJYc_7V103-NFf7eD9WJOXNYzN4YOa0ulR1gN-hucbZyaIz5RfojyS2OglAr4ickMC-qkdFxcoLvF59IV_i3Kxtk7OBbeQjLB2sX2q9THJ5MpQALQETi5ABgMmTiDxzKtRbbs6RUv1H7KU0c6gcA7w_9cbtihKJ1iEfLVPD4g6KGUSrVkXQuXl421Fk", text: "Hola a todos! ¿Cómo están?", time: "14:32", isOwn: false },
-    { id: 2, user: "Ana_M", avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuCYofTvqVt_2Lu8sae20y2yL8U1RSfBdI4CTdq11IzKkQGmmLnacepHa6_RDA63mrE6WYKmUvPX4Df-kx3DaUGM6S3SCk0GEu-sr3DwKsy8ejCWJOgg554w3KwDj2D74_RZQ4HrEu_CIjtNnY9B7ydy_ur9Xski9wL9YcmK7Bkoxvti-rpSbFyiqiM1qmytWWqJDMFCOMd3_x-YHcLpZdviE8Nt5gVZxmRAU8FOq6Ddci9LVMO-hhvrngkyNDslvWLfJmfFwAEc_mtw", text: "¡Todo bien! Aquí charlando 😊", time: "14:33", isOwn: true },
-    { id: 3, user: "Laura_G", avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuC_k-QPp7Bm1IORwcSuHrBwaT_cooNKHNEO7JbKB8m3ha0lPXpGDfwzn5chvUYwCPj-s9EoOhcVO8dF1vAaBaSF_i1tPyB_hzk8KO03gjXPyNa6N_QrbNVGTFpDQnDJqg10fnvdppt4JpIGSb5n4ql1Ivdmsn9olN4WVvyYvYvXGFUkTqnZmxxtewOWL7MEejxvXGzyIEmcWxbTMlB2HIf7XruycmsEoo9DgJVX043mkpUuUJhOyS_wCVP3JlP0-kYUXILRCrp8H8ic", text: "Alguien sabe qué pasó con el evento de mañana?", time: "14:35", isOwn: false },
-    { id: 4, user: "Javier_S", avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuBcAgJzBVY0VcA1ICIc8GlT1M1eiu5Og95ubTpOa58bFlu9OV7QmjTZH1cbQBwbPhtvFKip_HyKq7atWt0zzANSMDAC_wrJi67kz8SXvn-HnWmPBihZZc3BAfUyEZ7TOAs4LhWokU66QRGD6Lhq2RYxETUZKEeHUzBCVw0BiuXDqP1lYEwLeNcffCadpUuZggEMO_dPmEceKo3MQ6C2rOGG5yHNZlrhQNjpnrQwZB36kSlcM_HfVWyMRoN6UQ6gNvgLzfLeM1B3VVpJ", text: "Sí! Se confirmó, será a las 8pm", time: "14:36", isOwn: false },
-    { id: 5, user: "Ana_M", avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuCYofTvqVt_2Lu8sae20y2yL8U1RSfBdI4CTdq11IzKkQGmmLnacepHa6_RDA63mrE6WYKmUvPX4Df-kx3DaUGM6S3SCk0GEu-sr3DwKsy8ejCWJOgg554w3KwDj2D74_RZQ4HrEu_CIjtNnY9B7ydy_ur9Xski9wL9YcmK7Bkoxvti-rpSbFyiqiM1qmytWWqJDMFCOMd3_x-YHcLpZdviE8Nt5gVZxmRAU8FOq6Ddci9LVMO-hhvrngkyNDslvWLfJmfFwAEc_mtw", text: "Perfecto, ahí estaré! 🎉", time: "14:37", isOwn: true },
+    { id: 2, user: "Laura_G", avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuC_k-QPp7Bm1IORwcSuHrBwaT_cooNKHNEO7JbKB8m3ha0lPXpGDfwzn5chvUYwCPj-s9EoOhcVO8dF1vAaBaSF_i1tPyB_hzk8KO03gjXPyNa6N_QrbNVGTFpDQnDJqg10fnvdppt4JpIGSb5n4ql1Ivdmsn9olN4WVvyYvYvXGFUkTqnZmxxtewOWL7MEejxvXGzyIEmcWxbTMlB2HIf7XruycmsEoo9DgJVX043mkpUuUJhOyS_wCVP3JlP0-kYUXILRCrp8H8ic", text: "Alguien sabe qué pasó con el evento de mañana?", time: "14:33", isOwn: false },
+    { id: 3, user: "Javier_S", avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuBcAgJzBVY0VcA1ICIc8GlT1M1eiu5Og95ubTpOa58bFlu9OV7QmjTZH1cbQBwbPhtvFKip_HyKq7atWt0zzANSMDAC_wrJi67kz8SXvn-HnWmPBihZZc3BAfUyEZ7TOAs4LhWokU66QRGD6Lhq2RYxETUZKEeHUzBCVw0BiuXDqP1lYEwLeNcffCadpUuZggEMO_dPmEceKo3MQ6C2rOGG5yHNZlrhQNjpnrQwZB36kSlcM_HfVWyMRoN6UQ6gNvgLzfLeM1B3VVpJ", text: "Sí! Se confirmó, será a las 8pm", time: "14:35", isOwn: false },
+    { id: 4, user: "Maria_P", avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuBeeMOB_U1vT493g04GMXkQt_nyAG8MhMlNfzG4z2DYPQKR24ob0HEzimmB96Sd4GhY0YRP-TPyWuknoITGye5AxQIIkUMS6bJlap4RBIO5q_9eDlpkiyd765t4bxfntbtlcCVH1rCWDZMmwPm00connYJnD94blHHAjyt0rEyqSIOeuhOi0cgq-CVpWnR4eVh26kZy9ucxX4cLrs2p0K3JeEK_8H1TCTgJzrmRB0bDkW41xryg77g7H1GG4XFsbwP_wkCMxr-3NlwB", text: "Genial! Nos vemos ahí 🎉", time: "14:36", isOwn: false },
   ];
 
   // Inicializar mensajes
@@ -607,8 +615,8 @@ function ChatRoomsContent() {
         messageTime,
         
         // Denunciante (usuario actual)
-        reportedBy: "Ana_M", // TODO: Obtener del contexto de usuario
-        reportedByUserId: 1, // TODO: Obtener del contexto
+        reportedBy: currentUser.username,
+        reportedByUserId: currentUser.id,
         reportedAt: new Date().toISOString(),
         
         // Contexto
@@ -636,8 +644,8 @@ function ChatRoomsContent() {
 
     const newMessage = {
       id: chatMessages.length + 1,
-      user: "Ana_M",
-      avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuCYofTvqVt_2Lu8sae20y2yL8U1RSfBdI4CTdq11IzKkQGmmLnacepHa6_RDA63mrE6WYKmUvPX4Df-kx3DaUGM6S3SCk0GEu-sr3DwKsy8ejCWJOgg554w3KwDj2D74_RZQ4HrEu_CIjtNnY9B7ydy_ur9Xski9wL9YcmK7Bkoxvti-rpSbFyiqiM1qmytWWqJDMFCOMd3_x-YHcLpZdviE8Nt5gVZxmRAU8FOq6Ddci9LVMO-hhvrngkyNDslvWLfJmfFwAEc_mtw",
+      user: currentUser.username,
+      avatar: currentUser.avatar,
       text: messageText,
       time: new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
       isOwn: true,

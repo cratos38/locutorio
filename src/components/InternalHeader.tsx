@@ -6,6 +6,7 @@ import NotificationBell from "./NotificationBell";
 import { useState, useEffect, useRef } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useMessages } from "@/contexts/MessagesContext";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function InternalHeader() {
   const [showMenu, setShowMenu] = useState(false);
@@ -13,11 +14,34 @@ export default function InternalHeader() {
   const pathname = usePathname();
   const menuRef = useRef<HTMLDivElement>(null);
   const { openMessages, getUnreadCount } = useMessages();
+  const { user, logout } = useAuth();
+  
+  // Obtener iniciales del usuario para el avatar
+  const getUserInitials = () => {
+    if (user?.username) {
+      return user.username.charAt(0).toUpperCase();
+    }
+    return 'U';
+  };
+  
+  const getUserDisplayName = () => {
+    return user?.username || 'Usuario';
+  };
+  
+  const getUserEmail = () => {
+    return user?.email || 'usuario@ejemplo.com';
+  };
 
-  const handleLogout = () => {
-    // Aquí iría la lógica de logout (limpiar sesión, tokens, etc.)
-    localStorage.clear();
-    router.push("/");
+  const handleLogout = async () => {
+    try {
+      await logout();
+      router.push("/");
+    } catch (error) {
+      console.error('Error al cerrar sesión:', error);
+      // Fallback: limpiar localStorage y redirigir
+      localStorage.clear();
+      router.push("/");
+    }
   };
 
   // Cerrar menú al hacer click fuera
@@ -139,15 +163,15 @@ export default function InternalHeader() {
               onClick={() => setShowMenu(!showMenu)}
               className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-emerald-600 border-2 border-primary/50 cursor-pointer flex items-center justify-center text-sm font-bold ml-2 hover:brightness-110 transition-all"
             >
-              A
+              {getUserInitials()}
             </button>
 
             {/* Dropdown Menu */}
             {showMenu && (
               <div className="absolute top-14 right-0 w-56 bg-connect-card border border-connect-border rounded-xl shadow-xl overflow-hidden z-50">
                 <div className="p-3 border-b border-connect-border">
-                  <p className="text-sm font-bold text-white">Ana M.</p>
-                  <p className="text-xs text-connect-muted">ana.m@ejemplo.com</p>
+                  <p className="text-sm font-bold text-white">{getUserDisplayName()}</p>
+                  <p className="text-xs text-connect-muted">{getUserEmail()}</p>
                 </div>
                 <div className="py-2">
                   <Link

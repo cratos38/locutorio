@@ -139,7 +139,7 @@ export const MessagesProvider: React.FC<MessagesProviderProps> = ({ children }) 
       if (savedConversations && !needsMigration) {
         setConversations(JSON.parse(savedConversations));
       } else {
-        // Datos iniciales de ejemplo
+        // Datos iniciales de ejemplo (sin referencias a Ana_M)
         const initialConversations: Conversation[] = [
           {
             id: 1,
@@ -152,7 +152,7 @@ export const MessagesProvider: React.FC<MessagesProviderProps> = ({ children }) 
             unreadCount: 2,
             status: "online", // cyan dot
             messages: [
-              { id: 1, text: "Hola Ana! ¿Cómo estás?", time: "10:15", isOwn: false, read: true, delivered: true },
+              { id: 1, text: "¡Hola! ¿Cómo estás?", time: "10:15", isOwn: false, read: true, delivered: true },
               { id: 2, text: "¡Hola Javier! Todo bien, ¿y tú?", time: "10:17", isOwn: true, read: true, delivered: true },
             ]
           },
