@@ -30,15 +30,15 @@ export async function POST(request: NextRequest) {
     // porque esa sección es opcional y no se muestra en el perfil público
     // ========================================================================
     
-    // CAMPOS PÚBLICOS - Estos se muestran en el perfil público
+    // CAMPOS PÚBLICOS - Datos reales del perfil (NO fotos ni estados temporales)
     const publicFields = [
-      // Básicos (obligatorios para buen perfil)
-      'nombre', 'edad', 'genero', 'ciudad', 'foto_perfil',
+      // Básicos
+      'nombre', 'edad', 'genero', 'ciudad',
       // Sobre mí - Información física y básica
       'altura', 'peso', 'tipo_cuerpo', 'color_ojos', 'color_cabello',
       'signo_zodiacal', 'educacion', 'etnia', 'vives_en', 'trabajas',
       // Presentación - Textos descriptivos
-      'definete_en_frase', 'cuentanos_algo_tuyo', 'primera_cita_ideal', 'status_text',
+      'definete_en_frase', 'cuentanos_algo_tuyo', 'primera_cita_ideal',
       // Relaciones - Lo que busca
       'tiene_hijos', 'quiere_tener_hijos', 'estado_civil', 'que_buscas', 
       'razon_principal', 'casarse_importante', 'duracion_relacion_larga',
@@ -46,11 +46,13 @@ export async function POST(request: NextRequest) {
       'pasatiempos', 'generos_peliculas', 'generos_musica', 'generos_libros',
       'deportes_practica', 'valores_tradicionales', 'espiritualidad', 'religion',
       // Estilo de vida
-      'que_haces', 'te_ejercitas', 'fumas', 'bebes_alcohol',
+      'te_ejercitas', 'fumas', 'bebes_alcohol',
       'dieta_especial', 'personalidad_sociable', 'orden_mantenimiento',
       // Extras
       'tiene_vehiculo', 'tiene_mascota', 'idiomas'
     ];
+    // NOTA: foto_perfil y status_text NO cuentan - no son datos de perfil
+    // NOTA: que_haces eliminado - no existe en el formulario visible
     
     // CAMPOS PRIVADOS - NO se muestran públicamente, solo para algoritmo de búsqueda
     // Estos NO cuentan para el porcentaje visible
