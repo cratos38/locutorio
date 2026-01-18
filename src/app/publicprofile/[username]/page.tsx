@@ -52,9 +52,47 @@ export default function PerfilPage() {
     { id: 8, name: "Laura", age: 28, avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Laura" },
   ];
 
+  // Helper: verificar si un valor tiene contenido (array o string)
+  const hasContent = (value: any): boolean => {
+    if (!value) return false;
+    if (Array.isArray(value)) return value.length > 0;
+    if (typeof value === 'string') return value.trim().length > 0;
+    return true;
+  };
+
   // Función para formatear arrays como tags
-  const renderTags = (items: string[] | null | undefined, color: string = 'primary') => {
-    if (!items || items.length === 0) return null;
+  // Maneja casos donde el valor puede ser: array, string JSON, string simple, null, undefined
+  const renderTags = (items: string[] | string | null | undefined, color: string = 'primary') => {
+    // Convertir a array si es necesario
+    let itemsArray: string[] = [];
+    
+    if (!items) {
+      return null;
+    } else if (Array.isArray(items)) {
+      itemsArray = items;
+    } else if (typeof items === 'string') {
+      // Intentar parsear como JSON (ej: '["item1","item2"]')
+      try {
+        const parsed = JSON.parse(items);
+        if (Array.isArray(parsed)) {
+          itemsArray = parsed;
+        } else {
+          // Es un string simple, convertir a array de un elemento
+          itemsArray = [items];
+        }
+      } catch {
+        // No es JSON válido, tratar como string simple
+        // Puede ser separado por comas
+        if (items.includes(',')) {
+          itemsArray = items.split(',').map(s => s.trim()).filter(s => s);
+        } else {
+          itemsArray = [items];
+        }
+      }
+    }
+    
+    if (itemsArray.length === 0) return null;
+    
     const colorClasses = {
       primary: 'bg-primary/10 text-primary border-primary/20',
       blue: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
@@ -64,7 +102,7 @@ export default function PerfilPage() {
     };
     return (
       <div className="flex flex-wrap gap-1.5">
-        {items.map((item, idx) => (
+        {itemsArray.map((item, idx) => (
           <span 
             key={idx} 
             className={`px-2 py-0.5 text-xs rounded-full border ${colorClasses[color as keyof typeof colorClasses] || colorClasses.primary}`}
@@ -275,7 +313,7 @@ export default function PerfilPage() {
               </section>
 
               {/* RELACIONES */}
-              {(profile.estado_civil || profile.que_buscas || profile.tiene_hijos !== null) && (
+              {(profile.estado_civil || hasContent(profile.que_buscas) || profile.tiene_hijos !== null) && (
                 <section className="bg-connect-card/30 border border-connect-border rounded-xl p-4">
                   <h2 className="text-sm font-bold text-primary uppercase tracking-wide mb-3 flex items-center gap-2">
                     <span>💑</span> Relaciones
@@ -287,7 +325,7 @@ export default function PerfilPage() {
                     {renderInfoItem('💒', 'Casarse', profile.casarse_importante)}
                     {renderInfoItem('⏰', 'Relación larga', profile.duracion_relacion_larga)}
                   </div>
-                  {profile.que_buscas && profile.que_buscas.length > 0 && (
+                  {hasContent(profile.que_buscas) && (
                     <div className="mt-3">
                       <span className="text-xs text-gray-400 block mb-2">Busca:</span>
                       {renderTags(profile.que_buscas, 'pink')}
@@ -312,7 +350,7 @@ export default function PerfilPage() {
               )}
 
               {/* PASATIEMPOS E INTERESES */}
-              {(profile.pasatiempos?.length > 0 || profile.intereses) && (
+              {(hasContent(profile.pasatiempos) || profile.intereses) && (
                 <section className="bg-connect-card/30 border border-connect-border rounded-xl p-4">
                   <h2 className="text-sm font-bold text-primary uppercase tracking-wide mb-3 flex items-center gap-2">
                     <span>🎭</span> Intereses y pasatiempos
@@ -320,32 +358,32 @@ export default function PerfilPage() {
                   {profile.intereses && (
                     <p className="text-gray-300 text-sm mb-3">{profile.intereses}</p>
                   )}
-                  {profile.pasatiempos && profile.pasatiempos.length > 0 && (
+                  {hasContent(profile.pasatiempos) && (
                     <div className="mb-3">
                       {renderTags(profile.pasatiempos, 'primary')}
                     </div>
                   )}
                   
                   {/* Sub-categorías */}
-                  {profile.generos_peliculas?.length > 0 && (
+                  {hasContent(profile.generos_peliculas) && (
                     <div className="mt-3">
                       <span className="text-xs text-gray-500 block mb-1.5">🎬 Películas:</span>
                       {renderTags(profile.generos_peliculas, 'blue')}
                     </div>
                   )}
-                  {profile.generos_musica?.length > 0 && (
+                  {hasContent(profile.generos_musica) && (
                     <div className="mt-3">
                       <span className="text-xs text-gray-500 block mb-1.5">🎵 Música:</span>
                       {renderTags(profile.generos_musica, 'purple')}
                     </div>
                   )}
-                  {profile.generos_libros?.length > 0 && (
+                  {hasContent(profile.generos_libros) && (
                     <div className="mt-3">
                       <span className="text-xs text-gray-500 block mb-1.5">📚 Libros:</span>
                       {renderTags(profile.generos_libros, 'amber')}
                     </div>
                   )}
-                  {profile.deportes_practica?.length > 0 && (
+                  {hasContent(profile.deportes_practica) && (
                     <div className="mt-3">
                       <span className="text-xs text-gray-500 block mb-1.5">⚽ Deportes:</span>
                       {renderTags(profile.deportes_practica, 'primary')}
@@ -371,7 +409,7 @@ export default function PerfilPage() {
                     {renderInfoItem('🚀', 'Ambición', profile.eres_ambicioso)}
                   </div>
                   
-                  {profile.que_haces?.length > 0 && (
+                  {hasContent(profile.que_haces) && (
                     <div className="mt-3">
                       <span className="text-xs text-gray-500 block mb-1.5">Actividades:</span>
                       {renderTags(profile.que_haces, 'primary')}
@@ -396,7 +434,7 @@ export default function PerfilPage() {
               )}
 
               {/* IDIOMAS */}
-              {(profile.idiomas?.length > 0 || profile.habla_otro_idioma?.length > 0) && (
+              {(hasContent(profile.idiomas) || hasContent(profile.habla_otro_idioma)) && (
                 <section className="bg-connect-card/30 border border-connect-border rounded-xl p-4">
                   <h2 className="text-sm font-bold text-primary uppercase tracking-wide mb-3 flex items-center gap-2">
                     <span>🌐</span> Idiomas
