@@ -52,6 +52,179 @@ export default function PerfilPage() {
     { id: 8, name: "Laura", age: 28, avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Laura" },
   ];
 
+  // =====================================================
+  // MAPEO DE VALORES INTERNOS A ETIQUETAS LEGIBLES
+  // =====================================================
+  const labelMaps: Record<string, Record<string, string>> = {
+    // Tipo de cuerpo
+    tipo_cuerpo: {
+      'prefiero-no-decir': 'Prefiero no decir',
+      'delgado': 'Delgado/a',
+      'atletico': 'Atlético/a',
+      'punto-medio': 'Punto medio',
+      'curvas-extra': 'Algunas curvas extra',
+      'talla-grande': 'De talla grande',
+      'grande-robusto': 'Grande y robusto/a',
+    },
+    // Color de ojos
+    color_ojos: {
+      'negros': 'Negros', 'marrones': 'Marrones', 'azules': 'Azules',
+      'verdes': 'Verdes', 'grises': 'Grises', 'otro': 'Otro',
+    },
+    // Color de cabello
+    color_cabello: {
+      'negro': 'Negro', 'castano': 'Castaño', 'rubio': 'Rubio',
+      'pelirrojo': 'Pelirrojo', 'gris': 'Gris/Blanco', 'otro': 'Otro',
+    },
+    // Signo zodiacal
+    signo_zodiacal: {
+      'aries': 'Aries', 'tauro': 'Tauro', 'geminis': 'Géminis', 'cancer': 'Cáncer',
+      'leo': 'Leo', 'virgo': 'Virgo', 'libra': 'Libra', 'escorpio': 'Escorpio',
+      'sagitario': 'Sagitario', 'capricornio': 'Capricornio', 'acuario': 'Acuario', 'piscis': 'Piscis',
+    },
+    // Educación
+    educacion: {
+      'primario': 'Primario', 'secundario': 'Secundario',
+      'algunos-terciarios': 'Algunos estudios terciarios', 'graduado-terciario': 'Graduado terciario',
+      'algunos-universitarios': 'Algunos estudios universitarios', 'graduado-universitario': 'Graduado universitario',
+      'posgrado-universitario': 'Posgrado universitario', 'otro': 'Otros',
+    },
+    // Etnia
+    etnia: {
+      'blanco': 'Blanco/a (Caucásico/a)', 'afro': 'Afro/Negro/a', 'asiatico': 'Asiático/a',
+      'mestizo': 'Mestizo/a', 'indigena': 'Indígena', 'arabe': 'Árabe/Turco/a', 'otro': 'Otro',
+    },
+    // Vives en
+    vives_en: { 'ciudad': 'Ciudad', 'campo': 'Campo' },
+    // Estado civil
+    estado_civil: {
+      'no-respondo': 'Prefiero no responder', 'soltero': 'Soltero/a', 'divorciado': 'Divorciado/a',
+      'separado': 'Separado/a', 'viudo': 'Viudo/a', 'en-relacion': 'En relación',
+      'viviendo-pareja': 'Viviendo en pareja', 'casado': 'Casado/a',
+    },
+    // Quiere tener hijos
+    quiere_tener_hijos: {
+      'no': 'No', 'si': 'Sí', 'no-seguro': 'No estoy seguro/a',
+      'lo-pensaria': 'Lo pensaría / Abierto a futuro', 'adoptados': 'Sí, aunque serían adoptados',
+      'no-puedo': 'No puedo tener hijos',
+    },
+    // Razón principal
+    razon_principal: {
+      'familia-futuro': 'Formar una familia y planear un futuro',
+      'acompanado': 'Sentirme acompañado/a y pasarla bien',
+      'no-seguro': 'No estoy seguro/a',
+    },
+    // Casarse importante
+    casarse_importante: {
+      'si-importante': 'Sí, me gustaría casarme',
+      'no-tan-importante': 'No es tan importante, vivir juntos sería suficiente',
+      'futuro-dira': 'El futuro lo dirá',
+    },
+    // Duración relación larga
+    duracion_relacion_larga: {
+      'menos-1': 'Menos de 1 año', 'mas-1': 'Más de 1 año', 'mas-2': 'Más de 2 años',
+      'mas-3': 'Más de 3 años', 'mas-4': 'Más de 4 años', 'mas-5': 'Más de 5 años',
+      'mas-6': 'Más de 6 años', 'mas-7': 'Más de 7 años', 'mas-8': 'Más de 8 años',
+      'mas-9': 'Más de 9 años', 'mas-10': 'Más de 10 años',
+    },
+    // Tiene mascota
+    tiene_mascota: {
+      'no': 'No', 'perro': 'Perro', 'gato': 'Gato', 'perro-gato': 'Perro y gato',
+      'pajaro': 'Pájaro', 'otro': 'Otro',
+    },
+    // Ejercicio
+    te_ejercitas: {
+      'nunca': 'Nunca', 'ocasionalmente': 'Ocasionalmente', 'semanalmente': 'Semanalmente',
+      'diariamente': 'Diariamente',
+    },
+    // Dieta especial
+    dieta_especial: {
+      'ninguna': 'Ninguna', 'sin-lactosa': 'Sin lactosa', 'sin-azucar': 'Sin azúcar',
+      'sin-gluten': 'Sin gluten (celíaca)', 'diabetes': 'Diabetes', 'vegetariana': 'Vegetariana',
+      'vegana': 'Vegana', 'kosher': 'Kosher', 'halal': 'Halal', 'otra': 'Otra',
+    },
+    // Tiempo con familia
+    tiempo_con_familia: {
+      'si-encanta': 'Sí, me encanta, soy súper familiero/a',
+      'de-vez-en-cuando': 'De vez en cuando, no necesito tanto',
+      'no-mucho': 'No mucho, prefiero mi independencia',
+    },
+    // Personalidad sociable
+    personalidad_sociable: {
+      'muy-sociable': 'Muy sociable, me encanta conocer gente',
+      'neutro': 'Término medio',
+      'introvertido': 'Más bien introvertido/a',
+    },
+    // Orden y mantenimiento
+    orden_mantenimiento: {
+      'muy-ordenado': 'Muy ordenado/a, todo en su lugar',
+      'normal': 'Normal, ni muy ordenado ni desordenado',
+      'muy-relajado': 'Muy relajado/a con el orden',
+    },
+    // Valores tradicionales
+    valores_tradicionales: {
+      'mucho': 'Sí, mucho', 'algo': 'Algo', 'poco': 'Poco', 'nada': 'Nada',
+    },
+    // Espiritualidad
+    espiritualidad: {
+      'muy-espiritual': 'Muy espiritual', 'algo': 'Algo espiritual',
+      'no-mucho': 'No mucho', 'para-nada': 'Para nada',
+    },
+    // Religión
+    religion: {
+      'catolico': 'Católico/a', 'cristiano': 'Cristiano/a (no católico)',
+      'judio': 'Judío/a', 'musulman': 'Musulmán/a', 'budista': 'Budista',
+      'hindu': 'Hindú', 'agnostico': 'Agnóstico/a', 'ateo': 'Ateo/a',
+      'no-religioso': 'No religioso/a', 'otro': 'Otro',
+    },
+    // Convicciones religiosas
+    convicciones_religiosas: {
+      'muy-religioso': 'Muy religioso/a, practicante activo',
+      'bastante-religioso': 'Bastante religioso/a',
+      'algo-religioso': 'Algo religioso/a',
+      'no-muy-religioso': 'No muy religioso/a',
+    },
+    // Ambición
+    eres_ambicioso: {
+      'super-ambicioso': 'Súper ambicioso/a', 'bastante': 'Bastante ambicioso/a',
+      'normal': 'Normal', 'poco': 'Poco ambicioso/a', 'nada': 'Nada ambicioso/a',
+    },
+    // Qué buscas (array)
+    que_buscas: {
+      'pareja-seria': 'Pareja seria', 'aventuras': 'Aventuras sin compromiso',
+      'amistad': 'Amistad', 'charlar-alguien': 'Charlar con alguien',
+      'conocer-gente': 'Conocer gente nueva', 'no-seguro': 'No estoy seguro/a',
+    },
+  };
+
+  // Función para obtener etiqueta legible
+  const getLabel = (field: string, value: any, otherField?: string): string => {
+    if (value === null || value === undefined || value === '') return '';
+    
+    // Booleanos
+    if (typeof value === 'boolean') return value ? 'Sí' : 'No';
+    if (value === 'true') return 'Sí';
+    if (value === 'false') return 'No';
+    
+    // Si hay campo "otro" con valor, mostrarlo
+    if (otherField && profile?.[otherField]) {
+      return profile[otherField];
+    }
+    
+    // Buscar en el mapa
+    const map = labelMaps[field];
+    if (map && map[value]) {
+      return map[value];
+    }
+    
+    // Capitalizar primera letra si no hay mapeo
+    if (typeof value === 'string') {
+      return value.charAt(0).toUpperCase() + value.slice(1).replace(/-/g, ' ');
+    }
+    
+    return String(value);
+  };
+
   // Helper: verificar si un valor tiene contenido (array o string)
   const hasContent = (value: any): boolean => {
     if (!value) return false;
@@ -62,7 +235,7 @@ export default function PerfilPage() {
 
   // Función para formatear arrays como tags
   // Maneja casos donde el valor puede ser: array, string JSON, string simple, null, undefined
-  const renderTags = (items: string[] | string | null | undefined, color: string = 'primary') => {
+  const renderTags = (items: string[] | string | null | undefined, color: string = 'primary', field?: string) => {
     // Convertir a array si es necesario
     let itemsArray: string[] = [];
     
@@ -93,6 +266,11 @@ export default function PerfilPage() {
     
     if (itemsArray.length === 0) return null;
     
+    // Mapear valores a etiquetas legibles si hay campo especificado
+    if (field && labelMaps[field]) {
+      itemsArray = itemsArray.map(item => labelMaps[field][item] || item);
+    }
+    
     const colorClasses = {
       primary: 'bg-primary/10 text-primary border-primary/20',
       blue: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
@@ -114,10 +292,16 @@ export default function PerfilPage() {
     );
   };
 
-  // Función para formatear valores con iconos
-  const renderInfoItem = (icon: string, label: string, value: string | number | boolean | null | undefined) => {
-    if (value === null || value === undefined || value === '' || value === false) return null;
-    const displayValue = typeof value === 'boolean' ? (value ? 'Sí' : 'No') : value;
+  // Función para formatear valores con iconos - ahora usa getLabel para mostrar texto legible
+  const renderInfoItem = (icon: string, label: string, value: string | number | boolean | null | undefined, field?: string, otherField?: string) => {
+    if (value === null || value === undefined || value === '' || value === false || value === 'false') return null;
+    
+    // Usar getLabel si tenemos el nombre del campo
+    const displayValue = field ? getLabel(field, value, otherField) : (
+      typeof value === 'boolean' ? (value ? 'Sí' : 'No') : 
+      value === 'true' ? 'Sí' : value
+    );
+    
     return (
       <div className="flex items-center gap-2 text-sm">
         <span className="text-base">{icon}</span>
@@ -298,17 +482,17 @@ export default function PerfilPage() {
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                   {renderInfoItem('📏', 'Altura', profile.altura ? `${profile.altura} cm` : null)}
                   {renderInfoItem('⚖️', 'Peso', profile.peso ? `${profile.peso} kg` : null)}
-                  {renderInfoItem('🏋️', 'Cuerpo', profile.tipo_cuerpo)}
-                  {renderInfoItem('👁️', 'Ojos', profile.color_ojos)}
-                  {renderInfoItem('💇', 'Cabello', profile.color_cabello)}
-                  {renderInfoItem('⭐', 'Signo', profile.signo_zodiacal)}
-                  {renderInfoItem('🎓', 'Educación', profile.educacion)}
-                  {renderInfoItem('🌍', 'Etnia', profile.etnia)}
-                  {renderInfoItem('🏠', 'Vive en', profile.vives_en)}
+                  {renderInfoItem('🏋️', 'Cuerpo', profile.tipo_cuerpo, 'tipo_cuerpo')}
+                  {renderInfoItem('👁️', 'Ojos', profile.color_ojos, 'color_ojos')}
+                  {renderInfoItem('💇', 'Cabello', profile.color_cabello, 'color_cabello')}
+                  {renderInfoItem('⭐', 'Signo', profile.signo_zodiacal, 'signo_zodiacal')}
+                  {renderInfoItem('🎓', 'Educación', profile.educacion, 'educacion')}
+                  {renderInfoItem('🌍', 'Etnia', profile.etnia, 'etnia')}
+                  {renderInfoItem('🏠', 'Vive en', profile.vives_en, 'vives_en')}
                   {renderInfoItem('💼', 'Trabaja', profile.trabajas)}
                   {renderInfoItem('👔', 'Trabajo', profile.en_que_trabaja)}
                   {renderInfoItem('🚗', 'Vehículo', profile.tiene_vehiculo)}
-                  {renderInfoItem('🐾', 'Mascota', profile.tiene_mascota)}
+                  {renderInfoItem('🐾', 'Mascota', profile.tiene_mascota, 'tiene_mascota', 'tiene_mascota_otra')}
                 </div>
               </section>
 
@@ -319,21 +503,21 @@ export default function PerfilPage() {
                     <span>💑</span> Relaciones
                   </h2>
                   <div className="grid grid-cols-2 gap-3 mb-3">
-                    {renderInfoItem('💍', 'Estado civil', profile.estado_civil)}
+                    {renderInfoItem('💍', 'Estado civil', profile.estado_civil, 'estado_civil')}
                     {renderInfoItem('👶', 'Tiene hijos', profile.tiene_hijos)}
-                    {renderInfoItem('🍼', 'Quiere hijos', profile.quiere_tener_hijos)}
-                    {renderInfoItem('💒', 'Casarse', profile.casarse_importante)}
-                    {renderInfoItem('⏰', 'Relación larga', profile.duracion_relacion_larga)}
+                    {renderInfoItem('🍼', 'Quiere hijos', profile.quiere_tener_hijos, 'quiere_tener_hijos')}
+                    {renderInfoItem('💒', 'Casarse', profile.casarse_importante, 'casarse_importante')}
+                    {renderInfoItem('⏰', 'Relación más larga', profile.duracion_relacion_larga, 'duracion_relacion_larga')}
                   </div>
                   {hasContent(profile.que_buscas) && (
                     <div className="mt-3">
                       <span className="text-xs text-gray-400 block mb-2">Busca:</span>
-                      {renderTags(profile.que_buscas, 'pink')}
+                      {renderTags(profile.que_buscas, 'pink', 'que_buscas')}
                     </div>
                   )}
                   {profile.razon_principal && (
                     <p className="text-xs text-gray-400 mt-3">
-                      <span className="text-gray-500">Razón principal:</span> {profile.razon_principal}
+                      <span className="text-gray-500">Razón principal:</span> {getLabel('razon_principal', profile.razon_principal)}
                     </p>
                   )}
                 </section>
@@ -399,14 +583,14 @@ export default function PerfilPage() {
                     <span>🏃</span> Estilo de vida
                   </h2>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                    {renderInfoItem('🏋️', 'Ejercicio', profile.te_ejercitas)}
+                    {renderInfoItem('🏋️', 'Ejercicio', profile.te_ejercitas, 'te_ejercitas')}
                     {renderInfoItem('🚬', 'Fuma', profile.fumas)}
                     {renderInfoItem('🍷', 'Bebe', profile.bebes_alcohol)}
-                    {renderInfoItem('🥗', 'Dieta', profile.dieta_especial)}
-                    {renderInfoItem('👨‍👩‍👧', 'Familia', profile.tiempo_con_familia)}
-                    {renderInfoItem('🎭', 'Sociable', profile.personalidad_sociable)}
-                    {renderInfoItem('🧹', 'Orden', profile.orden_mantenimiento)}
-                    {renderInfoItem('🚀', 'Ambición', profile.eres_ambicioso)}
+                    {renderInfoItem('🥗', 'Dieta', profile.dieta_especial, 'dieta_especial', 'dieta_especial_otra')}
+                    {renderInfoItem('👨‍👩‍👧', 'Familia', profile.tiempo_con_familia, 'tiempo_con_familia')}
+                    {renderInfoItem('🎭', 'Sociable', profile.personalidad_sociable, 'personalidad_sociable')}
+                    {renderInfoItem('🧹', 'Orden', profile.orden_mantenimiento, 'orden_mantenimiento')}
+                    {renderInfoItem('🚀', 'Ambición', profile.eres_ambicioso, 'eres_ambicioso')}
                   </div>
                   
                   {hasContent(profile.que_haces) && (
@@ -425,10 +609,10 @@ export default function PerfilPage() {
                     <span>🙏</span> Valores y creencias
                   </h2>
                   <div className="grid grid-cols-2 gap-3">
-                    {renderInfoItem('⛪', 'Religión', profile.religion)}
-                    {renderInfoItem('🔮', 'Espiritualidad', profile.espiritualidad)}
-                    {renderInfoItem('📜', 'Valores', profile.valores_tradicionales)}
-                    {renderInfoItem('🙏', 'Convicción', profile.convicciones_religiosas)}
+                    {renderInfoItem('⛪', 'Religión', profile.religion, 'religion')}
+                    {renderInfoItem('🔮', 'Espiritualidad', profile.espiritualidad, 'espiritualidad')}
+                    {renderInfoItem('📜', 'Valores tradicionales', profile.valores_tradicionales, 'valores_tradicionales')}
+                    {renderInfoItem('🙏', 'Convicción religiosa', profile.convicciones_religiosas, 'convicciones_religiosas')}
                   </div>
                 </section>
               )}
