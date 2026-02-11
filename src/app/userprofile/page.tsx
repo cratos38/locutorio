@@ -172,28 +172,6 @@ function AjustesPerfilContent() {
           // ... agregar más campos según necesites
         }));
         
-        // Cargar fotos del usuario
-        const photosResponse = await fetch(`/api/photos?username=${user.username}&showAll=true`);
-        
-        if (photosResponse.ok) {
-          const photosData = await photosResponse.json();
-          console.log('✅ Fotos cargadas:', photosData.photos?.length || 0);
-          
-          if (photosData.photos && photosData.photos.length > 0) {
-            const mappedPhotos = photosData.photos.map((photo: any) => ({
-              id: photo.id.toString(),
-              url: photo.url,
-              esPrincipal: photo.is_principal || false,
-              estado: photo.estado as 'pendiente' | 'aprobada' | 'rechazada'
-            }));
-            
-            setFormData(prev => ({
-              ...prev,
-              fotos: mappedPhotos
-            }));
-          }
-        }
-        
       } catch (error) {
         console.error('❌ Error al cargar perfil:', error);
       }
