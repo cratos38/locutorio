@@ -42,7 +42,9 @@ import { useState } from "react";
 // =================== TIPOS ===================
 export interface Photo {
   id: string;
-  url: string;
+  url: string; // URL original (1024px) para ver completa
+  url_medium?: string; // URL medium (400px) para galería
+  url_thumbnail?: string; // URL thumbnail (96px) para miniatura
   esPrincipal: boolean;
   estado: 'pendiente' | 'aprobada' | 'rechazada';
 }
@@ -120,8 +122,12 @@ export default function PhotoGallery({
       onClick={onClick}
     >
       {/* =================== FOTO ACTUAL =================== */}
+      {/**
+        * Usa url_medium (400px) para mostrar en galería
+        * Si no existe, usa url (original)
+        */}
       <img 
-        src={currentPhoto.url} 
+        src={currentPhoto.url_medium || currentPhoto.url} 
         alt={`Foto ${activeIndex + 1} de ${photos.length}`}
         className="w-full h-full object-cover"
       />

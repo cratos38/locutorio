@@ -83,13 +83,13 @@ export default function InicioPage() {
             const photos = photosData.photos || [];
             photosCount = photos.length;
             
-            // Buscar foto principal
+            // Buscar foto principal y usar thumbnail para miniatura
             const principalPhoto = photos.find((p: any) => p.is_principal);
             if (principalPhoto) {
-              fotoPrincipal = principalPhoto.url;
+              fotoPrincipal = principalPhoto.url_thumbnail || principalPhoto.url_medium || principalPhoto.url;
             } else if (photos.length > 0) {
-              // Si no hay principal, usar la primera
-              fotoPrincipal = photos[0].url;
+              // Si no hay principal, usar la primera (thumbnail)
+              fotoPrincipal = photos[0].url_thumbnail || photos[0].url_medium || photos[0].url;
             }
           }
           

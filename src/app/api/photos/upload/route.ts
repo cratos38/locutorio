@@ -87,19 +87,21 @@ export async function POST(request: NextRequest) {
     // Obtener FormData
     console.log('📦 Obteniendo FormData...');
     const formData = await request.formData();
-    const file = formData.get('file') as File;
+    const thumbnailFile = formData.get('thumbnail') as File;
+    const mediumFile = formData.get('medium') as File;
+    const largeFile = formData.get('large') as File;
     const username = formData.get('username') as string;
     const isPrincipal = formData.get('isPrincipal') === 'true';
     
-    if (!file || !username) {
+    if (!thumbnailFile || !mediumFile || !largeFile || !username) {
       return NextResponse.json(
-        { error: 'Faltan parámetros requeridos (file, username)' },
+        { error: 'Faltan parámetros requeridos (thumbnail, medium, large, username)' },
         { status: 400 }
       );
     }
     
-    console.log(`📤 Subiendo foto para usuario: ${username}`);
-    console.log(`📏 Tamaño del archivo: ${(file.size / 1024).toFixed(2)}KB`);
+    console.log(`📤 Subiendo 3 versiones para usuario: ${username}`);
+    console.log(`📏 Tamaños: thumbnail=${(thumbnailFile.size / 1024).toFixed(2)}KB, medium=${(mediumFile.size / 1024).toFixed(2)}KB, large=${(largeFile.size / 1024).toFixed(2)}KB`);
     
     // Generar nombre único para la foto
     const timestamp = Date.now();

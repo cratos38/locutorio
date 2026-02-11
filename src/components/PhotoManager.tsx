@@ -86,7 +86,19 @@ interface PhotoManagerProps {
 }
 
 // =================== UTILIDAD: REDIMENSIONAR IMAGEN ===================
-async function resizeImage(file: File, maxWidth: number): Promise<File> {
+/**
+ * Redimensiona una imagen manteniendo su aspect ratio
+ * @param file - Archivo de imagen original
+ * @param maxWidth - Ancho máximo deseado
+ * @param maxHeight - Alto máximo deseado
+ * @param quality - Calidad JPEG (0-1)
+ */
+async function resizeImage(
+  file: File, 
+  maxWidth: number, 
+  maxHeight: number = maxWidth,
+  quality: number = 0.9
+): Promise<File> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -96,9 +108,17 @@ async function resizeImage(file: File, maxWidth: number): Promise<File> {
         let width = img.width;
         let height = img.height;
         
-        if (width > maxWidth) {
-          height = (height * maxWidth) / width;
-          width = maxWidth;
+        // Calcular dimensiones manteniendo aspect ratio
+        if (width > height) {
+          if (width > maxWidth) {
+            height = (height * maxWidth) / width;
+            width = maxWidth;
+          }
+        } else {
+          if (height > maxHeight) {
+            width = (width * maxHeight) / height;
+            height = maxHeight;
+          }
         }
         
         canvas.width = width;
@@ -118,7 +138,7 @@ async function resizeImage(file: File, maxWidth: number): Promise<File> {
             return;
           }
           resolve(new File([blob], file.name, { type: 'image/jpeg' }));
-        }, 'image/jpeg', 0.9);
+        }, 'image/jpeg', quality);
       };
       img.onerror = reject;
       img.src = e.target?.result as string;
@@ -290,9 +310,18 @@ export default function PhotoManager({
       const blob = await response.blob();
       const file = new File([blob], 'cropped-image.jpg', { type: 'image/jpeg' });
 
-      // Redimensionar
-      const resizedFile = await resizeImage(file, 400);
-      console.log(`Tamaño final: ${(resizedFile.size / 1024).toFixed(2)}KB`);
+      // Generar 3 versiones de la imagen
+      console.log('📐 Generando 3 versiones de la imagen...');
+      const [thumbnailFile, mediumFile, largeFile] = await Promise.all([
+        resizeImage(file, 96, 96, 0.85),    // Thumbnail: 96x96, calidad 85%
+        resizeImage(file, 400, 400, 0.90),  // Medium: 400x400, calidad 90%
+        resizeImage(file, 1024, 1024, 0.92) // Large: 1024x1024, calidad 92%
+      ]);
+      
+      console.log(`📏 Tamaños generados:`);
+      console.log(`  - Thumbnail (96px): ${(thumbnailFile.size / 1024).toFixed(2)}KB`);
+      console.log(`  - Medium (400px): ${(mediumFile.size / 1024).toFixed(2)}KB`);
+      console.log(`  - Large (1024px): ${(largeFile.size / 1024).toFixed(2)}KB`);
 
       // Si tenemos username, subir a Supabase
       if (username) {
@@ -311,9 +340,11 @@ export default function PhotoManager({
           console.warn('⚠️ No se pudo obtener token de autenticación');
         }
         
-        // Crear FormData
+        // Crear FormData con las 3 versiones
         const formData = new FormData();
-        formData.append('file', resizedFile);
+        formData.append('thumbnail', thumbnailFile);
+        formData.append('medium', mediumFile);
+        formData.append('large', largeFile);
         formData.append('username', username);
         formData.append('isPrincipal', (photos.length === 0).toString());
         
@@ -324,10 +355,12 @@ export default function PhotoManager({
         }
         
         // Subir a API
-        console.log('📤 Enviando a /api/photos/upload con:', {
+        console.log('📤 Enviando 3 versiones a /api/photos/upload:', {
           username,
           isPrincipal: photos.length === 0,
-          fileSize: resizedFile.size,
+          thumbnailSize: thumbnailFile.size,
+          mediumSize: mediumFile.size,
+          largeSize: largeFile.size,
           hasAuthToken: !!authToken
         });
         
@@ -357,14 +390,14 @@ export default function PhotoManager({
         
         alert('✅ Foto subida exitosamente!');
       } else {
-        // Sin username, guardar solo en memoria (modo local)
-        const url = URL.createObjectURL(resizedFile);
+        // Sin username, guardar solo en memoria (modo local - usar versión medium)
+        const url = URL.createObjectURL(mediumFile);
         const newPhoto: Photo = {
           id: Date.now().toString(),
           url: url,
           esPrincipal: photos.length === 0,
           estado: 'pendiente',
-          file: resizedFile,
+          file: mediumFile,
         };
 
         setPhotos(prev => [...prev, newPhoto]);
