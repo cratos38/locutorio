@@ -73,19 +73,31 @@ export default function InicioPage() {
         if (profileResponse.ok) {
           const data = await profileResponse.json();
           
-          // Cargar fotos para obtener el count
-          const photosResponse = await fetch(`/api/photos?username=${user.username}`);
+          // Cargar fotos para obtener el count y la foto principal
+          const photosResponse = await fetch(`/api/photos?username=${user.username}&showAll=true`);
           let photosCount = 0;
+          let fotoPrincipal = '';
+          
           if (photosResponse.ok) {
             const photosData = await photosResponse.json();
-            photosCount = photosData.photos?.length || 0;
+            const photos = photosData.photos || [];
+            photosCount = photos.length;
+            
+            // Buscar foto principal
+            const principalPhoto = photos.find((p: any) => p.is_principal);
+            if (principalPhoto) {
+              fotoPrincipal = principalPhoto.url;
+            } else if (photos.length > 0) {
+              // Si no hay principal, usar la primera
+              fotoPrincipal = photos[0].url;
+            }
           }
           
           setProfileData({
             nombre: data.nombre || user.username,
             edad: data.edad || 0,
             ciudad: data.ciudad || data.vives_en || '',
-            foto_perfil: data.foto_perfil || '',
+            foto_perfil: fotoPrincipal || data.foto_perfil || '',
             amigos_count: 0, // TODO: Implementar conteo de amigos
             fotos_count: photosCount,
             visitas_count: 0, // TODO: Implementar conteo de visitas
@@ -370,9 +382,9 @@ export default function InicioPage() {
               <div className="relative flex flex-col items-center text-center">
                 <div className="relative mb-4">
                   <img
-                    src={profileData.foto_perfil || "https://via.placeholder.com/96x96?text=" + (profileData.nombre?.charAt(0) || 'U')}
+                    src={profileData.foto_perfil || `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96'%3E%3Crect fill='%23374151' width='96' height='96'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%239CA3AF' font-size='40' font-family='system-ui'%3E${(profileData.nombre?.charAt(0) || 'U').toUpperCase()}%3C/text%3E%3C/svg%3E`}
                     alt={profileData.nombre}
-                    className="w-24 h-24 rounded-full border-4 border-[#1A2226] shadow-lg object-cover"
+                    className="w-24 h-24 rounded-xl border-4 border-[#1A2226] shadow-lg object-cover"
                   />
                   <Link 
                     href="/userprofile"
