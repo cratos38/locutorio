@@ -159,11 +159,11 @@ export async function GET(request: NextRequest) {
     // 2. Obtener fotos del usuario
     let photosQuery = supabase
       .from('profile_photos')
-      .select('id, url, is_principal, estado, orden, created_at')
+      .select('id, url, url_medium, url_thumbnail, is_principal, estado, orden, created_at')
       .eq('user_id', userData.id)
       .order('is_principal', { ascending: false })
       .order('orden', { ascending: true })
-      .order('created_at', { ascending: false });
+      .order('created_at', { ascending: false});
     
     // Si no es showAllPhotos, solo mostrar aprobadas
     if (!showAllPhotos) {
@@ -180,6 +180,8 @@ export async function GET(request: NextRequest) {
     const fotos = (photosData || []).map(photo => ({
       id: photo.id,
       url: photo.url,
+      url_medium: photo.url_medium,
+      url_thumbnail: photo.url_thumbnail,
       esPrincipal: photo.is_principal,
       estado: photo.estado === 'aprobada' ? 'aprobada' : 
               photo.estado === 'rechazada' ? 'rechazada' : 'pendiente'
