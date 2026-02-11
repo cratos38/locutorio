@@ -476,8 +476,8 @@ export default function PhotoManager({
   // =================== RENDER ===================
   if (loading) {
     return (
-      <div className="flex items-center justify-center p-8">
-        <div className="text-gray-400">Cargando fotos...</div>
+      <div className="flex items-center justify-center p-8 rounded-xl bg-connect-bg-dark" style={{ aspectRatio: '10/13', minHeight: '400px' }}>
+        <div className="text-gray-400 animate-pulse">Cargando fotos...</div>
       </div>
     );
   }

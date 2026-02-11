@@ -46,7 +46,7 @@ export default function InicioPage() {
     nombre: user?.username || '',
     edad: 0,
     ciudad: '',
-    foto_perfil: '',
+    foto_perfil: typeof window !== 'undefined' ? localStorage.getItem(`avatar_${user?.username}`) || '' : '',
     amigos_count: 0,
     fotos_count: 0,
     visitas_count: 0,
@@ -90,6 +90,11 @@ export default function InicioPage() {
             } else if (photos.length > 0) {
               // Si no hay principal, usar la primera (thumbnail)
               fotoPrincipal = photos[0].url_thumbnail || photos[0].url_medium || photos[0].url;
+            }
+            
+            // Guardar en localStorage para carga rápida
+            if (fotoPrincipal && user?.username) {
+              localStorage.setItem(`avatar_${user.username}`, fotoPrincipal);
             }
           }
           
