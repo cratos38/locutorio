@@ -1664,9 +1664,10 @@ function AjustesPerfilContent() {
           <div className="lg:col-span-1 space-y-4">
             {/* Tarjeta de foto */}
             <div className="bg-connect-bg-dark/60 backdrop-blur-sm border border-connect-border rounded-xl p-4 shadow-lg">
-              <PhotoManager
-                username={user?.username || 'demo'}
-                canUpload={true}
+              {user && (
+                <PhotoManager
+                  username={user.username}
+                  canUpload={true}
                 canDelete={true}
                 canSetPrincipal={true}
                 canToggleCarousel={true}
@@ -1686,6 +1687,7 @@ function AjustesPerfilContent() {
                   }));
                 }}
               />
+              )}
             </div>
 
             {/* Tarjeta de navegación */}
