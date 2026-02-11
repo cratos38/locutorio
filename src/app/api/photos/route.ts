@@ -30,8 +30,13 @@ const getSupabaseClient = () => {
  * - Para dueño del perfil: /api/photos?username=anam&showAll=true (todas)
  */
 export async function GET(request: NextRequest) {
+  const startTime = Date.now();
   try {
+    console.log(`⏱️ [${Date.now() - startTime}ms] Inicio de /api/photos`);
+    
     const supabase = getSupabaseClient();
+    console.log(`⏱️ [${Date.now() - startTime}ms] Cliente Supabase creado`);
+    
     const { searchParams } = new URL(request.url);
     const username = searchParams.get('username');
     const showAll = searchParams.get('showAll') === 'true';
@@ -43,14 +48,16 @@ export async function GET(request: NextRequest) {
       );
     }
     
-    console.log(`📥 Obteniendo fotos para usuario: ${username} (showAll: ${showAll})`);
+    console.log(`⏱️ [${Date.now() - startTime}ms] 📥 Obteniendo fotos para usuario: ${username} (showAll: ${showAll})`);
     
     // Buscar user_id por username
+    const userStartTime = Date.now();
     const { data: userData, error: userError } = await supabase
       .from('users')
       .select('id')
       .eq('username', username)
       .single();
+    console.log(`⏱️ [${Date.now() - startTime}ms] Query users tardó: ${Date.now() - userStartTime}ms`);
     
     if (userError || !userData) {
       console.error('❌ Usuario no encontrado:', userError);
@@ -61,6 +68,7 @@ export async function GET(request: NextRequest) {
     }
     
     const userId = userData.id;
+    console.log(`⏱️ [${Date.now() - startTime}ms] User ID encontrado: ${userId}`);
     
     // Construir query de fotos
     let query = supabase
@@ -74,10 +82,12 @@ export async function GET(request: NextRequest) {
     }
     
     // Ordenar: principal primero, luego por orden, luego por fecha
+    const photosStartTime = Date.now();
     const { data: photos, error: photosError } = await query
       .order('is_principal', { ascending: false })
       .order('orden', { ascending: true })
       .order('created_at', { ascending: false });
+    console.log(`⏱️ [${Date.now() - startTime}ms] Query photos tardó: ${Date.now() - photosStartTime}ms`);
     
     if (photosError) {
       console.error('❌ Error al obtener fotos:', photosError);
@@ -87,7 +97,7 @@ export async function GET(request: NextRequest) {
       );
     }
     
-    console.log(`✅ ${photos?.length || 0} fotos encontradas`);
+    console.log(`⏱️ [${Date.now() - startTime}ms] ✅ ${photos?.length || 0} fotos encontradas - TOTAL: ${Date.now() - startTime}ms`);
     
     return NextResponse.json({
       success: true,
