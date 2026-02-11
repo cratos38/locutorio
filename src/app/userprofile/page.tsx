@@ -1688,7 +1688,6 @@ function AjustesPerfilContent() {
             <div className="bg-connect-bg-dark/60 backdrop-blur-sm border border-connect-border rounded-xl p-4 shadow-lg">
               <PhotoManager
                 username={user?.username || 'demo'}
-                initialPhotos={formData.fotos}
                 canUpload={true}
                 canDelete={true}
                 canSetPrincipal={true}
