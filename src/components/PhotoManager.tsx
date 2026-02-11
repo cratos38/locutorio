@@ -260,6 +260,8 @@ export default function PhotoManager({
         const loadedPhotos: Photo[] = result.photos.map((photo: any) => ({
           id: photo.id,
           url: photo.url,
+          url_medium: photo.url_medium,
+          url_thumbnail: photo.url_thumbnail,
           esPrincipal: photo.is_principal,
           estado: photo.estado as 'pendiente' | 'aprobada' | 'rechazada'
         }));
