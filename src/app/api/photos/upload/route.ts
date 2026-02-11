@@ -103,39 +103,90 @@ export async function POST(request: NextRequest) {
     console.log(`📤 Subiendo 3 versiones para usuario: ${username}`);
     console.log(`📏 Tamaños: thumbnail=${(thumbnailFile.size / 1024).toFixed(2)}KB, medium=${(mediumFile.size / 1024).toFixed(2)}KB, large=${(largeFile.size / 1024).toFixed(2)}KB`);
     
-    // Generar nombre único para la foto
+    // Generar nombre único para las fotos
     const timestamp = Date.now();
-    const fileExt = file.name.split('.').pop() || 'jpg';
-    const fileName = `${username}/${timestamp}.${fileExt}`;
+    const fileExt = largeFile.name.split('.').pop() || 'jpg';
     
-    // Convertir File a ArrayBuffer para Supabase Storage
-    const arrayBuffer = await file.arrayBuffer();
-    const buffer = new Uint8Array(arrayBuffer);
+    // Nombres de archivos para las 3 versiones
+    const thumbnailFileName = `${username}/${timestamp}_thumbnail.${fileExt}`;
+    const mediumFileName = `${username}/${timestamp}_medium.${fileExt}`;
+    const largeFileName = `${username}/${timestamp}.${fileExt}`;
     
-    // Subir foto a Supabase Storage (bucket: profile-photos)
-    console.log(`💾 Subiendo a Storage: ${fileName}`);
-    const { data: uploadData, error: uploadError } = await supabase.storage
+    // 1️⃣ Subir THUMBNAIL (96px)
+    console.log(`💾 Subiendo thumbnail: ${thumbnailFileName}`);
+    const thumbnailBuffer = new Uint8Array(await thumbnailFile.arrayBuffer());
+    const { error: thumbnailError } = await supabase.storage
       .from('profile-photos')
-      .upload(fileName, buffer, {
-        contentType: file.type,
+      .upload(thumbnailFileName, thumbnailBuffer, {
+        contentType: thumbnailFile.type,
         upsert: false
       });
     
-    if (uploadError) {
-      console.error('❌ Error al subir foto a Storage:', uploadError);
+    if (thumbnailError) {
+      console.error('❌ Error al subir thumbnail:', thumbnailError);
       return NextResponse.json(
-        { error: 'Error al subir foto a Storage', details: uploadError.message },
+        { error: 'Error al subir thumbnail', details: thumbnailError.message },
         { status: 500 }
       );
     }
     
-    // Obtener URL pública de la foto
-    const { data: urlData } = supabase.storage
+    // 2️⃣ Subir MEDIUM (400px)
+    console.log(`💾 Subiendo medium: ${mediumFileName}`);
+    const mediumBuffer = new Uint8Array(await mediumFile.arrayBuffer());
+    const { error: mediumError } = await supabase.storage
       .from('profile-photos')
-      .getPublicUrl(fileName);
+      .upload(mediumFileName, mediumBuffer, {
+        contentType: mediumFile.type,
+        upsert: false
+      });
     
-    const photoUrl = urlData.publicUrl;
-    console.log(`✅ Foto subida exitosamente: ${photoUrl}`);
+    if (mediumError) {
+      console.error('❌ Error al subir medium:', mediumError);
+      return NextResponse.json(
+        { error: 'Error al subir medium', details: mediumError.message },
+        { status: 500 }
+      );
+    }
+    
+    // 3️⃣ Subir LARGE (1024px)
+    console.log(`💾 Subiendo large: ${largeFileName}`);
+    const largeBuffer = new Uint8Array(await largeFile.arrayBuffer());
+    const { error: largeError } = await supabase.storage
+      .from('profile-photos')
+      .upload(largeFileName, largeBuffer, {
+        contentType: largeFile.type,
+        upsert: false
+      });
+    
+    if (largeError) {
+      console.error('❌ Error al subir large:', largeError);
+      return NextResponse.json(
+        { error: 'Error al subir large', details: largeError.message },
+        { status: 500 }
+      );
+    }
+    
+    // Obtener URLs públicas de las 3 versiones
+    const { data: thumbnailUrlData } = supabase.storage
+      .from('profile-photos')
+      .getPublicUrl(thumbnailFileName);
+    
+    const { data: mediumUrlData } = supabase.storage
+      .from('profile-photos')
+      .getPublicUrl(mediumFileName);
+    
+    const { data: largeUrlData } = supabase.storage
+      .from('profile-photos')
+      .getPublicUrl(largeFileName);
+    
+    const thumbnailUrl = thumbnailUrlData.publicUrl;
+    const mediumUrl = mediumUrlData.publicUrl;
+    const photoUrl = largeUrlData.publicUrl;
+    
+    console.log(`✅ 3 versiones subidas exitosamente`);
+    console.log(`  - Thumbnail (96px): ${thumbnailUrl}`);
+    console.log(`  - Medium (400px): ${mediumUrl}`);
+    console.log(`  - Large (1024px): ${photoUrl}`);
     
     // Buscar user_id por username
     const { data: userData, error: userError } = await supabase
@@ -163,13 +214,15 @@ export async function POST(request: NextRequest) {
         .eq('user_id', userId);
     }
     
-    // Guardar registro de la foto en la base de datos
-    console.log('💾 Guardando registro en profile_photos...');
+    // Guardar registro de la foto en la base de datos (con 3 URLs)
+    console.log('💾 Guardando registro en profile_photos con 3 URLs...');
     const { data: photoData, error: photoError } = await supabase
       .from('profile_photos')
       .insert({
         user_id: userId,
-        url: photoUrl,
+        url: photoUrl,              // Large (1024px)
+        url_medium: mediumUrl,      // Medium (400px)
+        url_thumbnail: thumbnailUrl, // Thumbnail (96px)
         is_principal: isPrincipal,
         estado: 'pendiente', // Por defecto pendiente de aprobación
         orden: 0
