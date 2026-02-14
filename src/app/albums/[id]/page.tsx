@@ -382,11 +382,46 @@ export default function AlbumDetailPage() {
     if (selectedFiles.length === 0) return;
     
     try {
+      // ✅ Si el álbum es público, analizar ANTES de subir
+      let analysisResults: any[] = [];
+      
+      if (album?.privacy === 'publico') {
+        console.log('🤖 Analizando fotos antes de subir...');
+        const { analyzeImages } = await import('@/lib/nsfw');
+        analysisResults = await analyzeImages(selectedFiles);
+        
+        const rejectedCount = analysisResults.filter(r => !r.safe).length;
+        const approvedCount = analysisResults.filter(r => r.safe).length;
+        
+        console.log(`📊 Análisis: ✅ ${approvedCount} aprobadas, ❌ ${rejectedCount} rechazadas`);
+        
+        if (rejectedCount > 0) {
+          const confirm = window.confirm(
+            `⚠️ DETECCIÓN DE CONTENIDO INAPROPIADO\n\n` +
+            `${rejectedCount} foto(s) fueron rechazadas.\n` +
+            `${approvedCount} foto(s) pasaron la verificación.\n\n` +
+            `¿Continuar subiendo solo las aprobadas?`
+          );
+          
+          if (!confirm) {
+            console.log('❌ Usuario canceló');
+            return;
+          }
+        }
+      }
+      
       console.log(`📤 Subiendo ${selectedFiles.length} foto(s) a Supabase...`);
       
       const uploadedPhotos = [];
       
-      for (const file of selectedFiles) {
+      for (let i = 0; i < selectedFiles.length; i++) {
+        const file = selectedFiles[i];
+        
+        // Si fue rechazada, saltarla
+        if (analysisResults[i] && !analysisResults[i].safe) {
+          console.log(`⛔ Foto ${i + 1} rechazada, omitiendo subida`);
+          continue;
+        }
         // Generar nombre único para el archivo
         const fileExt = file.name.split('.').pop();
         const fileName = `${user?.id}/${albumId}/${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
@@ -411,7 +446,26 @@ export default function AlbumDetailPage() {
         
         console.log('✅ Foto subida:', publicUrl);
         
-        // ✅ SISTEMA DESACTIVADO: Todas las fotos se aprueban automáticamente
+        // ✅ SISTEMA REACTIVADO: Marcar según análisis
+        let moderationStatus = 'approved';
+        let moderationReason = 'Aprobado automáticamente';
+        let moderationScore = 0;
+        
+        if (analysisResults[i]) {
+          const analysis = analysisResults[i];
+          moderationStatus = analysis.safe ? 'approved' : 'rejected';
+          moderationReason = analysis.reason || 'Análisis NSFW';
+          
+          if (analysis.scores) {
+            const maxScore = Math.max(
+              analysis.scores.Porn || 0,
+              analysis.scores.Sexy || 0,
+              analysis.scores.Hentai || 0
+            );
+            moderationScore = maxScore;
+          }
+        }
+        
         const { data: photoData, error: photoError } = await supabase
           .from('album_photos')
           .insert({
@@ -419,8 +473,9 @@ export default function AlbumDetailPage() {
             url: publicUrl,
             description: newPhotoDescription,
             orden: photos.length + uploadedPhotos.length,
-            moderation_status: 'approved',
-            moderation_reason: 'Auto-aprobado (moderación manual)',
+            moderation_status: moderationStatus,
+            moderation_reason: moderationReason,
+            moderation_score: moderationScore,
             moderation_date: new Date().toISOString(),
           })
           .select()

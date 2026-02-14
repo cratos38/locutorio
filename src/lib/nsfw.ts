@@ -1,17 +1,33 @@
 /**
  * NSFW Content Detection usando nsfwjs
- * Configuración AFLOJADA para evitar falsos positivos
+ * SISTEMA INTELIGENTE: Compara categorías entre sí
+ * 
+ * IMPORTANTE: Para protección infantil (sitio NO +18)
  */
 
 import * as nsfwjs from 'nsfwjs';
 
-// Thresholds para detección (TEMPORALMENTE MÁS PERMISIVOS)
-// Ajustaremos después de revisar los ejemplos del usuario
-export const NSFW_THRESHOLDS = {
-  Porn: 0.75,   // MÁS PERMISIVO (antes 0.60) - solo muy explícito
-  Sexy: 0.85,   // MÁS PERMISIVO (antes 0.70) - vestidos discoteca OK
-  Hentai: 0.80, // MÁS PERMISIVO (antes 0.65) - menos falsos positivos
+/**
+ * NUEVO ALGORITMO INTELIGENTE:
+ * 
+ * No solo miramos si Porn > umbral, sino que comparamos:
+ * - Si Neutral > Porn/Sexy/Hentai → APROBAR ✅
+ * - Si Porn/Sexy/Hentai > Neutral → RECHAZAR ❌
+ * 
+ * Ejemplo:
+ * ✅ Porn:0.74, Neutral:0.90 → APROBAR (neutral gana)
+ * ❌ Porn:0.85, Neutral:0.10 → RECHAZAR (porno gana)
+ */
+
+// Umbrales mínimos absolutos (solo para casos obvios)
+export const NSFW_ABSOLUTE_THRESHOLDS = {
+  Porn: 0.90,   // >90% = obviamente porno
+  Sexy: 0.95,   // >95% = obviamente sexual
+  Hentai: 0.90, // >90% = obviamente hentai
 };
+
+// Margen de diferencia para comparación relativa
+export const NEUTRAL_MARGIN = 0.15; // Neutral debe ganar por al menos 15%
 
 let model: nsfwjs.NSFWJS | null = null;
 
@@ -65,37 +81,84 @@ export async function isImageSafe(file: File): Promise<{
             scores[pred.className] = pred.probability;
           });
           
-          console.log('🔍 NSFW Analysis:', scores);
-          
-          // Verificar si contiene contenido explícito o sugestivo
+          // Extraer puntuaciones
           const pornScore = scores['Porn'] || 0;
           const sexyScore = scores['Sexy'] || 0;
           const hentaiScore = scores['Hentai'] || 0;
+          const neutralScore = scores['Neutral'] || 0;
+          const drawingScore = scores['Drawing'] || 0;
           
-          if (pornScore > NSFW_THRESHOLDS.Porn) {
+          // Calcular puntuación máxima de contenido inapropiado
+          const maxNSFWScore = Math.max(pornScore, sexyScore, hentaiScore);
+          const nsfwType = pornScore === maxNSFWScore ? 'Porn' : 
+                          sexyScore === maxNSFWScore ? 'Sexy' : 'Hentai';
+          
+          console.log('🔍 NSFW Analysis:', {
+            Neutral: `${(neutralScore * 100).toFixed(1)}%`,
+            Porn: `${(pornScore * 100).toFixed(1)}%`,
+            Sexy: `${(sexyScore * 100).toFixed(1)}%`,
+            Hentai: `${(hentaiScore * 100).toFixed(1)}%`,
+            Drawing: `${(drawingScore * 100).toFixed(1)}%`,
+            '---': '---',
+            MaxNSFW: `${(maxNSFWScore * 100).toFixed(1)}% (${nsfwType})`,
+            Decision: neutralScore > maxNSFWScore + NEUTRAL_MARGIN ? '✅ SAFE' : 
+                     maxNSFWScore > NSFW_ABSOLUTE_THRESHOLDS[nsfwType as keyof typeof NSFW_ABSOLUTE_THRESHOLDS] ? '❌ UNSAFE (Absoluto)' :
+                     maxNSFWScore > neutralScore ? '❌ UNSAFE (Relativo)' : '✅ SAFE'
+          });
+          
+          // REGLA 1: Si cualquier categoría NSFW supera umbral absoluto → RECHAZAR
+          if (pornScore > NSFW_ABSOLUTE_THRESHOLDS.Porn) {
             resolve({
               safe: false,
-              reason: `Contenido explícito detectado (${(pornScore * 100).toFixed(0)}% pornografía)`,
+              reason: `Contenido explícito detectado (${(pornScore * 100).toFixed(0)}% pornografía - ABSOLUTO)`,
               scores
             });
-          } else if (sexyScore > NSFW_THRESHOLDS.Sexy) {
+            return;
+          }
+          
+          if (sexyScore > NSFW_ABSOLUTE_THRESHOLDS.Sexy) {
             resolve({
               safe: false,
-              reason: `Contenido sugestivo detectado (${(sexyScore * 100).toFixed(0)}% sugestivo)`,
+              reason: `Contenido sexual detectado (${(sexyScore * 100).toFixed(0)}% sexual - ABSOLUTO)`,
               scores
             });
-          } else if (hentaiScore > NSFW_THRESHOLDS.Hentai) {
+            return;
+          }
+          
+          if (hentaiScore > NSFW_ABSOLUTE_THRESHOLDS.Hentai) {
             resolve({
               safe: false,
-              reason: `Contenido inapropiado detectado (${(hentaiScore * 100).toFixed(0)}% hentai)`,
+              reason: `Contenido inapropiado detectado (${(hentaiScore * 100).toFixed(0)}% hentai - ABSOLUTO)`,
               scores
             });
-          } else {
+            return;
+          }
+          
+          // REGLA 2: Comparación relativa - Neutral debe ganar por margen
+          if (neutralScore > maxNSFWScore + NEUTRAL_MARGIN) {
+            // Neutral gana claramente → APROBAR
             resolve({
               safe: true,
               scores
             });
+            return;
           }
+          
+          // REGLA 3: Si NSFW supera a Neutral → RECHAZAR
+          if (maxNSFWScore > neutralScore) {
+            resolve({
+              safe: false,
+              reason: `Contenido inapropiado (${nsfwType}: ${(maxNSFWScore * 100).toFixed(0)}% vs Neutral: ${(neutralScore * 100).toFixed(0)}%)`,
+              scores
+            });
+            return;
+          }
+          
+          // REGLA 4: Por defecto, si están muy cerca, aprobar (beneficio de la duda)
+          resolve({
+            safe: true,
+            scores
+          });
         } catch (err) {
           console.error('Error analizando imagen:', err);
           // En caso de error, permitir la imagen (fail-safe)

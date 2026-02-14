@@ -453,11 +453,49 @@ export default function AlbumesPage() {
       setIsCreating(true);
       console.log(`📤 Creando álbum "${albumName}"...`);
       
-      // ✅ SISTEMA DESACTIVADO: Ya no se analiza con NSFW.js
-      // Todas las fotos se aprueban automáticamente
-      // El sistema de denuncias manual reemplaza la moderación automática
+      // ✅ SISTEMA REACTIVADO: NSFW.js con lógica mejorada
+      // IMPORTANTE: Para protección infantil (sitio NO +18)
       let photoAnalysisResults: any[] = [];
-      console.log('✅ Moderación automática desactivada - todas las fotos aprobadas');
+      
+      if (privacyType === 'publico') {
+        console.log('🤖 Analizando contenido con algoritmo mejorado...');
+        setIsAnalyzing(true);
+        
+        try {
+          const photosToAnalyze = uploadedPhotos.map(p => p.file);
+          const analysisResults = await analyzeImages(photosToAnalyze);
+          photoAnalysisResults = analysisResults;
+          setIsAnalyzing(false);
+          
+          const rejectedCount = analysisResults.filter(r => !r.safe).length;
+          const approvedCount = analysisResults.filter(r => r.safe).length;
+          
+          console.log(`📊 Análisis completado: ✅ ${approvedCount} aprobadas, ❌ ${rejectedCount} rechazadas`);
+          
+          // Si hay fotos rechazadas, preguntar al usuario
+          if (rejectedCount > 0) {
+            const confirm = window.confirm(
+              `⚠️ DETECCIÓN DE CONTENIDO INAPROPIADO\n\n` +
+              `${rejectedCount} foto(s) fueron rechazadas por el filtro automático.\n` +
+              `${approvedCount} foto(s) pasaron la verificación.\n\n` +
+              `Revisa la consola del navegador (F12) para ver detalles de puntuación.\n\n` +
+              `¿Deseas continuar subiendo solo las fotos aprobadas?`
+            );
+            
+            if (!confirm) {
+              console.log('❌ Usuario canceló la subida');
+              setIsCreating(false);
+              return;
+            }
+          }
+        } catch (err) {
+          console.error('❌ Error en análisis:', err);
+          setIsAnalyzing(false);
+          alert('Error al analizar las fotos. Por favor intenta de nuevo.');
+          setIsCreating(false);
+          return;
+        }
+      }
       
       // 1. Crear el álbum en la BD
       const { data: newAlbum, error: albumError } = await supabase
@@ -508,7 +546,32 @@ export default function AlbumesPage() {
             .from('album-photos')
             .getPublicUrl(fileName);
           
-          // ✅ SISTEMA DESACTIVADO: Todas las fotos se aprueban automáticamente
+          // ✅ SISTEMA REACTIVADO: Marcar según análisis NSFW
+          let moderationStatus = 'approved';
+          let moderationReason = 'Aprobado automáticamente';
+          let moderationScore = 0;
+          
+          if (privacyType === 'publico' && photoAnalysisResults[i]) {
+            const analysis = photoAnalysisResults[i];
+            moderationStatus = analysis.safe ? 'approved' : 'rejected';
+            moderationReason = analysis.reason || 'Análisis NSFW';
+            
+            if (analysis.scores) {
+              const maxScore = Math.max(
+                analysis.scores.Porn || 0,
+                analysis.scores.Sexy || 0,
+                analysis.scores.Hentai || 0
+              );
+              moderationScore = maxScore;
+            }
+          }
+          
+          // Solo subir fotos aprobadas
+          if (moderationStatus === 'rejected') {
+            console.log(`⛔ Foto ${i + 1}/${uploadedPhotos.length} rechazada (no se sube)`);
+            return null;
+          }
+          
           const { data: photoData, error: photoError } = await supabase
             .from('album_photos')
             .insert({
@@ -516,9 +579,9 @@ export default function AlbumesPage() {
               url: publicUrl,
               description: photo.description || `Foto ${i + 1}`,
               orden: i,
-              moderation_status: 'approved',
-              moderation_reason: 'Auto-aprobado (moderación manual)',
-              moderation_score: 0,
+              moderation_status: moderationStatus,
+              moderation_reason: moderationReason,
+              moderation_score: moderationScore,
               moderation_date: new Date().toISOString(),
             })
             .select()
@@ -545,7 +608,18 @@ export default function AlbumesPage() {
         })
         .eq('id', newAlbum.id);
       
-      alert(`¡Álbum "${albumName}" creado exitosamente con ${uploadedPhotoUrls.length} foto(s)!`);
+      // 4. Mostrar mensaje con resultados
+      const rejectedCount = photoAnalysisResults.filter(r => !r.safe).length;
+      const approvedCount = uploadedPhotoUrls.length;
+      
+      let message = `¡Álbum "${albumName}" creado exitosamente con ${approvedCount} foto(s)!`;
+      
+      if (rejectedCount > 0) {
+        message += `\n\n⚠️ ${rejectedCount} foto(s) fueron rechazadas por contenido inapropiado.`;
+        message += `\nRevisa la consola (F12) para ver los detalles de puntuación.`;
+      }
+      
+      alert(message);
       
       // 5. Recargar lista de álbumes
       const { data: allAlbums } = await supabase
