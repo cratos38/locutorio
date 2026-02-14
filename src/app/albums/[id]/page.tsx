@@ -93,6 +93,7 @@ export default function AlbumDetailPage() {
   const [album, setAlbum] = useState<any>(null);
   const [albumOwnerUsername, setAlbumOwnerUsername] = useState<string>("");
   const [isLoadingAlbum, setIsLoadingAlbum] = useState(true);
+  const [isLoadingPhotos, setIsLoadingPhotos] = useState(true);
   const [photos, setPhotos] = useState<any[]>([]);
   const [selectedPhoto, setSelectedPhoto] = useState<number | null>(null);
   const [hasAccess, setHasAccess] = useState(false);
@@ -181,6 +182,7 @@ export default function AlbumDetailPage() {
         }
         
         // Cargar fotos desde Supabase
+        setIsLoadingPhotos(true);
         const { data: photosData, error: photosError } = await supabase
           .from('album_photos')
           .select('*')
@@ -192,6 +194,7 @@ export default function AlbumDetailPage() {
         } else {
           setPhotos(photosData || []);
         }
+        setIsLoadingPhotos(false);
         
         // Load likes, comments, views from localStorage (temporal)
         const likesData = localStorage.getItem(`album_${albumId}_likes`);
@@ -893,6 +896,13 @@ export default function AlbumDetailPage() {
                   {/* Remove Cover indicator - no longer needed */}
                 </div>
               ))
+            ) : isLoadingPhotos ? (
+              <div className="col-span-full text-center py-12">
+                <div className="flex items-center justify-center gap-3">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                  <p className="text-connect-muted">Cargando fotos...</p>
+                </div>
+              </div>
             ) : (
               <div className="col-span-full text-center py-12">
                 <p className="text-connect-muted">Este álbum no tiene fotos.</p>
