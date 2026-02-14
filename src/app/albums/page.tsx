@@ -281,6 +281,7 @@ export default function AlbumesPage() {
   const [albums, setAlbums] = useState<Album[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
 
   // Load albums on mount
   useEffect(() => {
@@ -441,8 +442,15 @@ export default function AlbumesPage() {
       alert("Debes iniciar sesión para crear álbumes");
       return;
     }
+    
+    // Evitar doble click
+    if (isCreating || isAnalyzing) {
+      console.log('⚠️ Ya se está creando un álbum, por favor espera...');
+      return;
+    }
 
     try {
+      setIsCreating(true);
       console.log(`📤 Creando álbum "${albumName}"...`);
       
       // ✅ NUEVO SISTEMA: Analizar fotos ANTES de subir (solo álbumes públicos)
@@ -602,9 +610,13 @@ export default function AlbumesPage() {
       setPrivacyType("publico");
       setAlbumPassword("");
       setShowCreateModal(false);
+      setIsCreating(false);
+      setIsAnalyzing(false);
     } catch (err) {
       console.error('Error:', err);
       alert('Error al crear el álbum');
+      setIsCreating(false);
+      setIsAnalyzing(false);
     }
   };
 
@@ -955,7 +967,7 @@ export default function AlbumesPage() {
                 </Button>
                 <Button 
                   onClick={handleCreateAlbum} 
-                  disabled={!albumName.trim() || uploadedPhotos.length === 0 || (privacyType === "protegido" && (!albumPassword.trim() || albumPassword.length < 6)) || isAnalyzing}
+                  disabled={!albumName.trim() || uploadedPhotos.length === 0 || (privacyType === "protegido" && (!albumPassword.trim() || albumPassword.length < 6)) || isAnalyzing || isCreating}
                   className="bg-primary text-connect-bg-dark hover:brightness-110 font-bold disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isAnalyzing ? (
@@ -965,6 +977,14 @@ export default function AlbumesPage() {
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                       </svg>
                       Analizando contenido...
+                    </span>
+                  ) : isCreating ? (
+                    <span className="flex items-center gap-2">
+                      <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Subiendo fotos...
                     </span>
                   ) : (
                     "Crear Álbum"

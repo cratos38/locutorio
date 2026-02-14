@@ -882,28 +882,35 @@ export default function AlbumDetailPage() {
                     {/* ESTADO 1: FOTO RECHAZADA */}
                     {isRejected ? (
                       <div className="w-full h-full relative">
-                        {/* Imagen con blur y escala de grises */}
+                        {/* Imagen con blur FUERTE pero VISIBLE */}
                         <img 
                           src={photo.url} 
                           alt="Foto rechazada" 
-                          className="w-full h-full object-cover filter blur-lg grayscale opacity-30"
+                          className="w-full h-full object-cover filter blur-2xl grayscale brightness-50"
                         />
                         
-                        {/* Overlay completo */}
-                        <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center p-4 text-center">
+                        {/* Overlay semi-transparente (no tan oscuro) */}
+                        <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center p-4 text-center">
                           {/* Icono de prohibido */}
-                          <div className="w-16 h-16 mb-3 bg-red-500/20 rounded-full flex items-center justify-center">
+                          <div className="w-16 h-16 mb-3 bg-red-500/30 rounded-full flex items-center justify-center backdrop-blur-sm border-2 border-red-500/50">
                             <svg className="w-10 h-10 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
                             </svg>
                           </div>
                           
-                          <p className="text-red-400 font-bold text-sm mb-1">
+                          <p className="text-red-400 font-bold text-sm mb-1 bg-black/60 px-3 py-1 rounded-full">
                             NO PERMITIDA
                           </p>
-                          <p className="text-white/60 text-xs mb-3">
+                          <p className="text-white text-xs mb-3 bg-black/60 px-3 py-1 rounded-lg">
                             {photo.moderation_reason || 'Contenido inapropiado'}
                           </p>
+                          
+                          {/* Preview info para identificar la foto */}
+                          {photo.description && (
+                            <p className="text-white/80 text-xs mb-2 bg-black/60 px-3 py-1 rounded-lg italic">
+                              "{photo.description}"
+                            </p>
+                          )}
                           
                           {/* Botones solo para el dueño */}
                           {album.user_id === user?.id && (
@@ -914,20 +921,20 @@ export default function AlbumDetailPage() {
                                   setEditingPhotoIndex(index);
                                   setShowDeletePhotoModal(true);
                                 }}
-                                className="px-3 py-1.5 bg-red-500/20 hover:bg-red-500/30 text-red-400 text-xs rounded-lg transition-colors"
+                                className="px-3 py-1.5 bg-red-500/30 hover:bg-red-500/40 text-red-300 text-xs rounded-lg transition-colors backdrop-blur-sm border border-red-500/30"
                               >
                                 Eliminar
                               </button>
                               <button
                                 onClick={async (e) => {
                                   e.stopPropagation();
-                                  if (confirm('¿Mover esta foto a un álbum privado?\n\nCrea un álbum "Solo Amigos" o "Protegido" donde esta foto será permitida.')) {
-                                    alert('Función en desarrollo: Mover a álbum privado');
+                                  if (confirm('¿Cambiar este álbum a "Solo Amigos" o "Protegido"?\n\nEsto permitirá todas las fotos.')) {
+                                    alert('Función en desarrollo: Cambiar privacidad del álbum');
                                   }
                                 }}
-                                className="px-3 py-1.5 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 text-xs rounded-lg transition-colors"
+                                className="px-3 py-1.5 bg-blue-500/30 hover:bg-blue-500/40 text-blue-300 text-xs rounded-lg transition-colors backdrop-blur-sm border border-blue-500/30"
                               >
-                                Mover a privado
+                                Cambiar a privado
                               </button>
                             </div>
                           )}

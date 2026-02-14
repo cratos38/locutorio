@@ -5,11 +5,12 @@
 
 import * as nsfwjs from 'nsfwjs';
 
-// Threshold para detección (ajustable)
-// 0.5 = MÁS ESTRICTO (más detecciones)
-// 0.60 = EQUILIBRADO (recomendado)
-// 0.85 = MÁS PERMISIVO (solo muy explícito)
-export const NSFW_PORN_THRESHOLD = 0.60;
+// Thresholds para detección (ajustables)
+export const NSFW_THRESHOLDS = {
+  Porn: 0.60,   // Pornografía explícita
+  Sexy: 0.70,   // Contenido sugestivo/provocativo (bajado de 0.75)
+  Hentai: 0.65, // Dibujos explícitos (bajado de 0.70)
+};
 
 let model: nsfwjs.NSFWJS | null = null;
 
@@ -65,13 +66,27 @@ export async function isImageSafe(file: File): Promise<{
           
           console.log('🔍 NSFW Analysis:', scores);
           
-          // Verificar si contiene contenido explícito
+          // Verificar si contiene contenido explícito o sugestivo
           const pornScore = scores['Porn'] || 0;
+          const sexyScore = scores['Sexy'] || 0;
+          const hentaiScore = scores['Hentai'] || 0;
           
-          if (pornScore > NSFW_PORN_THRESHOLD) {
+          if (pornScore > NSFW_THRESHOLDS.Porn) {
             resolve({
               safe: false,
-              reason: `Contenido explícito detectado (${(pornScore * 100).toFixed(0)}% de confianza)`,
+              reason: `Contenido explícito detectado (${(pornScore * 100).toFixed(0)}% pornografía)`,
+              scores
+            });
+          } else if (sexyScore > NSFW_THRESHOLDS.Sexy) {
+            resolve({
+              safe: false,
+              reason: `Contenido sugestivo detectado (${(sexyScore * 100).toFixed(0)}% sugestivo)`,
+              scores
+            });
+          } else if (hentaiScore > NSFW_THRESHOLDS.Hentai) {
+            resolve({
+              safe: false,
+              reason: `Contenido inapropiado detectado (${(hentaiScore * 100).toFixed(0)}% hentai)`,
               scores
             });
           } else {
