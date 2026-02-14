@@ -453,26 +453,11 @@ export default function AlbumesPage() {
       setIsCreating(true);
       console.log(`📤 Creando álbum "${albumName}"...`);
       
-      // ✅ NUEVO SISTEMA: Analizar fotos ANTES de subir (solo álbumes públicos)
+      // ✅ SISTEMA DESACTIVADO: Ya no se analiza con NSFW.js
+      // Todas las fotos se aprueban automáticamente
+      // El sistema de denuncias manual reemplaza la moderación automática
       let photoAnalysisResults: any[] = [];
-      
-      if (privacyType === 'publico') {
-        console.log('🤖 Analizando contenido (álbum público)...');
-        setIsAnalyzing(true);
-        
-        try {
-          const photosToAnalyze = uploadedPhotos.map(p => p.file);
-          const analysisResults = await analyzeImages(photosToAnalyze);
-          photoAnalysisResults = analysisResults;
-          setIsAnalyzing(false);
-          
-          console.log('✅ Análisis completado');
-        } catch (err) {
-          console.error('❌ Error en análisis:', err);
-          setIsAnalyzing(false);
-          // Continuar de todos modos (fail-safe)
-        }
-      }
+      console.log('✅ Moderación automática desactivada - todas las fotos aprobadas');
       
       // 1. Crear el álbum en la BD
       const { data: newAlbum, error: albumError } = await supabase
@@ -523,18 +508,7 @@ export default function AlbumesPage() {
             .from('album-photos')
             .getPublicUrl(fileName);
           
-          // Guardar referencia en BD con resultado del análisis
-          let moderationStatus = 'approved';
-          let moderationReason = null;
-          let moderationScore = 0;
-          
-          if (privacyType === 'publico' && photoAnalysisResults[i]) {
-            const analysis = photoAnalysisResults[i];
-            moderationStatus = analysis.safe ? 'approved' : 'rejected';
-            moderationReason = analysis.reason || null;
-            moderationScore = analysis.scores?.Porn || analysis.scores?.Sexy || analysis.scores?.Hentai || 0;
-          }
-          
+          // ✅ SISTEMA DESACTIVADO: Todas las fotos se aprueban automáticamente
           const { data: photoData, error: photoError } = await supabase
             .from('album_photos')
             .insert({
@@ -542,10 +516,10 @@ export default function AlbumesPage() {
               url: publicUrl,
               description: photo.description || `Foto ${i + 1}`,
               orden: i,
-              moderation_status: moderationStatus,
-              moderation_reason: moderationReason,
-              moderation_score: moderationScore,
-              moderation_date: privacyType === 'publico' ? new Date().toISOString() : null,
+              moderation_status: 'approved',
+              moderation_reason: 'Auto-aprobado (moderación manual)',
+              moderation_score: 0,
+              moderation_date: new Date().toISOString(),
             })
             .select()
             .single();
@@ -571,16 +545,7 @@ export default function AlbumesPage() {
         })
         .eq('id', newAlbum.id);
       
-      // 4. Contar fotos rechazadas
-      const rejectedCount = photoAnalysisResults.filter(r => !r.safe).length;
-      const approvedCount = photoAnalysisResults.filter(r => r.safe).length;
-      
-      let statusMsg = '';
-      if (privacyType === 'publico' && rejectedCount > 0) {
-        statusMsg = `\n\n✅ ${approvedCount} fotos aprobadas\n❌ ${rejectedCount} fotos rechazadas (puedes eliminarlas o mover el álbum a privado)`;
-      }
-      
-      alert(`¡Álbum "${albumName}" creado exitosamente con ${uploadedPhotoUrls.length} foto(s)!${statusMsg}`);
+      alert(`¡Álbum "${albumName}" creado exitosamente con ${uploadedPhotoUrls.length} foto(s)!`);
       
       // 5. Recargar lista de álbumes
       const { data: allAlbums } = await supabase

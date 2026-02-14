@@ -130,6 +130,13 @@ export default function AlbumDetailPage() {
   const [showStatsModal, setShowStatsModal] = useState(false);
   const [selectedPhotoStats, setSelectedPhotoStats] = useState<number | null>(null);
   const [isPhotoExpanded, setIsPhotoExpanded] = useState(false);
+  
+  // Report system
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [reportingPhotoIndex, setReportingPhotoIndex] = useState<number | null>(null);
+  const [reportReason, setReportReason] = useState<string>('contenido_explicito');
+  const [reportDescription, setReportDescription] = useState<string>('');
+  const [isSubmittingReport, setIsSubmittingReport] = useState(false);
 
   // Usuario dinámico desde AuthContext
   const currentUser = { 
@@ -404,9 +411,7 @@ export default function AlbumDetailPage() {
         
         console.log('✅ Foto subida:', publicUrl);
         
-        // Guardar referencia en la base de datos con estado de moderación
-        const moderationStatus = album?.privacy === 'publico' ? 'pending_review' : 'approved';
-        
+        // ✅ SISTEMA DESACTIVADO: Todas las fotos se aprueban automáticamente
         const { data: photoData, error: photoError } = await supabase
           .from('album_photos')
           .insert({
@@ -414,7 +419,9 @@ export default function AlbumDetailPage() {
             url: publicUrl,
             description: newPhotoDescription,
             orden: photos.length + uploadedPhotos.length,
-            moderation_status: moderationStatus,
+            moderation_status: 'approved',
+            moderation_reason: 'Auto-aprobado (moderación manual)',
+            moderation_date: new Date().toISOString(),
           })
           .select()
           .single();
@@ -749,6 +756,57 @@ export default function AlbumDetailPage() {
     }
   };
 
+  // Report Photo
+  const handleReportPhoto = async () => {
+    if (reportingPhotoIndex === null || !user?.id) {
+      alert('Debes iniciar sesión para denunciar contenido');
+      return;
+    }
+    
+    try {
+      setIsSubmittingReport(true);
+      const reportedPhoto = photos[reportingPhotoIndex];
+      
+      const { data, error } = await supabase
+        .from('photo_reports')
+        .insert({
+          photo_id: reportedPhoto.id,
+          album_id: albumId,
+          reporter_user_id: user.id,
+          reason: reportReason,
+          description: reportDescription || null,
+          status: 'pending',
+        })
+        .select()
+        .single();
+      
+      if (error) {
+        // Check if it's a duplicate report
+        if (error.code === '23505') {
+          alert('Ya has denunciado esta foto anteriormente. Un administrador la revisará pronto.');
+        } else {
+          console.error('Error creando denuncia:', error);
+          alert('Error al enviar la denuncia. Por favor intenta de nuevo.');
+        }
+        return;
+      }
+      
+      console.log('✅ Denuncia creada:', data);
+      alert('¡Gracias por tu reporte!\n\nUn administrador revisará esta foto pronto.');
+      
+      // Reset modal
+      setShowReportModal(false);
+      setReportingPhotoIndex(null);
+      setReportReason('contenido_explicito');
+      setReportDescription('');
+    } catch (err) {
+      console.error('Error:', err);
+      alert('Error al enviar la denuncia');
+    } finally {
+      setIsSubmittingReport(false);
+    }
+  };
+
   const privacyLabels = {
     publico: { label: "Público", icon: "🌍", color: "text-green-400" },
     amigos: { label: "Solo Amigos", icon: "👥", color: "text-blue-400" },
@@ -990,6 +1048,23 @@ export default function AlbumDetailPage() {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                           </svg>
                         </button>
+                        
+                        {/* Report button - bottom right - only for public albums and if NOT owner */}
+                        {album?.privacy === 'publico' && album.user_id !== user?.id && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setReportingPhotoIndex(index);
+                              setShowReportModal(true);
+                            }}
+                            className="absolute bottom-2 right-2 p-1.5 bg-amber-600/80 backdrop-blur-sm rounded-full transition-all hover:bg-amber-700 z-10"
+                            title="Denunciar contenido inapropiado"
+                          >
+                            <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                          </button>
+                        )}
                         
                         {/* Like count - top left */}
                         {photoLikes[photo.id] > 0 && (
@@ -1864,6 +1939,99 @@ export default function AlbumDetailPage() {
                 className="w-full px-4 py-2 bg-transparent border border-transparent text-white hover:text-[#2BEE79] hover:border-[#2BEE79]/50 hover:shadow-[0_0_15px_rgba(43,238,121,0.3)] rounded-lg transition-all"
               >
                 Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* Report Photo Modal */}
+      {showReportModal && reportingPhotoIndex !== null && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[70] flex items-center justify-center p-4">
+          <div className="bg-connect-card border-2 border-amber-500/30 rounded-2xl w-full max-w-md p-8">
+            <div className="w-20 h-20 mx-auto mb-6 bg-amber-500/20 rounded-full flex items-center justify-center">
+              <svg className="w-10 h-10 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+            
+            <h2 className="text-2xl font-bold text-center mb-2">Denunciar Contenido</h2>
+            <p className="text-connect-muted text-center mb-6">
+              ¿Esta foto contiene contenido inapropiado? Un administrador la revisará.
+            </p>
+            
+            {/* Preview de la foto */}
+            <div className="relative aspect-video rounded-xl overflow-hidden bg-connect-bg-dark mb-6">
+              <img 
+                src={photos[reportingPhotoIndex].url} 
+                alt="Foto a denunciar" 
+                className="w-full h-full object-cover"
+              />
+            </div>
+            
+            {/* Motivo */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-2 text-connect-muted">
+                Motivo de la denuncia *
+              </label>
+              <select
+                value={reportReason}
+                onChange={(e) => setReportReason(e.target.value)}
+                className="w-full px-4 py-2 bg-connect-bg-dark border border-connect-border rounded-lg focus:outline-none focus:border-[#2BEE79]/50 text-white"
+              >
+                <option value="contenido_explicito">Contenido explícito o sexual</option>
+                <option value="violencia">Violencia o contenido gráfico</option>
+                <option value="acoso">Acoso o bullying</option>
+                <option value="spam">Spam o publicidad</option>
+                <option value="derechos_autor">Viola derechos de autor</option>
+                <option value="otro">Otro motivo</option>
+              </select>
+            </div>
+            
+            {/* Descripción opcional */}
+            <div className="mb-6">
+              <label className="block text-sm font-medium mb-2 text-connect-muted">
+                Detalles adicionales (opcional)
+              </label>
+              <textarea
+                value={reportDescription}
+                onChange={(e) => setReportDescription(e.target.value)}
+                placeholder="Explica por qué consideras que esta foto es inapropiada..."
+                maxLength={500}
+                rows={3}
+                className="w-full px-4 py-2 bg-connect-bg-dark border border-connect-border rounded-lg focus:outline-none focus:border-[#2BEE79]/50 text-white resize-none"
+              />
+              <p className="text-xs text-connect-muted mt-1">
+                {reportDescription.length}/500 caracteres
+              </p>
+            </div>
+            
+            <div className="flex gap-3">
+              <button 
+                onClick={() => {
+                  setShowReportModal(false);
+                  setReportingPhotoIndex(null);
+                  setReportReason('contenido_explicito');
+                  setReportDescription('');
+                }} 
+                disabled={isSubmittingReport}
+                className="flex-1 px-4 py-2 bg-transparent border border-transparent text-white hover:text-gray-400 hover:border-gray-500/50 rounded-lg transition-all disabled:opacity-50"
+              >
+                Cancelar
+              </button>
+              <button 
+                onClick={handleReportPhoto}
+                disabled={isSubmittingReport}
+                className="flex-1 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {isSubmittingReport ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    Enviando...
+                  </>
+                ) : (
+                  'Enviar Denuncia'
+                )}
               </button>
             </div>
           </div>
