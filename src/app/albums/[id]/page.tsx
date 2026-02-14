@@ -691,13 +691,29 @@ export default function AlbumDetailPage() {
   };
 
   // Download Photo
-  const handleDownloadPhoto = (photoUrl: string, photoIndex: number) => {
-    const link = document.createElement('a');
-    link.href = photoUrl;
-    link.download = `photo_${albumId}_${photoIndex + 1}.jpg`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  const handleDownloadPhoto = async (photoUrl: string, photoIndex: number) => {
+    try {
+      // Fetch la imagen como blob para evitar problemas de CORS
+      const response = await fetch(photoUrl);
+      const blob = await response.blob();
+      
+      // Crear URL local del blob
+      const blobUrl = URL.createObjectURL(blob);
+      
+      // Crear link de descarga
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = `photo_${albumId}_${photoIndex + 1}.jpg`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // Limpiar URL del blob
+      URL.revokeObjectURL(blobUrl);
+    } catch (err) {
+      console.error('Error descargando foto:', err);
+      alert('Error al descargar la foto. Intenta con click derecho → Guardar imagen.');
+    }
   };
 
   const privacyLabels = {
