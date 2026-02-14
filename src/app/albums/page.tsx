@@ -19,6 +19,61 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
+// Función de redimensionamiento de imágenes
+async function resizeImage(
+  file: File, 
+  maxSize: number = 1024,
+  quality: number = 0.95
+): Promise<File> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+        
+        // Calcular dimensiones manteniendo aspect ratio
+        if (width > maxSize || height > maxSize) {
+          if (width > height) {
+            height = (height * maxSize) / width;
+            width = maxSize;
+          } else {
+            width = (width * maxSize) / height;
+            height = maxSize;
+          }
+        }
+        
+        canvas.width = width;
+        canvas.height = height;
+        
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          reject(new Error('No se pudo obtener el contexto del canvas'));
+          return;
+        }
+        
+        ctx.drawImage(img, 0, 0, width, height);
+        
+        canvas.toBlob((blob) => {
+          if (!blob) {
+            reject(new Error('No se pudo crear el blob'));
+            return;
+          }
+          const resizedFile = new File([blob], file.name, { type: 'image/jpeg' });
+          console.log(`📏 Redimensionado: ${img.width}×${img.height} → ${width.toFixed(0)}×${height.toFixed(0)} (${(blob.size / 1024).toFixed(2)} KB)`);
+          resolve(resizedFile);
+        }, 'image/jpeg', quality);
+      };
+      img.onerror = reject;
+      img.src = e.target?.result as string;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
 // Album carousel component
 function AlbumCarousel({ albumId, privacy }: { albumId: number; privacy: string }) {
   const [photos, setPhotos] = useState<any[]>([]);
@@ -410,54 +465,56 @@ export default function AlbumesPage() {
       
       console.log('✅ Álbum creado:', newAlbum);
       
-      // 2. Subir las fotos al Storage y guardar referencias
-      const uploadedPhotoUrls = [];
+      // 2. Subir las fotos en paralelo (mucho más rápido)
+      console.log(`📤 Subiendo ${uploadedPhotos.length} foto(s) en paralelo...`);
       
-      for (let i = 0; i < uploadedPhotos.length; i++) {
-        const photo = uploadedPhotos[i];
-        
-        // Generar nombre único
-        const fileExt = photo.file.name.split('.').pop();
-        const fileName = `${user.id}/${newAlbum.id}/${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
-        
-        // Subir a Storage
-        const { data: uploadData, error: uploadError } = await supabase.storage
-          .from('album-photos')
-          .upload(fileName, photo.file, {
-            cacheControl: '3600',
-            upsert: false
-          });
-        
-        if (uploadError) {
-          console.error('Error subiendo foto:', uploadError);
-          continue;
+      const uploadPromises = uploadedPhotos.map(async (photo, i) => {
+        try {
+          // Redimensionar foto antes de subir
+          const resizedFile = await resizeImage(photo.file, 1024, 0.95);
+          
+          // Generar nombre único
+          const fileExt = photo.file.name.split('.').pop();
+          const fileName = `${user.id}/${newAlbum.id}/${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+          
+          // Subir a Storage
+          const { data: uploadData, error: uploadError } = await supabase.storage
+            .from('album-photos')
+            .upload(fileName, resizedFile, {
+              cacheControl: '3600',
+              upsert: false
+            });
+          
+          if (uploadError) throw uploadError;
+          
+          // Obtener URL pública
+          const { data: { publicUrl } } = supabase.storage
+            .from('album-photos')
+            .getPublicUrl(fileName);
+          
+          // Guardar referencia en BD
+          const { data: photoData, error: photoError } = await supabase
+            .from('album_photos')
+            .insert({
+              album_id: newAlbum.id,
+              url: publicUrl,
+              description: photo.description || `Foto ${i + 1}`,
+              orden: i,
+            })
+            .select()
+            .single();
+          
+          if (photoError) throw photoError;
+          
+          console.log(`✅ Foto ${i + 1}/${uploadedPhotos.length} subida`);
+          return publicUrl;
+        } catch (err) {
+          console.error(`❌ Error subiendo foto ${i + 1}:`, err);
+          return null;
         }
-        
-        // Obtener URL pública
-        const { data: { publicUrl } } = supabase.storage
-          .from('album-photos')
-          .getPublicUrl(fileName);
-        
-        // Guardar referencia en BD
-        const { data: photoData, error: photoError } = await supabase
-          .from('album_photos')
-          .insert({
-            album_id: newAlbum.id,
-            url: publicUrl,
-            description: photo.description || `Foto ${i + 1}`,
-            orden: i,
-          })
-          .select()
-          .single();
-        
-        if (photoError) {
-          console.error('Error guardando foto en BD:', photoError);
-          continue;
-        }
-        
-        uploadedPhotoUrls.push(publicUrl);
-        console.log(`✅ Foto ${i + 1}/${uploadedPhotos.length} subida`);
-      }
+      });
+      
+      const uploadedPhotoUrls = (await Promise.all(uploadPromises)).filter(url => url !== null);
       
       // 3. Actualizar contador de fotos y portada del álbum
       await supabase

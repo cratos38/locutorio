@@ -92,6 +92,7 @@ export default function AlbumDetailPage() {
 
   const [album, setAlbum] = useState<any>(null);
   const [albumOwnerUsername, setAlbumOwnerUsername] = useState<string>("");
+  const [isLoadingAlbum, setIsLoadingAlbum] = useState(true);
   const [photos, setPhotos] = useState<any[]>([]);
   const [selectedPhoto, setSelectedPhoto] = useState<number | null>(null);
   const [hasAccess, setHasAccess] = useState(false);
@@ -144,6 +145,7 @@ export default function AlbumDetailPage() {
     
     async function loadAlbumData() {
       try {
+        setIsLoadingAlbum(true);
         // Cargar álbum desde Supabase
         const { data: albumData, error: albumError } = await supabase
           .from('albums')
@@ -213,6 +215,8 @@ export default function AlbumDetailPage() {
         }
       } catch (err) {
         console.error('Error general:', err);
+      } finally {
+        setIsLoadingAlbum(false);
       }
     }
     
@@ -699,8 +703,7 @@ export default function AlbumDetailPage() {
     protegido: { label: "Protegido", icon: "🔒", color: "text-amber-400" },
   };
 
-  // Don't render until mounted on client to avoid hydration errors
-  if (!isMounted) {
+  if (!isMounted || isLoadingAlbum) {
     return (
       <div className="min-h-screen bg-connect-bg-dark text-white font-display">
         <InternalHeader />
@@ -1058,9 +1061,8 @@ export default function AlbumDetailPage() {
             
             {/* Previous button */}
             <button
-              onClick={() => setSelectedPhoto(Math.max(0, selectedPhoto - 1))}
-              disabled={selectedPhoto === 0}
-              className="absolute left-4 top-1/2 -translate-y-1/2 p-3 bg-black/60 backdrop-blur-sm rounded-full text-white hover:text-primary hover:bg-black/80 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+              onClick={() => setSelectedPhoto((selectedPhoto - 1 + photos.length) % photos.length)}
+              className="absolute left-4 top-1/2 -translate-y-1/2 p-3 bg-black/60 backdrop-blur-sm rounded-full text-white hover:text-primary hover:bg-black/80 transition-all"
               title="Anterior (←)"
             >
               <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1069,16 +1071,16 @@ export default function AlbumDetailPage() {
             </button>
             
             {/* Image */}
-            <div className={`flex flex-col items-center transition-all ${isPhotoExpanded ? 'max-w-none w-full' : 'max-w-4xl'}`}>
+            <div className={`flex flex-col items-center transition-all ${isPhotoExpanded ? 'max-w-none w-full overflow-auto max-h-screen' : 'max-w-4xl'}`}>
               <img 
                 src={photos[selectedPhoto].url} 
                 alt={photos[selectedPhoto].description} 
                 className={`rounded-xl shadow-2xl transition-all ${
                   isPhotoExpanded 
-                    ? 'w-auto h-auto' 
+                    ? 'w-auto h-auto max-w-none' 
                     : 'max-w-full max-h-[70vh] object-contain'
                 }`}
-                style={isPhotoExpanded ? {} : {}}
+              />
               />
               {photos[selectedPhoto].description && (
                 <p className="mt-4 text-white text-center max-w-2xl">{photos[selectedPhoto].description}</p>
@@ -1098,9 +1100,8 @@ export default function AlbumDetailPage() {
             
             {/* Next button */}
             <button
-              onClick={() => setSelectedPhoto(Math.min(photos.length - 1, selectedPhoto + 1))}
-              disabled={selectedPhoto === photos.length - 1}
-              className="absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-black/60 backdrop-blur-sm rounded-full text-white hover:text-primary hover:bg-black/80 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+              onClick={() => setSelectedPhoto((selectedPhoto + 1) % photos.length)}
+              className="absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-black/60 backdrop-blur-sm rounded-full text-white hover:text-primary hover:bg-black/80 transition-all"
               title="Siguiente (→)"
             >
               <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
