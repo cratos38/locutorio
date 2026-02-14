@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 /**
  * =============================================================================
@@ -66,9 +66,17 @@ export default function PhotoGallery({
   className = "",
 }: PhotoGalleryProps) {
   const [localIndex, setLocalIndex] = useState(currentIndex);
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageError, setImageError] = useState(false);
   
   // Usar índice controlado o local
   const activeIndex = onIndexChange ? currentIndex : localIndex;
+  
+  // Reset loading state cuando cambia la foto
+  useEffect(() => {
+    setImageLoaded(false);
+    setImageError(false);
+  }, [activeIndex, photos]);
   
   // =================== HANDLERS DE NAVEGACIÓN ===================
   /**
@@ -126,11 +134,35 @@ export default function PhotoGallery({
         * Usa url_medium (400px) para mostrar en galería
         * Si no existe, usa url (original)
         */}
+      
+      {/* Skeleton/placeholder mientras carga la imagen */}
+      {!imageLoaded && !imageError && (
+        <div className="absolute inset-0 bg-connect-bg-dark/50 animate-pulse flex items-center justify-center">
+          <div className="text-4xl">📸</div>
+        </div>
+      )}
+      
+      {/* Imagen real */}
       <img 
         src={currentPhoto.url_medium || currentPhoto.url} 
         alt={`Foto ${activeIndex + 1} de ${photos.length}`}
-        className="w-full h-full object-cover"
+        className={`w-full h-full object-cover transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+        onLoad={() => setImageLoaded(true)}
+        onError={() => {
+          setImageError(true);
+          setImageLoaded(true);
+        }}
       />
+      
+      {/* Mostrar placeholder si falla la carga */}
+      {imageError && (
+        <div className="absolute inset-0 bg-connect-bg-dark/50 flex items-center justify-center">
+          <div className="text-center">
+            <div className="text-4xl mb-2">⚠️</div>
+            <p className="text-gray-400 text-sm">Error al cargar imagen</p>
+          </div>
+        </div>
+      )}
       
       {/* =================== BADGES DE ESTADO =================== */}
       {/**
