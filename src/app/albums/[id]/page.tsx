@@ -799,7 +799,7 @@ export default function AlbumDetailPage() {
               <span>•</span>
               <span>{album.lastUpdate}</span>
             </div>
-            {album.owner === currentUser.username && hasAccess && (
+            {album.user_id === user?.id && hasAccess && (
               <button
                 onClick={() => setShowAddPhotosModal(true)}
                 className="px-4 py-2 bg-transparent border border-transparent text-gray-400 hover:text-[#2BEE79] hover:border-[#2BEE79]/50 hover:shadow-[0_0_15px_rgba(43,238,121,0.3)] rounded-lg transition-all flex items-center gap-2"
