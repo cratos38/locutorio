@@ -472,22 +472,25 @@ export default function AlbumesPage() {
           
           console.log(`📊 Análisis completado: ✅ ${approvedCount} aprobadas, ❌ ${rejectedCount} rechazadas`);
           
-          // Si hay fotos rechazadas, preguntar al usuario
-          if (rejectedCount > 0) {
-            const confirm = window.confirm(
-              `⚠️ DETECCIÓN DE CONTENIDO INAPROPIADO\n\n` +
-              `${rejectedCount} foto(s) fueron rechazadas por el filtro automático.\n` +
-              `${approvedCount} foto(s) pasaron la verificación.\n\n` +
-              `Revisa la consola del navegador (F12) para ver detalles de puntuación.\n\n` +
-              `¿Deseas continuar subiendo solo las fotos aprobadas?`
-            );
-            
-            if (!confirm) {
-              console.log('❌ Usuario canceló la subida');
-              setIsCreating(false);
-              return;
-            }
-          }
+          // 🆕 MODO PRUEBA: No preguntar, subir automáticamente todas las fotos
+          console.log('🔬 MODO PRUEBA ACTIVADO: Subiendo todas las fotos (aprobadas y rechazadas) para análisis');
+          
+          // // Si hay fotos rechazadas, preguntar al usuario
+          // if (rejectedCount > 0) {
+          //   const confirm = window.confirm(
+          //     `⚠️ DETECCIÓN DE CONTENIDO INAPROPIADO\n\n` +
+          //     `${rejectedCount} foto(s) fueron rechazadas por el filtro automático.\n` +
+          //     `${approvedCount} foto(s) pasaron la verificación.\n\n` +
+          //     `Revisa la consola del navegador (F12) para ver detalles de puntuación.\n\n` +
+          //     `¿Deseas continuar subiendo solo las fotos aprobadas?`
+          //   );
+          //   
+          //   if (!confirm) {
+          //     console.log('❌ Usuario canceló la subida');
+          //     setIsCreating(false);
+          //     return;
+          //   }
+          // }
         } catch (err) {
           console.error('❌ Error en análisis:', err);
           setIsAnalyzing(false);
@@ -546,15 +549,17 @@ export default function AlbumesPage() {
             .from('album-photos')
             .getPublicUrl(fileName);
           
-          // ✅ SISTEMA REACTIVADO: Marcar según análisis NSFW
+          // ✅ MODO PRUEBA: Subir TODAS las fotos (incluso rechazadas) para análisis
           let moderationStatus = 'approved';
-          let moderationReason = 'Aprobado automáticamente';
+          let moderationReason = 'Sin análisis (álbum privado)';
           let moderationScore = 0;
+          let finalScore = 0;
           
           if (privacyType === 'publico' && photoAnalysisResults[i]) {
             const analysis = photoAnalysisResults[i];
             moderationStatus = analysis.safe ? 'approved' : 'rejected';
             moderationReason = analysis.reason || 'Análisis NSFW';
+            finalScore = analysis.finalScore || 0;
             
             if (analysis.scores) {
               const maxScore = Math.max(
@@ -566,18 +571,23 @@ export default function AlbumesPage() {
             }
           }
           
-          // Solo subir fotos aprobadas
-          if (moderationStatus === 'rejected') {
-            console.log(`⛔ Foto ${i + 1}/${uploadedPhotos.length} rechazada (no se sube)`);
-            return null;
-          }
+          // 🆕 MODO PRUEBA: Subir todas las fotos (comentar líneas de rechazo)
+          // if (moderationStatus === 'rejected') {
+          //   console.log(`⛔ Foto ${i + 1}/${uploadedPhotos.length} rechazada (no se sube)`);
+          //   return null;
+          // }
+          
+          // 🆕 Crear descripción con número y resultado
+          const photoNumber = i + 1;
+          const statusEmoji = moderationStatus === 'approved' ? '✅' : '❌';
+          const autoDescription = `${statusEmoji} Foto #${photoNumber} - Score: ${finalScore.toFixed(3)}`;
           
           const { data: photoData, error: photoError } = await supabase
             .from('album_photos')
             .insert({
               album_id: newAlbum.id,
               url: publicUrl,
-              description: photo.description || `Foto ${i + 1}`,
+              description: autoDescription,  // 🆕 Descripción automática con número
               orden: i,
               moderation_status: moderationStatus,
               moderation_reason: moderationReason,
@@ -589,7 +599,8 @@ export default function AlbumesPage() {
           
           if (photoError) throw photoError;
           
-          console.log(`✅ Foto ${i + 1}/${uploadedPhotos.length} subida`);
+          const statusIcon = moderationStatus === 'approved' ? '✅' : '❌';
+          console.log(`${statusIcon} Foto #${photoNumber}/${uploadedPhotos.length} subida (score: ${finalScore.toFixed(3)})`);
           return publicUrl;
         } catch (err) {
           console.error(`❌ Error subiendo foto ${i + 1}:`, err);
@@ -610,14 +621,18 @@ export default function AlbumesPage() {
       
       // 4. Mostrar mensaje con resultados
       const rejectedCount = photoAnalysisResults.filter(r => !r.safe).length;
-      const approvedCount = uploadedPhotoUrls.length;
+      const approvedCount = photoAnalysisResults.filter(r => r.safe).length;
+      const totalCount = uploadedPhotoUrls.length;
       
-      let message = `¡Álbum "${albumName}" creado exitosamente con ${approvedCount} foto(s)!`;
-      
-      if (rejectedCount > 0) {
-        message += `\n\n⚠️ ${rejectedCount} foto(s) fueron rechazadas por contenido inapropiado.`;
-        message += `\nRevisa la consola (F12) para ver los detalles de puntuación.`;
-      }
+      let message = `✅ ¡Álbum "${albumName}" creado!\n\n`;
+      message += `📊 Total subidas: ${totalCount} fotos\n`;
+      message += `✅ Aprobadas: ${approvedCount}\n`;
+      message += `❌ Rechazadas: ${rejectedCount}\n\n`;
+      message += `🔬 MODO PRUEBA: Todas las fotos se subieron con:\n`;
+      message += `- Número visible en esquina superior izquierda\n`;
+      message += `- Borde verde (aprobadas) o rojo (rechazadas)\n`;
+      message += `- Descripción con score en cada foto\n\n`;
+      message += `📋 Revisa la consola (F12) para logs detallados.`;
       
       alert(message);
       

@@ -984,12 +984,24 @@ export default function AlbumDetailPage() {
                 const isPending = moderationStatus === 'pending_review';
                 const isApproved = moderationStatus === 'approved';
                 
+                // 🆕 Extraer número de foto de la descripción (formato: "✅ Foto #X - Score: 0.XXX")
+                const photoNumberMatch = photo.description?.match(/#(\d+)/);
+                const photoNumber = photoNumberMatch ? photoNumberMatch[1] : (index + 1);
+                
+                // 🆕 Color de borde según estado
+                const borderColor = isRejected ? 'border-red-500' : (isPending ? 'border-yellow-500' : 'border-green-500');
+                
                 return (
                   <div
                     key={photo.id}
-                    className="relative aspect-square rounded-xl overflow-hidden group bg-connect-card cursor-pointer"
+                    className={`relative aspect-square rounded-xl overflow-hidden group bg-connect-card cursor-pointer border-4 ${borderColor}`}
                     onClick={() => !isRejected && setSelectedPhoto(index)}
                   >
+                    {/* 🆕 NÚMERO DE FOTO EN ESQUINA SUPERIOR IZQUIERDA */}
+                    <div className={`absolute top-2 left-2 z-20 ${isRejected ? 'bg-red-600' : (isPending ? 'bg-yellow-600' : 'bg-green-600')} text-white font-bold text-2xl px-4 py-2 rounded-lg shadow-lg`}>
+                      #{photoNumber}
+                    </div>
+                    
                     {/* ESTADO 1: FOTO RECHAZADA */}
                     {isRejected ? (
                       <div className="w-full h-full relative">
