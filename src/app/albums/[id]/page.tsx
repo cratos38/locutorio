@@ -6,8 +6,15 @@ import { Input } from "@/components/ui/input";
 import { useParams, useRouter } from "next/navigation";
 import InternalHeader from "@/components/InternalHeader";
 import { useAuth } from "@/contexts/AuthContext";
+import { createClient } from '@supabase/supabase-js';
 
 export const runtime = 'edge';
+
+// Crear cliente de Supabase
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 // =================== FUNCIÓN DE REDIMENSIONAMIENTO ===================
 /**
@@ -80,6 +87,7 @@ export default function AlbumDetailPage() {
   const albumId = Number(params.id);
 
   const [album, setAlbum] = useState<any>(null);
+  const [albumOwnerUsername, setAlbumOwnerUsername] = useState<string>("");
   const [photos, setPhotos] = useState<any[]>([]);
   const [selectedPhoto, setSelectedPhoto] = useState<number | null>(null);
   const [hasAccess, setHasAccess] = useState(false);
@@ -126,50 +134,85 @@ export default function AlbumDetailPage() {
     friends: [] as number[] // TODO: Cargar amigos desde la base de datos
   };
 
-  // Load data only on client
+  // Load data from Supabase
   useEffect(() => {
     setIsMounted(true);
-    const albumsData = localStorage.getItem("albums");
-    if (albumsData) {
-      const albums = JSON.parse(albumsData);
-      const foundAlbum = albums.find((a: any) => a.id === albumId);
-      setAlbum(foundAlbum || null);
-      if (foundAlbum) {
-        setEditAlbumTitle(foundAlbum.title);
-        setEditAlbumDescription(foundAlbum.description || "");
-        setEditAlbumPrivacy(foundAlbum.privacy);
-        setEditAlbumPassword(foundAlbum.password || "");
+    
+    async function loadAlbumData() {
+      try {
+        // Cargar álbum desde Supabase
+        const { data: albumData, error: albumError } = await supabase
+          .from('albums')
+          .select('*')
+          .eq('id', albumId)
+          .single();
+        
+        if (albumError) {
+          console.error('Error cargando álbum:', albumError);
+          setAlbum(null);
+          return;
+        }
+        
+        setAlbum(albumData);
+        if (albumData) {
+          setEditAlbumTitle(albumData.title);
+          setEditAlbumDescription(albumData.description || "");
+          setEditAlbumPrivacy(albumData.privacy);
+          setEditAlbumPassword(albumData.password || "");
+          
+          // Cargar username del dueño del álbum
+          if (albumData.user_id) {
+            const { data: ownerData } = await supabase
+              .from('users')
+              .select('username')
+              .eq('id', albumData.user_id)
+              .single();
+            
+            if (ownerData) {
+              setAlbumOwnerUsername(ownerData.username);
+            }
+          }
+        }
+        
+        // Cargar fotos desde Supabase
+        const { data: photosData, error: photosError } = await supabase
+          .from('album_photos')
+          .select('*')
+          .eq('album_id', albumId)
+          .order('orden', { ascending: true });
+        
+        if (photosError) {
+          console.error('Error cargando fotos:', photosError);
+        } else {
+          setPhotos(photosData || []);
+        }
+        
+        // Load likes, comments, views from localStorage (temporal)
+        const likesData = localStorage.getItem(`album_${albumId}_likes`);
+        if (likesData) {
+          setPhotoLikes(JSON.parse(likesData));
+        }
+        
+        const userLikesData = localStorage.getItem(`album_${albumId}_user_likes`);
+        if (userLikesData) {
+          setUserLikes(new Set(JSON.parse(userLikesData)));
+        }
+        
+        const commentsData = localStorage.getItem(`album_${albumId}_comments`);
+        if (commentsData) {
+          setPhotoComments(JSON.parse(commentsData));
+        }
+        
+        const viewsData = localStorage.getItem(`album_${albumId}_views`);
+        if (viewsData) {
+          setPhotoViews(JSON.parse(viewsData));
+        }
+      } catch (err) {
+        console.error('Error general:', err);
       }
     }
-    const photosData = localStorage.getItem(`album_${albumId}_photos`);
-    if (photosData) {
-      const loadedPhotos = JSON.parse(photosData);
-      setPhotos(loadedPhotos);
-      
-      // Load likes
-      const likesData = localStorage.getItem(`album_${albumId}_likes`);
-      if (likesData) {
-        setPhotoLikes(JSON.parse(likesData));
-      }
-      
-      // Load user's likes
-      const userLikesData = localStorage.getItem(`album_${albumId}_user_likes`);
-      if (userLikesData) {
-        setUserLikes(new Set(JSON.parse(userLikesData)));
-      }
-      
-      // Load comments
-      const commentsData = localStorage.getItem(`album_${albumId}_comments`);
-      if (commentsData) {
-        setPhotoComments(JSON.parse(commentsData));
-      }
-      
-      // Load views
-      const viewsData = localStorage.getItem(`album_${albumId}_views`);
-      if (viewsData) {
-        setPhotoViews(JSON.parse(viewsData));
-      }
-    }
+    
+    loadAlbumData();
   }, [albumId]);
 
   // Register photo view when opened
@@ -214,21 +257,21 @@ export default function AlbumDetailPage() {
     if (album.privacy === "publico") {
       setHasAccess(true);
       setShowPasswordModal(false);
-    } else if (album.owner === currentUser.username) {
+    } else if (album.user_id === user?.id) {
       // Si eres el dueño del álbum, SIEMPRE tienes acceso
       setHasAccess(true);
       setShowPasswordModal(false);
     } else if (album.privacy === "amigos") {
       // Si NO eres el dueño y el álbum es privado (solo amigos)
       // Verificar si eres amigo del dueño
-      const ownerId = 2; // TODO: obtener ID real del dueño desde la BD
-      setHasAccess(currentUser.friends.includes(ownerId));
+      // TODO: implementar lógica de amistad desde la BD
+      setHasAccess(false);
       setShowPasswordModal(false);
     } else if (album.privacy === "protegido") {
       setShowPasswordModal(true);
       setHasAccess(false);
     }
-  }, [album]);
+  }, [album, user]);
 
   const handlePasswordSubmit = () => {
     if (passwordInput === album.password) {
@@ -242,83 +285,165 @@ export default function AlbumDetailPage() {
   };
 
   // Edit Album
-  const handleEditAlbum = () => {
-    const albumsData = localStorage.getItem("albums");
-    if (albumsData) {
-      const albums = JSON.parse(albumsData);
-      const albumIndex = albums.findIndex((a: any) => a.id === albumId);
-      if (albumIndex !== -1) {
-        albums[albumIndex] = {
-          ...albums[albumIndex],
+  const handleEditAlbum = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('albums')
+        .update({
           title: editAlbumTitle,
           description: editAlbumDescription,
           privacy: editAlbumPrivacy,
-          password: editAlbumPrivacy === "protegido" ? editAlbumPassword : undefined,
-          lastUpdate: new Date().toLocaleDateString(),
-        };
-        localStorage.setItem("albums", JSON.stringify(albums));
-        setAlbum(albums[albumIndex]);
-        setShowEditAlbumModal(false);
+          password: editAlbumPrivacy === "protegido" ? editAlbumPassword : null,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', albumId)
+        .select()
+        .single();
+      
+      if (error) {
+        console.error('Error actualizando álbum:', error);
+        alert('Error al actualizar el álbum');
+        return;
       }
+      
+      setAlbum(data);
+      setShowEditAlbumModal(false);
+    } catch (err) {
+      console.error('Error:', err);
+      alert('Error al actualizar el álbum');
     }
   };
 
   // Delete Album
-  const handleDeleteAlbum = () => {
-    const albumsData = localStorage.getItem("albums");
-    if (albumsData) {
-      const albums = JSON.parse(albumsData);
-      const filteredAlbums = albums.filter((a: any) => a.id !== albumId);
-      localStorage.setItem("albums", JSON.stringify(filteredAlbums));
-      localStorage.removeItem(`album_${albumId}_photos`);
+  const handleDeleteAlbum = async () => {
+    try {
+      // Primero eliminar todas las fotos del Storage
+      const { data: photosToDelete } = await supabase
+        .from('album_photos')
+        .select('url')
+        .eq('album_id', albumId);
+      
+      if (photosToDelete && photosToDelete.length > 0) {
+        const filePaths = photosToDelete.map(photo => {
+          const url = new URL(photo.url);
+          return url.pathname.split('/').slice(-1)[0]; // Extraer solo el nombre del archivo
+        });
+        
+        await supabase.storage
+          .from('album-photos')
+          .remove(filePaths);
+      }
+      
+      // Eliminar álbum (las fotos se eliminan automáticamente por CASCADE)
+      const { error } = await supabase
+        .from('albums')
+        .delete()
+        .eq('id', albumId);
+      
+      if (error) {
+        console.error('Error eliminando álbum:', error);
+        alert('Error al eliminar el álbum');
+        return;
+      }
+      
+      // Limpiar localStorage
       localStorage.removeItem(`album_${albumId}_likes`);
       localStorage.removeItem(`album_${albumId}_user_likes`);
+      localStorage.removeItem(`album_${albumId}_comments`);
+      localStorage.removeItem(`album_${albumId}_views`);
+      
       router.push("/albums");
+    } catch (err) {
+      console.error('Error:', err);
+      alert('Error al eliminar el álbum');
     }
   };
 
   // Add Photos
-  const handleAddPhoto = () => {
+  const handleAddPhoto = async () => {
     if (selectedFiles.length === 0) return;
     
-    const newPhotos = selectedFiles.map((file, index) => {
-      // Convert file to base64 or use object URL
-      const objectUrl = URL.createObjectURL(file);
-      return {
-        id: Date.now() + index,
-        url: objectUrl,
-        file: file, // Store file reference
-        description: newPhotoDescription,
-        uploadDate: new Date().toLocaleDateString(),
-      };
-    });
-    
-    const updatedPhotos = [...photos, ...newPhotos];
-    setPhotos(updatedPhotos);
-    localStorage.setItem(`album_${albumId}_photos`, JSON.stringify(updatedPhotos));
-    
-    // Update album photo count
-    const albumsData = localStorage.getItem("albums");
-    if (albumsData) {
-      const albums = JSON.parse(albumsData);
-      const albumIndex = albums.findIndex((a: any) => a.id === albumId);
-      if (albumIndex !== -1) {
-        albums[albumIndex].photoCount = updatedPhotos.length;
-        albums[albumIndex].lastUpdate = new Date().toLocaleDateString();
-        // Update cover photo if this is the first photo
-        if (photos.length === 0 && newPhotos.length > 0) {
-          albums[albumIndex].coverPhoto = newPhotos[0].url;
+    try {
+      console.log(`📤 Subiendo ${selectedFiles.length} foto(s) a Supabase...`);
+      
+      const uploadedPhotos = [];
+      
+      for (const file of selectedFiles) {
+        // Generar nombre único para el archivo
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${user?.id}/${albumId}/${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+        
+        // Subir archivo a Supabase Storage
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('album-photos')
+          .upload(fileName, file, {
+            cacheControl: '3600',
+            upsert: false
+          });
+        
+        if (uploadError) {
+          console.error('Error subiendo foto:', uploadError);
+          continue;
         }
-        localStorage.setItem("albums", JSON.stringify(albums));
-        setAlbum(albums[albumIndex]);
+        
+        // Obtener URL pública
+        const { data: { publicUrl } } = supabase.storage
+          .from('album-photos')
+          .getPublicUrl(fileName);
+        
+        console.log('✅ Foto subida:', publicUrl);
+        
+        // Guardar referencia en la base de datos
+        const { data: photoData, error: photoError } = await supabase
+          .from('album_photos')
+          .insert({
+            album_id: albumId,
+            url: publicUrl,
+            description: newPhotoDescription,
+            orden: photos.length + uploadedPhotos.length,
+          })
+          .select()
+          .single();
+        
+        if (photoError) {
+          console.error('Error guardando foto en BD:', photoError);
+          continue;
+        }
+        
+        uploadedPhotos.push(photoData);
       }
+      
+      // Actualizar lista de fotos
+      const updatedPhotos = [...photos, ...uploadedPhotos];
+      setPhotos(updatedPhotos);
+      
+      // Actualizar contador de fotos y cover del álbum
+      const updateData: any = {
+        photo_count: updatedPhotos.length,
+        updated_at: new Date().toISOString(),
+      };
+      
+      // Si es la primera foto, establecerla como portada
+      if (photos.length === 0 && uploadedPhotos.length > 0) {
+        updateData.cover_photo_url = uploadedPhotos[0].url;
+      }
+      
+      await supabase
+        .from('albums')
+        .update(updateData)
+        .eq('id', albumId);
+      
+      // Limpiar estado
+      setSelectedFiles([]);
+      setUploadPreviews([]);
+      setNewPhotoDescription("");
+      setShowAddPhotosModal(false);
+      
+      console.log(`✅ ${uploadedPhotos.length} foto(s) agregada(s) exitosamente`);
+    } catch (err) {
+      console.error('Error:', err);
+      alert('Error al agregar fotos');
     }
-    
-    // Clear state
-    setSelectedFiles([]);
-    setUploadPreviews([]);
-    setNewPhotoDescription("");
-    setShowAddPhotosModal(false);
   };
 
   // Handle file selection
@@ -436,48 +561,100 @@ export default function AlbumDetailPage() {
   };
 
   // Delete Photo
-  const handleDeletePhoto = () => {
+  const handleDeletePhoto = async () => {
     if (editingPhotoIndex === null) return;
     
-    const updatedPhotos = photos.filter((_, index) => index !== editingPhotoIndex);
-    setPhotos(updatedPhotos);
-    localStorage.setItem(`album_${albumId}_photos`, JSON.stringify(updatedPhotos));
-    
-    // Update album photo count
-    const albumsData = localStorage.getItem("albums");
-    if (albumsData) {
-      const albums = JSON.parse(albumsData);
-      const albumIndex = albums.findIndex((a: any) => a.id === albumId);
-      if (albumIndex !== -1) {
-        albums[albumIndex].photoCount = updatedPhotos.length;
-        albums[albumIndex].lastUpdate = new Date().toLocaleDateString();
-        
-        // Update cover if deleted photo was the cover
-        if (albums[albumIndex].coverPhoto === photos[editingPhotoIndex]?.url && updatedPhotos.length > 0) {
-          albums[albumIndex].coverPhoto = updatedPhotos[0].url;
-        }
-        
-        localStorage.setItem("albums", JSON.stringify(albums));
-        setAlbum(albums[albumIndex]);
+    try {
+      const photoToDelete = photos[editingPhotoIndex];
+      
+      // Extraer el path del archivo del Storage
+      const url = new URL(photoToDelete.url);
+      const filePath = url.pathname.split('/storage/v1/object/public/album-photos/')[1] || 
+                       url.pathname.split('/').slice(-3).join('/'); // user_id/album_id/filename
+      
+      // Eliminar del Storage
+      const { error: storageError } = await supabase.storage
+        .from('album-photos')
+        .remove([filePath]);
+      
+      if (storageError) {
+        console.error('Error eliminando foto del storage:', storageError);
       }
+      
+      // Eliminar de la base de datos
+      const { error: dbError } = await supabase
+        .from('album_photos')
+        .delete()
+        .eq('id', photoToDelete.id);
+      
+      if (dbError) {
+        console.error('Error eliminando foto de BD:', dbError);
+        alert('Error al eliminar la foto');
+        return;
+      }
+      
+      // Actualizar lista local
+      const updatedPhotos = photos.filter((_, index) => index !== editingPhotoIndex);
+      setPhotos(updatedPhotos);
+      
+      // Actualizar contador en el álbum
+      const updateData: any = {
+        photo_count: updatedPhotos.length,
+        updated_at: new Date().toISOString(),
+      };
+      
+      // Si la foto eliminada era la portada, actualizar
+      if (album?.cover_photo_url === photoToDelete.url && updatedPhotos.length > 0) {
+        updateData.cover_photo_url = updatedPhotos[0].url;
+      }
+      
+      await supabase
+        .from('albums')
+        .update(updateData)
+        .eq('id', albumId);
+      
+      setShowDeletePhotoModal(false);
+      setEditingPhotoIndex(null);
+      
+      console.log('✅ Foto eliminada exitosamente');
+    } catch (err) {
+      console.error('Error:', err);
+      alert('Error al eliminar la foto');
     }
-    
-    setShowDeletePhotoModal(false);
-    setEditingPhotoIndex(null);
   };
 
   // Edit Photo Description
-  const handleEditPhotoDescription = () => {
+  const handleEditPhotoDescription = async () => {
     if (editingPhotoIndex === null) return;
     
-    const updatedPhotos = [...photos];
-    updatedPhotos[editingPhotoIndex].description = editPhotoDescription;
-    setPhotos(updatedPhotos);
-    localStorage.setItem(`album_${albumId}_photos`, JSON.stringify(updatedPhotos));
-    
-    setShowEditPhotoModal(false);
-    setEditingPhotoIndex(null);
-    setEditPhotoDescription("");
+    try {
+      const photoToEdit = photos[editingPhotoIndex];
+      
+      const { error } = await supabase
+        .from('album_photos')
+        .update({ description: editPhotoDescription })
+        .eq('id', photoToEdit.id);
+      
+      if (error) {
+        console.error('Error actualizando descripción:', error);
+        alert('Error al actualizar la descripción');
+        return;
+      }
+      
+      // Actualizar lista local
+      const updatedPhotos = [...photos];
+      updatedPhotos[editingPhotoIndex].description = editPhotoDescription;
+      setPhotos(updatedPhotos);
+      
+      setShowEditPhotoModal(false);
+      setEditingPhotoIndex(null);
+      setEditPhotoDescription("");
+      
+      console.log('✅ Descripción actualizada');
+    } catch (err) {
+      console.error('Error:', err);
+      alert('Error al actualizar la descripción');
+    }
   };
 
   // Set Cover Photo
@@ -582,7 +759,7 @@ export default function AlbumDetailPage() {
                 <span className={privacy.color}>{privacy.icon}</span>
                 {privacy.label}
               </div>
-              {album.owner === currentUser.username && (
+              {album.user_id === user?.id && (
                 <div className="flex gap-2">
                   <button
                     onClick={() => setShowEditAlbumModal(true)}
@@ -674,7 +851,7 @@ export default function AlbumDetailPage() {
                   )}
                   
                   {/* Owner controls - bottom, only visible on hover */}
-                  {album.owner === currentUser.username && (
+                  {album.user_id === user?.id && (
                     <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex justify-center gap-2">
                       <button
                         onClick={(e) => {
@@ -728,7 +905,7 @@ export default function AlbumDetailPage() {
               </svg>
             </div>
             <h2 className="text-2xl font-bold mb-3">Álbum Solo para Amigos</h2>
-            <p className="text-connect-muted mb-6">Necesitas ser amigo de {album.owner} para ver este contenido.</p>
+            <p className="text-connect-muted mb-6">Necesitas ser amigo de {albumOwnerUsername || 'este usuario'} para ver este contenido.</p>
           </div>
         ) : null}
       </div>
