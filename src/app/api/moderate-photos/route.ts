@@ -15,88 +15,14 @@ const NSFW_THRESHOLDS = {
 };
 
 /**
- * Analizar imagen con NSFW.js
- * Nota: Esta función se ejecuta en Node.js (servidor), no en navegador
+ * NOTA: La moderación ahora se hace en el CLIENTE (navegador)
+ * Este endpoint solo recibe los resultados del análisis y los guarda en la BD
  */
-async function analyzeImageServer(imageUrl: string): Promise<{
-  safe: boolean;
-  reason?: string;
-  score?: number;
-}> {
-  try {
-    // Importar nsfwjs y tensorflow (solo en servidor)
-    const nsfwjs = await import('nsfwjs');
-    const tf = await import('@tensorflow/tfjs-node');
-    
-    // Cargar modelo
-    const model = await nsfwjs.load();
-    
-    // Descargar imagen
-    const response = await fetch(imageUrl);
-    const arrayBuffer = await response.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-    
-    // Decodificar imagen
-    const imageTensor = tf.node.decodeImage(buffer, 3);
-    
-    // Clasificar
-    const predictions = await model.classify(imageTensor as any);
-    
-    // Limpiar tensor
-    imageTensor.dispose();
-    
-    // Convertir predictions a objeto
-    const scores: Record<string, number> = {};
-    predictions.forEach(pred => {
-      scores[pred.className] = pred.probability;
-    });
-    
-    console.log('🔍 NSFW Analysis:', scores);
-    
-    // Verificar si contiene contenido explícito
-    const pornScore = scores['Porn'] || 0;
-    const sexyScore = scores['Sexy'] || 0;
-    const hentaiScore = scores['Hentai'] || 0;
-    
-    if (pornScore > NSFW_THRESHOLDS.Porn) {
-      return {
-        safe: false,
-        reason: `Contenido explícito detectado (${(pornScore * 100).toFixed(0)}% de confianza)`,
-        score: pornScore,
-      };
-    }
-    
-    if (sexyScore > NSFW_THRESHOLDS.Sexy) {
-      return {
-        safe: false,
-        reason: `Contenido sugestivo detectado (${(sexyScore * 100).toFixed(0)}% de confianza)`,
-        score: sexyScore,
-      };
-    }
-    
-    if (hentaiScore > NSFW_THRESHOLDS.Hentai) {
-      return {
-        safe: false,
-        reason: `Contenido inapropiado detectado (${(hentaiScore * 100).toFixed(0)}% de confianza)`,
-        score: hentaiScore,
-      };
-    }
-    
-    return {
-      safe: true,
-      score: Math.max(pornScore, sexyScore, hentaiScore),
-    };
-    
-  } catch (err) {
-    console.error('❌ Error analizando imagen:', err);
-    // En caso de error, aprobar por defecto (fail-safe)
-    return { safe: true };
-  }
-}
 
 /**
  * POST /api/moderate-photos
- * Moderar fotos de un álbum en background
+ * Endpoint simplificado: solo aprueba fotos de álbumes privados
+ * Las fotos públicas se analizan en el CLIENTE (navegador) antes de subir
  */
 export async function POST(request: NextRequest) {
   try {
@@ -106,7 +32,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'albumId es requerido' }, { status: 400 });
     }
     
-    console.log(`🤖 Bot iniciando moderación de álbum ${albumId}...`);
+    console.log(`🤖 Procesando álbum ${albumId}...`);
     
     // 1. Verificar que el álbum sea público
     const { data: album } = await supabase
@@ -119,9 +45,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Álbum no encontrado' }, { status: 404 });
     }
     
-    // Solo moderar álbumes públicos
+    // Solo aprobar automáticamente álbumes privados/protegidos
     if (album.privacy !== 'publico') {
-      console.log(`ℹ️ Álbum ${albumId} es privado/protegido - sin moderación`);
+      console.log(`ℹ️ Álbum ${albumId} es privado/protegido - aprobando todas las fotos`);
       
       // Aprobar todas las fotos automáticamente
       await supabase
@@ -140,86 +66,25 @@ export async function POST(request: NextRequest) {
       });
     }
     
-    // 2. Obtener fotos pendientes
-    const { data: photos, error: fetchError } = await supabase
+    // Para álbumes públicos, las fotos ya deberían estar analizadas en el cliente
+    // Este endpoint solo confirma que están listas
+    const { data: photos } = await supabase
       .from('album_photos')
       .select('*')
-      .eq('album_id', albumId)
-      .eq('moderation_status', 'pending_review');
+      .eq('album_id', albumId);
     
-    if (fetchError) {
-      console.error('❌ Error obteniendo fotos:', fetchError);
-      return NextResponse.json({ error: 'Error obteniendo fotos' }, { status: 500 });
-    }
+    const approved = photos?.filter(p => p.moderation_status === 'approved').length || 0;
+    const rejected = photos?.filter(p => p.moderation_status === 'rejected').length || 0;
+    const pending = photos?.filter(p => p.moderation_status === 'pending_review').length || 0;
     
-    if (!photos || photos.length === 0) {
-      return NextResponse.json({ 
-        success: true, 
-        message: 'No hay fotos pendientes de moderación',
-      });
-    }
-    
-    console.log(`📋 Analizando ${photos.length} foto(s)...`);
-    
-    let approved = 0;
-    let rejected = 0;
-    
-    // 3. Analizar cada foto (una por una, en background)
-    for (const photo of photos) {
-      try {
-        console.log(`🔍 Analizando foto ${photo.id}...`);
-        
-        // Analizar con NSFW.js
-        const result = await analyzeImageServer(photo.url);
-        
-        // Decidir estado
-        const status = result.safe ? 'approved' : 'rejected';
-        
-        if (status === 'approved') {
-          approved++;
-        } else {
-          rejected++;
-        }
-        
-        // Actualizar BD
-        const { error: updateError } = await supabase
-          .from('album_photos')
-          .update({
-            moderation_status: status,
-            moderation_reason: result.reason || null,
-            moderation_score: result.score || 0,
-            moderation_date: new Date().toISOString(),
-          })
-          .eq('id', photo.id);
-        
-        if (updateError) {
-          console.error(`❌ Error actualizando foto ${photo.id}:`, updateError);
-        } else {
-          console.log(`${status === 'approved' ? '✅' : '❌'} Foto ${photo.id}: ${status}`);
-        }
-        
-      } catch (err) {
-        console.error(`❌ Error analizando foto ${photo.id}:`, err);
-        // Si hay error, aprobar por defecto (fail-safe)
-        await supabase
-          .from('album_photos')
-          .update({ 
-            moderation_status: 'approved',
-            moderation_reason: 'Error en análisis - aprobado por defecto',
-            moderation_date: new Date().toISOString(),
-          })
-          .eq('id', photo.id);
-        approved++;
-      }
-    }
-    
-    console.log(`✅ Moderación completada: ${approved} aprobadas, ${rejected} rechazadas`);
+    console.log(`✅ Álbum público ${albumId}: ${approved} aprobadas, ${rejected} rechazadas, ${pending} pendientes`);
     
     return NextResponse.json({ 
       success: true, 
-      analyzed: photos.length,
+      analyzed: photos?.length || 0,
       approved,
       rejected,
+      pending,
     });
     
   } catch (err) {

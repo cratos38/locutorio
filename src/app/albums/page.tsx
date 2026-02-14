@@ -445,8 +445,26 @@ export default function AlbumesPage() {
     try {
       console.log(`📤 Creando álbum "${albumName}"...`);
       
-      // ℹ️ NUEVO SISTEMA: Subir primero, moderar después en background
-      // Las fotos se subirán con estado "pending_review" y se moderarán automáticamente
+      // ✅ NUEVO SISTEMA: Analizar fotos ANTES de subir (solo álbumes públicos)
+      let photoAnalysisResults: any[] = [];
+      
+      if (privacyType === 'publico') {
+        console.log('🤖 Analizando contenido (álbum público)...');
+        setIsAnalyzing(true);
+        
+        try {
+          const photosToAnalyze = uploadedPhotos.map(p => p.file);
+          const analysisResults = await analyzeImages(photosToAnalyze);
+          photoAnalysisResults = analysisResults;
+          setIsAnalyzing(false);
+          
+          console.log('✅ Análisis completado');
+        } catch (err) {
+          console.error('❌ Error en análisis:', err);
+          setIsAnalyzing(false);
+          // Continuar de todos modos (fail-safe)
+        }
+      }
       
       // 1. Crear el álbum en la BD
       const { data: newAlbum, error: albumError } = await supabase
@@ -497,8 +515,17 @@ export default function AlbumesPage() {
             .from('album-photos')
             .getPublicUrl(fileName);
           
-          // Guardar referencia en BD con estado de moderación
-          const moderationStatus = privacyType === 'publico' ? 'pending_review' : 'approved';
+          // Guardar referencia en BD con resultado del análisis
+          let moderationStatus = 'approved';
+          let moderationReason = null;
+          let moderationScore = 0;
+          
+          if (privacyType === 'publico' && photoAnalysisResults[i]) {
+            const analysis = photoAnalysisResults[i];
+            moderationStatus = analysis.safe ? 'approved' : 'rejected';
+            moderationReason = analysis.reason || null;
+            moderationScore = analysis.scores?.Porn || analysis.scores?.Sexy || analysis.scores?.Hentai || 0;
+          }
           
           const { data: photoData, error: photoError } = await supabase
             .from('album_photos')
@@ -508,6 +535,9 @@ export default function AlbumesPage() {
               description: photo.description || `Foto ${i + 1}`,
               orden: i,
               moderation_status: moderationStatus,
+              moderation_reason: moderationReason,
+              moderation_score: moderationScore,
+              moderation_date: privacyType === 'publico' ? new Date().toISOString() : null,
             })
             .select()
             .single();
@@ -533,25 +563,16 @@ export default function AlbumesPage() {
         })
         .eq('id', newAlbum.id);
       
-      // 4. Si el álbum es público, activar bot de moderación en background
-      if (privacyType === 'publico') {
-        console.log('🤖 Activando bot de moderación...');
-        fetch('/api/moderate-photos', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ albumId: newAlbum.id })
-        }).then(res => res.json()).then(data => {
-          console.log('✅ Bot de moderación activado:', data);
-        }).catch(err => {
-          console.error('❌ Error activando bot:', err);
-        });
+      // 4. Contar fotos rechazadas
+      const rejectedCount = photoAnalysisResults.filter(r => !r.safe).length;
+      const approvedCount = photoAnalysisResults.filter(r => r.safe).length;
+      
+      let statusMsg = '';
+      if (privacyType === 'publico' && rejectedCount > 0) {
+        statusMsg = `\n\n✅ ${approvedCount} fotos aprobadas\n❌ ${rejectedCount} fotos rechazadas (puedes eliminarlas o mover el álbum a privado)`;
       }
       
-      const moderationMsg = privacyType === 'publico' 
-        ? '\n\n🤖 Las fotos están siendo revisadas automáticamente. Verás el resultado en unos segundos.'
-        : '';
-      
-      alert(`¡Álbum "${albumName}" creado exitosamente con ${uploadedPhotoUrls.length} foto(s)!${moderationMsg}`);
+      alert(`¡Álbum "${albumName}" creado exitosamente con ${uploadedPhotoUrls.length} foto(s)!${statusMsg}`);
       
       // 5. Recargar lista de álbumes
       const { data: allAlbums } = await supabase

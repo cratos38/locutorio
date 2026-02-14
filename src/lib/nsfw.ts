@@ -6,10 +6,10 @@
 import * as nsfwjs from 'nsfwjs';
 
 // Threshold para detección (ajustable)
-// 0.7 = MÁS ESTRICTO (más falsos positivos)
-// 0.85 = EQUILIBRADO (recomendado)
-// 0.9 = MÁS PERMISIVO (más falsos negativos)
-export const NSFW_PORN_THRESHOLD = 0.85;
+// 0.5 = MÁS ESTRICTO (más detecciones)
+// 0.60 = EQUILIBRADO (recomendado)
+// 0.85 = MÁS PERMISIVO (solo muy explícito)
+export const NSFW_PORN_THRESHOLD = 0.60;
 
 let model: nsfwjs.NSFWJS | null = null;
 
