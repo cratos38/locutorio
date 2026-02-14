@@ -818,12 +818,12 @@ export default function AlbumDetailPage() {
               <img 
                 src={photos[selectedPhoto].url} 
                 alt={photos[selectedPhoto].description} 
-                className={`object-contain rounded-xl shadow-2xl transition-all ${
+                className={`rounded-xl shadow-2xl transition-all ${
                   isPhotoExpanded 
-                    ? 'max-w-none max-h-none w-auto h-auto' 
-                    : 'max-w-full max-h-[70vh]'
+                    ? 'w-auto h-auto' 
+                    : 'max-w-full max-h-[70vh] object-contain'
                 }`}
-                style={isPhotoExpanded ? { maxWidth: '95vw', maxHeight: '95vh' } : {}}
+                style={isPhotoExpanded ? {} : {}}
               />
               {photos[selectedPhoto].description && (
                 <p className="mt-4 text-white text-center max-w-2xl">{photos[selectedPhoto].description}</p>
