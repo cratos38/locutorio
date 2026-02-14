@@ -1107,7 +1107,6 @@ export default function AlbumDetailPage() {
                     : 'max-w-full max-h-[70vh] object-contain'
                 }`}
               />
-              />
               {photos[selectedPhoto].description && (
                 <p className="mt-4 text-white text-center max-w-2xl">{photos[selectedPhoto].description}</p>
               )}
