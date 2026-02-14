@@ -9,10 +9,17 @@ ADD COLUMN IF NOT EXISTS moderation_reason TEXT,
 ADD COLUMN IF NOT EXISTS moderation_score DECIMAL(3,2),
 ADD COLUMN IF NOT EXISTS moderation_date TIMESTAMPTZ;
 
--- 2. Agregar constraint para validar estados
-ALTER TABLE album_photos 
-ADD CONSTRAINT IF NOT EXISTS check_moderation_status 
-  CHECK (moderation_status IN ('pending_review', 'approved', 'rejected'));
+-- 2. Agregar constraint para validar estados (solo si no existe)
+DO $$ 
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'check_moderation_status'
+  ) THEN
+    ALTER TABLE album_photos 
+    ADD CONSTRAINT check_moderation_status 
+      CHECK (moderation_status IN ('pending_review', 'approved', 'rejected'));
+  END IF;
+END $$;
 
 -- 3. Crear indice para consultas rapidas
 CREATE INDEX IF NOT EXISTS idx_album_photos_moderation 
