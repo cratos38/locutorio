@@ -215,10 +215,13 @@ export default function AlbumDetailPage() {
       setHasAccess(true);
       setShowPasswordModal(false);
     } else if (album.owner === currentUser.username) {
+      // Si eres el dueño del álbum, SIEMPRE tienes acceso
       setHasAccess(true);
       setShowPasswordModal(false);
     } else if (album.privacy === "amigos") {
-      const ownerId = album.owner === currentUser.username ? currentUser.id : 2;
+      // Si NO eres el dueño y el álbum es privado (solo amigos)
+      // Verificar si eres amigo del dueño
+      const ownerId = 2; // TODO: obtener ID real del dueño desde la BD
       setHasAccess(currentUser.friends.includes(ownerId));
       setShowPasswordModal(false);
     } else if (album.privacy === "protegido") {
