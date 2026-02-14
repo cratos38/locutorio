@@ -1009,62 +1009,18 @@ export default function AlbumDetailPage() {
                     {/* ESTADO 1: FOTO RECHAZADA */}
                     {isRejected ? (
                       <div className="w-full h-full relative">
-                        {/* Imagen NORMAL sin blur ni filtros */}
+                        {/* Imagen VISIBLE sin obstáculos */}
                         <img 
                           src={photo.url} 
                           alt="Foto rechazada" 
                           className="w-full h-full object-cover"
                         />
                         
-                        {/* Overlay solo con el mensaje */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent flex flex-col items-center justify-center p-4 text-center">
-                          {/* Icono de prohibido */}
-                          <div className="w-20 h-20 mb-3 bg-red-600 rounded-full flex items-center justify-center shadow-lg">
-                            <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
-                            </svg>
-                          </div>
-                          
-                          <p className="text-red-400 font-bold text-lg mb-2 bg-black/80 px-4 py-2 rounded-lg shadow-lg">
-                            NO PERMITIDA EN ÁLBUM PÚBLICO
+                        {/* Overlay MUY SIMPLE - Solo visible al hacer hover */}
+                        <div className="absolute inset-0 bg-black/0 hover:bg-black/80 transition-colors duration-300 flex items-center justify-center opacity-0 hover:opacity-100">
+                          <p className="text-red-400 font-bold text-sm px-3 py-2 bg-red-900/90 rounded-lg">
+                            RECHAZADA
                           </p>
-                          <p className="text-white text-sm mb-4 bg-black/80 px-4 py-2 rounded-lg shadow-lg max-w-xs">
-                            {photo.moderation_reason || 'Contenido inapropiado detectado'}
-                          </p>
-                          
-                          {/* Preview info para identificar la foto */}
-                          {photo.description && (
-                            <p className="text-white/90 text-xs mb-3 bg-black/80 px-3 py-1.5 rounded-lg italic max-w-xs">
-                              "{photo.description}"
-                            </p>
-                          )}
-                          
-                          {/* Botones solo para el dueño */}
-                          {album.user_id === user?.id && (
-                            <div className="flex flex-col gap-2 mt-2">
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setEditingPhotoIndex(index);
-                                  setShowDeletePhotoModal(true);
-                                }}
-                                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-bold rounded-lg transition-colors shadow-lg"
-                              >
-                                Eliminar esta foto
-                              </button>
-                              <button
-                                onClick={async (e) => {
-                                  e.stopPropagation();
-                                  if (confirm('¿Cambiar este álbum a "Solo Amigos" o "Protegido"?\n\nEsto permitirá todas las fotos.')) {
-                                    alert('Función en desarrollo: Cambiar privacidad del álbum');
-                                  }
-                                }}
-                                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-lg transition-colors shadow-lg"
-                              >
-                                Cambiar álbum a privado
-                              </button>
-                            </div>
-                          )}
                         </div>
                       </div>
                     ) : (

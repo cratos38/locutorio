@@ -352,16 +352,8 @@ export async function analyzeImageHybrid(file: File): Promise<{
           
           const safe = finalScore < HYBRID_CONFIG.finalRejectThreshold;
           
-          // ====== LOGS MEJORADOS CON PREVIEW VISUAL ======
+          // ====== LOGS SIMPLIFICADOS SIN PREVIEW ======
           console.log('🔬 === ANÁLISIS HÍBRIDO NSFW ===');
-          
-          // Mostrar preview de la imagen en consola (solo funciona en Chrome/Firefox)
-          console.log('%c     ', `
-            font-size: 100px; 
-            background: url(${imageUrl}) no-repeat center; 
-            background-size: contain;
-            border: 2px solid ${safe ? '#4ade80' : '#ef4444'};
-          `);
           
           console.log('📊 Capa 1 - Detección de Piel:', {
             skinPercentage: `${skinAnalysis.skinPercentage.toFixed(1)}%`,
@@ -524,9 +516,48 @@ export async function analyzeImagesHybrid(files: File[]): Promise<Array<{
     console.log(`═══════════════════════════════════════════════════════\n`);
   }
   
-  console.log('\n✅ ANÁLISIS COMPLETADO');
+  console.log('\n\n🎉 ═══════════════════════════════════════════════════════');
+  console.log('✅ ANÁLISIS COMPLETADO');
+  console.log('═══════════════════════════════════════════════════════');
   console.log(`📊 Aprobadas: ${results.filter(r => r.safe).length}`);
   console.log(`📊 Rechazadas: ${results.filter(r => !r.safe).length}`);
+  
+  // Crear tabla de resultados exportable
+  console.log('\n\n📋 TABLA DE RESULTADOS (COPIABLE):');
+  console.log('═══════════════════════════════════════════════════════\n');
+  
+  let tableText = 'Foto#\tEstado\tScore\tNombre\n';
+  tableText += '─────\t──────\t─────\t──────\n';
+  
+  results.forEach((r, i) => {
+    const photoNumber = i + 1;
+    const status = r.safe ? 'APROBADA' : 'RECHAZADA';
+    const score = r.finalScore.toFixed(3);
+    const name = r.file.name.substring(0, 30);
+    tableText += `#${photoNumber}\t${status}\t${score}\t${name}\n`;
+  });
+  
+  console.log(tableText);
+  
+  // Guardar en variable global para acceso fácil
+  (window as any).nsfwResults = {
+    total: results.length,
+    approved: results.filter(r => r.safe).length,
+    rejected: results.filter(r => !r.safe).length,
+    details: results.map((r, i) => ({
+      number: i + 1,
+      name: r.file.name,
+      safe: r.safe,
+      score: r.finalScore,
+      status: r.safe ? 'APROBADA' : 'RECHAZADA'
+    })),
+    tableText // Para copiar fácilmente
+  };
+  
+  console.log('\n💾 Resultados guardados en: window.nsfwResults');
+  console.log('📝 Para copiar tabla: copy(window.nsfwResults.tableText)');
+  console.log('🔍 Ver rechazadas: window.nsfwResults.details.filter(d => !d.safe)');
+  console.log('═══════════════════════════════════════════════════════\n\n');
   
   return results;
 }
