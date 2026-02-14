@@ -33,22 +33,22 @@ export const HYBRID_CONFIG = {
     enabled: true,
     // Neutral debe ser significativamente mayor que NSFW para aprobar
     neutralMargin: 0.20, // Neutral debe superar maxNSFW en 20%
-    pornThreshold: 0.75, // Umbral absoluto para Porn
-    weight: 0.40 // Peso en puntuación final
+    pornThreshold: 0.60, // ⬇️ BAJADO de 0.75 a 0.60 (rechazar desnudos aprobados)
+    weight: 0.50 // ⬆️ AUMENTADO de 0.40 a 0.50 (más peso a NSFW.js)
   },
   
   // Capa 3: Detección de formas
   shapeDetection: {
     enabled: true,
     suspiciousShapeThreshold: 0.30,
-    weight: 0.20
+    weight: 0.10 // ⬇️ REDUCIDO de 0.20 a 0.10 (no discrimina bien)
   },
   
   // Capa 4: Heurísticas contextuales
   contextual: {
     enabled: true,
     drawingHentaiRule: true, // Ilustraciones requieren análisis adicional
-    weight: 0.15
+    weight: 0.15 // Sin cambio por ahora
   },
   
   // Umbral final para rechazar (0-1)
@@ -116,7 +116,7 @@ function analyzeSkinContent(imageData: ImageData): {
 /**
  * CAPA 2: NSFW.js con lógica mejorada
  */
-function analyzeNSFWScores(scores: any): {
+function analyzeNSFWScores(scores: any, skinPercentage: number): {
   decision: 'SAFE' | 'SUSPICIOUS' | 'UNSAFE';
   reason: string;
   suspiciousScore: number;
@@ -136,6 +136,25 @@ function analyzeNSFWScores(scores: any): {
       decision: 'UNSAFE',
       reason: `Porn score muy alto: ${(pornScore * 100).toFixed(1)}%`,
       suspiciousScore: 1.0
+    };
+  }
+  
+  // 🆕 NUEVA REGLA: Combo Porn+Hentai alto
+  if (pornScore + hentaiScore > 0.90) {
+    return {
+      decision: 'UNSAFE',
+      reason: `Combo Porn+Hentai alto: ${(pornScore * 100).toFixed(1)}% + ${(hentaiScore * 100).toFixed(1)}% = ${((pornScore + hentaiScore) * 100).toFixed(1)}%`,
+      suspiciousScore: 1.0
+    };
+  }
+  
+  // 🆕 NUEVA REGLA: Sexy muy alto PERO piel baja (fotos vestidas)
+  // Si Sexy > 80% pero Piel < 35% y Porn < 25% → probablemente vestido sexy, no pornografía
+  if (sexyScore > 0.80 && skinPercentage < 35 && pornScore < 0.25) {
+    return {
+      decision: 'SAFE',
+      reason: `Sexy alto (${(sexyScore * 100).toFixed(1)}%) pero piel baja (${skinPercentage.toFixed(1)}%) → probablemente vestido`,
+      suspiciousScore: sexyScore * 0.5 // Reducir peso de Sexy a la mitad
     };
   }
   
@@ -310,7 +329,7 @@ export async function analyzeImageHybrid(file: File): Promise<{
           });
           
           const nsfwAnalysis = HYBRID_CONFIG.nsfwjs.enabled
-            ? analyzeNSFWScores(nsfwScores)
+            ? analyzeNSFWScores(nsfwScores, skinAnalysis.skinPercentage)
             : { decision: 'SAFE', reason: 'Desactivado', suspiciousScore: 0 };
           
           // === CAPA 3: Detección de formas ===
@@ -333,8 +352,17 @@ export async function analyzeImageHybrid(file: File): Promise<{
           
           const safe = finalScore < HYBRID_CONFIG.finalRejectThreshold;
           
-          // Logs detallados
+          // ====== LOGS MEJORADOS CON PREVIEW VISUAL ======
           console.log('🔬 === ANÁLISIS HÍBRIDO NSFW ===');
+          
+          // Mostrar preview de la imagen en consola (solo funciona en Chrome/Firefox)
+          console.log('%c     ', `
+            font-size: 100px; 
+            background: url(${imageUrl}) no-repeat center; 
+            background-size: contain;
+            border: 2px solid ${safe ? '#4ade80' : '#ef4444'};
+          `);
+          
           console.log('📊 Capa 1 - Detección de Piel:', {
             skinPercentage: `${skinAnalysis.skinPercentage.toFixed(1)}%`,
             suspiciousScore: skinAnalysis.suspiciousScore.toFixed(3),
