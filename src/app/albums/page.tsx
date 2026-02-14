@@ -8,7 +8,7 @@ import Link from "next/link";
 import InternalHeader from "@/components/InternalHeader";
 import { useAuth } from "@/contexts/AuthContext";
 import { createClient } from '@supabase/supabase-js';
-import { analyzeImages } from '@/lib/nsfw';
+import { analyzeImagesHybrid } from '@/lib/nsfw-hybrid';
 
 // Crear cliente de Supabase
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
@@ -463,7 +463,7 @@ export default function AlbumesPage() {
         
         try {
           const photosToAnalyze = uploadedPhotos.map(p => p.file);
-          const analysisResults = await analyzeImages(photosToAnalyze);
+          const analysisResults = await analyzeImagesHybrid(photosToAnalyze);
           photoAnalysisResults = analysisResults;
           setIsAnalyzing(false);
           

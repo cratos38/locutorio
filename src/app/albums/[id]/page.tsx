@@ -384,9 +384,9 @@ export default function AlbumDetailPage() {
       let analysisResults: any[] = [];
       
       if (album?.privacy === 'publico') {
-        console.log('🤖 Analizando fotos antes de subir...');
-        const { analyzeImages } = await import('@/lib/nsfw');
-        analysisResults = await analyzeImages(selectedFiles);
+        console.log('🤖 Analizando fotos con sistema híbrido antes de subir...');
+        const { analyzeImagesHybrid } = await import('@/lib/nsfw-hybrid');
+        analysisResults = await analyzeImagesHybrid(selectedFiles);
         
         const rejectedCount = analysisResults.filter(r => !r.safe).length;
         const approvedCount = analysisResults.filter(r => r.safe).length;
