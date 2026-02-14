@@ -404,7 +404,9 @@ export default function AlbumDetailPage() {
         
         console.log('✅ Foto subida:', publicUrl);
         
-        // Guardar referencia en la base de datos
+        // Guardar referencia en la base de datos con estado de moderación
+        const moderationStatus = album?.privacy === 'publico' ? 'pending_review' : 'approved';
+        
         const { data: photoData, error: photoError } = await supabase
           .from('album_photos')
           .insert({
@@ -412,6 +414,7 @@ export default function AlbumDetailPage() {
             url: publicUrl,
             description: newPhotoDescription,
             orden: photos.length + uploadedPhotos.length,
+            moderation_status: moderationStatus,
           })
           .select()
           .single();
@@ -444,13 +447,43 @@ export default function AlbumDetailPage() {
         .update(updateData)
         .eq('id', albumId);
       
+      // Si el álbum es público, activar bot de moderación en background
+      if (album?.privacy === 'publico') {
+        console.log('🤖 Activando bot de moderación para nuevas fotos...');
+        fetch('/api/moderate-photos', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ albumId })
+        }).then(res => res.json()).then(data => {
+          console.log('✅ Bot de moderación activado:', data);
+          // Recargar fotos después de la moderación (en ~5-10 segundos)
+          setTimeout(async () => {
+            const { data: refreshedPhotos } = await supabase
+              .from('album_photos')
+              .select('*')
+              .eq('album_id', albumId)
+              .order('orden', { ascending: true });
+            if (refreshedPhotos) {
+              setPhotos(refreshedPhotos);
+              console.log('🔄 Fotos actualizadas con estado de moderación');
+            }
+          }, 8000); // 8 segundos para dar tiempo al bot
+        }).catch(err => {
+          console.error('❌ Error activando bot:', err);
+        });
+      }
+      
       // Limpiar estado
       setSelectedFiles([]);
       setUploadPreviews([]);
       setNewPhotoDescription("");
       setShowAddPhotosModal(false);
       
-      console.log(`✅ ${uploadedPhotos.length} foto(s) agregada(s) exitosamente`);
+      const moderationMsg = album?.privacy === 'publico' 
+        ? '\n\n🤖 Las fotos están siendo revisadas automáticamente.'
+        : '';
+      
+      console.log(`✅ ${uploadedPhotos.length} foto(s) agregada(s) exitosamente${moderationMsg}`);
     } catch (err) {
       console.error('Error:', err);
       alert('Error al agregar fotos');
@@ -833,85 +866,171 @@ export default function AlbumDetailPage() {
         {hasAccess ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {photos && photos.length > 0 ? (
-              photos.map((photo: any, index: number) => (
-                <div
-                  key={photo.id}
-                  className="relative aspect-square rounded-xl overflow-hidden group bg-connect-card cursor-pointer"
-                  onClick={() => setSelectedPhoto(index)}
-                >
-                  <img 
-                    src={photo.url} 
-                    alt={photo.description} 
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  
-                  {/* Subtle hover overlay */}
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
-                  
-                  {/* Like button - top right, always visible */}
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleToggleLike(index);
-                    }}
-                    className="absolute top-2 right-2 p-1.5 bg-black/60 backdrop-blur-sm rounded-full transition-all hover:bg-black/80 z-10"
+              photos.map((photo: any, index: number) => {
+                // Estado de moderación
+                const moderationStatus = photo.moderation_status || 'approved';
+                const isRejected = moderationStatus === 'rejected';
+                const isPending = moderationStatus === 'pending_review';
+                const isApproved = moderationStatus === 'approved';
+                
+                return (
+                  <div
+                    key={photo.id}
+                    className="relative aspect-square rounded-xl overflow-hidden group bg-connect-card cursor-pointer"
+                    onClick={() => !isRejected && setSelectedPhoto(index)}
                   >
-                    <svg 
-                      className={`w-4 h-4 ${userLikes.has(photo.id) ? 'text-red-500 fill-red-500' : 'text-white'}`} 
-                      fill={userLikes.has(photo.id) ? 'currentColor' : 'none'} 
-                      stroke="currentColor" 
-                      viewBox="0 0 24 24"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                    </svg>
-                  </button>
-                  
-                  {/* Like count - top left */}
-                  {photoLikes[photo.id] > 0 && (
-                    <div className="absolute top-2 left-2 px-2 py-1 bg-black/60 backdrop-blur-sm rounded-full text-white text-xs flex items-center gap-1">
-                      <svg className="w-3 h-3 text-red-500" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
-                      </svg>
-                      {photoLikes[photo.id]}
-                    </div>
-                  )}
-                  
-                  {/* Owner controls - bottom, only visible on hover */}
-                  {album.user_id === user?.id && (
-                    <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex justify-center gap-2">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setEditingPhotoIndex(index);
-                          setEditPhotoDescription(photo.description || "");
-                          setShowEditPhotoModal(true);
-                        }}
-                        className="p-1.5 bg-white/20 hover:bg-white/30 rounded-lg transition-colors backdrop-blur-sm"
-                        title="Editar descripción"
-                      >
-                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                        </svg>
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setEditingPhotoIndex(index);
-                          setShowDeletePhotoModal(true);
-                        }}
-                        className="p-1.5 bg-red-500/30 hover:bg-red-500/40 rounded-lg transition-colors backdrop-blur-sm"
-                        title="Eliminar foto"
-                      >
-                        <svg className="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                      </button>
-                    </div>
-                  )}
-                  
-                  {/* Remove Cover indicator - no longer needed */}
-                </div>
-              ))
+                    {/* ESTADO 1: FOTO RECHAZADA */}
+                    {isRejected ? (
+                      <div className="w-full h-full relative">
+                        {/* Imagen con blur y escala de grises */}
+                        <img 
+                          src={photo.url} 
+                          alt="Foto rechazada" 
+                          className="w-full h-full object-cover filter blur-lg grayscale opacity-30"
+                        />
+                        
+                        {/* Overlay completo */}
+                        <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center p-4 text-center">
+                          {/* Icono de prohibido */}
+                          <div className="w-16 h-16 mb-3 bg-red-500/20 rounded-full flex items-center justify-center">
+                            <svg className="w-10 h-10 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                            </svg>
+                          </div>
+                          
+                          <p className="text-red-400 font-bold text-sm mb-1">
+                            NO PERMITIDA
+                          </p>
+                          <p className="text-white/60 text-xs mb-3">
+                            {photo.moderation_reason || 'Contenido inapropiado'}
+                          </p>
+                          
+                          {/* Botones solo para el dueño */}
+                          {album.user_id === user?.id && (
+                            <div className="flex gap-2 mt-2">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setEditingPhotoIndex(index);
+                                  setShowDeletePhotoModal(true);
+                                }}
+                                className="px-3 py-1.5 bg-red-500/20 hover:bg-red-500/30 text-red-400 text-xs rounded-lg transition-colors"
+                              >
+                                Eliminar
+                              </button>
+                              <button
+                                onClick={async (e) => {
+                                  e.stopPropagation();
+                                  if (confirm('¿Mover esta foto a un álbum privado?\n\nCrea un álbum "Solo Amigos" o "Protegido" donde esta foto será permitida.')) {
+                                    alert('Función en desarrollo: Mover a álbum privado');
+                                  }
+                                }}
+                                className="px-3 py-1.5 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 text-xs rounded-lg transition-colors"
+                              >
+                                Mover a privado
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        {/* Imagen normal */}
+                        <img 
+                          src={photo.url} 
+                          alt={photo.description} 
+                          className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 ${isPending ? 'opacity-70' : ''}`}
+                        />
+                        
+                        {/* ESTADO 2: PENDIENTE DE APROBACIÓN */}
+                        {isPending && (
+                          <div className="absolute inset-0 pointer-events-none">
+                            {/* Franja diagonal naranja */}
+                            <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
+                              <div 
+                                className="absolute w-[200%] h-20 bg-amber-500/90 flex items-center justify-center transform -rotate-45 origin-center"
+                                style={{ 
+                                  top: '50%', 
+                                  left: '50%', 
+                                  transform: 'translate(-50%, -50%) rotate(-45deg)'
+                                }}
+                              >
+                                <span className="text-white font-bold text-xs tracking-wider drop-shadow-lg">
+                                  PENDIENTE DE APROBACIÓN
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                        
+                        {/* Subtle hover overlay */}
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
+                        
+                        {/* Like button - top right, always visible */}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleToggleLike(index);
+                          }}
+                          className="absolute top-2 right-2 p-1.5 bg-black/60 backdrop-blur-sm rounded-full transition-all hover:bg-black/80 z-10"
+                        >
+                          <svg 
+                            className={`w-4 h-4 ${userLikes.has(photo.id) ? 'text-red-500 fill-red-500' : 'text-white'}`} 
+                            fill={userLikes.has(photo.id) ? 'currentColor' : 'none'} 
+                            stroke="currentColor" 
+                            viewBox="0 0 24 24"
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                          </svg>
+                        </button>
+                        
+                        {/* Like count - top left */}
+                        {photoLikes[photo.id] > 0 && (
+                          <div className="absolute top-2 left-2 px-2 py-1 bg-black/60 backdrop-blur-sm rounded-full text-white text-xs flex items-center gap-1">
+                            <svg className="w-3 h-3 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
+                            </svg>
+                            {photoLikes[photo.id]}
+                          </div>
+                        )}
+                        
+                        {/* Owner controls - bottom, only visible on hover */}
+                        {album.user_id === user?.id && (
+                          <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex justify-center gap-2">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setEditingPhotoIndex(index);
+                                setEditPhotoDescription(photo.description || "");
+                                setShowEditPhotoModal(true);
+                              }}
+                              className="p-1.5 bg-white/20 hover:bg-white/30 rounded-lg transition-colors backdrop-blur-sm"
+                              title="Editar descripción"
+                            >
+                              <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                              </svg>
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setEditingPhotoIndex(index);
+                                setShowDeletePhotoModal(true);
+                              }}
+                              className="p-1.5 bg-red-500/30 hover:bg-red-500/40 rounded-lg transition-colors backdrop-blur-sm"
+                              title="Eliminar foto"
+                            >
+                              <svg className="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                              </svg>
+                            </button>
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </div>
+                );
+              })
             ) : isLoadingPhotos ? (
               <div className="col-span-full text-center py-12">
                 <div className="flex items-center justify-center gap-3">
