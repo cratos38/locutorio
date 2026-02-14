@@ -9,6 +9,70 @@ import { useAuth } from "@/contexts/AuthContext";
 
 export const runtime = 'edge';
 
+// =================== FUNCIÓN DE REDIMENSIONAMIENTO ===================
+/**
+ * Redimensiona una imagen manteniendo su aspect ratio
+ * El lado más largo se limita a maxSize (1024px por defecto)
+ * Calidad: 0.95 (95%) para pérdida mínima imperceptible
+ */
+async function resizeImage(
+  file: File, 
+  maxSize: number = 1024,
+  quality: number = 0.95
+): Promise<File> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+        
+        // Calcular dimensiones manteniendo aspect ratio
+        // Solo redimensionar si algún lado es mayor a maxSize
+        if (width > maxSize || height > maxSize) {
+          if (width > height) {
+            // Foto horizontal: limitar ancho
+            height = (height * maxSize) / width;
+            width = maxSize;
+          } else {
+            // Foto vertical: limitar alto
+            width = (width * maxSize) / height;
+            height = maxSize;
+          }
+        }
+        // Si ambos lados son ≤ maxSize, mantener tamaño original
+        
+        canvas.width = width;
+        canvas.height = height;
+        
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          reject(new Error('No se pudo obtener el contexto del canvas'));
+          return;
+        }
+        
+        ctx.drawImage(img, 0, 0, width, height);
+        
+        canvas.toBlob((blob) => {
+          if (!blob) {
+            reject(new Error('No se pudo crear el blob'));
+            return;
+          }
+          const resizedFile = new File([blob], file.name, { type: 'image/jpeg' });
+          console.log(`📏 Redimensionado: ${img.width}×${img.height} → ${width.toFixed(0)}×${height.toFixed(0)} (${(blob.size / 1024).toFixed(2)} KB)`);
+          resolve(resizedFile);
+        }, 'image/jpeg', quality);
+      };
+      img.onerror = reject;
+      img.src = e.target?.result as string;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
 export default function AlbumDetailPage() {
   const params = useParams();
   const router = useRouter();
@@ -279,15 +343,22 @@ export default function AlbumDetailPage() {
   };
 
   // Process files
-  const handleFiles = (files: File[]) => {
+  const handleFiles = async (files: File[]) => {
     // Filter only image files
     const imageFiles = files.filter(file => file.type.startsWith('image/'));
     if (imageFiles.length === 0) return;
     
-    setSelectedFiles(prev => [...prev, ...imageFiles]);
+    console.log(`📤 Procesando ${imageFiles.length} imagen(es)...`);
+    
+    // Redimensionar todas las imágenes a máximo 1024px (lado más largo)
+    const resizedImages = await Promise.all(
+      imageFiles.map(file => resizeImage(file, 1024, 0.95))
+    );
+    
+    setSelectedFiles(prev => [...prev, ...resizedImages]);
     
     // Create previews
-    imageFiles.forEach(file => {
+    resizedImages.forEach(file => {
       const reader = new FileReader();
       reader.onloadend = () => {
         setUploadPreviews(prev => [...prev, reader.result as string]);
