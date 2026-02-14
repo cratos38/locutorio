@@ -80,7 +80,7 @@ export default function AdminPage() {
   const { user, isAdmin, loading } = useAuth();
   
   // Estados
-  const [activeTab, setActiveTab] = useState<'users' | 'reports' | 'photos' | 'rooms'>('users');
+  const [activeTab, setActiveTab] = useState<'users' | 'reports' | 'photos' | 'rooms' | 'appeals'>('users');
   const [users, setUsers] = useState<User[]>([]);
   const [reports, setReports] = useState<Report[]>([]);
   const [photos, setPhotos] = useState<Photo[]>([]);
@@ -98,6 +98,13 @@ export default function AdminPage() {
   const [selectedPhotos, setSelectedPhotos] = useState<string[]>([]);
   const [bulkAction, setBulkAction] = useState<'approve' | 'reject' | null>(null);
   
+  // 🆕 Estados para reclamaciones (appeals)
+  const [appeals, setAppeals] = useState<any[]>([]);
+  const [appealStats, setAppealStats] = useState<{ pendingCount: number } | null>(null);
+  const [appealStatusFilter, setAppealStatusFilter] = useState('pending');
+  const [selectedAppeal, setSelectedAppeal] = useState<any | null>(null);
+  const [adminNotes, setAdminNotes] = useState('');
+  
   // Verificar acceso de admin
   useEffect(() => {
     if (!loading && !isAdmin) {
@@ -114,9 +121,11 @@ export default function AdminPage() {
         loadReports();
       } else if (activeTab === 'photos') {
         loadPhotos();
+      } else if (activeTab === 'appeals') {
+        loadAppeals();
       }
     }
-  }, [user, isAdmin, activeTab, statusFilter, photoStatusFilter]);
+  }, [user, isAdmin, activeTab, statusFilter, photoStatusFilter, appealStatusFilter]);
   
   const loadUsers = async () => {
     if (!user) return;
@@ -183,6 +192,30 @@ export default function AdminPage() {
       }
     } catch (error) {
       console.error('Error cargando fotos:', error);
+    }
+    setIsLoading(false);
+  };
+  
+  const loadAppeals = async () => {
+    if (!user) return;
+    setIsLoading(true);
+    try {
+      const params = new URLSearchParams({
+        admin: 'true',
+        status: appealStatusFilter,
+      });
+      
+      const response = await fetch(`/api/photo-appeals?${params}`);
+      const data = await response.json();
+      
+      if (data.appeals) {
+        setAppeals(data.appeals);
+        // Contar pendientes para el badge
+        const pendingCount = data.appeals.filter((a: any) => a.status === 'pending').length;
+        setAppealStats({ pendingCount });
+      }
+    } catch (error) {
+      console.error('Error cargando reclamaciones:', error);
     }
     setIsLoading(false);
   };
@@ -353,6 +386,41 @@ export default function AdminPage() {
     }
   };
 
+  const handleAppealAction = async (action: 'approve' | 'reject') => {
+    if (!user || !selectedAppeal) return;
+    
+    const actionText = action === 'approve' ? 'aprobar' : 'rechazar';
+    
+    if (!confirm(`¿Estás seguro de ${actionText} esta reclamación?`)) {
+      return;
+    }
+    
+    try {
+      const response = await fetch(`/api/photo-appeals/${selectedAppeal.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action,
+          admin_notes: adminNotes || null
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        alert(data.message);
+        setSelectedAppeal(null);
+        setAdminNotes('');
+        loadAppeals();
+      } else {
+        alert(data.error || 'Error al procesar la reclamación');
+      }
+    } catch (error) {
+      console.error('Error procesando reclamación:', error);
+      alert('Error al procesar la reclamación');
+    }
+  };
+
   const togglePhotoSelection = (photoId: string) => {
     setSelectedPhotos(prev => 
       prev.includes(photoId) 
@@ -426,6 +494,13 @@ export default function AdminPage() {
             className={activeTab === 'photos' ? 'bg-blue-500 text-white' : ''}
           >
             📷 Fotos {photoStats?.pendingCount ? `(${photoStats.pendingCount})` : ''}
+          </Button>
+          <Button
+            variant={activeTab === 'appeals' ? 'default' : 'outline'}
+            onClick={() => setActiveTab('appeals')}
+            className={activeTab === 'appeals' ? 'bg-yellow-500 text-white' : ''}
+          >
+            ⚖️ Reclamaciones {appealStats?.pendingCount ? `(${appealStats.pendingCount})` : ''}
           </Button>
           <Button
             variant={activeTab === 'rooms' ? 'default' : 'outline'}
@@ -845,6 +920,165 @@ export default function AdminPage() {
           </div>
         )}
         
+        {/* 🆕 Tab: Reclamaciones */}
+        {activeTab === 'appeals' && (
+          <div className="space-y-6">
+            {/* Stats */}
+            {appealStats && (
+              <div className="grid grid-cols-1 gap-4">
+                <div className="bg-connect-bg-dark/60 rounded-lg p-4 border border-yellow-500/30">
+                  <div className="text-3xl font-bold text-yellow-400">{appealStats.pendingCount}</div>
+                  <div className="text-sm text-gray-400">Reclamaciones Pendientes</div>
+                </div>
+              </div>
+            )}
+            
+            {/* Filtros */}
+            <div className="flex flex-wrap gap-4 items-center">
+              <select
+                value={appealStatusFilter}
+                onChange={(e) => setAppealStatusFilter(e.target.value)}
+                className="px-4 py-2 bg-connect-bg-dark/80 border border-connect-border rounded-lg text-white"
+              >
+                <option value="pending">Pendientes</option>
+                <option value="approved">Aprobadas</option>
+                <option value="rejected">Rechazadas</option>
+                <option value="all">Todas</option>
+              </select>
+              
+              <Button onClick={loadAppeals} variant="outline" size="sm">
+                🔄 Actualizar
+              </Button>
+            </div>
+            
+            {/* Lista de reclamaciones */}
+            {isLoading ? (
+              <div className="text-center text-gray-400 py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-500 mx-auto mb-2"></div>
+                Cargando reclamaciones...
+              </div>
+            ) : appeals.length === 0 ? (
+              <div className="text-center text-gray-400 py-12">
+                <p className="text-4xl mb-4">⚖️</p>
+                <p>No hay reclamaciones {appealStatusFilter === 'pending' ? 'pendientes de revisión' : ''}</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {appeals.map((appeal: any) => {
+                  const statusColor = 
+                    appeal.status === 'pending' ? 'yellow' :
+                    appeal.status === 'approved' ? 'green' : 'red';
+                  
+                  const statusText =
+                    appeal.status === 'pending' ? 'Pendiente' :
+                    appeal.status === 'approved' ? 'Aprobada' : 'Rechazada';
+                  
+                  return (
+                    <div
+                      key={appeal.id}
+                      className="bg-connect-bg-dark/60 rounded-xl border border-connect-border p-4 hover:border-yellow-500/50 transition-colors"
+                    >
+                      <div className="flex gap-4">
+                        {/* Imagen de la foto reclamada */}
+                        <div className="w-32 h-32 flex-shrink-0">
+                          <img
+                            src={appeal.album_photos?.url}
+                            alt="Foto reclamada"
+                            className="w-full h-full object-cover rounded-lg border-2 border-yellow-500/30"
+                          />
+                        </div>
+                        
+                        {/* Información */}
+                        <div className="flex-1 space-y-2">
+                          <div className="flex items-start justify-between">
+                            <div>
+                              <h4 className="text-lg font-bold text-white">
+                                Reclamación de {appeal.profiles?.username || 'Usuario'}
+                              </h4>
+                              <p className="text-sm text-gray-400">
+                                {new Date(appeal.created_at).toLocaleDateString('es-ES', {
+                                  day: '2-digit',
+                                  month: 'long',
+                                  year: 'numeric',
+                                  hour: '2-digit',
+                                  minute: '2-digit'
+                                })}
+                              </p>
+                            </div>
+                            <span className={`px-3 py-1 rounded-full text-xs font-semibold bg-${statusColor}-500/20 text-${statusColor}-400 border border-${statusColor}-500/30`}>
+                              {statusText}
+                            </span>
+                          </div>
+                          
+                          {/* Motivo original del rechazo */}
+                          {appeal.album_photos?.moderation_reason && (
+                            <div className="bg-red-900/20 border border-red-500/30 rounded-lg p-3">
+                              <p className="text-xs text-red-400 font-semibold mb-1">Motivo del rechazo automático:</p>
+                              <p className="text-sm text-red-300">{appeal.album_photos.moderation_reason}</p>
+                              {appeal.album_photos.moderation_score && (
+                                <p className="text-xs text-red-400 mt-1">
+                                  Score: {(appeal.album_photos.moderation_score * 100).toFixed(1)}%
+                                </p>
+                              )}
+                            </div>
+                          )}
+                          
+                          {/* Razón de la reclamación */}
+                          <div className="bg-yellow-900/20 border border-yellow-500/30 rounded-lg p-3">
+                            <p className="text-xs text-yellow-400 font-semibold mb-1">Motivo de la reclamación:</p>
+                            <p className="text-sm text-yellow-200 mb-2">{appeal.reason}</p>
+                            <p className="text-sm text-white">{appeal.description}</p>
+                          </div>
+                          
+                          {/* Notas del admin (si existen) */}
+                          {appeal.admin_notes && (
+                            <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-3">
+                              <p className="text-xs text-blue-400 font-semibold mb-1">Notas del administrador:</p>
+                              <p className="text-sm text-blue-200">{appeal.admin_notes}</p>
+                              {appeal.admin_profiles && (
+                                <p className="text-xs text-blue-400 mt-1">
+                                  Por: {appeal.admin_profiles.username}
+                                </p>
+                              )}
+                            </div>
+                          )}
+                          
+                          {/* Botones de acción (solo para pendientes) */}
+                          {appeal.status === 'pending' && (
+                            <div className="flex gap-2 pt-2">
+                              <Button
+                                size="sm"
+                                className="bg-green-600 hover:bg-green-700 flex-1"
+                                onClick={() => setSelectedAppeal(appeal)}
+                              >
+                                ✓ Revisar y Aprobar
+                              </Button>
+                              <Button
+                                size="sm"
+                                className="bg-red-600 hover:bg-red-700 flex-1"
+                                onClick={() => {
+                                  setSelectedAppeal(appeal);
+                                  // Auto-seleccionar rechazar
+                                  setTimeout(() => {
+                                    const rejectBtn = document.getElementById('reject-appeal-btn');
+                                    if (rejectBtn) rejectBtn.focus();
+                                  }, 100);
+                                }}
+                              >
+                                ✗ Rechazar Reclamación
+                              </Button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
+        
         {/* Tab: Salas de chat */}
         {activeTab === 'rooms' && (
           <div className="text-center text-gray-400 py-8">
@@ -1154,6 +1388,131 @@ export default function AdminPage() {
               >
                 Cancelar
               </Button>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* 🆕 Modal: Revisar Reclamación */}
+      {selectedAppeal && (
+        <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4">
+          <div className="bg-connect-bg-dark rounded-xl border border-yellow-500/30 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-connect-bg-dark border-b border-yellow-500/30 px-6 py-4 flex items-center justify-between">
+              <h3 className="text-xl font-bold text-white">
+                ⚖️ Revisar Reclamación
+              </h3>
+              <Button variant="ghost" onClick={() => { setSelectedAppeal(null); setAdminNotes(''); }}>
+                ✕
+              </Button>
+            </div>
+            
+            <div className="p-6">
+              <div className="grid md:grid-cols-2 gap-6">
+                {/* Imagen de la foto reclamada */}
+                <div>
+                  <div className="relative">
+                    <img
+                      src={selectedAppeal.album_photos?.url}
+                      alt="Foto reclamada"
+                      className="w-full rounded-lg border-2 border-yellow-500/30"
+                    />
+                    <div className="absolute top-3 right-3 bg-red-600 text-white px-3 py-1.5 rounded-lg text-sm font-bold shadow-lg">
+                      RECHAZADA
+                    </div>
+                  </div>
+                  
+                  {/* Score de moderación */}
+                  {selectedAppeal.album_photos?.moderation_score && (
+                    <div className="mt-3 bg-red-900/20 border border-red-500/30 rounded-lg p-3">
+                      <p className="text-xs text-red-400 font-semibold">Score de moderación automática:</p>
+                      <p className="text-2xl font-bold text-red-300">
+                        {(selectedAppeal.album_photos.moderation_score * 100).toFixed(1)}%
+                      </p>
+                    </div>
+                  )}
+                </div>
+                
+                {/* Información y acciones */}
+                <div className="space-y-4">
+                  {/* Info del usuario */}
+                  <div className="bg-connect-bg-dark/60 rounded-lg p-4 border border-connect-border">
+                    <h4 className="font-bold text-white mb-2">Usuario que reclama</h4>
+                    <div className="text-sm text-gray-400 space-y-1">
+                      <p>Username: <span className="text-yellow-400">@{selectedAppeal.profiles?.username}</span></p>
+                      <p>Nombre: {selectedAppeal.profiles?.full_name || 'No especificado'}</p>
+                      <p>Fecha de reclamación: {new Date(selectedAppeal.created_at).toLocaleString('es-ES')}</p>
+                    </div>
+                  </div>
+                  
+                  {/* Motivo del rechazo automático */}
+                  <div className="bg-red-900/20 border border-red-500/30 rounded-lg p-4">
+                    <h4 className="font-bold text-red-400 mb-2">Motivo del rechazo automático</h4>
+                    <p className="text-sm text-red-300">
+                      {selectedAppeal.album_photos?.moderation_reason || 'No especificado'}
+                    </p>
+                  </div>
+                  
+                  {/* Razón de la reclamación */}
+                  <div className="bg-yellow-900/20 border border-yellow-500/30 rounded-lg p-4">
+                    <h4 className="font-bold text-yellow-400 mb-2">Razón de la reclamación</h4>
+                    <p className="text-sm text-yellow-200 font-semibold mb-2">
+                      {selectedAppeal.reason}
+                    </p>
+                    <p className="text-sm text-white">
+                      {selectedAppeal.description}
+                    </p>
+                  </div>
+                  
+                  {/* Notas del admin */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-300 mb-2">
+                      Notas administrativas (opcional)
+                    </label>
+                    <textarea
+                      value={adminNotes}
+                      onChange={(e) => setAdminNotes(e.target.value)}
+                      placeholder="Agrega notas sobre tu decisión..."
+                      maxLength={500}
+                      rows={4}
+                      className="w-full px-4 py-2 bg-connect-bg-dark/80 border border-connect-border rounded-lg text-white resize-none focus:outline-none focus:border-yellow-500/50"
+                    />
+                    <p className="text-xs text-gray-400 mt-1">
+                      {adminNotes.length}/500 caracteres
+                    </p>
+                  </div>
+                  
+                  {/* Acciones */}
+                  <div className="space-y-3 pt-2">
+                    <Button
+                      className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold"
+                      onClick={() => handleAppealAction('approve')}
+                    >
+                      ✓ Aprobar Reclamación (Desbloquear Foto)
+                    </Button>
+                    <Button
+                      id="reject-appeal-btn"
+                      className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold"
+                      onClick={() => handleAppealAction('reject')}
+                    >
+                      ✗ Rechazar Reclamación (Mantener Bloqueada)
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="w-full"
+                      onClick={() => { setSelectedAppeal(null); setAdminNotes(''); }}
+                    >
+                      Cancelar
+                    </Button>
+                  </div>
+                  
+                  <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-3">
+                    <p className="text-xs text-blue-300">
+                      <strong>Aprobar:</strong> La foto se desbloqueará y aparecerá en el álbum público.<br />
+                      <strong>Rechazar:</strong> La foto permanecerá bloqueada y el usuario será notificado.
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

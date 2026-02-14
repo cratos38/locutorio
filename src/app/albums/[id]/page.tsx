@@ -132,6 +132,13 @@ export default function AlbumDetailPage() {
   // Report system
   const [showReportModal, setShowReportModal] = useState(false);
   const [reportingPhotoIndex, setReportingPhotoIndex] = useState<number | null>(null);
+  
+  // 🆕 Appeal system (reclamar foto)
+  const [showAppealModal, setShowAppealModal] = useState(false);
+  const [appealPhotoIndex, setAppealPhotoIndex] = useState<number | null>(null);
+  const [appealReason, setAppealReason] = useState("");
+  const [appealDescription, setAppealDescription] = useState("");
+  const [isSubmittingAppeal, setIsSubmittingAppeal] = useState(false);
   const [reportReason, setReportReason] = useState<string>('contenido_explicito');
   const [reportDescription, setReportDescription] = useState<string>('');
   const [isSubmittingReport, setIsSubmittingReport] = useState(false);
@@ -860,6 +867,73 @@ export default function AlbumDetailPage() {
     }
   };
 
+  const handleAppealPhoto = async () => {
+    if (appealPhotoIndex === null || !user?.id) {
+      alert('Debes iniciar sesión para reclamar una foto');
+      return;
+    }
+    
+    if (!appealReason || appealDescription.trim().length < 20) {
+      alert('Por favor completa todos los campos requeridos. La descripción debe tener al menos 20 caracteres.');
+      return;
+    }
+    
+    try {
+      setIsSubmittingAppeal(true);
+      const appealedPhoto = photos[appealPhotoIndex];
+      
+      // Verificar que la foto está rechazada
+      if (appealedPhoto.moderation_status !== 'rejected') {
+        alert('Esta foto no está rechazada. Solo puedes reclamar fotos que hayan sido rechazadas automáticamente.');
+        return;
+      }
+      
+      // Verificar que el usuario es el dueño del álbum
+      if (album?.user_id !== user.id) {
+        alert('Solo el propietario del álbum puede reclamar fotos rechazadas.');
+        return;
+      }
+      
+      // Llamar a la API
+      const response = await fetch('/api/photo-appeals', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          photo_id: appealedPhoto.id,
+          reason: appealReason,
+          description: appealDescription,
+        }),
+      });
+      
+      const result = await response.json();
+      
+      if (!response.ok) {
+        if (response.status === 409) {
+          alert('Ya has reclamado esta foto anteriormente. Un administrador la revisará pronto.');
+        } else {
+          alert(result.error || 'Error al enviar la reclamación');
+        }
+        return;
+      }
+      
+      console.log('✅ Reclamación creada:', result.appeal);
+      alert('¡Reclamación enviada!\n\nUn administrador revisará tu reclamación en un plazo de 24-48 horas.');
+      
+      // Reset modal
+      setShowAppealModal(false);
+      setAppealPhotoIndex(null);
+      setAppealReason('');
+      setAppealDescription('');
+    } catch (err) {
+      console.error('Error:', err);
+      alert('Error al enviar la reclamación');
+    } finally {
+      setIsSubmittingAppeal(false);
+    }
+  };
+
   const privacyLabels = {
     publico: { label: "Público", icon: "🌍", color: "text-green-400" },
     amigos: { label: "Solo Amigos", icon: "👥", color: "text-blue-400" },
@@ -1016,11 +1090,28 @@ export default function AlbumDetailPage() {
                           className="w-full h-full object-cover"
                         />
                         
-                        {/* Overlay MUY SIMPLE - Solo visible al hacer hover */}
-                        <div className="absolute inset-0 bg-black/0 hover:bg-black/80 transition-colors duration-300 flex items-center justify-center opacity-0 hover:opacity-100">
+                        {/* Overlay con botón de reclamación - Solo visible al hacer hover */}
+                        <div className="absolute inset-0 bg-black/0 hover:bg-black/80 transition-colors duration-300 flex flex-col items-center justify-center gap-3 opacity-0 hover:opacity-100">
                           <p className="text-red-400 font-bold text-sm px-3 py-2 bg-red-900/90 rounded-lg">
                             RECHAZADA
                           </p>
+                          
+                          {/* 🆕 BOTÓN RECLAMAR - Solo para el propietario del álbum */}
+                          {album?.user_id === user?.id && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setAppealPhotoIndex(index);
+                                setShowAppealModal(true);
+                              }}
+                              className="px-4 py-2 bg-yellow-600 hover:bg-yellow-500 text-white rounded-lg font-semibold text-sm transition-colors flex items-center gap-2"
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                              </svg>
+                              Reclamar Foto
+                            </button>
+                          )}
                         </div>
                       </div>
                     ) : (
@@ -2059,6 +2150,116 @@ export default function AlbumDetailPage() {
                 )}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+      
+      {/* 🆕 Appeal Photo Modal (Reclamar Foto) */}
+      {showAppealModal && appealPhotoIndex !== null && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[70] flex items-center justify-center p-4">
+          <div className="bg-connect-card border-2 border-yellow-500/30 rounded-2xl w-full max-w-md p-8">
+            <div className="w-20 h-20 mx-auto mb-6 bg-yellow-500/20 rounded-full flex items-center justify-center">
+              <svg className="w-10 h-10 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" />
+              </svg>
+            </div>
+            
+            <h2 className="text-2xl font-bold text-center mb-2">Reclamar Foto Rechazada</h2>
+            <p className="text-connect-muted text-center mb-6">
+              ¿Crees que esta foto fue rechazada por error? Un administrador la revisará.
+            </p>
+            
+            {/* Preview de la foto */}
+            <div className="relative aspect-video rounded-xl overflow-hidden bg-connect-bg-dark mb-6">
+              <img 
+                src={photos[appealPhotoIndex].url} 
+                alt="Foto a reclamar" 
+                className="w-full h-full object-cover"
+              />
+              {/* Etiqueta de RECHAZADA */}
+              <div className="absolute top-2 right-2 bg-red-600 text-white px-3 py-1 rounded-lg text-xs font-bold">
+                RECHAZADA
+              </div>
+            </div>
+            
+            {/* Motivo de la foto rechazada */}
+            {photos[appealPhotoIndex].moderation_reason && (
+              <div className="mb-4 p-3 bg-red-900/20 border border-red-500/30 rounded-lg">
+                <p className="text-xs text-red-400 font-semibold mb-1">Motivo del rechazo:</p>
+                <p className="text-sm text-red-300">{photos[appealPhotoIndex].moderation_reason}</p>
+              </div>
+            )}
+            
+            {/* Motivo de la reclamación */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-2 text-connect-muted">
+                ¿Por qué crees que la foto es apropiada? *
+              </label>
+              <select
+                value={appealReason}
+                onChange={(e) => setAppealReason(e.target.value)}
+                className="w-full px-4 py-2 bg-connect-bg-dark border border-connect-border rounded-lg focus:outline-none focus:border-yellow-500/50 text-white"
+              >
+                <option value="">Selecciona un motivo...</option>
+                <option value="no_contenido_sexual">No contiene contenido sexual/explícito</option>
+                <option value="arte_tatuaje">Es arte corporal (tatuaje, body paint)</option>
+                <option value="contexto_educativo">Contenido educativo o artístico</option>
+                <option value="vestimenta_apropiada">Persona con vestimenta apropiada</option>
+                <option value="error_tecnico">Error técnico del sistema</option>
+                <option value="otro">Otro motivo</option>
+              </select>
+            </div>
+            
+            {/* Descripción detallada */}
+            <div className="mb-6">
+              <label className="block text-sm font-medium mb-2 text-connect-muted">
+                Explica por qué esta foto debería ser aprobada *
+              </label>
+              <textarea
+                value={appealDescription}
+                onChange={(e) => setAppealDescription(e.target.value)}
+                placeholder="Ej: Esta foto muestra un tatuaje artístico en el brazo, no contiene desnudez ni contenido inapropiado..."
+                maxLength={500}
+                rows={4}
+                className="w-full px-4 py-2 bg-connect-bg-dark border border-connect-border rounded-lg focus:outline-none focus:border-yellow-500/50 text-white resize-none"
+              />
+              <p className="text-xs text-connect-muted mt-1">
+                {appealDescription.length}/500 caracteres
+              </p>
+            </div>
+            
+            <div className="flex gap-3">
+              <button 
+                onClick={() => {
+                  setShowAppealModal(false);
+                  setAppealPhotoIndex(null);
+                  setAppealReason('');
+                  setAppealDescription('');
+                }} 
+                disabled={isSubmittingAppeal}
+                className="flex-1 px-4 py-2 bg-transparent border border-transparent text-white hover:text-gray-400 hover:border-gray-500/50 rounded-lg transition-all disabled:opacity-50"
+              >
+                Cancelar
+              </button>
+              <button 
+                onClick={handleAppealPhoto}
+                disabled={isSubmittingAppeal || !appealReason || appealDescription.trim().length < 20}
+                className="flex-1 px-4 py-2 bg-yellow-600 hover:bg-yellow-500 text-white rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {isSubmittingAppeal ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    Enviando...
+                  </>
+                ) : (
+                  'Enviar Reclamación'
+                )}
+              </button>
+            </div>
+            
+            <p className="text-xs text-connect-muted text-center mt-4">
+              Un administrador revisará tu reclamación en un plazo de 24-48 horas.
+            </p>
           </div>
         </div>
       )}
