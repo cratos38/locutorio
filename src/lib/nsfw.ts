@@ -1,6 +1,6 @@
 /**
  * NSFW Content Detection usando nsfwjs
- * ESTRATEGIA FINAL: Solo bloquear PORN alto + Sistema de Denuncias
+ * ESTRATEGIA FINAL V2: SOLO Sistema de Denuncias
  * 
  * IMPORTANTE: Para protección infantil (sitio NO +18)
  */
@@ -8,42 +8,30 @@
 import * as nsfwjs from 'nsfwjs';
 
 /**
- * CONCLUSIONES FINALES:
+ * CONCLUSIÓN DEFINITIVA:
  * 
- * 1. "Sexy" NO es pornografía → NO rechazar por Sexy
- *    - Mujer linda vestida = Sexy ✅
- *    - Mujer con ropa ajustada = Sexy ✅
- *    - Sexy es SUBJETIVO y cultural
- * 
- * 2. NSFW.js es INCONSISTENTE:
- *    - Misma mujer, mismo vestido:
- *      * Espalda (nalgas visibles) → PASA
- *      * Frente (nada visible) → RECHAZADA
- *    - NO se puede confiar 100%
- * 
- * 3. Sin recursos para moderación humana:
- *    - Sin dinero para moderadores
- *    - Sin tiempo para revisión manual
- *    - Solución: Filtro BÁSICO + Denuncias
+ * NSFW.js NO ES CONFIABLE para distinguir contenido inapropiado:
+ * - Desnudos reales → PASAN (Porn: 40-80%)
+ * - Ilustración romántica vestida → RECHAZADA (Drawing: 67%)
+ * - Foto supermercado → 91% porn
+ * - Misma mujer, mismo vestido: resultados opuestos
  * 
  * ESTRATEGIA FINAL:
- * - Solo bloquear Porn MUY alto (>85%)
- * - Ignorar Sexy (es subjetivo)
- * - Hentai en dibujos (caso especial)
- * - Denuncias de usuarios para el resto
+ * ❌ NO usar filtro automático NSFW.js
+ * ✅ SÍ analizar pero NO rechazar
+ * ✅ Guardar scores para estadísticas
+ * ✅ Confiar 100% en denuncias de usuarios
+ * ✅ Auto-hide tras 3 denuncias
+ * 
+ * RAZÓN:
+ * - Sin recursos para moderación humana 24/7
+ * - NSFW.js genera más problemas que soluciones
+ * - Mejor dejar que comunidad modere
+ * - Plataformas grandes (Instagram, TikTok) también dependen de denuncias
  */
 
-// Umbrales SOLO para contenido obviamente pornográfico
-export const NSFW_THRESHOLDS = {
-  Porn: 0.85,    // >85% = muy probablemente pornografía explícita
-  Hentai: 0.80,  // >80% = hentai (solo en dibujos)
-};
-
-// Casos especiales
-export const SPECIAL_THRESHOLDS = {
-  Drawing: 0.60,           // Si >60% dibujo
-  HentaiInDrawing: 0.30,   // Y Hentai >30% → probablemente hentai
-};
+// NO hay umbrales - Todo pasa, solo guardamos scores para estadísticas
+export const NSFW_ANALYSIS_MODE = 'log_only'; // Solo registrar, no bloquear
 
 let model: nsfwjs.NSFWJS | null = null;
 
@@ -104,46 +92,33 @@ export async function isImageSafe(file: File): Promise<{
           const neutralScore = scores['Neutral'] || 0;
           const drawingScore = scores['Drawing'] || 0;
           
-          console.log('🔍 NSFW Analysis:', {
+          console.log('🔍 NSFW Analysis (LOG ONLY - NO BLOCKING):', {
             Porn: `${(pornScore * 100).toFixed(1)}%`,
             Sexy: `${(sexyScore * 100).toFixed(1)}%`,
             Hentai: `${(hentaiScore * 100).toFixed(1)}%`,
             Neutral: `${(neutralScore * 100).toFixed(1)}%`,
             Drawing: `${(drawingScore * 100).toFixed(1)}%`,
+            '⚠️': 'MODO SOLO-LOG: No se rechaza nada automáticamente',
+            '🛡️': 'Protección: Sistema de denuncias + Auto-hide tras 3 reportes'
           });
           
-          // ====== LÓGICA SIMPLIFICADA ======
+          // ====== SIEMPRE APROBAR ======
+          // Guardar scores para estadísticas, pero NO rechazar
+          // Sistema de denuncias se encarga de la moderación
           
-          // REGLA 1: Solo rechazar Porn MUY alto
-          if (pornScore > NSFW_THRESHOLDS.Porn) {
-            console.log(`❌ RECHAZADO: Porn ${(pornScore * 100).toFixed(1)}% > ${(NSFW_THRESHOLDS.Porn * 100)}%`);
-            resolve({
-              safe: false,
-              reason: `Contenido pornográfico detectado (${(pornScore * 100).toFixed(0)}%)`,
-              scores
-            });
-            return;
-          }
-          
-          // REGLA 2: Hentai en dibujos (caso especial)
-          if (drawingScore > SPECIAL_THRESHOLDS.Drawing && 
-              hentaiScore > SPECIAL_THRESHOLDS.HentaiInDrawing) {
-            console.log(`❌ RECHAZADO: Hentai en dibujo (Drawing:${(drawingScore * 100).toFixed(1)}%, Hentai:${(hentaiScore * 100).toFixed(1)}%)`);
-            resolve({
-              safe: false,
-              reason: `Contenido hentai detectado (${(hentaiScore * 100).toFixed(0)}%)`,
-              scores
-            });
-            return;
-          }
-          
-          // REGLA 3: Por defecto APROBAR
-          // Sexy NO se considera (es subjetivo)
-          // Sistema de denuncias maneja el resto
-          console.log(`✅ APROBADO: Porn ${(pornScore * 100).toFixed(1)}% < ${(NSFW_THRESHOLDS.Porn * 100)}%`);
+          console.log(`✅ APROBADO (modo solo-log): Confiamos en denuncias de usuarios`);
           resolve({
             safe: true,
-            scores
+            scores,
+            // Incluir scores para guardar en BD (estadísticas)
+            metadata: {
+              pornScore,
+              sexyScore,
+              hentaiScore,
+              neutralScore,
+              drawingScore,
+              analyzedAt: new Date().toISOString()
+            }
           });
         } catch (err) {
           console.error('Error analizando imagen:', err);
