@@ -5,11 +5,12 @@
 
 import * as nsfwjs from 'nsfwjs';
 
-// Thresholds para detección (ajustables)
+// Thresholds para detección (TEMPORALMENTE MÁS PERMISIVOS)
+// Ajustaremos después de revisar los ejemplos del usuario
 export const NSFW_THRESHOLDS = {
-  Porn: 0.60,   // Pornografía explícita
-  Sexy: 0.70,   // Contenido sugestivo/provocativo (bajado de 0.75)
-  Hentai: 0.65, // Dibujos explícitos (bajado de 0.70)
+  Porn: 0.75,   // MÁS PERMISIVO (antes 0.60) - solo muy explícito
+  Sexy: 0.85,   // MÁS PERMISIVO (antes 0.70) - vestidos discoteca OK
+  Hentai: 0.80, // MÁS PERMISIVO (antes 0.65) - menos falsos positivos
 };
 
 let model: nsfwjs.NSFWJS | null = null;
