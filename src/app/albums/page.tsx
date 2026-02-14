@@ -8,6 +8,7 @@ import Link from "next/link";
 import InternalHeader from "@/components/InternalHeader";
 import { useAuth } from "@/contexts/AuthContext";
 import { createClient } from '@supabase/supabase-js';
+import { analyzeImages } from '@/lib/nsfw';
 
 // Crear cliente de Supabase
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
@@ -279,6 +280,7 @@ export default function AlbumesPage() {
   // Load albums from Supabase
   const [albums, setAlbums] = useState<Album[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   // Load albums on mount
   useEffect(() => {
@@ -442,6 +444,34 @@ export default function AlbumesPage() {
 
     try {
       console.log(`📤 Creando álbum "${albumName}"...`);
+      
+      // Si el álbum es público, analizar fotos con NSFW.js
+      if (privacyType === 'publico') {
+        console.log('🤖 Analizando contenido (álbum público)...');
+        setIsAnalyzing(true);
+        
+        const photosToAnalyze = uploadedPhotos.map(p => p.file);
+        const analysisResults = await analyzeImages(photosToAnalyze);
+        setIsAnalyzing(false);
+        
+        // Verificar si alguna foto fue rechazada
+        const rejectedPhotos = analysisResults.filter(r => !r.safe);
+        
+        if (rejectedPhotos.length > 0) {
+          setIsAnalyzing(false);
+          const rejectedCount = rejectedPhotos.length;
+          const message = rejectedCount === 1
+            ? `⚠️ Una foto no puede subirse a álbumes públicos.\n\nMotivo: ${rejectedPhotos[0].reason}\n\nPuedes:\n• Cambiar el álbum a "Solo Amigos" o "Protegido"\n• Quitar la foto rechazada`
+            : `⚠️ ${rejectedCount} fotos no pueden subirse a álbumes públicos.\n\nPuedes:\n• Cambiar el álbum a "Solo Amigos" o "Protegido"\n• Quitar las fotos rechazadas`;
+          
+          alert(message);
+          return;
+        }
+        
+        console.log('✅ Todas las fotos aprobadas');
+      } else {
+        console.log('ℹ️ Álbum privado/protegido - sin análisis de contenido');
+      }
       
       // 1. Crear el álbum en la BD
       const { data: newAlbum, error: albumError } = await supabase
@@ -765,6 +795,14 @@ export default function AlbumesPage() {
                   </svg>
                   <p className="text-white font-bold mb-1">Arrastra fotos aquí o haz clic para seleccionar</p>
                   <p className="text-sm text-connect-muted">PNG, JPG, WEBP - Optimización automática</p>
+                  {privacyType === 'publico' && (
+                    <p className="text-xs text-amber-400 mt-2 flex items-center justify-center gap-1">
+                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                      </svg>
+                      Las fotos públicas serán analizadas automáticamente
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -900,10 +938,20 @@ export default function AlbumesPage() {
                 </Button>
                 <Button 
                   onClick={handleCreateAlbum} 
-                  disabled={!albumName.trim() || uploadedPhotos.length === 0 || (privacyType === "protegido" && (!albumPassword.trim() || albumPassword.length < 6))}
+                  disabled={!albumName.trim() || uploadedPhotos.length === 0 || (privacyType === "protegido" && (!albumPassword.trim() || albumPassword.length < 6)) || isAnalyzing}
                   className="bg-primary text-connect-bg-dark hover:brightness-110 font-bold disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Crear Álbum
+                  {isAnalyzing ? (
+                    <span className="flex items-center gap-2">
+                      <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Analizando contenido...
+                    </span>
+                  ) : (
+                    "Crear Álbum"
+                  )}
                 </Button>
               </div>
             </div>
