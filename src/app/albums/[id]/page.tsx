@@ -988,19 +988,23 @@ export default function AlbumDetailPage() {
                 const photoNumberMatch = photo.description?.match(/#(\d+)/);
                 const photoNumber = photoNumberMatch ? photoNumberMatch[1] : (index + 1);
                 
-                // 🆕 Color de borde según estado
-                const borderColor = isRejected ? 'border-red-500' : (isPending ? 'border-yellow-500' : 'border-green-500');
-                
                 return (
                   <div
                     key={photo.id}
-                    className={`relative aspect-square rounded-xl overflow-hidden group bg-connect-card cursor-pointer border-4 ${borderColor}`}
+                    className="relative aspect-square rounded-xl overflow-hidden group bg-connect-card cursor-pointer"
                     onClick={() => !isRejected && setSelectedPhoto(index)}
                   >
-                    {/* 🆕 NÚMERO DE FOTO EN ESQUINA SUPERIOR IZQUIERDA */}
-                    <div className={`absolute top-2 left-2 z-20 ${isRejected ? 'bg-red-600' : (isPending ? 'bg-yellow-600' : 'bg-green-600')} text-white font-bold text-2xl px-4 py-2 rounded-lg shadow-lg`}>
+                    {/* 🆕 NÚMERO DE FOTO - Solo visible en hover o si rechazada */}
+                    <div className={`absolute top-2 left-2 z-20 ${isRejected ? 'bg-red-600 opacity-100' : 'bg-black/60 opacity-0 group-hover:opacity-100'} text-white font-bold text-xl px-3 py-1.5 rounded-lg shadow-lg transition-opacity`}>
                       #{photoNumber}
                     </div>
+                    
+                    {/* 🔴 PUNTO ROJO GRANDE - Solo en rechazadas */}
+                    {isRejected && (
+                      <div className="absolute top-2 right-2 z-20 w-12 h-12 bg-red-600 rounded-full flex items-center justify-center shadow-lg animate-pulse">
+                        <span className="text-white font-bold text-2xl">✕</span>
+                      </div>
+                    )}
                     
                     {/* ESTADO 1: FOTO RECHAZADA */}
                     {isRejected ? (

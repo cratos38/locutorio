@@ -501,9 +501,14 @@ export async function analyzeImagesHybrid(files: File[]): Promise<Array<{
   const results = [];
   
   console.log(`🚀 Iniciando análisis híbrido de ${files.length} imágenes...`);
+  console.log(`═══════════════════════════════════════════════════════\n`);
   
   for (let i = 0; i < files.length; i++) {
-    console.log(`\n📷 Analizando imagen ${i + 1}/${files.length}: ${files[i].name}`);
+    const photoNumber = i + 1;
+    console.log(`\n╔══════════════════════════════════════════════════════╗`);
+    console.log(`║  📷 FOTO #${photoNumber}/${files.length}: ${files[i].name.substring(0, 30)}...`);
+    console.log(`╚══════════════════════════════════════════════════════╝`);
+    
     const result = await analyzeImageHybrid(files[i]);
     results.push({
       file: files[i],
@@ -511,11 +516,17 @@ export async function analyzeImagesHybrid(files: File[]): Promise<Array<{
       finalScore: result.finalScore,
       reason: result.reason
     });
+    
+    // Resumen de la foto
+    const statusIcon = result.safe ? '✅' : '❌';
+    const statusText = result.safe ? 'APROBADA' : 'RECHAZADA';
+    console.log(`\n${statusIcon} FOTO #${photoNumber}: ${statusText} (Score: ${result.finalScore.toFixed(3)})`);
+    console.log(`═══════════════════════════════════════════════════════\n`);
   }
   
-  console.log('\n✅ Análisis completado');
-  console.log(`Aprobadas: ${results.filter(r => r.safe).length}`);
-  console.log(`Rechazadas: ${results.filter(r => !r.safe).length}`);
+  console.log('\n✅ ANÁLISIS COMPLETADO');
+  console.log(`📊 Aprobadas: ${results.filter(r => r.safe).length}`);
+  console.log(`📊 Rechazadas: ${results.filter(r => !r.safe).length}`);
   
   return results;
 }
