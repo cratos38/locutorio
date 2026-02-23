@@ -51,7 +51,6 @@ export async function GET(request: NextRequest) {
         id,
         url,
         description,
-        user_id,
         album_id,
         moderation_status,
         moderation_reason,
@@ -59,7 +58,7 @@ export async function GET(request: NextRequest) {
         moderation_date,
         is_primary,
         created_at,
-        albums!inner(id, title, privacy)
+        albums!inner(id, title, privacy, user_id)
       `)
       .order('created_at', { ascending: false })
       .limit(limit);
@@ -163,7 +162,7 @@ export async function PUT(request: NextRequest) {
 
       // Crear notificación al usuario
       await getSupabaseAdmin().from('notifications').insert({
-        user_id: photo.user_id,
+        user_id: photo.albums.user_id,
         type: 'photo_approved',
         title: 'Foto aprobada',
         message: 'Tu foto ha sido aprobada y ya es visible en tu perfil',
@@ -177,7 +176,7 @@ export async function PUT(request: NextRequest) {
         action_type: 'approve_photo',
         target_type: 'photo',
         target_id: photoId,
-        details: { user_id: photo.user_id }
+        details: { user_id: photo.albums.user_id }
       });
 
       return NextResponse.json({ 
@@ -202,7 +201,7 @@ export async function PUT(request: NextRequest) {
 
       // Crear notificación al usuario
       await getSupabaseAdmin().from('notifications').insert({
-        user_id: photo.user_id,
+        user_id: photo.albums.user_id,
         type: 'photo_rejected',
         title: 'Foto rechazada',
         message: rejectionReason || 'Tu foto no cumple con las normas de la comunidad',
@@ -216,7 +215,7 @@ export async function PUT(request: NextRequest) {
         action_type: 'reject_photo',
         target_type: 'photo',
         target_id: photoId,
-        details: { user_id: photo.user_id, reason: rejectionReason }
+        details: { user_id: photo.albums.user_id, reason: rejectionReason }
       });
 
       return NextResponse.json({ 
@@ -239,7 +238,7 @@ export async function PUT(request: NextRequest) {
         action_type: 'delete_photo',
         target_type: 'photo',
         target_id: photoId,
-        details: { user_id: photo.user_id, url: photo.url }
+        details: { user_id: photo.albums.user_id, url: photo.url }
       });
 
       return NextResponse.json({ 

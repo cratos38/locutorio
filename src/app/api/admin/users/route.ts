@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
     // Construir query
     let query = supabase
       .from('users')
-      .select('id, username, email, nombre, edad, genero, ciudad, created_at, is_banned, is_verified, is_plus, email_verified, phone_verified, id_verified, presence_status, last_login', { count: 'exact' });
+      .select('id, username, email, nombre, edad, genero, ciudad, created_at, is_admin, is_verified, is_plus, email_verified, phone_verified, id_verified, presence_status, last_login', { count: 'exact' });
     
     // Filtro de búsqueda
     if (search) {
@@ -69,10 +69,10 @@ export async function GET(request: NextRequest) {
     // Filtro de estado
     switch (status) {
       case 'active':
-        query = query.eq('is_banned', false);
+        // query = query.eq('is_banned', false);  // Campo no existe en tabla users
         break;
       case 'banned':
-        query = query.eq('is_banned', true);
+        // query = query.eq('is_banned', true);   // Campo no existe en tabla users
         break;
       case 'unverified':
         query = query.eq('email_verified', false);
