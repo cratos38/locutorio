@@ -1,15 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import * as faceapi from '@vladmandic/face-api';
-import Tesseract from 'tesseract.js';
 import sharp from 'sharp';
-import * as canvas from 'canvas';
-import * as tf from '@tensorflow/tfjs';
-
-// Configurar canvas para face-api
-const { Canvas, Image, ImageData } = canvas;
-// @ts-ignore
-faceapi.env.monkeyPatch({ Canvas, Image, ImageData });
 
 export const runtime = 'nodejs';
 
@@ -33,30 +24,6 @@ const getSupabaseAdmin = () => {
   });
 };
 
-// Inicializar modelos de face-api (una sola vez)
-let modelsLoaded = false;
-async function loadModels() {
-  if (modelsLoaded) return;
-  
-  try {
-    console.log('🔄 Cargando modelos de face-api...');
-    const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model';
-    
-    await Promise.all([
-      faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
-      faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
-      faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL),
-      faceapi.nets.ageGenderNet.loadFromUri(MODEL_URL),
-    ]);
-    
-    modelsLoaded = true;
-    console.log('✅ Modelos cargados correctamente');
-  } catch (error) {
-    console.error('❌ Error cargando modelos:', error);
-    throw error;
-  }
-}
-
 /**
  * Descarga una imagen desde una URL
  */
@@ -67,35 +34,6 @@ async function downloadImage(url: string): Promise<Buffer> {
   }
   const arrayBuffer = await response.arrayBuffer();
   return Buffer.from(arrayBuffer);
-}
-
-/**
- * Detecta rostros y extrae información (sexo, edad, landmarks)
- */
-async function detectFaces(imageBuffer: Buffer) {
-  const img = await canvas.loadImage(imageBuffer);
-  
-  const detections = await faceapi
-    .detectAllFaces(img as any, new faceapi.TinyFaceDetectorOptions())
-    .withFaceLandmarks()
-    .withAgeAndGender();
-  
-  return detections;
-}
-
-/**
- * Detecta texto en la imagen usando OCR
- */
-async function detectText(imageBuffer: Buffer): Promise<string> {
-  try {
-    const { data: { text } } = await Tesseract.recognize(imageBuffer, 'spa+eng', {
-      logger: () => {} // Silenciar logs
-    });
-    return text.trim();
-  } catch (error) {
-    console.error('Error en OCR:', error);
-    return '';
-  }
 }
 
 /**
@@ -118,12 +56,16 @@ async function analyzeImageQuality(imageBuffer: Buffer) {
 }
 
 /**
- * Endpoint principal de validación
+ * Endpoint simplificado de validación
  * POST /api/profile-photos/analyze
+ * 
+ * NOTA: Versión simplificada sin face-api por problemas de compatibilidad con Vercel.
+ * Solo valida calidad de imagen. Validaciones avanzadas (rostros, sexo, edad) 
+ * se realizarán en Fase 2 con servidor dedicado.
  */
 export async function POST(request: NextRequest) {
   try {
-    console.log('📸 === INICIO VALIDACIÓN DE FOTO DE PERFIL ===');
+    console.log('📸 === INICIO VALIDACIÓN SIMPLIFICADA DE FOTO DE PERFIL ===');
     
     // Autenticar
     const authHeader = request.headers.get('Authorization');
@@ -160,253 +102,25 @@ export async function POST(request: NextRequest) {
     const isFirstPhoto = (approvedPhotosCount || 0) === 0;
     console.log(`📊 Usuario tiene ${approvedPhotosCount || 0} fotos aprobadas (¿Primera foto? ${isFirstPhoto})`);
     
-    // Obtener datos del usuario
-    const { data: userData, error: userError } = await supabase
-      .from('users')
-      .select('sexo, fecha_nacimiento')
-      .eq('id', user.id)
-      .single();
-    
-    if (userError || !userData) {
-      console.error('❌ Error obteniendo datos del usuario:', userError);
-      return NextResponse.json({ error: 'Usuario no encontrado' }, { status: 404 });
-    }
-    
-    const userSex = userData.sexo; // "Hombre" o "Mujer"
-    const userAge = userData.fecha_nacimiento 
-      ? Math.floor((Date.now() - new Date(userData.fecha_nacimiento).getTime()) / (365.25 * 24 * 60 * 60 * 1000))
-      : null;
-    
-    console.log(`👤 Usuario: sexo=${userSex}, edad=${userAge}`);
-    
     // Descargar imagen
     console.log('⬇️ Descargando imagen...');
     const imageBuffer = await downloadImage(photoUrl);
     
-    // Cargar modelos si no están cargados
-    await loadModels();
-    
-    // 1️⃣ DETECTAR ROSTROS + SEXO + EDAD
-    console.log('🔍 Detectando rostros...');
-    const faces = await detectFaces(imageBuffer);
-    
     const validationData: any = {
       timestamp: new Date().toISOString(),
-      faces_detected: faces.length,
-      checks: {}
+      simplified_validation: true,
+      note: 'Validación simplificada - validaciones avanzadas en Fase 2'
     };
     
-    // Validación: Número de rostros
-    if (faces.length === 0) {
-      console.log('❌ No se detectó ningún rostro');
-      await supabase
-        .from('profile_photos')
-        .update({
-          estado: 'rechazada',
-          rejection_reason: 'No se detectó ningún rostro en la imagen',
-          validation_data: validationData
-        })
-        .eq('id', photoId);
-      
-      return NextResponse.json({
-        success: false,
-        verdict: 'REJECT',
-        reason: 'No se detectó ningún rostro'
-      });
-    }
-    
-    if (faces.length > 1) {
-      console.log(`❌ Se detectaron ${faces.length} rostros (debe haber solo 1)`);
-      await supabase
-        .from('profile_photos')
-        .update({
-          estado: 'rechazada',
-          rejection_reason: `Se detectaron ${faces.length} personas en la foto (debe haber solo 1)`,
-          validation_data: validationData
-        })
-        .eq('id', photoId);
-      
-      return NextResponse.json({
-        success: false,
-        verdict: 'REJECT',
-        reason: 'Debe haber solo 1 persona en la foto'
-      });
-    }
-    
-    const face = faces[0];
-    const faceBox = face.detection.box;
-    
-    // Calcular metadata básica de la imagen
-    const imageMetadata = await sharp(imageBuffer).metadata();
-    const imageWidth = imageMetadata.width || 1;
-    const imageHeight = imageMetadata.height || 1;
-    const imageArea = imageWidth * imageHeight;
-    const faceArea = faceBox.width * faceBox.height;
-    const facePercent = (faceArea / imageArea) * 100;
-    
-    validationData.face_area_percent = facePercent.toFixed(2);
-    validationData.detected_gender = face.gender;
-    validationData.gender_confidence = face.genderProbability.toFixed(2);
-    validationData.detected_age = Math.round(face.age);
-    validationData.user_age = userAge;
-    validationData.age_difference = userAge ? Math.abs(userAge - Math.round(face.age)) : null;
-    
-    console.log(`👤 Rostro detectado:`);
-    console.log(`   - Área del rostro: ${facePercent.toFixed(2)}%`);
-    console.log(`   - Sexo detectado: ${face.gender} (${(face.genderProbability * 100).toFixed(1)}%)`);
-    console.log(`   - Edad detectada: ${Math.round(face.age)} años`);
-    
-    // Validación: Tamaño del rostro
-    // FILOSOFÍA:
-    // - Primera foto del usuario: DEBE ser selfie (rostro > 30%)
-    // - Fotos adicionales: Pueden ser casuales/cuerpo completo (rostro > 5%)
-    
-    let minFacePercent: number;
-    let rejectMessage: string;
-    
-    if (isFirstPhoto || isPrincipal) {
-      // Primera foto O marcada como principal: Requerir selfie
-      minFacePercent = 30;
-      rejectMessage = 'Tu primera foto debe ser tipo selfie (rostro claro, mínimo 30% de la imagen)';
-    } else {
-      // Fotos adicionales: Muy flexible
-      minFacePercent = 5;
-      rejectMessage = 'Tu rostro debe ser visible (al menos 5% de la imagen)';
-    }
-    
-    if (facePercent < minFacePercent) {
-      console.log(`❌ Rostro muy pequeño (${facePercent.toFixed(2)}%, mínimo requerido: ${minFacePercent}%)`);
-      await supabase
-        .from('profile_photos')
-        .update({
-          estado: 'rechazada',
-          rejection_reason: rejectMessage,
-          validation_data: validationData
-        })
-        .eq('id', photoId);
-      
-      return NextResponse.json({
-        success: false,
-        verdict: 'REJECT',
-        reason: rejectMessage
-      });
-    }
-    
-    // Si es foto adicional con rostro pequeño (5-15%), enviar a revisión manual
-    if (!isFirstPhoto && !isPrincipal && facePercent >= 5 && facePercent < 15) {
-      console.log(`⚠️ Foto adicional con rostro pequeño (${facePercent.toFixed(2)}%) - revisión manual`);
-      await supabase
-        .from('profile_photos')
-        .update({
-          estado: 'revision_manual',
-          manual_review: true,
-          rejection_reason: 'Foto de cuerpo completo - el admin verificará que cumpla las reglas',
-          validation_data: validationData
-        })
-        .eq('id', photoId);
-      
-      return NextResponse.json({
-        success: false,
-        verdict: 'MANUAL_REVIEW',
-        reason: 'Foto de cuerpo completo - revisión manual'
-      });
-    }
-    
-    // Validación: Sexo biológico
-    const detectedSex = face.gender === 'male' ? 'Hombre' : 'Mujer';
-    const genderConfidence = face.genderProbability;
-    
-    if (genderConfidence < 0.7) {
-      console.log(`⚠️ Baja confianza en detección de sexo (${(genderConfidence * 100).toFixed(1)}%)`);
-      await supabase
-        .from('profile_photos')
-        .update({
-          estado: 'revision_manual',
-          manual_review: true,
-          rejection_reason: 'Baja confianza en detección de sexo - requiere revisión manual',
-          validation_data: validationData
-        })
-        .eq('id', photoId);
-      
-      return NextResponse.json({
-        success: false,
-        verdict: 'MANUAL_REVIEW',
-        reason: 'Baja confianza en detección de sexo'
-      });
-    }
-    
-    if (detectedSex !== userSex) {
-      console.log(`❌ Sexo no coincide: Usuario=${userSex}, Detectado=${detectedSex}`);
-      await supabase
-        .from('profile_photos')
-        .update({
-          estado: 'rechazada',
-          rejection_reason: `El sexo detectado (${detectedSex}) no coincide con tu perfil (${userSex})`,
-          validation_data: validationData
-        })
-        .eq('id', photoId);
-      
-      return NextResponse.json({
-        success: false,
-        verdict: 'REJECT',
-        reason: 'El sexo detectado no coincide con tu perfil'
-      });
-    }
-    
-    // Validación: Edad aproximada
-    if (userAge && validationData.age_difference) {
-      if (validationData.age_difference > 15) {
-        console.log(`⚠️ Diferencia de edad muy grande (${validationData.age_difference} años)`);
-        await supabase
-          .from('profile_photos')
-          .update({
-            estado: 'revision_manual',
-            manual_review: true,
-            rejection_reason: `Gran diferencia de edad detectada (${validationData.age_difference} años) - requiere revisión manual`,
-            validation_data: validationData
-          })
-          .eq('id', photoId);
-        
-        return NextResponse.json({
-          success: false,
-          verdict: 'MANUAL_REVIEW',
-          reason: 'Gran diferencia de edad detectada'
-        });
-      }
-    }
-    
-    // 2️⃣ DETECTAR TEXTO (OCR)
-    console.log('🔍 Detectando texto...');
-    const detectedText = await detectText(imageBuffer);
-    const textLength = detectedText.replace(/\s/g, '').length;
-    validationData.text_detected = textLength > 0;
-    validationData.text_length = textLength;
-    
-    if (textLength > 10) {
-      console.log(`❌ Texto detectado en la imagen (${textLength} caracteres)`);
-      await supabase
-        .from('profile_photos')
-        .update({
-          estado: 'rechazada',
-          rejection_reason: 'La foto contiene texto o marcas de agua (no permitido)',
-          validation_data: validationData
-        })
-        .eq('id', photoId);
-      
-      return NextResponse.json({
-        success: false,
-        verdict: 'REJECT',
-        reason: 'La foto contiene texto o marcas de agua'
-      });
-    }
-    
-    // 3️⃣ CALIDAD DE IMAGEN
+    // VALIDACIÓN BÁSICA: Calidad de imagen
     console.log('🔍 Analizando calidad de imagen...');
     const quality = await analyzeImageQuality(imageBuffer);
     validationData.image_quality = quality;
     
+    console.log(`📊 Calidad: ${quality.width}x${quality.height}, entropía: ${quality.entropy.toFixed(2)}`);
+    
     if (quality.isLowQuality) {
-      console.log(`❌ Calidad de imagen muy baja (${quality.width}x${quality.height}, entropía: ${quality.entropy.toFixed(2)})`);
+      console.log(`❌ Calidad de imagen muy baja`);
       await supabase
         .from('profile_photos')
         .update({
@@ -423,12 +137,17 @@ export async function POST(request: NextRequest) {
       });
     }
     
-    // ✅ TODO CORRECTO - APROBAR
-    console.log('✅ FOTO APROBADA - Todas las validaciones pasaron');
+    // POR AHORA: Enviar todas las fotos a revisión manual
+    // En Fase 2 (con servidor dedicado) se harán validaciones avanzadas automáticas
+    console.log('⚠️ Enviando a revisión manual (validaciones avanzadas pendientes)');
     await supabase
       .from('profile_photos')
       .update({
-        estado: 'aprobada',
+        estado: 'revision_manual',
+        manual_review: true,
+        rejection_reason: isFirstPhoto 
+          ? 'Primera foto - requiere revisión manual del admin'
+          : 'Foto adicional - requiere revisión manual del admin',
         validation_data: validationData,
         validated_at: new Date().toISOString()
       })
@@ -436,15 +155,39 @@ export async function POST(request: NextRequest) {
     
     return NextResponse.json({
       success: true,
-      verdict: 'APPROVE',
-      validationData: validationData
+      verdict: 'MANUAL_REVIEW',
+      message: 'Foto enviada a revisión manual',
+      note: 'Validaciones avanzadas (rostros, sexo, edad) se implementarán en Fase 2'
     });
     
   } catch (error) {
     console.error('❌ Error en validación:', error);
+    
+    // En caso de error, aprobar temporalmente
+    // (mejor experiencia de usuario mientras se implementa Fase 2)
+    try {
+      const body = await request.json();
+      const { photoId } = body;
+      const supabase = getSupabaseAdmin();
+      
+      await supabase
+        .from('profile_photos')
+        .update({
+          estado: 'revision_manual',
+          manual_review: true,
+          rejection_reason: 'Error en validación automática - requiere revisión manual',
+          validated_at: new Date().toISOString()
+        })
+        .eq('id', photoId);
+    } catch (e) {
+      console.error('Error al marcar para revisión manual:', e);
+    }
+    
     return NextResponse.json({
-      error: 'Error interno del servidor',
-      details: String(error)
-    }, { status: 500 });
+      success: true,
+      verdict: 'MANUAL_REVIEW',
+      message: 'Foto enviada a revisión manual por error en validación automática',
+      error: String(error)
+    });
   }
 }
