@@ -56,7 +56,6 @@ export async function GET(request: NextRequest) {
         moderation_reason,
         moderation_score,
         moderation_date,
-        is_primary,
         created_at,
         albums!inner(id, title, privacy, user_id)
       `)

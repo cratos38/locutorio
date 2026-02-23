@@ -93,6 +93,14 @@ export async function PATCH(
     const photo = appeal.album_photos;
     const newStatus = action === 'approve' ? 'approved' : 'rejected';
     
+    console.log('📸 Procesando appeal:', {
+      appealId,
+      action,
+      photoId: photo?.id,
+      currentStatus: photo?.moderation_status,
+      newAppealStatus: newStatus
+    });
+    
     // Actualizar la reclamación
     const { error: updateAppealError } = await supabase
       .from('photo_appeals')
@@ -114,6 +122,8 @@ export async function PATCH(
     
     // Si se aprueba la reclamación, desbloquear la foto
     if (action === 'approve') {
+      console.log('✅ Aprobando foto:', photo.id);
+      
       const { error: updatePhotoError } = await supabase
         .from('album_photos')
         .update({
@@ -124,12 +134,14 @@ export async function PATCH(
         .eq('id', photo.id);
       
       if (updatePhotoError) {
-        console.error('Error desbloqueando foto:', updatePhotoError);
+        console.error('❌ Error desbloqueando foto:', updatePhotoError);
         return NextResponse.json(
           { error: 'Error al desbloquear la foto' },
           { status: 500 }
         );
       }
+      
+      console.log('✅ Foto desbloqueada exitosamente:', photo.id);
       
       // Actualizar contador de fotos del álbum si es necesario
       // (solo si la foto pasó de rejected a approved)
