@@ -142,6 +142,18 @@ export default function AlbumDetailPage() {
   const [reportReason, setReportReason] = useState<string>('contenido_explicito');
   const [reportDescription, setReportDescription] = useState<string>('');
   const [isSubmittingReport, setIsSubmittingReport] = useState(false);
+  
+  // 🆕 Move photo system (mover foto a otro álbum)
+  const [showMovePhotoModal, setShowMovePhotoModal] = useState(false);
+  const [movingPhotoIndex, setMovingPhotoIndex] = useState<number | null>(null);
+  const [myAlbums, setMyAlbums] = useState<any[]>([]);
+  const [selectedTargetAlbum, setSelectedTargetAlbum] = useState<string>('');
+  const [newAlbumName, setNewAlbumName] = useState('');
+  const [newAlbumPrivacy, setNewAlbumPrivacy] = useState<'privado' | 'amigos' | 'protegido'>('privado');
+  const [newAlbumPassword, setNewAlbumPassword] = useState('');
+  const [isMovingPhoto, setIsMovingPhoto] = useState(false);
+  const [moveMode, setMoveMode] = useState<'existing' | 'new'>('existing');
+
 
   // Usuario dinámico desde AuthContext
   const currentUser = { 
@@ -402,6 +414,113 @@ export default function AlbumDetailPage() {
     } catch (err) {
       console.error('Error:', err);
       alert('Error al cambiar la privacidad del álbum');
+    }
+  };
+
+  // 🆕 Cargar álbumes del usuario para mover foto
+  const loadMyAlbums = async () => {
+    if (!user?.id) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('albums')
+        .select('id, title, privacy, photo_count')
+        .eq('user_id', user.id)
+        .neq('id', albumId) // No incluir el álbum actual
+        .order('created_at', { ascending: false });
+      
+      if (error) {
+        console.error('Error cargando álbumes:', error);
+        return;
+      }
+      
+      setMyAlbums(data || []);
+    } catch (err) {
+      console.error('Error:', err);
+    }
+  };
+
+  // 🆕 Mover foto a otro álbum
+  const handleMovePhoto = async () => {
+    if (movingPhotoIndex === null || !user?.id) return;
+    
+    try {
+      setIsMovingPhoto(true);
+      const photoToMove = photos[movingPhotoIndex];
+      let targetAlbumId = selectedTargetAlbum;
+      
+      // Si se va a crear nuevo álbum
+      if (moveMode === 'new') {
+        if (!newAlbumName.trim()) {
+          alert('Por favor ingresa un nombre para el nuevo álbum');
+          return;
+        }
+        
+        // Crear nuevo álbum
+        const { data: newAlbum, error: createError } = await supabase
+          .from('albums')
+          .insert({
+            user_id: user.id,
+            title: newAlbumName,
+            privacy: newAlbumPrivacy,
+            password: newAlbumPrivacy === 'protegido' ? newAlbumPassword : null,
+            photo_count: 0,
+          })
+          .select()
+          .single();
+        
+        if (createError || !newAlbum) {
+          console.error('Error creando álbum:', createError);
+          alert('Error al crear el nuevo álbum');
+          return;
+        }
+        
+        targetAlbumId = newAlbum.id;
+      }
+      
+      if (!targetAlbumId) {
+        alert('Por favor selecciona un álbum de destino');
+        return;
+      }
+      
+      // Mover la foto (actualizar album_id)
+      const { error: moveError } = await supabase
+        .from('album_photos')
+        .update({ 
+          album_id: targetAlbumId,
+          moderation_status: 'approved', // Resetear estado de moderación
+          moderation_reason: null,
+          moderation_score: null,
+        })
+        .eq('id', photoToMove.id);
+      
+      if (moveError) {
+        console.error('Error moviendo foto:', moveError);
+        alert('Error al mover la foto');
+        return;
+      }
+      
+      // Actualizar contadores
+      // Decrementar del álbum actual
+      await supabase.rpc('decrement_album_photo_count', { album_id: albumId });
+      
+      // Incrementar en álbum destino
+      await supabase.rpc('increment_album_photo_count', { album_id: targetAlbumId });
+      
+      alert('✅ Foto movida exitosamente');
+      
+      // Cerrar modal y recargar
+      setShowMovePhotoModal(false);
+      setMovingPhotoIndex(null);
+      setSelectedTargetAlbum('');
+      setNewAlbumName('');
+      window.location.reload();
+      
+    } catch (err) {
+      console.error('Error:', err);
+      alert('Error al mover la foto');
+    } finally {
+      setIsMovingPhoto(false);
     }
   };
 
@@ -1124,19 +1243,19 @@ export default function AlbumDetailPage() {
                               </svg>
                             </button>
                             
-                            {/* Botón 2: Mover a Privado (Azul) */}
+                            {/* Botón 2: Mover a otro álbum (Azul) */}
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
-                                if (confirm('¿Convertir este álbum en privado/amigos/protegido?\n\nLas fotos rechazadas seguirán siendo visibles para ti.')) {
-                                  handleConvertToPrivate();
-                                }
+                                setMovingPhotoIndex(index);
+                                setShowMovePhotoModal(true);
+                                loadMyAlbums(); // Cargar álbumes disponibles
                               }}
                               className="p-2 bg-blue-600 hover:bg-blue-500 rounded-full transition-all shadow-lg"
-                              title="Mover a álbum privado"
+                              title="Mover foto a otro álbum"
                             >
                               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor">
-                                <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+                                <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" />
                               </svg>
                             </button>
                             
@@ -2347,6 +2466,206 @@ export default function AlbumDetailPage() {
             
             <p className="text-xs text-connect-muted text-center mt-4">
               Un administrador revisará tu reclamación en un plazo de 24-48 horas.
+            </p>
+          </div>
+        </div>
+      )}
+      
+      {/* 🆕 Move Photo Modal (Mover foto a otro álbum) */}
+      {showMovePhotoModal && movingPhotoIndex !== null && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[70] flex items-center justify-center p-4">
+          <div className="bg-connect-card border-2 border-blue-500/30 rounded-2xl w-full max-w-2xl p-8 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-white">Mover Foto a Otro Álbum</h2>
+              <button 
+                onClick={() => {
+                  setShowMovePhotoModal(false);
+                  setMovingPhotoIndex(null);
+                  setSelectedTargetAlbum('');
+                  setNewAlbumName('');
+                  setMoveMode('existing');
+                }}
+                className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            {/* Preview de la foto */}
+            <div className="relative w-full h-48 rounded-xl overflow-hidden bg-connect-bg-dark mb-6">
+              <img 
+                src={photos[movingPhotoIndex].url} 
+                alt="Foto a mover" 
+                className="w-full h-full object-contain"
+              />
+            </div>
+            
+            {/* Tabs: Álbum existente o crear nuevo */}
+            <div className="flex gap-2 mb-6">
+              <button
+                onClick={() => setMoveMode('existing')}
+                className={`flex-1 px-4 py-2 rounded-lg font-semibold transition-colors ${
+                  moveMode === 'existing' 
+                    ? 'bg-blue-600 text-white' 
+                    : 'bg-white/10 text-gray-400 hover:bg-white/20'
+                }`}
+              >
+                Mover a álbum existente
+              </button>
+              <button
+                onClick={() => setMoveMode('new')}
+                className={`flex-1 px-4 py-2 rounded-lg font-semibold transition-colors ${
+                  moveMode === 'new' 
+                    ? 'bg-blue-600 text-white' 
+                    : 'bg-white/10 text-gray-400 hover:bg-white/20'
+                }`}
+              >
+                Crear nuevo álbum
+              </button>
+            </div>
+            
+            {/* Modo: Álbum existente */}
+            {moveMode === 'existing' && (
+              <div className="space-y-3">
+                <p className="text-sm text-connect-muted mb-4">
+                  Selecciona un álbum destino para mover esta foto:
+                </p>
+                
+                {myAlbums.length === 0 ? (
+                  <div className="text-center py-8 text-connect-muted">
+                    <p>No tienes otros álbumes.</p>
+                    <p className="text-sm mt-2">Crea uno nuevo usando la pestaña de arriba.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-2 max-h-64 overflow-y-auto">
+                    {myAlbums.map((targetAlbum) => (
+                      <button
+                        key={targetAlbum.id}
+                        onClick={() => setSelectedTargetAlbum(targetAlbum.id)}
+                        className={`w-full p-4 rounded-lg border-2 transition-all text-left ${
+                          selectedTargetAlbum === targetAlbum.id
+                            ? 'border-blue-500 bg-blue-500/10'
+                            : 'border-connect-border hover:border-blue-500/50 bg-connect-bg-dark'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h3 className="font-semibold text-white">{targetAlbum.title}</h3>
+                            <p className="text-sm text-connect-muted">
+                              {targetAlbum.privacy === 'privado' && '🔒 Privado'}
+                              {targetAlbum.privacy === 'amigos' && '👥 Solo amigos'}
+                              {targetAlbum.privacy === 'protegido' && '🔐 Protegido'}
+                              {targetAlbum.privacy === 'publico' && '🌍 Público'}
+                              {' • '}
+                              {targetAlbum.photo_count || 0} fotos
+                            </p>
+                          </div>
+                          {selectedTargetAlbum === targetAlbum.id && (
+                            <svg className="w-6 h-6 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                            </svg>
+                          )}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+            
+            {/* Modo: Crear nuevo álbum */}
+            {moveMode === 'new' && (
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2 text-white">
+                    Nombre del nuevo álbum *
+                  </label>
+                  <input
+                    type="text"
+                    value={newAlbumName}
+                    onChange={(e) => setNewAlbumName(e.target.value)}
+                    placeholder="Ej: Fotos Personales"
+                    maxLength={100}
+                    className="w-full px-4 py-2 bg-connect-bg-dark border border-connect-border rounded-lg focus:outline-none focus:border-blue-500/50 text-white"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium mb-2 text-white">
+                    Privacidad *
+                  </label>
+                  <select
+                    value={newAlbumPrivacy}
+                    onChange={(e) => setNewAlbumPrivacy(e.target.value as any)}
+                    className="w-full px-4 py-2 bg-connect-bg-dark border border-connect-border rounded-lg focus:outline-none focus:border-blue-500/50 text-white"
+                  >
+                    <option value="privado">🔒 Privado (solo yo)</option>
+                    <option value="amigos">👥 Solo amigos</option>
+                    <option value="protegido">🔐 Protegido con contraseña</option>
+                  </select>
+                </div>
+                
+                {newAlbumPrivacy === 'protegido' && (
+                  <div>
+                    <label className="block text-sm font-medium mb-2 text-white">
+                      Contraseña *
+                    </label>
+                    <input
+                      type="password"
+                      value={newAlbumPassword}
+                      onChange={(e) => setNewAlbumPassword(e.target.value)}
+                      placeholder="Contraseña del álbum"
+                      className="w-full px-4 py-2 bg-connect-bg-dark border border-connect-border rounded-lg focus:outline-none focus:border-blue-500/50 text-white"
+                    />
+                  </div>
+                )}
+              </div>
+            )}
+            
+            {/* Botones de acción */}
+            <div className="flex gap-3 mt-6">
+              <button 
+                onClick={() => {
+                  setShowMovePhotoModal(false);
+                  setMovingPhotoIndex(null);
+                  setSelectedTargetAlbum('');
+                  setNewAlbumName('');
+                  setMoveMode('existing');
+                }}
+                disabled={isMovingPhoto}
+                className="flex-1 px-4 py-2 bg-transparent border border-transparent text-white hover:text-gray-400 hover:border-gray-500/50 rounded-lg transition-all disabled:opacity-50"
+              >
+                Cancelar
+              </button>
+              <button 
+                onClick={handleMovePhoto}
+                disabled={
+                  isMovingPhoto || 
+                  (moveMode === 'existing' && !selectedTargetAlbum) ||
+                  (moveMode === 'new' && (!newAlbumName.trim() || (newAlbumPrivacy === 'protegido' && !newAlbumPassword)))
+                }
+                className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {isMovingPhoto ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    Moviendo...
+                  </>
+                ) : (
+                  <>
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" />
+                    </svg>
+                    Mover Foto
+                  </>
+                )}
+              </button>
+            </div>
+            
+            <p className="text-xs text-connect-muted text-center mt-4">
+              La foto se moverá al álbum seleccionado y desaparecerá de este álbum.
             </p>
           </div>
         </div>
