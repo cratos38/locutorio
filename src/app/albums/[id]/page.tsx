@@ -1235,9 +1235,10 @@ export default function AlbumDetailPage() {
                           </div>
                         )}
                         
-                        {/* Owner controls - bottom, only visible on hover */}
-                        {album.user_id === user?.id && (
-                          <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex justify-center gap-2">
+                        {/* Bottom controls - visible on hover */}
+                        <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex justify-center gap-2">
+                          {/* Owner controls: Editar */}
+                          {album.user_id === user?.id && (
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -1252,6 +1253,27 @@ export default function AlbumDetailPage() {
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                               </svg>
                             </button>
+                          )}
+                          
+                          {/* TODOS pueden denunciar fotos aprobadas en álbumes públicos */}
+                          {album?.privacy === 'publico' && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setReportingPhotoIndex(index);
+                                setShowReportModal(true);
+                              }}
+                              className="p-1.5 bg-amber-600/80 hover:bg-amber-700 rounded-lg transition-colors backdrop-blur-sm"
+                              title="Denunciar foto inapropiada"
+                            >
+                              <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                              </svg>
+                            </button>
+                          )}
+                          
+                          {/* Owner controls: Eliminar */}
+                          {album.user_id === user?.id && (
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -1265,8 +1287,8 @@ export default function AlbumDetailPage() {
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                               </svg>
                             </button>
-                          </div>
-                        )}
+                          )}
+                        </div>
                       </>
                     )}
                   </div>
@@ -2241,7 +2263,9 @@ export default function AlbumDetailPage() {
               <select
                 value={appealReason}
                 onChange={(e) => setAppealReason(e.target.value)}
-                className="w-full px-4 py-2 bg-connect-bg-dark border border-connect-border rounded-lg focus:outline-none focus:border-yellow-500/50 text-white"
+                className={`w-full px-4 py-2 bg-connect-bg-dark border rounded-lg focus:outline-none text-white ${
+                  !appealReason ? 'border-red-500/50' : 'border-connect-border focus:border-yellow-500/50'
+                }`}
               >
                 <option value="">Selecciona un motivo...</option>
                 <option value="no_contenido_sexual">No contiene contenido sexual/explícito</option>
@@ -2251,6 +2275,9 @@ export default function AlbumDetailPage() {
                 <option value="error_tecnico">Error técnico del sistema</option>
                 <option value="otro">Otro motivo</option>
               </select>
+              {!appealReason && (
+                <p className="text-xs text-red-400 mt-1">Por favor selecciona un motivo</p>
+              )}
             </div>
             
             {/* Descripción detallada */}
@@ -2264,11 +2291,29 @@ export default function AlbumDetailPage() {
                 placeholder="Ej: Esta foto muestra un tatuaje artístico en el brazo, no contiene desnudez ni contenido inapropiado..."
                 maxLength={500}
                 rows={4}
-                className="w-full px-4 py-2 bg-connect-bg-dark border border-connect-border rounded-lg focus:outline-none focus:border-yellow-500/50 text-white resize-none"
+                className={`w-full px-4 py-2 bg-connect-bg-dark border rounded-lg focus:outline-none text-white resize-none ${
+                  appealDescription.trim().length > 0 && appealDescription.trim().length < 20 
+                    ? 'border-red-500/50' 
+                    : 'border-connect-border focus:border-yellow-500/50'
+                }`}
               />
-              <p className="text-xs text-connect-muted mt-1">
-                {appealDescription.length}/500 caracteres
-              </p>
+              <div className="flex justify-between items-center mt-1">
+                <p className={`text-xs ${
+                  appealDescription.trim().length < 20 
+                    ? 'text-red-400' 
+                    : appealDescription.trim().length >= 20 
+                    ? 'text-green-400' 
+                    : 'text-connect-muted'
+                }`}>
+                  {appealDescription.trim().length < 20 
+                    ? `Faltan ${20 - appealDescription.trim().length} caracteres (mínimo 20)`
+                    : '✓ Descripción válida'
+                  }
+                </p>
+                <p className="text-xs text-connect-muted">
+                  {appealDescription.length}/500
+                </p>
+              </div>
             </div>
             
             <div className="flex gap-3">
