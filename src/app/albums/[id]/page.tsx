@@ -424,7 +424,7 @@ export default function AlbumDetailPage() {
     try {
       const { data, error } = await supabase
         .from('albums')
-        .select('id, title, privacy, photo_count')
+        .select('id, title, privacy, photo_count, cover_photo_url')
         .eq('user_id', user.id)
         .neq('id', albumId) // No incluir el álbum actual
         .order('created_at', { ascending: false });
@@ -2557,7 +2557,7 @@ export default function AlbumDetailPage() {
                     <p className="text-sm mt-2">Crea uno nuevo usando la pestaña de arriba.</p>
                   </div>
                 ) : (
-                  <div className="space-y-2 max-h-64 overflow-y-auto">
+                  <div className="space-y-3 max-h-96 overflow-y-auto">
                     {myAlbums.map((targetAlbum) => (
                       <button
                         key={targetAlbum.id}
@@ -2568,22 +2568,46 @@ export default function AlbumDetailPage() {
                             : 'border-connect-border hover:border-blue-500/50 bg-connect-bg-dark'
                         }`}
                       >
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <h3 className="font-semibold text-white">{targetAlbum.title}</h3>
-                            <p className="text-sm text-connect-muted">
-                              {targetAlbum.privacy === 'privado' && '🔒 Privado'}
-                              {targetAlbum.privacy === 'amigos' && '👥 Solo amigos'}
-                              {targetAlbum.privacy === 'protegido' && '🔐 Protegido'}
-                              {targetAlbum.privacy === 'publico' && '🌍 Público'}
-                              {' • '}
-                              {targetAlbum.photo_count || 0} fotos
+                        <div className="flex items-center gap-4">
+                          {/* Miniatura del cover del álbum */}
+                          <div className="flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden bg-connect-bg-dark border border-connect-border">
+                            {targetAlbum.cover_photo_url ? (
+                              <img 
+                                src={targetAlbum.cover_photo_url} 
+                                alt={targetAlbum.title}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-gray-500">
+                                <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+                                  <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
+                                </svg>
+                              </div>
+                            )}
+                          </div>
+                          
+                          {/* Información del álbum */}
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-semibold text-white text-lg truncate">{targetAlbum.title}</h3>
+                            <p className="text-sm text-connect-muted flex items-center gap-2 mt-1">
+                              <span>
+                                {targetAlbum.privacy === 'privado' && '🔒 Privado'}
+                                {targetAlbum.privacy === 'amigos' && '👥 Solo amigos'}
+                                {targetAlbum.privacy === 'protegido' && '🔐 Protegido'}
+                                {targetAlbum.privacy === 'publico' && '🌍 Público'}
+                              </span>
+                              <span>•</span>
+                              <span>{targetAlbum.photo_count || 0} fotos</span>
                             </p>
                           </div>
+                          
+                          {/* Check icon si está seleccionado */}
                           {selectedTargetAlbum === targetAlbum.id && (
-                            <svg className="w-6 h-6 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                            </svg>
+                            <div className="flex-shrink-0">
+                              <svg className="w-8 h-8 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                              </svg>
+                            </div>
                           )}
                         </div>
                       </button>
