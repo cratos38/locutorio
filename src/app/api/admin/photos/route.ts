@@ -44,29 +44,32 @@ export async function GET(request: NextRequest) {
     }
 
     // Obtener fotos según status
+    const supabaseAdmin = getSupabaseAdmin();
     let query = supabaseAdmin
-      .from('user_photos')
+      .from('album_photos')
       .select(`
         id,
-        user_id,
         url,
+        description,
+        user_id,
+        album_id,
+        moderation_status,
+        moderation_reason,
+        moderation_score,
+        moderation_date,
         is_primary,
-        is_approved,
-        is_rejected,
-        rejection_reason,
         created_at,
-        reviewed_at,
-        user:users(id, username, nombre, email)
+        albums!inner(id, title, privacy)
       `)
       .order('created_at', { ascending: false })
       .limit(limit);
 
     if (status === 'pending') {
-      query = query.eq('is_approved', false).eq('is_rejected', false);
+      query = query.eq('moderation_status', 'pending_review');
     } else if (status === 'approved') {
-      query = query.eq('is_approved', true);
+      query = query.eq('moderation_status', 'approved');
     } else if (status === 'rejected') {
-      query = query.eq('is_rejected', true);
+      query = query.eq('moderation_status', 'rejected');
     }
 
     const { data: photos, error } = await query;
@@ -74,21 +77,20 @@ export async function GET(request: NextRequest) {
     if (error) throw error;
 
     // Contar estadísticas
-    const { count: pendingCount } = await getSupabaseAdmin()
-      .from('user_photos')
+    const { count: pendingCount } = await supabaseAdmin
+      .from('album_photos')
       .select('id', { count: 'exact', head: true })
-      .eq('is_approved', false)
-      .eq('is_rejected', false);
+      .eq('moderation_status', 'pending_review');
 
-    const { count: approvedCount } = await getSupabaseAdmin()
-      .from('user_photos')
+    const { count: approvedCount } = await supabaseAdmin
+      .from('album_photos')
       .select('id', { count: 'exact', head: true })
-      .eq('is_approved', true);
+      .eq('moderation_status', 'approved');
 
-    const { count: rejectedCount } = await getSupabaseAdmin()
-      .from('user_photos')
+    const { count: rejectedCount } = await supabaseAdmin
+      .from('album_photos')
       .select('id', { count: 'exact', head: true })
-      .eq('is_rejected', true);
+      .eq('moderation_status', 'rejected');
 
     return NextResponse.json({
       success: true,
