@@ -155,7 +155,7 @@ export default function InternalHeader() {
               Tutoriales
             </Link>
             {/* Botón Admin - solo visible para administradores */}
-            {user?.is_admin && (
+            {user?.isAdmin && (
               <Link 
                 href="/admin" 
                 className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors flex items-center gap-1 ${
