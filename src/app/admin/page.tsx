@@ -508,6 +508,13 @@ export default function AdminPage() {
           >
             💬 Salas de Chat
           </Button>
+          <Button
+            variant={activeTab === 'quick-messages' ? 'default' : 'outline'}
+            onClick={() => setActiveTab('quick-messages')}
+            className={activeTab === 'quick-messages' ? 'bg-purple-500 text-white' : ''}
+          >
+            ⚡ Mensajes Rápidos
+          </Button>
         </div>
         
         {/* Tab: Usuarios */}
@@ -1085,6 +1092,24 @@ export default function AdminPage() {
             <p className="text-2xl mb-4">💬</p>
             <p>Módulo de gestión de salas de chat</p>
             <p className="text-sm mt-2">Próximamente...</p>
+          </div>
+        )}
+        
+        {/* Tab: Mensajes Rápidos */}
+        {activeTab === 'quick-messages' && (
+          <div className="space-y-6">
+            <div className="bg-connect-bg-dark/60 rounded-lg p-6 border border-purple-500/30">
+              <h3 className="text-xl font-bold text-white mb-4">⚡ Mensajes Rápidos</h3>
+              <p className="text-gray-400 mb-4">
+                Gestiona plantillas de mensajes rápidos para responder a usuarios
+              </p>
+              
+              <div className="text-center text-gray-400 py-8">
+                <p className="text-4xl mb-4">💬</p>
+                <p>Módulo de mensajes rápidos</p>
+                <p className="text-sm mt-2">Funcionalidad en desarrollo...</p>
+              </div>
+            </div>
           </div>
         )}
       </div>
