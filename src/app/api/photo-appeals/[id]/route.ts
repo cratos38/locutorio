@@ -20,6 +20,23 @@ const getSupabaseClient = (request: NextRequest) => {
   });
 };
 
+// Cliente admin para operaciones sin RLS
+const getSupabaseAdmin = () => {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+  
+  if (!supabaseUrl || !supabaseServiceKey) {
+    throw new Error('Supabase admin credentials not configured');
+  }
+  
+  return createClient(supabaseUrl, supabaseServiceKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false
+    }
+  });
+};
+
 /**
  * PATCH /api/photo-appeals/[id]
  * Aprobar o rechazar una reclamación (solo admin)
@@ -91,13 +108,15 @@ export async function PATCH(
     }
     
     const photo = appeal.album_photos;
+    const photoId = appeal.photo_id; // Usar photo_id directo de la reclamación
     const newStatus = action === 'approve' ? 'approved' : 'rejected';
     
-    console.log('📸 Procesando appeal:', {
+    console.log('📸 Procesando reclamación:', {
       appealId,
       action,
-      photoId: photo?.id,
-      currentStatus: photo?.moderation_status,
+      photoId: photoId,
+      photoFromJoin: photo?.id,
+      currentPhotoStatus: photo?.moderation_status,
       newAppealStatus: newStatus
     });
     
@@ -122,23 +141,52 @@ export async function PATCH(
     
     // Si se aprueba la reclamación, desbloquear la foto
     if (action === 'approve') {
-      console.log('✅ Aprobando foto:', photo.id);
+      console.log('🔓 Intentando desbloquear foto ID:', photoId);
       
-      const { data: updatedPhoto, error: updatePhotoError } = await supabase
+      // Usar cliente admin para saltarse RLS
+      const supabaseAdmin = getSupabaseAdmin();
+      
+      // Verificar estado actual de la foto
+      const { data: currentPhoto, error: fetchError } = await supabaseAdmin
+        .from('album_photos')
+        .select('id, moderation_status, album_id')
+        .eq('id', photoId)
+        .single();
+      
+      console.log('📷 Foto actual antes de actualizar:', currentPhoto);
+      
+      if (fetchError) {
+        console.error('❌ Error al obtener foto:', fetchError);
+        return NextResponse.json(
+          { error: 'Error al verificar la foto' },
+          { status: 500 }
+        );
+      }
+      
+      if (!currentPhoto) {
+        console.error('❌ Foto no encontrada con ID:', photoId);
+        return NextResponse.json(
+          { error: 'Foto no encontrada' },
+          { status: 404 }
+        );
+      }
+      
+      // Actualizar la foto usando admin client
+      const { data: updatedPhoto, error: updatePhotoError } = await supabaseAdmin
         .from('album_photos')
         .update({
           moderation_status: 'approved',
           moderation_reason: 'Foto aprobada tras revisión manual por administrador',
           moderation_date: new Date().toISOString(),
         })
-        .eq('id', photo.id)
+        .eq('id', photoId)
         .select()
         .single();
       
       if (updatePhotoError) {
         console.error('❌ Error desbloqueando foto:', updatePhotoError);
         return NextResponse.json(
-          { error: 'Error al desbloquear la foto' },
+          { error: 'Error al desbloquear la foto: ' + updatePhotoError.message },
           { status: 500 }
         );
       }
@@ -146,18 +194,24 @@ export async function PATCH(
       console.log('✅ Foto desbloqueada exitosamente:', updatedPhoto);
       
       // Si la foto estaba rechazada, incrementar contador del álbum
-      if (photo.moderation_status === 'rejected') {
-        const { data: album } = await supabase
+      if (currentPhoto.moderation_status === 'rejected') {
+        const { data: album } = await supabaseAdmin
           .from('albums')
           .select('photo_count')
-          .eq('id', photo.album_id)
+          .eq('id', currentPhoto.album_id)
           .single();
         
         if (album) {
-          await supabase
+          const { error: updateAlbumError } = await supabaseAdmin
             .from('albums')
             .update({ photo_count: (album.photo_count || 0) + 1 })
-            .eq('id', photo.album_id);
+            .eq('id', currentPhoto.album_id);
+          
+          if (updateAlbumError) {
+            console.error('⚠️ Error actualizando contador álbum:', updateAlbumError);
+          } else {
+            console.log('✅ Contador de álbum incrementado');
+          }
         }
       }
     }
