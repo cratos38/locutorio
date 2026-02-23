@@ -72,6 +72,22 @@ interface Photo {
   };
 }
 
+interface ProfilePhoto {
+  id: string;
+  user_id: string;
+  url: string;
+  url_thumbnail: string;
+  url_medium: string;
+  is_principal: boolean;
+  estado: 'pendiente' | 'aprobada' | 'rechazada' | 'revision_manual';
+  rejection_reason: string | null;
+  manual_review: boolean;
+  validation_data: any;
+  validated_at: string | null;
+  created_at: string;
+  user: { id: string; username: string; nombre: string; email: string } | null;
+}
+
 interface Stats {
   pendingCount: number;
   urgentCount: number;
@@ -102,7 +118,7 @@ export default function AdminPage() {
   const { user, isAdmin, loading } = useAuth();
   
   // Estados
-  const [activeTab, setActiveTab] = useState<'users' | 'reports' | 'photos' | 'rooms' | 'appeals'>('users');
+  const [activeTab, setActiveTab] = useState<'users' | 'reports' | 'photos' | 'rooms' | 'appeals' | 'profile-photos'>('users');
   const [users, setUsers] = useState<User[]>([]);
   const [reports, setReports] = useState<Report[]>([]);
   const [photos, setPhotos] = useState<Photo[]>([]);
@@ -127,6 +143,12 @@ export default function AdminPage() {
   const [selectedAppeal, setSelectedAppeal] = useState<any | null>(null);
   const [adminNotes, setAdminNotes] = useState('');
   
+  // 🆕 Estados para fotos de perfil
+  const [profilePhotos, setProfilePhotos] = useState<ProfilePhoto[]>([]);
+  const [profilePhotoStats, setProfilePhotoStats] = useState<{ pendingCount: number; approvedCount: number; rejectedCount: number; manualReviewCount: number } | null>(null);
+  const [profilePhotoStatusFilter, setProfilePhotoStatusFilter] = useState('pendiente');
+  const [selectedProfilePhoto, setSelectedProfilePhoto] = useState<ProfilePhoto | null>(null);
+  
   // Verificar acceso de admin
   useEffect(() => {
     if (!loading && !isAdmin) {
@@ -145,6 +167,8 @@ export default function AdminPage() {
         loadPhotos();
       } else if (activeTab === 'appeals') {
         loadAppeals();
+      } else if (activeTab === 'profile-photos') {
+        loadProfilePhotos();
       }
     }
   }, [user, isAdmin, activeTab, statusFilter, photoStatusFilter, appealStatusFilter]);
@@ -263,6 +287,28 @@ export default function AdminPage() {
       }
     } catch (error) {
       console.error('Error cargando reclamaciones:', error);
+    }
+    setIsLoading(false);
+  };
+  
+  const loadProfilePhotos = async () => {
+    if (!user) return;
+    setIsLoading(true);
+    try {
+      const params = new URLSearchParams({
+        status: profilePhotoStatusFilter,
+        limit: '50'
+      });
+      
+      const response = await fetch(`/api/admin/profile-photos?${params}`);
+      const data = await response.json();
+      
+      if (data.success) {
+        setProfilePhotos(data.photos);
+        setProfilePhotoStats(data.stats);
+      }
+    } catch (error) {
+      console.error('Error cargando fotos de perfil:', error);
     }
     setIsLoading(false);
   };
@@ -578,6 +624,13 @@ export default function AdminPage() {
             className={activeTab === 'appeals' ? 'bg-yellow-500 text-white' : ''}
           >
             ⚖️ Reclamaciones {appealStats?.pendingCount ? `(${appealStats.pendingCount})` : ''}
+          </Button>
+          <Button
+            variant={activeTab === 'profile-photos' ? 'default' : 'outline'}
+            onClick={() => setActiveTab('profile-photos')}
+            className={activeTab === 'profile-photos' ? 'bg-purple-600 text-white' : ''}
+          >
+            👤 Fotos de Perfil {profilePhotoStats?.pendingCount ? `(${profilePhotoStats.pendingCount})` : ''}
           </Button>
           <Button
             variant={activeTab === 'rooms' ? 'default' : 'outline'}
@@ -1636,6 +1689,334 @@ export default function AdminPage() {
               </div>
             </div>
           </div>
+        </div>
+      )}
+      
+      {/* 🆕 Tab: Fotos de Perfil */}
+      {activeTab === 'profile-photos' && (
+        <div className="space-y-6">
+          {/* Estadísticas */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="bg-yellow-600/20 border border-yellow-600/50 rounded-lg p-4">
+              <div className="text-2xl font-bold text-yellow-400">
+                {profilePhotoStats?.pendingCount || 0}
+              </div>
+              <div className="text-sm text-gray-400">Pendientes</div>
+            </div>
+            <div className="bg-purple-600/20 border border-purple-600/50 rounded-lg p-4">
+              <div className="text-2xl font-bold text-purple-400">
+                {profilePhotoStats?.manualReviewCount || 0}
+              </div>
+              <div className="text-sm text-gray-400">Revisión Manual</div>
+            </div>
+            <div className="bg-green-600/20 border border-green-600/50 rounded-lg p-4">
+              <div className="text-2xl font-bold text-green-400">
+                {profilePhotoStats?.approvedCount || 0}
+              </div>
+              <div className="text-sm text-gray-400">Aprobadas</div>
+            </div>
+            <div className="bg-red-600/20 border border-red-600/50 rounded-lg p-4">
+              <div className="text-2xl font-bold text-red-400">
+                {profilePhotoStats?.rejectedCount || 0}
+              </div>
+              <div className="text-sm text-gray-400">Rechazadas</div>
+            </div>
+          </div>
+
+          {/* Filtro de estado */}
+          <div className="flex gap-4">
+            <select
+              value={profilePhotoStatusFilter}
+              onChange={(e) => setProfilePhotoStatusFilter(e.target.value)}
+              className="bg-connect-bg-dark/80 border border-connect-border rounded-lg px-4 py-2 text-white"
+            >
+              <option value="pendiente">Pendientes</option>
+              <option value="revision_manual">Revisión Manual</option>
+              <option value="aprobada">Aprobadas</option>
+              <option value="rechazada">Rechazadas</option>
+              <option value="all">Todas</option>
+            </select>
+            <Button onClick={loadProfilePhotos} variant="outline">
+              🔄 Recargar
+            </Button>
+          </div>
+
+          {/* Lista de fotos */}
+          {isLoading ? (
+            <div className="text-center py-8 text-gray-400">Cargando...</div>
+          ) : profilePhotos.length === 0 ? (
+            <div className="text-center py-8 text-gray-400">No hay fotos de perfil</div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {profilePhotos.map((photo) => (
+                <div
+                  key={photo.id}
+                  className="bg-connect-bg-dark/50 border border-connect-border rounded-lg overflow-hidden hover:border-purple-500/50 transition-all cursor-pointer"
+                  onClick={() => setSelectedProfilePhoto(photo)}
+                >
+                  <div className="relative aspect-square">
+                    <img
+                      src={photo.url_medium || photo.url}
+                      alt="Foto de perfil"
+                      className="w-full h-full object-cover"
+                    />
+                    {photo.is_principal && (
+                      <div className="absolute top-2 left-2 bg-purple-600 text-white text-xs px-2 py-1 rounded">
+                        ⭐ Principal
+                      </div>
+                    )}
+                    {photo.estado === 'pendiente' && (
+                      <div className="absolute top-2 right-2 bg-yellow-600 text-white text-xs px-2 py-1 rounded">
+                        ⏳ Pendiente
+                      </div>
+                    )}
+                    {photo.estado === 'revision_manual' && (
+                      <div className="absolute top-2 right-2 bg-purple-600 text-white text-xs px-2 py-1 rounded">
+                        👁️ Revisión
+                      </div>
+                    )}
+                    {photo.estado === 'aprobada' && (
+                      <div className="absolute top-2 right-2 bg-green-600 text-white text-xs px-2 py-1 rounded">
+                        ✓ Aprobada
+                      </div>
+                    )}
+                    {photo.estado === 'rechazada' && (
+                      <div className="absolute top-2 right-2 bg-red-600 text-white text-xs px-2 py-1 rounded">
+                        ✗ Rechazada
+                      </div>
+                    )}
+                  </div>
+                  <div className="p-3">
+                    <div className="flex items-center justify-between">
+                      <div className="text-sm">
+                        <div className="font-semibold text-white">
+                          {photo.user?.username || 'Usuario'}
+                        </div>
+                        <div className="text-xs text-gray-400">
+                          {new Date(photo.created_at).toLocaleDateString('es-VE')}
+                        </div>
+                      </div>
+                    </div>
+                    {photo.validation_data && (
+                      <div className="mt-2 text-xs text-gray-400">
+                        <div>Rostro: {photo.validation_data.face_area_percent || 'N/A'}%</div>
+                        <div>Sexo: {photo.validation_data.detected_gender || 'N/A'}</div>
+                        <div>Edad: {photo.validation_data.detected_age || 'N/A'} años</div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Modal de detalle */}
+          {selectedProfilePhoto && (
+            <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+              <div className="bg-connect-bg-dark border border-connect-border rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+                <div className="p-6">
+                  <div className="flex justify-between items-start mb-4">
+                    <h3 className="text-xl font-bold text-white">Foto de Perfil</h3>
+                    <button
+                      onClick={() => setSelectedProfilePhoto(null)}
+                      className="text-gray-400 hover:text-white"
+                    >
+                      ✕
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Imagen */}
+                    <div>
+                      <img
+                        src={selectedProfilePhoto.url}
+                        alt="Foto de perfil"
+                        className="w-full rounded-lg"
+                      />
+                    </div>
+
+                    {/* Información */}
+                    <div className="space-y-4">
+                      <div>
+                        <div className="text-sm text-gray-400">Usuario</div>
+                        <div className="text-white font-semibold">
+                          @{selectedProfilePhoto.user?.username || 'Desconocido'}
+                        </div>
+                        <div className="text-sm text-gray-400">
+                          {selectedProfilePhoto.user?.nombre}
+                        </div>
+                      </div>
+
+                      <div>
+                        <div className="text-sm text-gray-400">Estado</div>
+                        <div className={`font-semibold ${
+                          selectedProfilePhoto.estado === 'pendiente' ? 'text-yellow-400' :
+                          selectedProfilePhoto.estado === 'aprobada' ? 'text-green-400' :
+                          selectedProfilePhoto.estado === 'rechazada' ? 'text-red-400' :
+                          'text-purple-400'
+                        }`}>
+                          {selectedProfilePhoto.estado === 'pendiente' ? '⏳ Pendiente' :
+                           selectedProfilePhoto.estado === 'aprobada' ? '✓ Aprobada' :
+                           selectedProfilePhoto.estado === 'rechazada' ? '✗ Rechazada' :
+                           '👁️ Revisión Manual'}
+                        </div>
+                      </div>
+
+                      {selectedProfilePhoto.validation_data && (
+                        <div>
+                          <div className="text-sm text-gray-400 mb-2">Datos de Validación</div>
+                          <div className="bg-connect-bg-dark/50 border border-connect-border rounded-lg p-3 space-y-2 text-sm">
+                            <div className="flex justify-between">
+                              <span className="text-gray-400">Rostros detectados:</span>
+                              <span className="text-white">{selectedProfilePhoto.validation_data.faces_detected}</span>
+                            </div>
+                            {selectedProfilePhoto.validation_data.face_area_percent && (
+                              <div className="flex justify-between">
+                                <span className="text-gray-400">Área del rostro:</span>
+                                <span className="text-white">{selectedProfilePhoto.validation_data.face_area_percent}%</span>
+                              </div>
+                            )}
+                            {selectedProfilePhoto.validation_data.detected_gender && (
+                              <div className="flex justify-between">
+                                <span className="text-gray-400">Sexo detectado:</span>
+                                <span className="text-white">
+                                  {selectedProfilePhoto.validation_data.detected_gender} 
+                                  ({(parseFloat(selectedProfilePhoto.validation_data.gender_confidence) * 100).toFixed(0)}%)
+                                </span>
+                              </div>
+                            )}
+                            {selectedProfilePhoto.validation_data.detected_age && (
+                              <div className="flex justify-between">
+                                <span className="text-gray-400">Edad detectada:</span>
+                                <span className="text-white">
+                                  {selectedProfilePhoto.validation_data.detected_age} años
+                                  {selectedProfilePhoto.validation_data.age_difference && (
+                                    <span className="text-gray-400 text-xs ml-1">
+                                      (±{selectedProfilePhoto.validation_data.age_difference})
+                                    </span>
+                                  )}
+                                </span>
+                              </div>
+                            )}
+                            {selectedProfilePhoto.validation_data.text_detected !== undefined && (
+                              <div className="flex justify-between">
+                                <span className="text-gray-400">Texto detectado:</span>
+                                <span className={selectedProfilePhoto.validation_data.text_detected ? 'text-red-400' : 'text-green-400'}>
+                                  {selectedProfilePhoto.validation_data.text_detected ? 'Sí' : 'No'}
+                                </span>
+                              </div>
+                            )}
+                            {selectedProfilePhoto.validation_data.image_quality && (
+                              <div className="flex justify-between">
+                                <span className="text-gray-400">Resolución:</span>
+                                <span className="text-white">
+                                  {selectedProfilePhoto.validation_data.image_quality.width} × {selectedProfilePhoto.validation_data.image_quality.height}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {selectedProfilePhoto.rejection_reason && (
+                        <div>
+                          <div className="text-sm text-gray-400 mb-2">Motivo de Rechazo</div>
+                          <div className="bg-red-900/20 border border-red-500/30 rounded-lg p-3 text-sm text-red-300">
+                            {selectedProfilePhoto.rejection_reason}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Acciones */}
+                      {(selectedProfilePhoto.estado === 'pendiente' || selectedProfilePhoto.estado === 'revision_manual') && (
+                        <div className="space-y-3 pt-4">
+                          <Button
+                            className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold"
+                            onClick={async () => {
+                              try {
+                                const response = await fetch('/api/admin/profile-photos', {
+                                  method: 'PUT',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({
+                                    photoId: selectedProfilePhoto.id,
+                                    action: 'approve'
+                                  })
+                                });
+                                const data = await response.json();
+                                if (data.success) {
+                                  alert('✅ Foto aprobada');
+                                  setSelectedProfilePhoto(null);
+                                  loadProfilePhotos();
+                                } else {
+                                  alert('❌ Error: ' + data.error);
+                                }
+                              } catch (error) {
+                                console.error(error);
+                                alert('Error al aprobar');
+                              }
+                            }}
+                          >
+                            ✓ Aprobar Foto
+                          </Button>
+                          <Button
+                            className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold"
+                            onClick={async () => {
+                              const reason = prompt('Motivo del rechazo:');
+                              if (!reason) return;
+                              
+                              try {
+                                const response = await fetch('/api/admin/profile-photos', {
+                                  method: 'PUT',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({
+                                    photoId: selectedProfilePhoto.id,
+                                    action: 'reject',
+                                    reason
+                                  })
+                                });
+                                const data = await response.json();
+                                if (data.success) {
+                                  alert('✅ Foto rechazada');
+                                  setSelectedProfilePhoto(null);
+                                  loadProfilePhotos();
+                                } else {
+                                  alert('❌ Error: ' + data.error);
+                                }
+                              } catch (error) {
+                                console.error(error);
+                                alert('Error al rechazar');
+                              }
+                            }}
+                          >
+                            ✗ Rechazar Foto
+                          </Button>
+                          <Button
+                            variant="outline"
+                            className="w-full"
+                            onClick={() => setSelectedProfilePhoto(null)}
+                          >
+                            Cancelar
+                          </Button>
+                        </div>
+                      )}
+
+                      {(selectedProfilePhoto.estado === 'aprobada' || selectedProfilePhoto.estado === 'rechazada') && (
+                        <div className="pt-4">
+                          <Button
+                            variant="outline"
+                            className="w-full"
+                            onClick={() => setSelectedProfilePhoto(null)}
+                          >
+                            Cerrar
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

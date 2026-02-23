@@ -240,6 +240,30 @@ export async function POST(request: NextRequest) {
     
     console.log('✅ Foto guardada exitosamente en BD');
     
+    // 🤖 Iniciar validación automática en segundo plano
+    console.log('🤖 Iniciando validación automática...');
+    try {
+      // Llamar al endpoint de análisis (sin esperar respuesta para no bloquear)
+      fetch(`${process.env.NEXT_PUBLIC_SITE_URL || 'https://locutorio.com.ve'}/api/profile-photos/analyze`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          photoId: photoData.id,
+          photoUrl: photoUrl
+        })
+      }).catch(err => {
+        console.error('⚠️ Error iniciando validación automática:', err);
+      });
+      
+      console.log('🚀 Validación automática iniciada en segundo plano');
+    } catch (error) {
+      console.error('⚠️ Error al iniciar validación:', error);
+      // No fallar el upload si la validación falla
+    }
+    
     return NextResponse.json({
       success: true,
       photo: {
