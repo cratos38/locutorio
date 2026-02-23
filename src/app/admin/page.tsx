@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import { createClient } from "@supabase/supabase-js";
 
 // Tipos
 interface User {
@@ -30,25 +31,45 @@ interface User {
 
 interface Report {
   id: string;
-  report_type: string;
+  photo_id: number;
+  album_id: string;
+  reporter_user_id: string;
+  reason: string;
   description: string;
-  status: string;
-  priority: string;
+  status: 'pending' | 'reviewing' | 'resolved' | 'dismissed';
+  admin_notes: string | null;
+  admin_user_id: string | null;
   created_at: string;
-  reporter: { id: string; username: string; email: string };
-  reported_user: { id: string; username: string; email: string; is_banned: boolean } | null;
+  reviewed_at: string | null;
+  album_photos?: {
+    id: number;
+    url: string;
+    description?: string;
+  };
+  profiles?: {
+    id: string;
+    username: string;
+    email?: string;
+  };
 }
 
 interface Photo {
   id: string;
-  user_id: string;
   url: string;
-  is_primary: boolean;
-  is_approved: boolean;
-  is_rejected: boolean;
-  rejection_reason: string | null;
+  description?: string;
+  album_id: string;
+  moderation_status: 'pending_review' | 'approved' | 'rejected';
+  moderation_reason: string | null;
+  moderation_score: number | null;
+  moderation_date: string | null;
   created_at: string;
-  user: { id: string; username: string; nombre: string; email: string };
+  user: { id: string; username: string; nombre: string; email: string } | null;
+  albums?: {
+    id: string;
+    title: string;
+    privacy: string;
+    user_id: string;
+  };
 }
 
 interface Stats {
@@ -313,20 +334,31 @@ export default function AdminPage() {
   };
   
   // Acciones de reportes
-  const handleReportAction = async (action: string, banUser = false) => {
+  const handleReportAction = async (action: 'resolve' | 'dismiss' | 'remove_photo') => {
     if (!user || !selectedReport) return;
     
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+    
+    // Obtener token
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.access_token) {
+      alert('No autenticado');
+      return;
+    }
+    
     try {
-      const response = await fetch('/api/admin/reports', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch(`/api/photo-reports/${selectedReport.id}`, {
+        method: 'PATCH',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`
+        },
         body: JSON.stringify({
-          adminId: user.id,
-          reportId: selectedReport.id,
           action,
-          resolution: actionReason,
-          banUser,
-          banDuration
+          admin_notes: actionReason || undefined
         })
       });
       
@@ -336,13 +368,12 @@ export default function AdminPage() {
         alert(data.message);
         setSelectedReport(null);
         setActionReason('');
-        setBanDuration(null);
         loadReports();
       } else {
-        alert(data.error);
+        alert(data.error || 'Error al procesar denuncia');
       }
     } catch (error) {
-      console.error('Error procesando reporte:', error);
+      console.error('Error procesando denuncia:', error);
     }
   };
 
@@ -670,23 +701,11 @@ export default function AdminPage() {
         {/* Tab: Reportes */}
         {activeTab === 'reports' && (
           <div className="space-y-6">
-            {/* Stats */}
-            {stats && (
-              <div className="grid grid-cols-3 gap-4">
-                <div className="bg-connect-bg-dark/60 rounded-lg p-4 border border-connect-border">
-                  <div className="text-3xl font-bold text-yellow-400">{stats.pendingCount}</div>
-                  <div className="text-sm text-gray-400">Pendientes</div>
-                </div>
-                <div className="bg-connect-bg-dark/60 rounded-lg p-4 border border-red-500/30">
-                  <div className="text-3xl font-bold text-red-400">{stats.urgentCount}</div>
-                  <div className="text-sm text-gray-400">Urgentes</div>
-                </div>
-                <div className="bg-connect-bg-dark/60 rounded-lg p-4 border border-orange-500/30">
-                  <div className="text-3xl font-bold text-orange-400">{stats.highCount}</div>
-                  <div className="text-sm text-gray-400">Alta Prioridad</div>
-                </div>
-              </div>
-            )}
+            {/* Stats - Contador simple */}
+            <div className="bg-connect-bg-dark/60 rounded-lg p-4 border border-connect-border">
+              <div className="text-3xl font-bold text-yellow-400">{reports.filter(r => r.status === 'pending').length}</div>
+              <div className="text-sm text-gray-400">Denuncias pendientes</div>
+            </div>
             
             {/* Filtros */}
             <div className="flex gap-4">
@@ -708,45 +727,61 @@ export default function AdminPage() {
               {isLoading ? (
                 <div className="text-center text-gray-400 py-8">Cargando...</div>
               ) : reports.length === 0 ? (
-                <div className="text-center text-gray-400 py-8">No hay reportes</div>
+                <div className="text-center text-gray-400 py-8">No hay denuncias</div>
               ) : reports.map((report) => (
                 <div 
                   key={report.id} 
-                  className={`bg-connect-bg-dark/60 rounded-lg p-4 border ${
-                    report.priority === 'urgent' ? 'border-red-500' :
-                    report.priority === 'high' ? 'border-orange-500' :
-                    'border-connect-border'
-                  }`}
+                  className="bg-connect-bg-dark/60 rounded-lg p-4 border border-connect-border hover:border-neon-green/30 transition-all"
                 >
-                  <div className="flex items-start justify-between">
+                  <div className="flex items-start gap-4">
+                    {/* Foto denunciada */}
+                    {report.album_photos && (
+                      <div className="w-24 h-24 flex-shrink-0">
+                        <img
+                          src={report.album_photos.url}
+                          alt="Foto denunciada"
+                          className="w-full h-full object-cover rounded-lg"
+                        />
+                      </div>
+                    )}
+                    
+                    {/* Info de la denuncia */}
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
                         <span className={`text-xs px-2 py-1 rounded ${
-                          report.priority === 'urgent' ? 'bg-red-500/20 text-red-400' :
-                          report.priority === 'high' ? 'bg-orange-500/20 text-orange-400' :
+                          report.status === 'pending' ? 'bg-yellow-500/20 text-yellow-400' :
+                          report.status === 'reviewing' ? 'bg-blue-500/20 text-blue-400' :
+                          report.status === 'resolved' ? 'bg-green-500/20 text-green-400' :
                           'bg-gray-500/20 text-gray-400'
                         }`}>
-                          {report.priority.toUpperCase()}
-                        </span>
-                        <span className="text-xs px-2 py-1 rounded bg-blue-500/20 text-blue-400">
-                          {report.report_type}
+                          {report.status.toUpperCase()}
                         </span>
                         <span className="text-xs text-gray-400">
-                          {new Date(report.created_at).toLocaleDateString('es-ES')}
+                          {new Date(report.created_at).toLocaleDateString('es-ES', {
+                            day: '2-digit',
+                            month: 'short',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
                         </span>
                       </div>
                       
-                      <p className="text-white mb-2">{report.description}</p>
-                      
-                      <div className="text-sm text-gray-400">
-                        <span>Reportado por: <span className="text-neon-green">{report.reporter?.username}</span></span>
-                        {report.reported_user && (
-                          <span className="ml-4">
-                            Usuario reportado: <span className="text-red-400">{report.reported_user.username}</span>
-                            {report.reported_user.is_banned && ' (Ya baneado)'}
-                          </span>
+                      <div className="mb-2">
+                        <p className="text-sm font-semibold text-white mb-1">Motivo: {report.reason}</p>
+                        {report.description && (
+                          <p className="text-sm text-gray-400">{report.description}</p>
                         )}
                       </div>
+                      
+                      <div className="text-sm text-gray-400">
+                        <span>Denunciado por: <span className="text-neon-green">@{report.profiles?.username || 'Usuario'}</span></span>
+                      </div>
+                      
+                      {report.admin_notes && (
+                        <div className="mt-2 p-2 bg-blue-500/10 rounded border border-blue-500/20">
+                          <p className="text-xs text-blue-400">Nota admin: {report.admin_notes}</p>
+                        </div>
+                      )}
                     </div>
                     
                     <Button
@@ -894,7 +929,7 @@ export default function AdminPage() {
                       <div className="p-3">
                         <div className="flex items-center justify-between mb-2">
                           <div className="text-sm font-medium text-white truncate">
-                            @{photo.albums?.users?.username || 'Usuario'}
+                            @{photo.user?.username || 'Usuario'}
                           </div>
                         </div>
                         
@@ -926,7 +961,7 @@ export default function AdminPage() {
                       </div>
                       
                       {/* Acciones rápidas (hover) */}
-                      {!photo.is_approved && !photo.is_rejected && (
+                      {photo.moderation_status === 'pending_review' && (
                         <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                           <Button
                             size="sm"
@@ -1217,55 +1252,61 @@ export default function AdminPage() {
       {/* Modal: Procesar Reporte */}
       {selectedReport && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-          <div className="bg-connect-bg-dark rounded-xl border border-connect-border max-w-lg w-full p-6">
+          <div className="bg-connect-bg-dark rounded-xl border border-connect-border max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
             <h3 className="text-xl font-bold text-white mb-4">
-              Procesar Reporte
+              Procesar Denuncia de Foto
             </h3>
             
-            <div className="space-y-4 mb-6">
-              <div className="text-sm text-gray-400">
-                <p>Tipo: {selectedReport.report_type}</p>
-                <p>Prioridad: {selectedReport.priority}</p>
-                <p className="mt-2 text-white">{selectedReport.description}</p>
-              </div>
-              
-              <div>
-                <label className="block text-sm text-gray-400 mb-2">Resolución</label>
-                <Input
-                  value={actionReason}
-                  onChange={(e) => setActionReason(e.target.value)}
-                  placeholder="Descripción de la resolución..."
-                  className="bg-connect-bg-dark/80 border-connect-border text-white"
-                />
-              </div>
-              
-              {selectedReport.reported_user && !selectedReport.reported_user.is_banned && (
+            <div className="grid md:grid-cols-2 gap-6 mb-6">
+              {/* Foto denunciada */}
+              {selectedReport.album_photos && (
                 <div>
-                  <label className="block text-sm text-gray-400 mb-2">Duración del ban (días)</label>
-                  <Input
-                    type="number"
-                    value={banDuration || ''}
-                    onChange={(e) => setBanDuration(e.target.value ? parseInt(e.target.value) : null)}
-                    placeholder="Si deseas banear al usuario"
-                    className="bg-connect-bg-dark/80 border-connect-border text-white"
+                  <h4 className="text-sm font-semibold text-white mb-2">Foto denunciada</h4>
+                  <img
+                    src={selectedReport.album_photos.url}
+                    alt="Foto denunciada"
+                    className="w-full rounded-lg"
                   />
                 </div>
               )}
+              
+              {/* Info de la denuncia */}
+              <div className="space-y-4">
+                <div className="bg-connect-bg-dark/60 rounded-lg p-4 border border-connect-border">
+                  <h4 className="font-bold text-white mb-2">Información</h4>
+                  <div className="text-sm text-gray-400 space-y-1">
+                    <p><span className="text-white">Motivo:</span> {selectedReport.reason}</p>
+                    {selectedReport.description && (
+                      <p className="mt-2"><span className="text-white">Descripción:</span> {selectedReport.description}</p>
+                    )}
+                    <p className="mt-2"><span className="text-white">Denunciante:</span> <span className="text-neon-green">@{selectedReport.profiles?.username || 'Usuario'}</span></p>
+                    <p><span className="text-white">Fecha:</span> {new Date(selectedReport.created_at).toLocaleString('es-ES')}</p>
+                  </div>
+                </div>
+                
+                <div>
+                  <label className="block text-sm text-gray-400 mb-2">Notas del administrador</label>
+                  <Input
+                    value={actionReason}
+                    onChange={(e) => setActionReason(e.target.value)}
+                    placeholder="Notas sobre la resolución..."
+                    className="bg-connect-bg-dark/80 border-connect-border text-white"
+                  />
+                </div>
+              </div>
             </div>
             
             <div className="flex flex-wrap gap-2">
-              <Button onClick={() => handleReportAction('resolve', false)} className="bg-green-600 hover:bg-green-700">
-                ✓ Resolver
+              <Button onClick={() => handleReportAction('resolve')} className="bg-green-600 hover:bg-green-700">
+                ✓ Resolver (Mantener foto)
               </Button>
               
-              {selectedReport.reported_user && !selectedReport.reported_user.is_banned && (
-                <Button onClick={() => handleReportAction('resolve', true)} className="bg-red-600 hover:bg-red-700">
-                  ✓ Resolver + Banear
-                </Button>
-              )}
+              <Button onClick={() => handleReportAction('remove_photo')} className="bg-red-600 hover:bg-red-700">
+                🗑️ Eliminar foto denunciada
+              </Button>
               
               <Button onClick={() => handleReportAction('dismiss')} variant="outline">
-                ✗ Descartar
+                ✗ Descartar denuncia
               </Button>
               
               <Button variant="outline" onClick={() => setSelectedReport(null)}>
@@ -1305,9 +1346,9 @@ export default function AdminPage() {
                   <div className="bg-connect-bg-dark/60 rounded-lg p-4 border border-connect-border">
                     <h4 className="font-bold text-white mb-2">Información del usuario</h4>
                     <div className="text-sm text-gray-400 space-y-1">
-                      <p>Username: <span className="text-neon-green">@{selectedPhoto.albums?.users?.username || 'Desconocido'}</span></p>
-                      <p>Nombre: {selectedPhoto.albums?.users?.nombre || 'No especificado'}</p>
-                      <p>Email: {selectedPhoto.albums?.users?.email || 'No especificado'}</p>
+                      <p>Username: <span className="text-neon-green">@{selectedPhoto.user?.username || 'Desconocido'}</span></p>
+                      <p>Nombre: {selectedPhoto.user?.nombre || 'No especificado'}</p>
+                      <p>Email: {selectedPhoto.user?.email || 'No especificado'}</p>
                       <p>Subida: {new Date(selectedPhoto.created_at).toLocaleString('es-ES')}</p>
                     </div>
                   </div>
@@ -1357,6 +1398,7 @@ export default function AdminPage() {
                           <Input
                             className="mt-2 bg-connect-bg-dark/80 border-connect-border text-white"
                             placeholder="Especificar motivo..."
+                            value={actionReason}
                             onChange={(e) => setActionReason(e.target.value)}
                           />
                         )}
@@ -1394,7 +1436,7 @@ export default function AdminPage() {
                   
                   {/* Ver perfil */}
                   <Link 
-                    href={`/publicprofile/${selectedPhoto.albums?.users?.username || 'desconocido'}`}
+                    href={`/publicprofile/${selectedPhoto.user?.username || 'desconocido'}`}
                     target="_blank"
                     className="block"
                   >
