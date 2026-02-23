@@ -1,8 +1,8 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
 
-// Crear cliente de Supabase
-const getSupabaseClient = () => {
+// Crear cliente de Supabase con auth token del request
+const getSupabaseClient = (request: NextRequest) => {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
   
@@ -10,7 +10,14 @@ const getSupabaseClient = () => {
     throw new Error('Supabase environment variables not configured');
   }
   
-  return createClient(supabaseUrl, supabaseKey);
+  // Obtener token de autorización del header
+  const authHeader = request.headers.get('authorization');
+  
+  return createClient(supabaseUrl, supabaseKey, {
+    global: {
+      headers: authHeader ? { Authorization: authHeader } : {},
+    },
+  });
 };
 
 /**
@@ -22,7 +29,7 @@ export async function PATCH(
   { params }: { params: { id: string } }
 ) {
   try {
-    const supabase = getSupabaseClient();
+    const supabase = getSupabaseClient(request);
     
     // Verificar autenticación
     const { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -163,7 +170,7 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const supabase = getSupabaseClient();
+    const supabase = getSupabaseClient(request);
     
     // Verificar autenticación
     const { data: { user }, error: authError } = await supabase.auth.getUser();
