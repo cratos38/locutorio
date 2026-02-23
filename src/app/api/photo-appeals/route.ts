@@ -44,16 +44,34 @@ export async function POST(request: NextRequest) {
       .eq('id', photo_id)
       .single();
     
-    if (photoError || !photo) {
+    if (photoError) {
+      console.error('Error buscando foto:', photoError);
+      return NextResponse.json(
+        { error: 'Error al buscar foto: ' + photoError.message },
+        { status: 500 }
+      );
+    }
+    
+    if (!photo) {
       return NextResponse.json(
         { error: 'Foto no encontrada' },
         { status: 404 }
       );
     }
     
+    console.log('Foto encontrada:', { id: photo.id, album_id: photo.album_id, status: photo.moderation_status });
+    
     if (photo.moderation_status !== 'rejected') {
       return NextResponse.json(
         { error: 'Solo puedes reclamar fotos que hayan sido rechazadas' },
+        { status: 400 }
+      );
+    }
+    
+    if (!photo.album_id) {
+      console.error('Foto sin album_id:', photo);
+      return NextResponse.json(
+        { error: 'Esta foto no está asociada a ningún álbum' },
         { status: 400 }
       );
     }
