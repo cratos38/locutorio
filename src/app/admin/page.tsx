@@ -1305,6 +1305,17 @@ export default function AdminPage() {
               </div>
             </div>
             
+            <div className="space-y-2 mb-4">
+              <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3 text-xs text-gray-300">
+                <p className="font-semibold text-white mb-2">💡 Guía de acciones:</p>
+                <ul className="space-y-1 ml-4 list-disc">
+                  <li><strong className="text-green-400">Resolver:</strong> La foto NO viola normas - denuncia sin fundamento</li>
+                  <li><strong className="text-red-400">Eliminar foto:</strong> La denuncia es válida - bloquear foto inapropiada</li>
+                  <li><strong className="text-gray-400">Descartar:</strong> Denuncia spam/falsa - archivar sin acción</li>
+                </ul>
+              </div>
+            </div>
+            
             <div className="flex flex-wrap gap-2">
               <Button onClick={() => handleReportAction('resolve')} className="bg-green-600 hover:bg-green-700">
                 ✓ Resolver (Mantener foto)

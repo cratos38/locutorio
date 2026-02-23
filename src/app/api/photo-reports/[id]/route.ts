@@ -121,22 +121,42 @@ export async function PATCH(
     
     // Si se decide eliminar la foto
     if (action === 'remove_photo') {
+      console.log('🗑️ Bloqueando foto denunciada:', photo.id);
+      
       // Marcar como rechazada
-      const { error: updatePhotoError } = await supabase
+      const { data: updatedPhoto, error: updatePhotoError } = await supabase
         .from('album_photos')
         .update({
           moderation_status: 'rejected',
           moderation_reason: 'Foto reportada por usuarios y removida por administrador',
           moderation_date: new Date().toISOString(),
         })
-        .eq('id', photo.id);
+        .eq('id', photo.id)
+        .select()
+        .single();
       
       if (updatePhotoError) {
-        console.error('Error rechazando foto:', updatePhotoError);
+        console.error('❌ Error rechazando foto:', updatePhotoError);
         return NextResponse.json(
           { error: 'Error al rechazar la foto' },
           { status: 500 }
         );
+      }
+      
+      console.log('✅ Foto bloqueada exitosamente:', updatedPhoto);
+      
+      // Decrementar contador del álbum
+      const { data: album } = await supabase
+        .from('albums')
+        .select('photo_count')
+        .eq('id', photo.album_id)
+        .single();
+      
+      if (album && album.photo_count > 0) {
+        await supabase
+          .from('albums')
+          .update({ photo_count: album.photo_count - 1 })
+          .eq('id', photo.album_id);
       }
     }
     
