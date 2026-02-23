@@ -1,147 +1,169 @@
-# 📸 Guía: Requisitos de Fotos de Perfil
+# 📸 Guía: Reglas de Fotos de Perfil
 
-## 🎯 Sistema de Validación por Tipo de Foto
+## 🎯 Filosofía del Sistema
 
-### **Foto Principal (obligatoria para verificación)**
-Tu foto principal es la que aparece en búsqueda y debe verificar tu identidad.
-
-**Requisitos ESTRICTOS:**
-- ✅ **Tu rostro debe ocupar al menos 30% de la imagen** (primer plano)
-- ✅ Un solo rostro visible
-- ✅ Foto clara y nítida (mínimo 400×400 px)
-- ✅ Sin gafas de sol oscuras
-- ✅ Sin texto, logos o marcas de agua
-- ✅ El sexo detectado coincide con tu perfil
-- ✅ La edad aparente es similar a tu edad real (±15 años)
-
-### **Fotos Adicionales (opcionales para tu galería)**
-Puedes agregar más fotos a tu galería de perfil con requisitos más flexibles.
-
-**Requisitos RELAJADOS:**
-- ✅ **Rostro visible al menos 10%** (puedes mostrar cuerpo completo)
-- ✅ Un solo rostro visible
-- ✅ Sin contenido explícito (validación NSFW)
-- ⚠️ Si rostro < 20%: Revisión manual del admin
+**Objetivo:** Crear TU imagen con variedad, mostrando diferentes aspectos de TI (no de tus amigos).
 
 ---
 
-## ✅ Ejemplos ACEPTADOS
+## ✅ REGLAS SIMPLES
 
-### Foto Principal (verificación):
-```
-┌─────────────────┐
-│                 │
-│      👤         │  ← Rostro 30-60% ✅
-│    (◕‿◕)        │
-│                 │
-│                 │
-└─────────────────┘
-```
-**Resultado:** ✅ **AUTO-APROBADA**
+### **1️⃣ Tu Primera Foto (Obligatoria)**
 
-### Fotos Adicionales (galería):
+**Debe ser tipo SELFIE** para verificar tu identidad.
+
+**Requisitos:**
+- ✅ Foto de **tu rostro** (como selfie o foto de documento)
+- ✅ Tu cara **clara y visible** (mínimo 30% de la imagen)
+- ✅ **Solo tú** en la foto
+- ✅ Sin gafas de sol que tapen tus ojos
+- ✅ Foto clara y nítida
+
+**Ejemplos:**
 ```
-┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐
-│      👤         │  │       ·         │  │                 │
-│    (◕‿◕)        │  │       |         │  │     👤          │
-│                 │  │      / \        │  │   (◕‿◕)         │
-│                 │  │                 │  │     |           │
-└─────────────────┘  └─────────────────┘  └─────────────────┘
-   Primer plano         Cuerpo completo      Medio cuerpo
-   ✅ Aprobada          ⚠️ Revisión manual    ✅ Aprobada
-   Rostro 40%           Rostro 12%           Rostro 25%
+┌─────────────┐
+│             │
+│    (◕‿◕)    │  ← ✅ Selfie de rostro
+│      │      │
+│             │
+└─────────────┘
 ```
 
 ---
 
-## ❌ Fotos que serán RECHAZADAS automáticamente:
+### **2️⃣ Fotos Adicionales (Opcionales)**
 
-### 1. Foto de cuerpo completo (rostro muy pequeño)
+**Puedes subir lo que quieras** para mostrar tu personalidad.
+
+**Requisitos:**
+- ✅ **Selfies** adicionales
+- ✅ **Cuerpo completo** (parado, caminando)
+- ✅ **Diferentes poses** (sentado, acostado, casual)
+- ✅ **Variedad** (diferentes ángulos, lugares, ropa)
+- ✅ Tu rostro **visible** (aunque sea pequeño, mínimo 5%)
+- ✅ **Solo tú** en todas las fotos
+
+**Ejemplos:**
 ```
-┌─────────────────┐
-│       ·         │  ← Rostro muy pequeño (solo 5%)
-│       |         │
-│      / \        │
-│                 │
-│                 │
-└─────────────────┘
+┌─────────────┐  ┌─────────────┐  ┌─────────────┐
+│    (◕‿◕)    │  │      ·      │  │             │
+│      │      │  │      |      │  │    (◕‿◕)    │
+│             │  │     / \     │  │     🪑      │
+└─────────────┘  └─────────────┘  └─────────────┘
+  ✅ Selfie        ✅ Cuerpo          ✅ Sentado
 ```
-**Motivo:** "El rostro es muy pequeño (debe ocupar al menos 30%)"
-
-### 2. Fotos grupales (más de 1 persona)
-**Motivo:** "Se detectaron 2+ personas (debe haber solo 1)"
-
-### 3. Sin rostro visible
-**Motivo:** "No se detectó ningún rostro en la imagen"
-
-### 4. Con gafas de sol oscuras
-**Motivo:** "No se puede verificar tu identidad"
-
-### 5. Con texto o logos visibles
-**Motivo:** "La foto contiene texto o marcas de agua"
-
-### 6. Baja calidad (borrosa, muy pequeña)
-**Motivo:** "Calidad de imagen muy baja"
-
-### 7. Sexo no coincide
-**Motivo:** "El sexo detectado no coincide con tu perfil"
-
-### 8. Edad muy diferente
-**Motivo:** "Gran diferencia de edad detectada" → Revisión manual
 
 ---
 
-## 🟣 Fotos que requieren REVISIÓN MANUAL:
+## ❌ LO QUE NO SE ACEPTA EN FOTOS DE PERFIL
 
-- Confianza baja en detección de sexo (< 70%)
-- Diferencia de edad mayor a 15 años
-- Foto en límite de calidad
-
-Un administrador revisará y aprobará/rechazará manualmente.
-
----
-
-## 💡 CONSEJOS PARA UNA BUENA FOTO:
-
-1. **Usa el modo retrato o selfie** de tu cámara
-2. **Buena iluminación** (natural es mejor)
-3. **Fondo simple** (sin distracciones)
-4. **Mira a la cámara** de frente
-5. **Expresión natural** (sonríe si quieres)
-6. **Sin filtros exagerados** o efectos
-7. **Ropa apropiada** (no contenido explícito)
+| ❌ NO permitido | ✅ Alternativa |
+|-----------------|----------------|
+| Fotos con **amigos** | Sube al **álbum privado** |
+| Fotos con **familia** | Sube al **álbum privado** |
+| **Gafas de sol** oscuras | Sube al **álbum privado** |
+| Fotos **grupales** | Sube al **álbum privado** |
+| **Desnudez** explícita | No permitido en ningún lugar |
+| Fotos donde **no aparezcas** | No válidas |
 
 ---
 
-## ⏱️ Tiempo de validación:
+## 🖼️ ÁLBUM PRIVADO (Para fotos con amigos/familia)
 
-- La validación automática tarda **2-5 segundos**
-- Recibirás notificación del resultado
-- Si es rechazada, puedes subir otra foto
-- Si requiere revisión manual, espera aprox. **24 horas**
+**¿Qué puedes subir al álbum?**
+- ✅ Fotos con amigos
+- ✅ Fotos con familia
+- ✅ Fotos con gafas de sol
+- ✅ Fotos grupales
+- ✅ Momentos especiales
 
----
-
-## ❓ ¿Por qué estos requisitos?
-
-Para mantener un sitio seguro y auténtico:
-- ✅ Verificar que eres una persona real
-- ✅ Prevenir perfiles falsos con fotos de celebridades
-- ✅ Asegurar que la foto coincida con tu perfil
-- ✅ Crear una comunidad confiable
+**Diferencia:**
+- **Fotos de perfil** = Solo tú, público, crea tu imagen
+- **Álbum** = Con otros, privado/compartido, momentos con gente
 
 ---
 
-## 📝 Ejemplo de comparación:
+## 💡 CONSEJOS PARA CREAR TU IMAGEN
 
-| Foto | Rostro % | Resultado |
-|------|----------|-----------|
-| Selfie primer plano | 40-60% | ✅ APROBADA |
-| Retrato medio | 30-40% | ✅ APROBADA |
-| Foto de medio cuerpo | 20-30% | ⚠️ Límite |
-| Foto de cuerpo completo | 5-15% | ❌ RECHAZADA |
-| Foto grupal | Variable | ❌ RECHAZADA |
+### **Variedad es clave:**
+
+1. **Selfie de rostro** (primera foto obligatoria)
+2. **Cuerpo completo** parado
+3. **Foto sentado** o casual
+4. **Pose diferente** (acostado, apoyado, etc.)
+5. **Ropa diferente** (casual, formal, deportiva)
+6. **Lugares diferentes** (casa, parque, playa, etc.)
+
+**Resultado:** Un perfil variado que muestra diferentes aspectos de TU personalidad.
 
 ---
 
-**¿Dudas?** Contacta a soporte o revisa tu resultado en el panel de perfil.
+## 🚫 ERROR COMÚN
+
+### ❌ Perfil aburrido (50 fotos iguales):
+```
+😊 😊 😊 😊 😊 😊 😊 😊 😊 😊
+(Todas selfies del mismo ángulo)
+```
+
+### ✅ Perfil interesante (variedad):
+```
+😊  🧍  🪑  🏃  👔  🏖️  🎨  📚
+Selfie, cuerpo, sentado, activo, formal, playa, hobby, etc.
+```
+
+---
+
+## 📊 VALIDACIÓN AUTOMÁTICA
+
+### **Primera foto:**
+- ✅ Selfie (rostro > 30%) → Auto-aprobada
+- ❌ Cuerpo completo (rostro < 30%) → Rechazada
+
+### **Fotos adicionales:**
+- ✅ Cualquier foto con rostro > 15% → Auto-aprobada
+- ⚠️ Rostro 5-15% → Revisión manual
+- ❌ Rostro < 5% → Rechazada
+
+### **Todas las fotos:**
+- ✅ 1 persona → OK
+- ❌ 0 personas o 2+ personas → Rechazada
+- ❌ Gafas de sol oscuras → Rechazada (sube al álbum)
+- ❌ Contenido explícito → Rechazada
+
+---
+
+## ⏱️ Tiempos
+
+- **Validación automática:** 2-5 segundos
+- **Revisión manual:** Hasta 24 horas
+- **Resultado:** Notificación automática
+
+---
+
+## ❓ Preguntas Frecuentes
+
+### **P: ¿Puedo subir fotos de cuerpo completo?**
+R: ✅ Sí, después de tu primera foto (selfie).
+
+### **P: ¿Cuántas fotos puedo tener?**
+R: Las que quieras (recomendado: 5-10 para variedad).
+
+### **P: ¿Qué pasa con mis fotos con amigos?**
+R: Súbelas al **álbum privado**, no a fotos de perfil.
+
+### **P: ¿Por qué mi foto fue rechazada?**
+R: Revisa el motivo en tu perfil. Común: fotos grupales, gafas de sol, rostro no visible.
+
+### **P: ¿Puedo usar gafas de sol?**
+R: En fotos de perfil NO (debe verse tu rostro). En álbum privado SÍ.
+
+---
+
+## 🎯 Resumen en 3 Puntos
+
+1. **Primera foto = Selfie** (obligatoria para verificación)
+2. **Resto = Variedad** (cuerpo, poses, sentado, parado, etc.)
+3. **Solo tú** (amigos/familia van al álbum)
+
+**Objetivo:** Crear TU imagen única con diferentes aspectos de tu personalidad.

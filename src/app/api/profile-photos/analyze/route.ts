@@ -150,6 +150,16 @@ export async function POST(request: NextRequest) {
     
     console.log(`🔍 Validando foto ${photoId} de usuario ${user.id} (principal: ${isPrincipal})`);
     
+    // Verificar cuántas fotos APROBADAS tiene el usuario
+    const { count: approvedPhotosCount } = await supabase
+      .from('profile_photos')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .eq('estado', 'aprobada');
+    
+    const isFirstPhoto = (approvedPhotosCount || 0) === 0;
+    console.log(`📊 Usuario tiene ${approvedPhotosCount || 0} fotos aprobadas (¿Primera foto? ${isFirstPhoto})`);
+    
     // Obtener datos del usuario
     const { data: userData, error: userError } = await supabase
       .from('users')
@@ -247,19 +257,30 @@ export async function POST(request: NextRequest) {
     console.log(`   - Edad detectada: ${Math.round(face.age)} años`);
     
     // Validación: Tamaño del rostro
-    // Si es foto principal: Requerir mínimo 30%
-    // Si NO es principal: Permitir desde 10% (enviar a revisión manual si < 15%)
-    const minFacePercent = isPrincipal ? 30 : 10;
+    // FILOSOFÍA:
+    // - Primera foto del usuario: DEBE ser selfie (rostro > 30%)
+    // - Fotos adicionales: Pueden ser casuales/cuerpo completo (rostro > 5%)
+    
+    let minFacePercent: number;
+    let rejectMessage: string;
+    
+    if (isFirstPhoto || isPrincipal) {
+      // Primera foto O marcada como principal: Requerir selfie
+      minFacePercent = 30;
+      rejectMessage = 'Tu primera foto debe ser tipo selfie (rostro claro, mínimo 30% de la imagen)';
+    } else {
+      // Fotos adicionales: Muy flexible
+      minFacePercent = 5;
+      rejectMessage = 'Tu rostro debe ser visible (al menos 5% de la imagen)';
+    }
     
     if (facePercent < minFacePercent) {
-      console.log(`❌ Rostro muy pequeño (${facePercent.toFixed(2)}%)`);
+      console.log(`❌ Rostro muy pequeño (${facePercent.toFixed(2)}%, mínimo requerido: ${minFacePercent}%)`);
       await supabase
         .from('profile_photos')
         .update({
           estado: 'rechazada',
-          rejection_reason: isPrincipal 
-            ? 'La foto principal debe mostrar tu rostro claramente (mínimo 30% de la imagen)'
-            : 'El rostro es muy pequeño (debe ser visible al menos 10% de la imagen)',
+          rejection_reason: rejectMessage,
           validation_data: validationData
         })
         .eq('id', photoId);
@@ -267,19 +288,19 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         success: false,
         verdict: 'REJECT',
-        reason: 'Rostro muy pequeño'
+        reason: rejectMessage
       });
     }
     
-    // Si NO es principal y el rostro es pequeño (10-20%), enviar a revisión manual
-    if (!isPrincipal && facePercent >= 10 && facePercent < 20) {
-      console.log(`⚠️ Foto no principal con rostro pequeño (${facePercent.toFixed(2)}%) - revisión manual`);
+    // Si es foto adicional con rostro pequeño (5-15%), enviar a revisión manual
+    if (!isFirstPhoto && !isPrincipal && facePercent >= 5 && facePercent < 15) {
+      console.log(`⚠️ Foto adicional con rostro pequeño (${facePercent.toFixed(2)}%) - revisión manual`);
       await supabase
         .from('profile_photos')
         .update({
           estado: 'revision_manual',
           manual_review: true,
-          rejection_reason: 'Foto de cuerpo completo - el admin verificará que sea apropiada',
+          rejection_reason: 'Foto de cuerpo completo - el admin verificará que cumpla las reglas',
           validation_data: validationData
         })
         .eq('id', photoId);
