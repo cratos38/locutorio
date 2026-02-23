@@ -51,14 +51,8 @@ async function downloadImage(url: string): Promise<Buffer> {
   return Buffer.from(arrayBuffer);
 }
 
-async function analyzeImage(imageBuffer: Buffer) {
+async function analyzeImage(imageUrl: string) {
   const model = await getClassifier();
-  
-  // Preparar imagen
-  const processedImage = await sharp(imageBuffer)
-    .resize(224, 224)
-    .jpeg()
-    .toBuffer();
   
   // Categorías para clasificar
   const categories = [
@@ -72,7 +66,8 @@ async function analyzeImage(imageBuffer: Buffer) {
     'a photo with text or watermark'
   ];
   
-  const result = await model(processedImage, categories);
+  // CLIP acepta URLs directamente
+  const result = await model(imageUrl, categories);
   
   return result;
 }
@@ -117,8 +112,6 @@ export async function POST(request: NextRequest) {
     const isFirstPhoto = (approvedCount || 0) === 0;
     console.log(`📊 Es primera foto: ${isFirstPhoto}`);
     
-    const imageBuffer = await downloadImage(photoUrl);
-    
     const validationData: any = {
       timestamp: new Date().toISOString(),
       is_first_photo: isFirstPhoto,
@@ -126,9 +119,9 @@ export async function POST(request: NextRequest) {
       model: 'CLIP'
     };
     
-    // ANÁLISIS CON CLIP
+    // ANÁLISIS CON CLIP (usa la URL directamente)
     console.log('🔍 Analizando con CLIP...');
-    const classifications = await analyzeImage(imageBuffer);
+    const classifications = await analyzeImage(photoUrl);
     
     // Guardar resultados
     const results: any = {};
