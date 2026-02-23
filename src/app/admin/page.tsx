@@ -381,6 +381,12 @@ export default function AdminPage() {
   const handlePhotoAction = async (action: 'approve' | 'reject' | 'delete') => {
     if (!user || !selectedPhoto) return;
     
+    console.log(`🔧 handlePhotoAction: ${action}`, {
+      photoId: selectedPhoto.id,
+      actionReason,
+      adminId: user.id
+    });
+    
     try {
       const response = await fetch('/api/admin/photos', {
         method: 'PUT',
@@ -394,6 +400,7 @@ export default function AdminPage() {
       });
       
       const data = await response.json();
+      console.log(`📦 Respuesta del servidor:`, data);
       
       if (data.success) {
         alert(data.message);
@@ -402,9 +409,11 @@ export default function AdminPage() {
         loadPhotos();
       } else {
         alert(data.error);
+        console.error('❌ Error en respuesta:', data.error);
       }
     } catch (error) {
-      console.error('Error procesando foto:', error);
+      console.error('❌ Error procesando foto:', error);
+      alert(`Error: ${error instanceof Error ? error.message : 'Desconocido'}`);
     }
   };
 

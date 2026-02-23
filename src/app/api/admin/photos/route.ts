@@ -78,6 +78,10 @@ export async function GET(request: NextRequest) {
       // Si status es 'all' o cualquier otro, mostrar solo pending por defecto
       query = query.eq('moderation_status', 'pending_review');
     }
+    
+    // IMPORTANTE: Solo mostrar fotos de álbumes PÚBLICOS (privacy = 'public')
+    // Los álbumes privados NO necesitan aprobación
+    query = query.eq('albums.privacy', 'public');
 
     const { data: photos, error } = await query;
 

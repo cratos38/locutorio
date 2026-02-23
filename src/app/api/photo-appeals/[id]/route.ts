@@ -124,14 +124,16 @@ export async function PATCH(
     if (action === 'approve') {
       console.log('✅ Aprobando foto:', photo.id);
       
-      const { error: updatePhotoError } = await supabase
+      const { data: updatedPhoto, error: updatePhotoError } = await supabase
         .from('album_photos')
         .update({
           moderation_status: 'approved',
           moderation_reason: 'Foto aprobada tras revisión manual por administrador',
           moderation_date: new Date().toISOString(),
         })
-        .eq('id', photo.id);
+        .eq('id', photo.id)
+        .select()
+        .single();
       
       if (updatePhotoError) {
         console.error('❌ Error desbloqueando foto:', updatePhotoError);
@@ -141,14 +143,22 @@ export async function PATCH(
         );
       }
       
-      console.log('✅ Foto desbloqueada exitosamente:', photo.id);
+      console.log('✅ Foto desbloqueada exitosamente:', updatedPhoto);
       
-      // Actualizar contador de fotos del álbum si es necesario
-      // (solo si la foto pasó de rejected a approved)
+      // Si la foto estaba rechazada, incrementar contador del álbum
       if (photo.moderation_status === 'rejected') {
-        await supabase.rpc('increment_album_photo_count', { 
-          album_id: photo.album_id 
-        });
+        const { data: album } = await supabase
+          .from('albums')
+          .select('photo_count')
+          .eq('id', photo.album_id)
+          .single();
+        
+        if (album) {
+          await supabase
+            .from('albums')
+            .update({ photo_count: (album.photo_count || 0) + 1 })
+            .eq('id', photo.album_id);
+        }
       }
     }
     
