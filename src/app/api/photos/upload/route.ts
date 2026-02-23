@@ -252,7 +252,8 @@ export async function POST(request: NextRequest) {
         },
         body: JSON.stringify({
           photoId: photoData.id,
-          photoUrl: photoUrl
+          photoUrl: photoUrl,
+          isPrincipal: isPrincipal  // Pasar si es foto principal
         })
       }).catch(err => {
         console.error('⚠️ Error iniciando validación automática:', err);

@@ -1,25 +1,55 @@
-# 📸 Guía: Requisitos de Foto de Perfil
+# 📸 Guía: Requisitos de Fotos de Perfil
 
-## ✅ Fotos que SÍ se aprobarán automáticamente:
+## 🎯 Sistema de Validación por Tipo de Foto
 
-### Características requeridas:
-1. **Un solo rostro visible** (no fotos grupales)
-2. **Tu rostro ocupa al menos 30% de la imagen** (similar a una selfie)
-3. **Foto clara y nítida** (mínimo 400×400 píxeles)
-4. **Sin texto, logos o marcas de agua**
-5. **Sin gafas de sol oscuras** (deben verse tus ojos)
-6. **El sexo detectado coincide con tu perfil**
-7. **La edad aparente es similar a tu edad real** (±15 años)
+### **Foto Principal (obligatoria para verificación)**
+Tu foto principal es la que aparece en búsqueda y debe verificar tu identidad.
 
-### 📷 Ejemplo CORRECTO:
+**Requisitos ESTRICTOS:**
+- ✅ **Tu rostro debe ocupar al menos 30% de la imagen** (primer plano)
+- ✅ Un solo rostro visible
+- ✅ Foto clara y nítida (mínimo 400×400 px)
+- ✅ Sin gafas de sol oscuras
+- ✅ Sin texto, logos o marcas de agua
+- ✅ El sexo detectado coincide con tu perfil
+- ✅ La edad aparente es similar a tu edad real (±15 años)
+
+### **Fotos Adicionales (opcionales para tu galería)**
+Puedes agregar más fotos a tu galería de perfil con requisitos más flexibles.
+
+**Requisitos RELAJADOS:**
+- ✅ **Rostro visible al menos 10%** (puedes mostrar cuerpo completo)
+- ✅ Un solo rostro visible
+- ✅ Sin contenido explícito (validación NSFW)
+- ⚠️ Si rostro < 20%: Revisión manual del admin
+
+---
+
+## ✅ Ejemplos ACEPTADOS
+
+### Foto Principal (verificación):
 ```
 ┌─────────────────┐
 │                 │
-│      👤         │  ← Rostro ocupa 40-60% de la imagen
+│      👤         │  ← Rostro 30-60% ✅
 │    (◕‿◕)        │
 │                 │
 │                 │
 └─────────────────┘
+```
+**Resultado:** ✅ **AUTO-APROBADA**
+
+### Fotos Adicionales (galería):
+```
+┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐
+│      👤         │  │       ·         │  │                 │
+│    (◕‿◕)        │  │       |         │  │     👤          │
+│                 │  │      / \        │  │   (◕‿◕)         │
+│                 │  │                 │  │     |           │
+└─────────────────┘  └─────────────────┘  └─────────────────┘
+   Primer plano         Cuerpo completo      Medio cuerpo
+   ✅ Aprobada          ⚠️ Revisión manual    ✅ Aprobada
+   Rostro 40%           Rostro 12%           Rostro 25%
 ```
 
 ---

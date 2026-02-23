@@ -142,13 +142,13 @@ export async function POST(request: NextRequest) {
     
     // Obtener datos de la solicitud
     const body = await request.json();
-    const { photoId, photoUrl } = body;
+    const { photoId, photoUrl, isPrincipal } = body;
     
     if (!photoId || !photoUrl) {
       return NextResponse.json({ error: 'photoId y photoUrl son requeridos' }, { status: 400 });
     }
     
-    console.log(`🔍 Validando foto ${photoId} de usuario ${user.id}`);
+    console.log(`🔍 Validando foto ${photoId} de usuario ${user.id} (principal: ${isPrincipal})`);
     
     // Obtener datos del usuario
     const { data: userData, error: userError } = await supabase
@@ -247,13 +247,19 @@ export async function POST(request: NextRequest) {
     console.log(`   - Edad detectada: ${Math.round(face.age)} años`);
     
     // Validación: Tamaño del rostro
-    if (facePercent < 30) {
+    // Si es foto principal: Requerir mínimo 30%
+    // Si NO es principal: Permitir desde 10% (enviar a revisión manual si < 15%)
+    const minFacePercent = isPrincipal ? 30 : 10;
+    
+    if (facePercent < minFacePercent) {
       console.log(`❌ Rostro muy pequeño (${facePercent.toFixed(2)}%)`);
       await supabase
         .from('profile_photos')
         .update({
           estado: 'rechazada',
-          rejection_reason: 'El rostro es muy pequeño (debe ocupar al menos 30% de la imagen)',
+          rejection_reason: isPrincipal 
+            ? 'La foto principal debe mostrar tu rostro claramente (mínimo 30% de la imagen)'
+            : 'El rostro es muy pequeño (debe ser visible al menos 10% de la imagen)',
           validation_data: validationData
         })
         .eq('id', photoId);
@@ -262,6 +268,26 @@ export async function POST(request: NextRequest) {
         success: false,
         verdict: 'REJECT',
         reason: 'Rostro muy pequeño'
+      });
+    }
+    
+    // Si NO es principal y el rostro es pequeño (10-20%), enviar a revisión manual
+    if (!isPrincipal && facePercent >= 10 && facePercent < 20) {
+      console.log(`⚠️ Foto no principal con rostro pequeño (${facePercent.toFixed(2)}%) - revisión manual`);
+      await supabase
+        .from('profile_photos')
+        .update({
+          estado: 'revision_manual',
+          manual_review: true,
+          rejection_reason: 'Foto de cuerpo completo - el admin verificará que sea apropiada',
+          validation_data: validationData
+        })
+        .eq('id', photoId);
+      
+      return NextResponse.json({
+        success: false,
+        verdict: 'MANUAL_REVIEW',
+        reason: 'Foto de cuerpo completo - revisión manual'
       });
     }
     
