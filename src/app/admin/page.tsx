@@ -155,17 +155,18 @@ export default function AdminPage() {
     setIsLoading(true);
     try {
       const params = new URLSearchParams({
-        adminId: user.id,
-        status: statusFilter === 'all' ? 'pending' : statusFilter,
-        limit: '50'
+        admin: 'true',
+        status: statusFilter === 'all' ? 'all' : statusFilter,
       });
       
-      const response = await fetch(`/api/admin/reports?${params}`);
+      const response = await fetch(`/api/photo-reports?${params}`);
       const data = await response.json();
       
-      if (data.success) {
+      if (data.reports) {
         setReports(data.reports);
-        setStats(data.stats);
+        // Contar pendientes para el badge
+        const pendingCount = data.reports.filter((r: any) => r.status === 'pending').length;
+        setStats({ pendingCount });
       }
     } catch (error) {
       console.error('Error cargando reportes:', error);
