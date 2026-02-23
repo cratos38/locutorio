@@ -1,17 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import * as blazeface from '@tensorflow-models/blazeface';
-import '@tensorflow/tfjs';
+import { pipeline } from '@xenova/transformers';
 import sharp from 'sharp';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60;
 
 /**
- * VALIDACIÓN AUTOMÁTICA CON TENSORFLOW.JS + BLAZEFACE
- * - Detección de rostros (debe haber exactamente 1)
- * - Tamaño del rostro (mínimo 30% para selfie, 5% para otras)
- * - Sin detección de género/edad por ahora (requiere modelos adicionales)
+ * VALIDACIÓN CON CLIP (Transformers.js)
+ * - Detección de rostros usando clasificación de texto
+ * - Validación de tipo de foto (selfie vs cuerpo completo)
+ * - 100% JavaScript puro, funciona en Vercel
  */
 
 const getSupabaseAdmin = () => {
@@ -33,14 +32,14 @@ const getSupabaseAdmin = () => {
   });
 };
 
-let faceModel: any = null;
+let classifier: any = null;
 
-async function loadFaceModel() {
-  if (faceModel) return faceModel;
-  console.log('🔄 Cargando modelo BlazeFace...');
-  faceModel = await blazeface.load();
-  console.log('✅ Modelo BlazeFace cargado');
-  return faceModel;
+async function getClassifier() {
+  if (classifier) return classifier;
+  console.log('🔄 Cargando modelo CLIP...');
+  classifier = await pipeline('zero-shot-image-classification', 'Xenova/clip-vit-base-patch32');
+  console.log('✅ Modelo CLIP cargado');
+  return classifier;
 }
 
 async function downloadImage(url: string): Promise<Buffer> {
@@ -52,39 +51,299 @@ async function downloadImage(url: string): Promise<Buffer> {
   return Buffer.from(arrayBuffer);
 }
 
-async function detectFaces(imageBuffer: Buffer) {
-  const model = await loadFaceModel();
+async function analyzeImage(imageBuffer: Buffer) {
+  const model = await getClassifier();
   
-  // Convertir imagen a formato para TensorFlow
-  const metadata = await sharp(imageBuffer).metadata();
-  const { data, info } = await sharp(imageBuffer)
-    .resize(512, 512, { fit: 'inside' })
-    .raw()
-    .toBuffer({ resolveWithObject: true });
+  // Preparar imagen
+  const processedImage = await sharp(imageBuffer)
+    .resize(224, 224)
+    .jpeg()
+    .toBuffer();
   
-  // Crear array de píxeles RGB
-  const pixels = new Uint8Array(data);
-  const imageData = {
-    data: pixels,
-    width: info.width,
-    height: info.height
-  };
+  // Categorías para clasificar
+  const categories = [
+    'a clear close-up photo of a single person face',
+    'a selfie photo showing one person face clearly',
+    'a full body photo of one person standing',
+    'a photo with multiple people',
+    'a photo with no people',
+    'a blurry unclear photo',
+    'a photo with sunglasses covering eyes',
+    'a photo with text or watermark'
+  ];
   
-  // Detectar rostros
-  const predictions = await model.estimateFaces(imageData as any, false);
+  const result = await model(processedImage, categories);
   
-  return {
-    faces: predictions,
-    originalWidth: metadata.width || info.width,
-    originalHeight: metadata.height || info.height,
-    imageWidth: info.width,
-    imageHeight: info.height
-  };
+  return result;
 }
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('📸 === VALIDACIÓN CON BLAZEFACE ===');
+    console.log('📸 === VALIDACIÓN CON CLIP ===');
+    
+    const authHeader = request.headers.get('Authorization');
+    const token = authHeader?.replace('Bearer ', '');
+    
+    if (!token) {
+      return NextResponse.json({ error: 'Token requerido' }, { status: 401 });
+    }
+    
+    const supabase = getSupabaseAdmin();
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Token inválido' }, { status: 401 });
+    }
+    
+    const body = await request.json();
+    const { photoId, photoUrl, isPrincipal } = body;
+    
+    if (!photoId || !photoUrl) {
+      return NextResponse.json({ error: 'photoId y photoUrl son requeridos' }, { status: 400 });
+    }
+    
+    console.log(`🔍 Validando foto ${photoId} (principal: ${isPrincipal})`);
+    
+    // Verificar si es la primera foto
+    const { count: approvedCount } = await supabase
+      .from('profile_photos')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .eq('estado', 'aprobada');
+    
+    const isFirstPhoto = (approvedCount || 0) === 0;
+    console.log(`📊 Es primera foto: ${isFirstPhoto}`);
+    
+    const imageBuffer = await downloadImage(photoUrl);
+    
+    const validationData: any = {
+      timestamp: new Date().toISOString(),
+      is_first_photo: isFirstPhoto,
+      is_principal: isPrincipal,
+      model: 'CLIP'
+    };
+    
+    // ANÁLISIS CON CLIP
+    console.log('🔍 Analizando con CLIP...');
+    const classifications = await analyzeImage(imageBuffer);
+    
+    // Guardar resultados
+    const results: any = {};
+    classifications.forEach((item: any) => {
+      results[item.label] = (item.score * 100).toFixed(2);
+    });
+    
+    validationData.clip_results = results;
+    
+    console.log('📊 Resultados CLIP:', results);
+    
+    // Extraer scores
+    const closeupScore = parseFloat(results['a clear close-up photo of a single person face'] || 0);
+    const selfieScore = parseFloat(results['a selfie photo showing one person face clearly'] || 0);
+    const fullBodyScore = parseFloat(results['a full body photo of one person standing'] || 0);
+    const multiplePeopleScore = parseFloat(results['a photo with multiple people'] || 0);
+    const noPeopleScore = parseFloat(results['a photo with no people'] || 0);
+    const blurryScore = parseFloat(results['a blurry unclear photo'] || 0);
+    const sunglassesScore = parseFloat(results['a photo with sunglasses covering eyes'] || 0);
+    const textScore = parseFloat(results['a photo with text or watermark'] || 0);
+    
+    // VALIDACIONES
+    
+    // 1. Rechazar si no hay personas
+    if (noPeopleScore > 60) {
+      console.log('❌ No se detectó ninguna persona');
+      await supabase
+        .from('profile_photos')
+        .update({
+          estado: 'rechazada',
+          rejection_reason: 'No se detectó ninguna persona en la imagen',
+          validation_data: validationData,
+          validated_at: new Date().toISOString()
+        })
+        .eq('id', photoId);
+      
+      return NextResponse.json({
+        success: false,
+        verdict: 'REJECT',
+        reason: 'No se detectó ninguna persona'
+      });
+    }
+    
+    // 2. Rechazar si hay múltiples personas
+    if (multiplePeopleScore > 50) {
+      console.log('❌ Se detectaron múltiples personas');
+      await supabase
+        .from('profile_photos')
+        .update({
+          estado: 'rechazada',
+          rejection_reason: 'Se detectaron múltiples personas (debe haber solo 1)',
+          validation_data: validationData,
+          validated_at: new Date().toISOString()
+        })
+        .eq('id', photoId);
+      
+      return NextResponse.json({
+        success: false,
+        verdict: 'REJECT',
+        reason: 'Debe haber solo 1 persona en la foto'
+      });
+    }
+    
+    // 3. Rechazar si está muy borrosa
+    if (blurryScore > 60) {
+      console.log('❌ Imagen muy borrosa');
+      await supabase
+        .from('profile_photos')
+        .update({
+          estado: 'rechazada',
+          rejection_reason: 'La imagen está muy borrosa o desenfocada',
+          validation_data: validationData,
+          validated_at: new Date().toISOString()
+        })
+        .eq('id', photoId);
+      
+      return NextResponse.json({
+        success: false,
+        verdict: 'REJECT',
+        reason: 'Imagen muy borrosa'
+      });
+    }
+    
+    // 4. Rechazar si tiene gafas oscuras
+    if (sunglassesScore > 60) {
+      console.log('❌ Gafas oscuras detectadas');
+      await supabase
+        .from('profile_photos')
+        .update({
+          estado: 'rechazada',
+          rejection_reason: 'No se permiten gafas oscuras que cubran los ojos',
+          validation_data: validationData,
+          validated_at: new Date().toISOString()
+        })
+        .eq('id', photoId);
+      
+      return NextResponse.json({
+        success: false,
+        verdict: 'REJECT',
+        reason: 'No se permiten gafas oscuras'
+      });
+    }
+    
+    // 5. Rechazar si tiene texto/watermark
+    if (textScore > 60) {
+      console.log('❌ Texto/watermark detectado');
+      await supabase
+        .from('profile_photos')
+        .update({
+          estado: 'rechazada',
+          rejection_reason: 'No se permiten fotos con texto o watermarks',
+          validation_data: validationData,
+          validated_at: new Date().toISOString()
+        })
+        .eq('id', photoId);
+      
+      return NextResponse.json({
+        success: false,
+        verdict: 'REJECT',
+        reason: 'No se permiten fotos con texto'
+      });
+    }
+    
+    // 6. Validar tipo de foto según si es primera o no
+    const faceScore = Math.max(closeupScore, selfieScore);
+    
+    if (isFirstPhoto || isPrincipal) {
+      // Primera foto: debe ser selfie/closeup
+      if (faceScore < 40) {
+        console.log(`❌ Primera foto debe ser selfie (score: ${faceScore}%)`);
+        await supabase
+          .from('profile_photos')
+          .update({
+            estado: 'rechazada',
+            rejection_reason: 'Tu primera foto debe ser tipo selfie (rostro claro y cercano)',
+            validation_data: validationData,
+            validated_at: new Date().toISOString()
+          })
+          .eq('id', photoId);
+        
+        return NextResponse.json({
+          success: false,
+          verdict: 'REJECT',
+          reason: 'Primera foto debe ser selfie'
+        });
+      }
+    } else {
+      // Fotos adicionales: pueden ser de cuerpo completo
+      if (fullBodyScore > 50 && faceScore < 30) {
+        console.log('⚠️ Foto de cuerpo completo - revisión manual');
+        await supabase
+          .from('profile_photos')
+          .update({
+            estado: 'revision_manual',
+            manual_review: true,
+            rejection_reason: 'Foto de cuerpo completo - el admin verificará',
+            validation_data: validationData,
+            validated_at: new Date().toISOString()
+          })
+          .eq('id', photoId);
+        
+        return NextResponse.json({
+          success: false,
+          verdict: 'MANUAL_REVIEW',
+          reason: 'Foto de cuerpo completo - revisión manual'
+        });
+      }
+    }
+    
+    // ✅ TODO OK - APROBAR
+    console.log('✅ FOTO APROBADA');
+    await supabase
+      .from('profile_photos')
+      .update({
+        estado: 'aprobada',
+        validation_data: validationData,
+        validated_at: new Date().toISOString()
+      })
+      .eq('id', photoId);
+    
+    return NextResponse.json({
+      success: true,
+      verdict: 'APPROVE',
+      validationData
+    });
+    
+  } catch (error) {
+    console.error('❌ Error en validación:', error);
+    
+    try {
+      const body = await request.json();
+      const { photoId } = body;
+      const supabase = getSupabaseAdmin();
+      
+      await supabase
+        .from('profile_photos')
+        .update({
+          estado: 'revision_manual',
+          manual_review: true,
+          rejection_reason: 'Error en validación - requiere revisión manual',
+          validated_at: new Date().toISOString()
+        })
+        .eq('id', photoId);
+    } catch (e) {
+      console.error('Error al marcar para revisión manual:', e);
+    }
+    
+    return NextResponse.json({
+      success: false,
+      verdict: 'MANUAL_REVIEW',
+      error: String(error)
+    }, { status: 500 });
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    console.log('📸 === VALIDACIÓN CON FACE-API.JS ===');
     
     const authHeader = request.headers.get('Authorization');
     const token = authHeader?.replace('Bearer ', '');
@@ -129,7 +388,7 @@ export async function POST(request: NextRequest) {
     
     // DETECCIÓN DE ROSTROS
     console.log('🔍 Detectando rostros...');
-    const { faces, originalWidth, originalHeight, imageWidth, imageHeight } = await detectFaces(imageBuffer);
+    const { faces, imageWidth, imageHeight } = await detectFaces(imageBuffer);
     
     console.log(`👥 Rostros detectados: ${faces.length}`);
     validationData.faces_detected = faces.length;
@@ -173,43 +432,22 @@ export async function POST(request: NextRequest) {
       });
     }
     
-    // CALCULAR ÁREA DEL ROSTRO
+    // CALCULAR ÁREA DEL ROSTRO Y EXTRAER DATOS
     const face = faces[0];
-    const faceBox = face.topLeft && face.bottomRight ? {
-      x1: face.topLeft[0],
-      y1: face.topLeft[1],
-      x2: face.bottomRight[0],
-      y2: face.bottomRight[1]
-    } : null;
+    const box = face.detection.box;
     
-    if (!faceBox) {
-      console.log('⚠️ No se pudo determinar el área del rostro');
-      await supabase
-        .from('profile_photos')
-        .update({
-          estado: 'revision_manual',
-          manual_review: true,
-          rejection_reason: 'No se pudo determinar el tamaño del rostro',
-          validation_data: validationData,
-          validated_at: new Date().toISOString()
-        })
-        .eq('id', photoId);
-      
-      return NextResponse.json({
-        success: false,
-        verdict: 'MANUAL_REVIEW',
-        reason: 'Revisión manual requerida'
-      });
-    }
-    
-    const faceWidth = faceBox.x2 - faceBox.x1;
-    const faceHeight = faceBox.y2 - faceBox.y1;
-    const faceArea = faceWidth * faceHeight;
+    const faceArea = box.width * box.height;
     const imageArea = imageWidth * imageHeight;
     const facePercent = (faceArea / imageArea) * 100;
     
     console.log(`📏 Área del rostro: ${facePercent.toFixed(2)}%`);
+    console.log(`👤 Género: ${face.gender} (${(face.genderProbability * 100).toFixed(0)}%)`);
+    console.log(`🎂 Edad estimada: ${Math.round(face.age)} años`);
+    
     validationData.face_area_percent = facePercent.toFixed(2);
+    validationData.detected_gender = face.gender;
+    validationData.gender_confidence = (face.genderProbability * 100).toFixed(0);
+    validationData.detected_age = Math.round(face.age);
     
     // VALIDAR TAMAÑO DEL ROSTRO
     let minFacePercent: number;
