@@ -78,6 +78,8 @@ async function analyzeImage(imageBuffer: Buffer) {
 }
 
 export async function POST(request: NextRequest) {
+  let photoId: string | undefined;
+  
   try {
     console.log('📸 === VALIDACIÓN CON CLIP ===');
     
@@ -96,7 +98,8 @@ export async function POST(request: NextRequest) {
     }
     
     const body = await request.json();
-    const { photoId, photoUrl, isPrincipal } = body;
+    photoId = body.photoId;
+    const { photoUrl, isPrincipal } = body;
     
     if (!photoId || !photoUrl) {
       return NextResponse.json({ error: 'photoId y photoUrl son requeridos' }, { status: 400 });
@@ -315,22 +318,22 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('❌ Error en validación:', error);
     
-    try {
-      const body = await request.json();
-      const { photoId } = body;
-      const supabase = getSupabaseAdmin();
-      
-      await supabase
-        .from('profile_photos')
-        .update({
-          estado: 'revision_manual',
-          manual_review: true,
-          rejection_reason: 'Error en validación - requiere revisión manual',
-          validated_at: new Date().toISOString()
-        })
-        .eq('id', photoId);
-    } catch (e) {
-      console.error('Error al marcar para revisión manual:', e);
+    // Si tenemos photoId, marcarlo para revisión manual
+    if (photoId) {
+      try {
+        const supabase = getSupabaseAdmin();
+        await supabase
+          .from('profile_photos')
+          .update({
+            estado: 'revision_manual',
+            manual_review: true,
+            rejection_reason: `Error en validación: ${String(error)}`,
+            validated_at: new Date().toISOString()
+          })
+          .eq('id', photoId);
+      } catch (e) {
+        console.error('Error al marcar para revisión manual:', e);
+      }
     }
     
     return NextResponse.json({
