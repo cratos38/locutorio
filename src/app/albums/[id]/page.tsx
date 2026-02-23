@@ -1036,11 +1036,20 @@ export default function AlbumDetailPage() {
         return;
       }
       
+      // Obtener token de sesión
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session?.access_token) {
+        alert('Error: No se pudo obtener el token de autenticación. Por favor, vuelve a iniciar sesión.');
+        return;
+      }
+      
       // Llamar a la API
       const response = await fetch('/api/photo-appeals', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
         },
         body: JSON.stringify({
           photo_id: appealedPhoto.id,
