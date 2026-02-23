@@ -6,6 +6,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
+import { supabase } from "@/lib/supabase";
 
 // Tipos
 interface User {
@@ -154,12 +155,24 @@ export default function AdminPage() {
     if (!user) return;
     setIsLoading(true);
     try {
+      // Obtener token de sesión
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session?.access_token) {
+        console.error('No se pudo obtener token de autenticación');
+        return;
+      }
+      
       const params = new URLSearchParams({
         admin: 'true',
         status: statusFilter === 'all' ? 'all' : statusFilter,
       });
       
-      const response = await fetch(`/api/photo-reports?${params}`);
+      const response = await fetch(`/api/photo-reports?${params}`, {
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+      });
       const data = await response.json();
       
       if (data.reports) {
@@ -201,12 +214,24 @@ export default function AdminPage() {
     if (!user) return;
     setIsLoading(true);
     try {
+      // Obtener token de sesión
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session?.access_token) {
+        console.error('No se pudo obtener token de autenticación');
+        return;
+      }
+      
       const params = new URLSearchParams({
         admin: 'true',
         status: appealStatusFilter,
       });
       
-      const response = await fetch(`/api/photo-appeals?${params}`);
+      const response = await fetch(`/api/photo-appeals?${params}`, {
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+      });
       const data = await response.json();
       
       if (data.appeals) {
