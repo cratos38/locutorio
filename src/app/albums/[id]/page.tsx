@@ -1358,20 +1358,38 @@ export default function AlbumDetailPage() {
                         <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex justify-center gap-2">
                           {/* Owner controls: Editar */}
                           {album.user_id === user?.id && (
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setEditingPhotoIndex(index);
-                                setEditPhotoDescription(photo.description || "");
-                                setShowEditPhotoModal(true);
-                              }}
-                              className="p-1.5 bg-white/20 hover:bg-white/30 rounded-lg transition-colors backdrop-blur-sm"
-                              title="Editar descripción"
-                            >
-                              <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                              </svg>
-                            </button>
+                            <>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setEditingPhotoIndex(index);
+                                  setEditPhotoDescription(photo.description || "");
+                                  setShowEditPhotoModal(true);
+                                }}
+                                className="p-1.5 bg-white/20 hover:bg-white/30 rounded-lg transition-colors backdrop-blur-sm"
+                                title="Editar descripción"
+                              >
+                                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
+                              </button>
+                              
+                              {/* Botón Mover foto */}
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setMovingPhotoIndex(index);
+                                  setShowMovePhotoModal(true);
+                                  loadMyAlbums(); // Cargar álbumes disponibles
+                                }}
+                                className="p-1.5 bg-blue-600/80 hover:bg-blue-700 rounded-lg transition-colors backdrop-blur-sm"
+                                title="Mover foto a otro álbum"
+                              >
+                                <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                  <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" />
+                                </svg>
+                              </button>
+                            </>
                           )}
                           
                           {/* TODOS pueden denunciar fotos aprobadas en álbumes públicos */}
