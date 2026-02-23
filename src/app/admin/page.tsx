@@ -894,13 +894,8 @@ export default function AdminPage() {
                       <div className="p-3">
                         <div className="flex items-center justify-between mb-2">
                           <div className="text-sm font-medium text-white truncate">
-                            @{photo.user?.username}
+                            @{photo.albums?.users?.username || 'Usuario'}
                           </div>
-                          {photo.is_primary && (
-                            <span className="text-xs bg-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded">
-                              Principal
-                            </span>
-                          )}
                         </div>
                         
                         <div className="text-xs text-gray-400 mb-2">
@@ -913,17 +908,17 @@ export default function AdminPage() {
                         </div>
                         
                         {/* Estado */}
-                        {photo.is_approved && (
+                        {photo.moderation_status === 'approved' && (
                           <span className="text-xs bg-green-500/20 text-green-400 px-2 py-0.5 rounded">
                             ✓ Aprobada
                           </span>
                         )}
-                        {photo.is_rejected && (
+                        {photo.moderation_status === 'rejected' && (
                           <span className="text-xs bg-red-500/20 text-red-400 px-2 py-0.5 rounded">
                             ✗ Rechazada
                           </span>
                         )}
-                        {!photo.is_approved && !photo.is_rejected && (
+                        {photo.moderation_status === 'pending_review' && (
                           <span className="text-xs bg-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded">
                             ⏳ Pendiente
                           </span>
@@ -1310,39 +1305,41 @@ export default function AdminPage() {
                   <div className="bg-connect-bg-dark/60 rounded-lg p-4 border border-connect-border">
                     <h4 className="font-bold text-white mb-2">Información del usuario</h4>
                     <div className="text-sm text-gray-400 space-y-1">
-                      <p>Username: <span className="text-neon-green">@{selectedPhoto.user?.username}</span></p>
-                      <p>Nombre: {selectedPhoto.user?.nombre || 'No especificado'}</p>
-                      <p>Email: {selectedPhoto.user?.email}</p>
+                      <p>Username: <span className="text-neon-green">@{selectedPhoto.albums?.users?.username || 'Desconocido'}</span></p>
+                      <p>Nombre: {selectedPhoto.albums?.users?.nombre || 'No especificado'}</p>
+                      <p>Email: {selectedPhoto.albums?.users?.email || 'No especificado'}</p>
                       <p>Subida: {new Date(selectedPhoto.created_at).toLocaleString('es-ES')}</p>
-                      {selectedPhoto.is_primary && (
-                        <p className="text-yellow-400">⭐ Esta es su foto principal</p>
-                      )}
                     </div>
                   </div>
                   
                   {/* Estado actual */}
                   <div className="bg-connect-bg-dark/60 rounded-lg p-4 border border-connect-border">
                     <h4 className="font-bold text-white mb-2">Estado actual</h4>
-                    {selectedPhoto.is_approved && (
+                    {selectedPhoto.moderation_status === 'approved' && (
                       <span className="text-green-400">✓ Aprobada</span>
                     )}
-                    {selectedPhoto.is_rejected && (
+                    {selectedPhoto.moderation_status === 'rejected' && (
                       <div>
                         <span className="text-red-400">✗ Rechazada</span>
-                        {selectedPhoto.rejection_reason && (
+                        {selectedPhoto.moderation_reason && (
                           <p className="text-sm text-gray-400 mt-1">
-                            Motivo: {selectedPhoto.rejection_reason}
+                            Motivo: {selectedPhoto.moderation_reason}
+                          </p>
+                        )}
+                        {selectedPhoto.moderation_score && (
+                          <p className="text-sm text-gray-400 mt-1">
+                            Score: {(selectedPhoto.moderation_score * 100).toFixed(1)}%
                           </p>
                         )}
                       </div>
                     )}
-                    {!selectedPhoto.is_approved && !selectedPhoto.is_rejected && (
+                    {selectedPhoto.moderation_status === 'pending_review' && (
                       <span className="text-yellow-400">⏳ Pendiente de revisión</span>
                     )}
                   </div>
                   
                   {/* Acciones */}
-                  {!selectedPhoto.is_approved && !selectedPhoto.is_rejected && (
+                  {selectedPhoto.moderation_status === 'pending_review' && (
                     <div className="space-y-4">
                       <div>
                         <label className="block text-sm text-gray-400 mb-2">Motivo de rechazo (si aplica)</label>
@@ -1397,7 +1394,7 @@ export default function AdminPage() {
                   
                   {/* Ver perfil */}
                   <Link 
-                    href={`/publicprofile/${selectedPhoto.user?.username}`}
+                    href={`/publicprofile/${selectedPhoto.albums?.users?.username || 'desconocido'}`}
                     target="_blank"
                     className="block"
                   >

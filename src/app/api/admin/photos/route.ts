@@ -57,17 +57,27 @@ export async function GET(request: NextRequest) {
         moderation_score,
         moderation_date,
         created_at,
-        albums!inner(id, title, privacy, user_id)
+        albums!inner(
+          id, 
+          title, 
+          privacy, 
+          user_id,
+          users!inner(id, username, email, nombre)
+        )
       `)
       .order('created_at', { ascending: false })
       .limit(limit);
 
+    // IMPORTANTE: Siempre filtrar por status específico
     if (status === 'pending') {
       query = query.eq('moderation_status', 'pending_review');
     } else if (status === 'approved') {
       query = query.eq('moderation_status', 'approved');
     } else if (status === 'rejected') {
       query = query.eq('moderation_status', 'rejected');
+    } else {
+      // Si status es 'all' o cualquier otro, mostrar solo pending por defecto
+      query = query.eq('moderation_status', 'pending_review');
     }
 
     const { data: photos, error } = await query;
@@ -161,7 +171,7 @@ export async function PUT(request: NextRequest) {
 
       // Crear notificación al usuario
       await getSupabaseAdmin().from('notifications').insert({
-        user_id: photo.albums.user_id,
+        user_id: photo.albums.users.id,
         type: 'photo_approved',
         title: 'Foto aprobada',
         message: 'Tu foto ha sido aprobada y ya es visible en tu perfil',
@@ -175,7 +185,7 @@ export async function PUT(request: NextRequest) {
         action_type: 'approve_photo',
         target_type: 'photo',
         target_id: photoId,
-        details: { user_id: photo.albums.user_id }
+        details: { user_id: photo.albums.users.id, username: photo.albums.users.username }
       });
 
       return NextResponse.json({ 
@@ -200,7 +210,7 @@ export async function PUT(request: NextRequest) {
 
       // Crear notificación al usuario
       await getSupabaseAdmin().from('notifications').insert({
-        user_id: photo.albums.user_id,
+        user_id: photo.albums.users.id,
         type: 'photo_rejected',
         title: 'Foto rechazada',
         message: rejectionReason || 'Tu foto no cumple con las normas de la comunidad',
@@ -214,7 +224,7 @@ export async function PUT(request: NextRequest) {
         action_type: 'reject_photo',
         target_type: 'photo',
         target_id: photoId,
-        details: { user_id: photo.albums.user_id, reason: rejectionReason }
+        details: { user_id: photo.albums.users.id, username: photo.albums.users.username, reason: rejectionReason }
       });
 
       return NextResponse.json({ 
@@ -237,7 +247,7 @@ export async function PUT(request: NextRequest) {
         action_type: 'delete_photo',
         target_type: 'photo',
         target_id: photoId,
-        details: { user_id: photo.albums.user_id, url: photo.url }
+        details: { user_id: photo.albums.users.id, username: photo.albums.users.username, url: photo.url }
       });
 
       return NextResponse.json({ 
