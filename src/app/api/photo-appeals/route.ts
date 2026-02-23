@@ -65,7 +65,15 @@ export async function POST(request: NextRequest) {
       .eq('id', photo.album_id)
       .single();
     
-    if (albumError || !album) {
+    if (albumError) {
+      console.error('Error buscando álbum:', albumError);
+      return NextResponse.json(
+        { error: 'Error al verificar álbum: ' + albumError.message },
+        { status: 500 }
+      );
+    }
+    
+    if (!album) {
       return NextResponse.json(
         { error: 'Álbum no encontrado' },
         { status: 404 }
@@ -109,8 +117,9 @@ export async function POST(request: NextRequest) {
     
     if (appealError) {
       console.error('Error creando reclamación:', appealError);
+      console.error('Datos intentados:', { photo_id, user_id: user.id, reason, description });
       return NextResponse.json(
-        { error: 'Error al crear la reclamación' },
+        { error: 'Error al crear la reclamación: ' + appealError.message },
         { status: 500 }
       );
     }
