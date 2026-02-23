@@ -156,8 +156,7 @@ export async function GET(request: NextRequest) {
       .from('photo_appeals')
       .select(`
         *,
-        album_photos!inner(id, url, album_id, moderation_reason),
-        profiles!photo_appeals_user_id_fkey(username, full_name)
+        album_photos!inner(id, url, album_id, moderation_reason)
       `)
       .order('created_at', { ascending: false });
     

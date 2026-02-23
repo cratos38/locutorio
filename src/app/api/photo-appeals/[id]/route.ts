@@ -22,15 +22,14 @@ export async function PATCH(
       );
     }
     
-    // TODO: Verificar que el usuario es admin
-    // Por ahora verificar si el user_role === 'admin' o similar
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('user_role')
+    // Verificar que el usuario es admin
+    const { data: userData } = await supabase
+      .from('users')
+      .select('is_admin')
       .eq('id', user.id)
       .single();
     
-    const isAdmin = profile?.user_role === 'admin';
+    const isAdmin = userData?.is_admin === true;
     
     if (!isAdmin) {
       return NextResponse.json(
@@ -170,9 +169,7 @@ export async function GET(
       .from('photo_appeals')
       .select(`
         *,
-        album_photos!inner(id, url, album_id, moderation_reason, moderation_status, moderation_score),
-        profiles!photo_appeals_user_id_fkey(username, full_name),
-        admin_profiles:profiles!photo_appeals_admin_user_id_fkey(username, full_name)
+        album_photos!inner(id, url, album_id, moderation_reason, moderation_status, moderation_score)
       `)
       .eq('id', appealId)
       .single();
@@ -185,13 +182,13 @@ export async function GET(
     }
     
     // Verificar autorización
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('user_role')
+    const { data: userData } = await supabase
+      .from('users')
+      .select('is_admin')
       .eq('id', user.id)
       .single();
     
-    const isAdmin = profile?.user_role === 'admin';
+    const isAdmin = userData?.is_admin === true;
     const isOwner = appeal.user_id === user.id;
     
     if (!isAdmin && !isOwner) {
