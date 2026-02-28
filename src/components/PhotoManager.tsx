@@ -257,10 +257,14 @@ export default function PhotoManager({
       const result = await response.json();
       
       if (result.success && result.photos && result.photos.length > 0) {
+        console.log('🔍 Datos RAW del API:', JSON.stringify(result.photos[0], null, 2));
+        
         // Convertir fotos de BD al formato Photo
         const loadedPhotos: Photo[] = result.photos.map((photo: any) => ({
           id: photo.id,
           url: photo.storage_url || photo.url, // v3.5: storage_url es el campo nuevo
+          url_medium: photo.cropped_url || photo.url_medium, // v3.5: cropped_url es el campo para medium
+          url_thumbnail: photo.url_thumbnail,
           esPrincipal: photo.is_primary, // v3.5: is_primary
           estado: photo.status === 'approved' ? 'aprobada' : 
                   photo.status === 'rejected' ? 'rechazada' : 
@@ -269,7 +273,14 @@ export default function PhotoManager({
         }));
         
         console.log(`✅ ${loadedPhotos.length} fotos cargadas desde BD`);
-        console.log('📸 URLs de las fotos:', loadedPhotos.map(p => p.url));
+        console.log('📸 Detalle completo de cada foto:', loadedPhotos.map(p => ({
+          id: p.id,
+          url: p.url,
+          url_medium: p.url_medium,
+          url_thumbnail: p.url_thumbnail,
+          estado: p.estado,
+          rejection_reason: p.rejection_reason
+        })));
         console.log('📸 Estado del array photos ANTES de setPhotos:', photos);
         setPhotos(loadedPhotos);
         console.log('📸 Estado del array photos DESPUÉS de setPhotos:', loadedPhotos);
