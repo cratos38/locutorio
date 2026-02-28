@@ -74,18 +74,19 @@ export async function GET(request: NextRequest) {
     let query = supabase
       .from('photos')
       .select('*')
-      .eq('user_id', userId);
+      .eq('user_id', userId)
+      .eq('photo_type', 'profile'); // Solo fotos de perfil
     
     // Si NO showAll, filtrar solo aprobadas
     if (!showAll) {
-      query = query.eq('estado', 'aprobada');
+      query = query.eq('status', 'approved'); // Campo nuevo: 'status'
     }
     
-    // Ordenar: principal primero, luego por orden, luego por fecha
+    // Ordenar: principal primero, luego por display_order, luego por fecha
     const photosStartTime = Date.now();
     const { data: photos, error: photosError } = await query
-      .order('is_principal', { ascending: false })
-      .order('orden', { ascending: true })
+      .order('is_primary', { ascending: false }) // Campo nuevo: 'is_primary'
+      .order('display_order', { ascending: true }) // Campo nuevo: 'display_order'
       .order('created_at', { ascending: false });
     console.log(`⏱️ [${Date.now() - startTime}ms] Query photos tardó: ${Date.now() - photosStartTime}ms`);
     

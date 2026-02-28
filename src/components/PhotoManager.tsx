@@ -259,11 +259,11 @@ export default function PhotoManager({
         // Convertir fotos de BD al formato Photo
         const loadedPhotos: Photo[] = result.photos.map((photo: any) => ({
           id: photo.id,
-          url: photo.url,
-          url_medium: photo.url_medium,
-          url_thumbnail: photo.url_thumbnail,
-          esPrincipal: photo.is_principal,
-          estado: photo.estado as 'pendiente' | 'aprobada' | 'rechazada'
+          url: photo.storage_url || photo.url, // v3.5: storage_url es el campo nuevo
+          esPrincipal: photo.is_primary, // v3.5: is_primary
+          estado: photo.status === 'approved' ? 'aprobada' : 
+                  photo.status === 'rejected' ? 'rechazada' : 
+                  'pendiente' // v3.5: status es el campo nuevo
         }));
         
         console.log(`✅ ${loadedPhotos.length} fotos cargadas desde BD`);
