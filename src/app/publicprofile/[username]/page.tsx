@@ -28,25 +28,26 @@ export default async function PublicProfilePage({
     }
 
     // 2. Obtener fotos del usuario
-    // TODO: Filtrar por estado 'aprobada' solo cuando sea el perfil de otra persona
-    // Por ahora mostramos todas las fotos para que el SSR funcione correctamente
+    // PERFIL PÚBLICO: Solo mostrar fotos APROBADAS y VISIBLES
     const { data: photosData, error: photosError } = await supabase
       .from('photos')
-      .select('id, url, url_medium, url_thumbnail, is_principal, estado, orden, created_at')
+      .select('id, storage_url, cropped_url, is_primary, status, display_order, created_at')
       .eq('user_id', userData.id)
-      // Temporalmente comentado: .eq('estado', 'aprobada')
-      .order('is_principal', { ascending: false })
-      .order('orden', { ascending: true })
+      .eq('photo_type', 'profile')
+      .eq('status', 'approved')  // Solo fotos aprobadas
+      .eq('is_visible', true)     // Solo fotos visibles
+      .order('is_primary', { ascending: false })
+      .order('display_order', { ascending: true })
       .order('created_at', { ascending: false });
 
     // Mapear fotos al formato esperado
     const fotos = (photosData || []).map(photo => ({
       id: photo.id,
-      url: photo.url,
-      url_medium: photo.url_medium,
-      url_thumbnail: photo.url_thumbnail,
-      esPrincipal: photo.is_principal,
-      estado: photo.estado as 'pendiente' | 'aprobada' | 'rechazada',
+      url: photo.storage_url,           // Campo nuevo: storage_url
+      url_medium: photo.cropped_url,    // Campo nuevo: cropped_url  
+      url_thumbnail: photo.cropped_url, // Usar mismo cropped para thumbnail
+      esPrincipal: photo.is_primary,    // Campo nuevo: is_primary
+      estado: photo.status as 'pending' | 'approved' | 'rejected', // Campo nuevo: status
     }));
 
     // 3. Construir objeto de perfil
