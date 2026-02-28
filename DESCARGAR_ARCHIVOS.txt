@@ -1,0 +1,84 @@
+========================================================================
+ENLACES DE DESCARGA - ML Validator v3.4 + Supabase Integration
+========================================================================
+
+🌐 Servidor HTTP:
+https://8877-id54dgjudo7klxlkecudl-cc2fbc16.sandbox.novita.ai/
+
+========================================================================
+📥 COMANDOS DE DESCARGA PARA TU SERVIDOR UBUNTU
+========================================================================
+
+# 1. SERVIDOR ML VALIDATOR V3.4
+wget https://8877-id54dgjudo7klxlkecudl-cc2fbc16.sandbox.novita.ai/server-v3.4-complete.py -O ~/ml-validator/server.py
+
+# 2. WEBHOOK HANDLER (Integración Supabase)
+wget https://8877-id54dgjudo7klxlkecudl-cc2fbc16.sandbox.novita.ai/supabase_integration.py -O ~/ml-validator/supabase_integration.py
+
+# 3. GUÍA DE INSTALACIÓN
+wget https://8877-id54dgjudo7klxlkecudl-cc2fbc16.sandbox.novita.ai/GUIA_INSTALACION_SUPABASE.md -O ~/ml-validator/GUIA_INSTALACION_SUPABASE.md
+
+# 4. RESUMEN DE ARCHIVOS
+wget https://8877-id54dgjudo7klxlkecudl-cc2fbc16.sandbox.novita.ai/RESUMEN_ARCHIVOS_INTEGRACION.md -O ~/ml-validator/RESUMEN_ARCHIVOS_INTEGRACION.md
+
+========================================================================
+📥 ARCHIVOS PARA TU COMPUTADORA LOCAL
+========================================================================
+
+# Schema SQL para Supabase
+https://8877-id54dgjudo7klxlkecudl-cc2fbc16.sandbox.novita.ai/supabase-schema.sql
+
+# Edge Function (alternativa)
+https://8877-id54dgjudo7klxlkecudl-cc2fbc16.sandbox.novita.ai/supabase-edge-function.ts
+
+# Ejemplos de código para la app
+https://8877-id54dgjudo7klxlkecudl-cc2fbc16.sandbox.novita.ai/client-examples.ts
+
+========================================================================
+🚀 INSTALACIÓN RÁPIDA
+========================================================================
+
+1. DESCARGAR EN EL SERVIDOR:
+   cd ~/ml-validator
+   wget https://8877-id54dgjudo7klxlkecudl-cc2fbc16.sandbox.novita.ai/server-v3.4-complete.py -O server.py
+   wget https://8877-id54dgjudo7klxlkecudl-cc2fbc16.sandbox.novita.ai/supabase_integration.py
+
+2. CONFIGURAR .ENV:
+   nano ~/ml-validator/.env
+   # Pegar:
+   SUPABASE_URL=https://tu-proyecto.supabase.co
+   SUPABASE_SERVICE_KEY=tu-service-role-key
+   ML_VALIDATOR_URL=http://localhost:5000
+
+3. INSTALAR DEPENDENCIAS:
+   cd ~/ml-validator
+   source venv/bin/activate
+   pip install python-dotenv
+
+4. CREAR SCRIPT DE INICIO:
+   # (Ver GUIA_INSTALACION_SUPABASE.md sección 2.4)
+
+5. CONFIGURAR SUPABASE:
+   # Ejecutar supabase-schema.sql en SQL Editor
+   # Configurar webhook en Database > Webhooks
+
+6. INICIAR:
+   cd ~/ml-validator
+   ./start_services.sh
+
+========================================================================
+✅ VERIFICAR INSTALACIÓN
+========================================================================
+
+curl http://localhost:5000/health
+curl http://localhost:5001/health
+
+========================================================================
+📚 DOCUMENTACIÓN
+========================================================================
+
+- GUIA_INSTALACION_SUPABASE.md  → Guía paso a paso completa
+- RESUMEN_ARCHIVOS_INTEGRACION.md → Resumen de todos los archivos
+- client-examples.ts → Ejemplos de uso desde la app
+
+========================================================================

@@ -208,7 +208,7 @@ export default function AlbumDetailPage() {
         // Cargar fotos desde Supabase
         setIsLoadingPhotos(true);
         const { data: photosData, error: photosError } = await supabase
-          .from('album_photos')
+          .from('photos')
           .select('*')
           .eq('album_id', albumId)
           .order('orden', { ascending: true });
@@ -354,7 +354,7 @@ export default function AlbumDetailPage() {
     try {
       // Primero eliminar todas las fotos del Storage
       const { data: photosToDelete } = await supabase
-        .from('album_photos')
+        .from('photos')
         .select('url')
         .eq('album_id', albumId);
       
@@ -365,7 +365,7 @@ export default function AlbumDetailPage() {
         });
         
         await supabase.storage
-          .from('album-photos')
+          .from('photos-pending')
           .remove(filePaths);
       }
       
@@ -485,7 +485,7 @@ export default function AlbumDetailPage() {
       
       // Mover la foto (actualizar album_id)
       const { error: moveError } = await supabase
-        .from('album_photos')
+        .from('photos')
         .update({ 
           album_id: targetAlbumId,
           moderation_status: 'approved', // Resetear estado de moderación
@@ -575,7 +575,7 @@ export default function AlbumDetailPage() {
         
         // Subir archivo a Supabase Storage
         const { data: uploadData, error: uploadError } = await supabase.storage
-          .from('album-photos')
+          .from('photos-pending')
           .upload(fileName, file, {
             cacheControl: '3600',
             upsert: false
@@ -588,7 +588,7 @@ export default function AlbumDetailPage() {
         
         // Obtener URL pública
         const { data: { publicUrl } } = supabase.storage
-          .from('album-photos')
+          .from('photos-pending')
           .getPublicUrl(fileName);
         
         console.log('✅ Foto subida:', publicUrl);
@@ -614,7 +614,7 @@ export default function AlbumDetailPage() {
         }
         
         const { data: photoData, error: photoError } = await supabase
-          .from('album_photos')
+          .from('photos')
           .insert({
             album_id: albumId,
             url: publicUrl,
@@ -668,7 +668,7 @@ export default function AlbumDetailPage() {
           // Recargar fotos después de la moderación (en ~5-10 segundos)
           setTimeout(async () => {
             const { data: refreshedPhotos } = await supabase
-              .from('album_photos')
+              .from('photos')
               .select('*')
               .eq('album_id', albumId)
               .order('orden', { ascending: true });
@@ -827,7 +827,7 @@ export default function AlbumDetailPage() {
       
       // Eliminar del Storage
       const { error: storageError } = await supabase.storage
-        .from('album-photos')
+        .from('photos-pending')
         .remove([filePath]);
       
       if (storageError) {
@@ -836,7 +836,7 @@ export default function AlbumDetailPage() {
       
       // Eliminar de la base de datos
       const { error: dbError } = await supabase
-        .from('album_photos')
+        .from('photos')
         .delete()
         .eq('id', photoToDelete.id);
       
@@ -884,7 +884,7 @@ export default function AlbumDetailPage() {
       const photoToEdit = photos[editingPhotoIndex];
       
       const { error } = await supabase
-        .from('album_photos')
+        .from('photos')
         .update({ description: editPhotoDescription })
         .eq('id', photoToEdit.id);
       

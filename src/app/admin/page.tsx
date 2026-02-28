@@ -118,7 +118,7 @@ export default function AdminPage() {
   const { user, isAdmin, loading } = useAuth();
   
   // Estados
-  const [activeTab, setActiveTab] = useState<'users' | 'reports' | 'photos' | 'rooms' | 'appeals' | 'profile-photos'>('users');
+  const [activeTab, setActiveTab] = useState<'users' | 'reports' | 'photos' | 'rooms' | 'appeals' | 'photos-pending'>('users');
   const [users, setUsers] = useState<User[]>([]);
   const [reports, setReports] = useState<Report[]>([]);
   const [photos, setPhotos] = useState<Photo[]>([]);
@@ -167,7 +167,7 @@ export default function AdminPage() {
         loadPhotos();
       } else if (activeTab === 'appeals') {
         loadAppeals();
-      } else if (activeTab === 'profile-photos') {
+      } else if (activeTab === 'photos-pending') {
         loadProfilePhotos();
       }
     }
@@ -626,9 +626,9 @@ export default function AdminPage() {
             ⚖️ Reclamaciones {appealStats?.pendingCount ? `(${appealStats.pendingCount})` : ''}
           </Button>
           <Button
-            variant={activeTab === 'profile-photos' ? 'default' : 'outline'}
-            onClick={() => setActiveTab('profile-photos')}
-            className={activeTab === 'profile-photos' ? 'bg-purple-600 text-white' : ''}
+            variant={activeTab === 'photos-pending' ? 'default' : 'outline'}
+            onClick={() => setActiveTab('photos-pending')}
+            className={activeTab === 'photos-pending' ? 'bg-purple-600 text-white' : ''}
           >
             👤 Fotos de Perfil {profilePhotoStats?.pendingCount ? `(${profilePhotoStats.pendingCount})` : ''}
           </Button>
@@ -1693,7 +1693,7 @@ export default function AdminPage() {
       )}
       
       {/* 🆕 Tab: Fotos de Perfil */}
-      {activeTab === 'profile-photos' && (
+      {activeTab === 'photos-pending' && (
         <div className="space-y-6">
           {/* Estadísticas */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">

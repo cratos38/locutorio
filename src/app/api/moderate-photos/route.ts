@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
       
       // Aprobar todas las fotos automáticamente
       await supabase
-        .from('album_photos')
+        .from('photos')
         .update({
           moderation_status: 'approved',
           moderation_reason: 'Álbum privado/protegido - sin moderación',
@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
     // Para álbumes públicos, las fotos ya deberían estar analizadas en el cliente
     // Este endpoint solo confirma que están listas
     const { data: photos } = await supabase
-      .from('album_photos')
+      .from('photos')
       .select('*')
       .eq('album_id', albumId);
     

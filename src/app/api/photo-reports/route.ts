@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
     
     // Verificar que la foto existe
     const { data: photo, error: photoError } = await supabase
-      .from('album_photos')
+      .from('photos')
       .select('id, album_id')
       .eq('id', photo_id)
       .single();

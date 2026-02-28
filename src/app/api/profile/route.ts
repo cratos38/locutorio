@@ -158,7 +158,7 @@ export async function GET(request: NextRequest) {
     
     // 2. Obtener fotos del usuario
     let photosQuery = supabase
-      .from('profile_photos')
+      .from('photos')
       .select('id, url, url_medium, url_thumbnail, is_principal, estado, orden, created_at')
       .eq('user_id', userData.id)
       .order('is_principal', { ascending: false })

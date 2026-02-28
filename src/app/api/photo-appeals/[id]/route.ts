@@ -148,7 +148,7 @@ export async function PATCH(
       
       // Verificar estado actual de la foto
       const { data: currentPhoto, error: fetchError } = await supabaseAdmin
-        .from('album_photos')
+        .from('photos')
         .select('id, moderation_status, album_id')
         .eq('id', photoId)
         .single();
@@ -173,7 +173,7 @@ export async function PATCH(
       
       // Actualizar la foto usando admin client
       const { data: updatedPhoto, error: updatePhotoError } = await supabaseAdmin
-        .from('album_photos')
+        .from('photos')
         .update({
           moderation_status: 'approved',
           moderation_reason: 'Foto aprobada tras revisión manual por administrador',

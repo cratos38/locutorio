@@ -86,7 +86,7 @@ function AlbumCarousel({ albumId, privacy }: { albumId: number; privacy: string 
     // Load photos for this album from Supabase
     async function loadPhotos() {
       const { data, error } = await supabase
-        .from('album_photos')
+        .from('photos')
         .select('*')
         .eq('album_id', albumId)
         .order('orden', { ascending: true });

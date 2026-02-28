@@ -15,19 +15,19 @@ export async function GET(request: NextRequest) {
     
     // Test 2: Listar archivos en profile-photos
     const { data: files, error: filesError } = await supabase.storage
-      .from('profile-photos')
+      .from('photos-pending')
       .list();
     
     // Test 3: Verificar tabla profile_photos
     const { data: photos, error: photosError } = await supabase
-      .from('profile_photos')
+      .from('photos')
       .select('*')
       .limit(5);
     
     // Test 4: Intentar subir archivo de prueba
     const testFile = new Uint8Array([1, 2, 3, 4, 5]);
     const { data: uploadData, error: uploadError } = await supabase.storage
-      .from('profile-photos')
+      .from('photos-pending')
       .upload('test/test.txt', testFile, {
         contentType: 'text/plain',
         upsert: true

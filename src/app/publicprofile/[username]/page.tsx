@@ -31,7 +31,7 @@ export default async function PublicProfilePage({
     // TODO: Filtrar por estado 'aprobada' solo cuando sea el perfil de otra persona
     // Por ahora mostramos todas las fotos para que el SSR funcione correctamente
     const { data: photosData, error: photosError } = await supabase
-      .from('profile_photos')
+      .from('photos')
       .select('id, url, url_medium, url_thumbnail, is_principal, estado, orden, created_at')
       .eq('user_id', userData.id)
       // Temporalmente comentado: .eq('estado', 'aprobada')

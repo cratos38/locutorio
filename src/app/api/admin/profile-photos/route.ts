@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
     
     // Obtener fotos según estado
     let query = supabase
-      .from('profile_photos')
+      .from('photos')
       .select(`
         id,
         user_id,
@@ -81,22 +81,22 @@ export async function GET(request: NextRequest) {
     
     // Contar estadísticas
     const { count: pendingCount } = await supabase
-      .from('profile_photos')
+      .from('photos')
       .select('*', { count: 'exact', head: true })
       .eq('estado', 'pendiente');
     
     const { count: approvedCount } = await supabase
-      .from('profile_photos')
+      .from('photos')
       .select('*', { count: 'exact', head: true })
       .eq('estado', 'aprobada');
     
     const { count: rejectedCount } = await supabase
-      .from('profile_photos')
+      .from('photos')
       .select('*', { count: 'exact', head: true })
       .eq('estado', 'rechazada');
     
     const { count: manualReviewCount } = await supabase
-      .from('profile_photos')
+      .from('photos')
       .select('*', { count: 'exact', head: true })
       .eq('manual_review', true)
       .eq('estado', 'revision_manual');
@@ -156,7 +156,7 @@ export async function PUT(request: NextRequest) {
     }
     
     const { error } = await supabase
-      .from('profile_photos')
+      .from('photos')
       .update(updateData)
       .eq('id', photoId);
     

@@ -36,54 +36,29 @@ export async function DELETE(
     
     const supabase = getSupabaseAdmin();
     
-    // 1. Intentar obtener de tabla NUEVA (photos)
-    let { data: photo, error: fetchError } = await supabase
+    // 1. Obtener datos de la foto desde tabla 'photos'
+    const { data: photo, error: fetchError } = await supabase
       .from('photos')
       .select('*')
       .eq('id', params.id)
       .single();
     
-    let tableName = 'photos';
-    let bucketName = 'photos-pending';
-    
-    // 2. Si no existe en tabla nueva, buscar en tabla VIEJA (profile_photos)
     if (fetchError || !photo) {
-      console.log('⚠️ No encontrada en tabla nueva, buscando en tabla vieja...');
-      const { data: oldPhoto, error: oldFetchError } = await supabase
-        .from('profile_photos')
-        .select('*')
-        .eq('id', params.id)
-        .single();
-      
-      if (oldFetchError || !oldPhoto) {
-        console.error('❌ Foto no encontrada en ninguna tabla:', oldFetchError);
-        return NextResponse.json(
-          { error: 'Foto no encontrada' },
-          { status: 404 }
-        );
-      }
-      
-      photo = oldPhoto;
-      tableName = 'profile_photos';
-      bucketName = 'profile-photos';
-      console.log('✅ Foto encontrada en tabla vieja');
+      console.error('❌ Foto no encontrada:', fetchError);
+      return NextResponse.json(
+        { error: 'Foto no encontrada' },
+        { status: 404 }
+      );
     }
     
-    console.log('📸 Foto encontrada en tabla:', tableName);
-    console.log('📍 Storage path:', photo.url || photo.storage_path);
+    console.log('📸 Foto encontrada:', photo.storage_path);
     
-    // 3. Eliminar de Storage
-    const storagePath = photo.storage_path || photo.url;
-    if (storagePath) {
-      // Extraer solo el path (remover dominio si existe)
-      const pathOnly = storagePath.includes('supabase.co') 
-        ? storagePath.split('/').slice(-2).join('/')
-        : storagePath;
-      
-      console.log('🗑️ Eliminando de Storage:', bucketName, '/', pathOnly);
+    // 2. Eliminar de Storage (bucket photos-pending)
+    if (photo.storage_path) {
+      console.log('🗑️ Eliminando de Storage:', photo.storage_path);
       const { error: storageError } = await supabase.storage
-        .from(bucketName)
-        .remove([pathOnly]);
+        .from('photos-pending')
+        .remove([photo.storage_path]);
       
       if (storageError) {
         console.warn('⚠️ Error eliminando de Storage (puede no existir):', storageError);
@@ -92,9 +67,9 @@ export async function DELETE(
       }
     }
     
-    // 4. Eliminar de la base de datos
+    // 3. Eliminar de la base de datos
     const { error: deleteError } = await supabase
-      .from(tableName)
+      .from('photos')
       .delete()
       .eq('id', params.id);
     

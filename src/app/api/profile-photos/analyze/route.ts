@@ -104,7 +104,7 @@ export async function POST(request: NextRequest) {
     
     // Verificar si es la primera foto
     const { count: approvedCount } = await supabase
-      .from('profile_photos')
+      .from('photos')
       .select('*', { count: 'exact', head: true })
       .eq('user_id', user.id)
       .eq('estado', 'aprobada');
@@ -149,7 +149,7 @@ export async function POST(request: NextRequest) {
     if (noPeopleScore > 60) {
       console.log('❌ No se detectó ninguna persona');
       await supabase
-        .from('profile_photos')
+        .from('photos')
         .update({
           estado: 'rechazada',
           rejection_reason: 'No se detectó ninguna persona en la imagen',
@@ -169,7 +169,7 @@ export async function POST(request: NextRequest) {
     if (multiplePeopleScore > 50) {
       console.log('❌ Se detectaron múltiples personas');
       await supabase
-        .from('profile_photos')
+        .from('photos')
         .update({
           estado: 'rechazada',
           rejection_reason: 'Se detectaron múltiples personas (debe haber solo 1)',
@@ -189,7 +189,7 @@ export async function POST(request: NextRequest) {
     if (blurryScore > 60) {
       console.log('❌ Imagen muy borrosa');
       await supabase
-        .from('profile_photos')
+        .from('photos')
         .update({
           estado: 'rechazada',
           rejection_reason: 'La imagen está muy borrosa o desenfocada',
@@ -209,7 +209,7 @@ export async function POST(request: NextRequest) {
     if (sunglassesScore > 60) {
       console.log('❌ Gafas oscuras detectadas');
       await supabase
-        .from('profile_photos')
+        .from('photos')
         .update({
           estado: 'rechazada',
           rejection_reason: 'No se permiten gafas oscuras que cubran los ojos',
@@ -229,7 +229,7 @@ export async function POST(request: NextRequest) {
     if (textScore > 60) {
       console.log('❌ Texto/watermark detectado');
       await supabase
-        .from('profile_photos')
+        .from('photos')
         .update({
           estado: 'rechazada',
           rejection_reason: 'No se permiten fotos con texto o watermarks',
@@ -253,7 +253,7 @@ export async function POST(request: NextRequest) {
       if (faceScore < 40) {
         console.log(`❌ Primera foto debe ser selfie (score: ${faceScore}%)`);
         await supabase
-          .from('profile_photos')
+          .from('photos')
           .update({
             estado: 'rechazada',
             rejection_reason: 'Tu primera foto debe ser tipo selfie (rostro claro y cercano)',
@@ -273,7 +273,7 @@ export async function POST(request: NextRequest) {
       if (fullBodyScore > 50 && faceScore < 30) {
         console.log('⚠️ Foto de cuerpo completo - revisión manual');
         await supabase
-          .from('profile_photos')
+          .from('photos')
           .update({
             estado: 'revision_manual',
             manual_review: true,
@@ -294,7 +294,7 @@ export async function POST(request: NextRequest) {
     // ✅ TODO OK - APROBAR
     console.log('✅ FOTO APROBADA');
     await supabase
-      .from('profile_photos')
+      .from('photos')
       .update({
         estado: 'aprobada',
         validation_data: validationData,
@@ -316,7 +316,7 @@ export async function POST(request: NextRequest) {
       try {
         const supabase = getSupabaseAdmin();
         await supabase
-          .from('profile_photos')
+          .from('photos')
           .update({
             estado: 'revision_manual',
             manual_review: true,

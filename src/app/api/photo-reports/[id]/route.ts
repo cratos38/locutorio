@@ -125,7 +125,7 @@ export async function PATCH(
       
       // Marcar como rechazada
       const { data: updatedPhoto, error: updatePhotoError } = await supabase
-        .from('album_photos')
+        .from('photos')
         .update({
           moderation_status: 'rejected',
           moderation_reason: 'Foto reportada por usuarios y removida por administrador',

@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
     // Obtener fotos según status
     const supabaseAdmin = getSupabaseAdmin();
     let query = supabaseAdmin
-      .from('album_photos')
+      .from('photos')
       .select(`
         id,
         url,
@@ -106,17 +106,17 @@ export async function GET(request: NextRequest) {
 
     // Contar estadísticas
     const { count: pendingCount } = await supabaseAdmin
-      .from('album_photos')
+      .from('photos')
       .select('id', { count: 'exact', head: true })
       .eq('moderation_status', 'pending_review');
 
     const { count: approvedCount } = await supabaseAdmin
-      .from('album_photos')
+      .from('photos')
       .select('id', { count: 'exact', head: true })
       .eq('moderation_status', 'approved');
 
     const { count: rejectedCount } = await supabaseAdmin
-      .from('album_photos')
+      .from('photos')
       .select('id', { count: 'exact', head: true })
       .eq('moderation_status', 'rejected');
 
@@ -165,7 +165,7 @@ export async function PUT(request: NextRequest) {
 
     // Obtener info de la foto CON su álbum y usuario
     const { data: photo, error: photoError } = await getSupabaseAdmin()
-      .from('album_photos')
+      .from('photos')
       .select(`
         id, 
         url, 
@@ -185,7 +185,7 @@ export async function PUT(request: NextRequest) {
     if (action === 'approve') {
       // Aprobar foto
       const { error } = await getSupabaseAdmin()
-        .from('album_photos')
+        .from('photos')
         .update({
           moderation_status: 'approved',
           moderation_reason: 'Aprobada por administrador',
@@ -197,7 +197,7 @@ export async function PUT(request: NextRequest) {
 
       // Incrementar contador de fotos del álbum si estaba rechazada
       const { data: currentPhoto } = await getSupabaseAdmin()
-        .from('album_photos')
+        .from('photos')
         .select('moderation_status')
         .eq('id', photoId)
         .single();
@@ -219,7 +219,7 @@ export async function PUT(request: NextRequest) {
     } else if (action === 'reject') {
       // Rechazar foto
       const { error } = await getSupabaseAdmin()
-        .from('album_photos')
+        .from('photos')
         .update({
           moderation_status: 'rejected',
           moderation_reason: rejectionReason || 'No cumple con las normas de la comunidad',
@@ -239,7 +239,7 @@ export async function PUT(request: NextRequest) {
     } else if (action === 'delete') {
       // Eliminar foto completamente
       const { error } = await getSupabaseAdmin()
-        .from('album_photos')
+        .from('photos')
         .delete()
         .eq('id', photoId);
 
@@ -294,7 +294,7 @@ export async function POST(request: NextRequest) {
       try {
         if (action === 'approve') {
           await getSupabaseAdmin()
-            .from('album_photos')
+            .from('photos')
             .update({
               moderation_status: 'approved',
               moderation_reason: 'Aprobada por administrador',
@@ -303,7 +303,7 @@ export async function POST(request: NextRequest) {
             .eq('id', photoId);
         } else if (action === 'reject') {
           await getSupabaseAdmin()
-            .from('album_photos')
+            .from('photos')
             .update({
               moderation_status: 'rejected',
               moderation_reason: rejectionReason || 'No cumple con las normas',

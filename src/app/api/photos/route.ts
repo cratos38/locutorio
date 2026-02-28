@@ -72,7 +72,7 @@ export async function GET(request: NextRequest) {
     
     // Construir query de fotos
     let query = supabase
-      .from('profile_photos')
+      .from('photos')
       .select('*')
       .eq('user_id', userId);
     
