@@ -244,29 +244,8 @@ export async function POST(request: NextRequest) {
     }
     
     console.log('✅ Foto guardada exitosamente en BD');
-    
-    // 🤖 ML VALIDATOR v3.5: Llamar webhook en segundo plano
-    console.log('🤖 Iniciando validación ML Validator v3.5...');
-    try {
-      // Llamar al webhook ML Validator (sin esperar respuesta para no bloquear)
-      fetch('http://192.168.1.159:5001/webhook/photo-uploaded', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          photo_id: photoData.id,
-          user_id: userId,
-          photo_type: 'profile',
-          storage_path: largeFileName
-        })
-      }).catch(err => {
-        console.error('⚠️ Error iniciando validación automática:', err);
-      });
-      
-      console.log('🚀 ML Validator v3.5 iniciado en segundo plano');
-    } catch (error) {
-      console.error('⚠️ Error al iniciar validación:', error);
-      // No fallar el upload si la validación falla
-    }
+    console.log('🔄 Trigger de Supabase cambiará status a "processing"');
+    console.log('🤖 Supabase Database Webhook llamará al ML Validator automáticamente');
     
     return NextResponse.json({
       success: true,
