@@ -75,6 +75,22 @@ export async function GET(request: NextRequest) {
     const userId = userData.id;
     console.log(`⏱️ [${Date.now() - startTime}ms] User ID encontrado: ${userId}`);
     
+    // Verificar si el usuario logueado es el DUEÑO del perfil
+    const authHeader = request.headers.get('authorization');
+    let isOwner = false;
+    
+    if (authHeader?.startsWith('Bearer ')) {
+      const token = authHeader.substring(7);
+      const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+      
+      if (user && user.id === userId) {
+        isOwner = true;
+        console.log(`⏱️ [${Date.now() - startTime}ms] ✅ Usuario autenticado es el DUEÑO`);
+      } else {
+        console.log(`⏱️ [${Date.now() - startTime}ms] ℹ️ Usuario visitante o no autenticado`);
+      }
+    }
+    
     // Construir query de fotos
     let query = supabase
       .from('photos')
@@ -82,9 +98,15 @@ export async function GET(request: NextRequest) {
       .eq('user_id', userId)
       .eq('photo_type', 'profile'); // Solo fotos de perfil
     
-    // Si NO showAll, filtrar solo aprobadas
-    if (!showAll) {
-      query = query.eq('status', 'approved'); // Campo nuevo: 'status'
+    // LÓGICA CORRECTA:
+    // - Si es el DUEÑO con showAll=true → Mostrar TODAS (pending, approved, rejected)
+    // - Si NO es el dueño O showAll=false → Solo approved
+    if (isOwner && showAll) {
+      console.log(`⏱️ [${Date.now() - startTime}ms] 👤 Dueño ve TODAS sus fotos (pending, approved, rejected)`);
+      // No filtrar por status - mostrar todo
+    } else {
+      console.log(`⏱️ [${Date.now() - startTime}ms] 👁️ Visitante ve solo fotos APROBADAS`);
+      query = query.eq('status', 'approved');
     }
     
     // Ordenar: principal primero, luego por display_order, luego por fecha
