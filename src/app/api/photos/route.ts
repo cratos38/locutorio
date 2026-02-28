@@ -138,9 +138,41 @@ export async function GET(request: NextRequest) {
     
     console.log(`⏱️ [${Date.now() - startTime}ms] ✅ ${photos?.length || 0} fotos encontradas - TOTAL: ${Date.now() - startTime}ms`);
     
+    // Generar URLs firmadas para fotos en buckets privados
+    const photosWithSignedUrls = await Promise.all((photos || []).map(async (photo) => {
+      try {
+        // Si la foto está en photos-pending (privado), generar URL firmada
+        if (photo.storage_url && photo.storage_url.includes('/photos-pending/')) {
+          const path = photo.storage_path;
+          const { data: signedData, error: signError } = await supabase.storage
+            .from('photos-pending')
+            .createSignedUrl(path, 3600); // válida por 1 hora
+          
+          if (!signError && signedData) {
+            photo.storage_url = signedData.signedUrl;
+          }
+        }
+        
+        // Lo mismo para cropped_url
+        if (photo.cropped_url && photo.cropped_url.includes('/photos-pending/')) {
+          const croppedPath = photo.storage_path.replace('.jpg', '_medium.jpg').replace('.png', '_medium.png');
+          const { data: signedData, error: signError } = await supabase.storage
+            .from('photos-pending')
+            .createSignedUrl(croppedPath, 3600);
+          
+          if (!signError && signedData) {
+            photo.cropped_url = signedData.signedUrl;
+          }
+        }
+      } catch (err) {
+        console.error('Error generando URL firmada:', err);
+      }
+      return photo;
+    }));
+    
     return NextResponse.json({
       success: true,
-      photos: photos || []
+      photos: photosWithSignedUrls
     });
     
   } catch (error) {
