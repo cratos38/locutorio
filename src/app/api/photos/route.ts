@@ -32,7 +32,7 @@ const getSupabaseClient = () => {
 export async function GET(request: NextRequest) {
   const startTime = Date.now();
   try {
-    console.log(`⏱️ [${Date.now() - startTime}ms] Inicio de /api/photos`);
+    console.log(`⏱️ [${Date.now() - startTime}ms] 🔥 API /api/photos v3.5 - NUEVA TABLA PHOTOS`);
     
     const supabase = getSupabaseClient();
     console.log(`⏱️ [${Date.now() - startTime}ms] Cliente Supabase creado`);
