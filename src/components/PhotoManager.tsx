@@ -444,10 +444,36 @@ export default function PhotoManager({
   };
 
   // =================== ELIMINAR FOTO ===================
-  const handleDeletePhoto = () => {
+  const handleDeletePhoto = async () => {
     if (photos.length === 0) return;
     
     if (!confirm('¿Eliminar esta foto?')) return;
+
+    const photoToDelete = photos[currentPhotoIndex];
+    
+    // 🆕 v3.5: Borrar de la base de datos
+    if (username && photoToDelete.id) {
+      try {
+        const response = await fetch(`/api/photos/${photoToDelete.id}`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (!response.ok) {
+          console.error('❌ Error eliminando foto de BD:', await response.text());
+          alert('Error al eliminar la foto. Inténtalo de nuevo.');
+          return;
+        }
+        
+        console.log('✅ Foto eliminada de BD:', photoToDelete.id);
+      } catch (error) {
+        console.error('❌ Error en DELETE:', error);
+        alert('Error al eliminar la foto. Inténtalo de nuevo.');
+        return;
+      }
+    }
 
     const newPhotos = photos.filter((_, i) => i !== currentPhotoIndex);
     
@@ -458,6 +484,11 @@ export default function PhotoManager({
     
     setPhotos(newPhotos);
     setCurrentPhotoIndex(Math.max(0, currentPhotoIndex - 1));
+    
+    // Notificar al padre del cambio
+    if (onPhotosChange) {
+      onPhotosChange(newPhotos);
+    }
   };
 
   // =================== NAVEGACIÓN ===================
