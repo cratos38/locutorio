@@ -135,7 +135,7 @@ def get_storage_url(bucket, path):
         return None
 
 
-def update_photo_status(photo_id, status, validation_result=None, rejection_reason=None, auto_delete=False, cropped_url=None):
+def update_photo_status(photo_id, status, validation_result=None, rejection_reason=None, auto_delete=False, cropped_url=None, storage_url=None, thumbnail_url=None):
     """Actualiza estado de la foto en Supabase"""
     try:
         url = f"{SUPABASE_URL}/rest/v1/photos"
@@ -161,6 +161,12 @@ def update_photo_status(photo_id, status, validation_result=None, rejection_reas
         if cropped_url:
             payload['cropped_url'] = cropped_url
         
+        if storage_url:
+            payload['storage_url'] = storage_url
+        
+        if thumbnail_url:
+            payload['thumbnail_url'] = thumbnail_url
+        
         response = requests.patch(url, headers=SUPABASE_HEADERS, params=params, json=payload)
         response.raise_for_status()
         
@@ -169,6 +175,66 @@ def update_photo_status(photo_id, status, validation_result=None, rejection_reas
     except Exception as e:
         print(f"❌ Error actualizando foto {photo_id}: {e}")
         return False
+
+
+def move_photo_to_approved(storage_path):
+    """Mueve todas las versiones de una foto de photos-pending a photos-approved"""
+    try:
+        print(f"📦 Moviendo foto de pending a approved...")
+        print(f"   Path: {storage_path}")
+        
+        # Extraer base name sin extensión
+        base_path = storage_path.rsplit('.', 1)[0]  # "admin/1234"
+        ext = storage_path.rsplit('.', 1)[1]  # "jpg"
+        
+        # Versiones a mover
+        versions = [
+            storage_path,  # admin/1234.jpg (original)
+            f"{base_path}_medium.{ext}",  # admin/1234_medium.jpg
+            f"{base_path}_thumbnail.{ext}"  # admin/1234_thumbnail.jpg
+        ]
+        
+        moved_urls = {}
+        
+        for version_path in versions:
+            try:
+                # 1. Descargar de photos-pending
+                download_url = f"{SUPABASE_URL}/storage/v1/object/photos-pending/{version_path}"
+                download_response = requests.get(download_url, headers=SUPABASE_HEADERS)
+                download_response.raise_for_status()
+                file_data = download_response.content
+                
+                # 2. Subir a photos-approved
+                upload_url = f"{SUPABASE_URL}/storage/v1/object/photos-approved/{version_path}"
+                headers = SUPABASE_HEADERS.copy()
+                headers['Content-Type'] = 'image/jpeg'
+                upload_response = requests.post(upload_url, headers=headers, data=file_data)
+                upload_response.raise_for_status()
+                
+                # 3. Borrar de photos-pending
+                delete_url = f"{SUPABASE_URL}/storage/v1/object/photos-pending/{version_path}"
+                delete_response = requests.delete(delete_url, headers=SUPABASE_HEADERS)
+                delete_response.raise_for_status()
+                
+                # Guardar nueva URL pública
+                new_url = f"{SUPABASE_URL}/storage/v1/object/public/photos-approved/{version_path}"
+                if '_medium' in version_path:
+                    moved_urls['cropped_url'] = new_url
+                elif '_thumbnail' in version_path:
+                    moved_urls['thumbnail_url'] = new_url
+                else:
+                    moved_urls['storage_url'] = new_url
+                
+                print(f"   ✅ Movida: {version_path}")
+                
+            except Exception as e:
+                print(f"   ⚠️ Error moviendo {version_path}: {e}")
+        
+        return moved_urls
+        
+    except Exception as e:
+        print(f"❌ Error moviendo foto: {e}")
+        return {}
 
 
 def save_cropped_image(photo_id, user_id, cropped_base64):
@@ -383,27 +449,29 @@ def photo_uploaded():
         
         # 6. Procesar resultado
         if verdict == 'APPROVE':
-            # Guardar imagen recortada (solo para perfil)
-            cropped_url = None
-            if photo_type == 'profile' and 'cropped_image_base64' in ml_result:
-                print("✂️ Guardando imagen recortada...")
-                cropped_url = save_cropped_image(
+            # Mover foto de photos-pending a photos-approved
+            print("📦 Moviendo foto a photos-approved...")
+            moved_urls = move_photo_to_approved(storage_path)
+            
+            if moved_urls:
+                # Actualizar foto con nuevas URLs públicas
+                update_photo_status(
                     photo_id,
-                    user_id,
-                    ml_result['cropped_image_base64']
+                    'approved',
+                    validation_result=ml_result,
+                    cropped_url=moved_urls.get('cropped_url'),
+                    storage_url=moved_urls.get('storage_url'),
+                    thumbnail_url=moved_urls.get('thumbnail_url')
                 )
-                if cropped_url:
-                    print(f"✅ Imagen recortada guardada: {cropped_url[:80]}...")
-            
-            # Aprobar foto
-            update_photo_status(
-                photo_id,
-                'approved',
-                validation_result=ml_result,
-                cropped_url=cropped_url
-            )
-            
-            print("✅ FOTO APROBADA")
+                print("✅ FOTO APROBADA Y MOVIDA A BUCKET PÚBLICO")
+            else:
+                # Si falla el movimiento, al menos aprobar
+                update_photo_status(
+                    photo_id,
+                    'approved',
+                    validation_result=ml_result
+                )
+                print("⚠️ FOTO APROBADA (pero no se pudo mover)")
         
         elif verdict == 'REJECT':
             # Verificar si es auto-delete (armas/drogas)
