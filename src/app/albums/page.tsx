@@ -8,7 +8,7 @@ import Link from "next/link";
 import InternalHeader from "@/components/InternalHeader";
 import { useAuth } from "@/contexts/AuthContext";
 import { createClient } from '@supabase/supabase-js';
-import { analyzeImagesHybrid } from '@/lib/nsfw-hybrid';
+// ✅ ML Validator v3.5: No necesitamos imports NSFW viejos
 
 // Crear cliente de Supabase
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
@@ -280,7 +280,6 @@ export default function AlbumesPage() {
   // Load albums from Supabase
   const [albums, setAlbums] = useState<Album[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
 
   // Load albums on mount
@@ -444,7 +443,7 @@ export default function AlbumesPage() {
     }
     
     // Evitar doble click
-    if (isCreating || isAnalyzing) {
+    if (isCreating) {
       console.log('⚠️ Ya se está creando un álbum, por favor espera...');
       return;
     }
@@ -453,52 +452,9 @@ export default function AlbumesPage() {
       setIsCreating(true);
       console.log(`📤 Creando álbum "${albumName}"...`);
       
-      // ✅ SISTEMA REACTIVADO: NSFW.js con lógica mejorada
-      // IMPORTANTE: Para protección infantil (sitio NO +18)
-      let photoAnalysisResults: any[] = [];
-      
-      if (privacyType === 'publico') {
-        console.log('🤖 Analizando contenido con algoritmo mejorado...');
-        setIsAnalyzing(true);
-        
-        try {
-          const photosToAnalyze = uploadedPhotos.map(p => p.file);
-          const analysisResults = await analyzeImagesHybrid(photosToAnalyze);
-          photoAnalysisResults = analysisResults;
-          setIsAnalyzing(false);
-          
-          const rejectedCount = analysisResults.filter(r => !r.safe).length;
-          const approvedCount = analysisResults.filter(r => r.safe).length;
-          
-          console.log(`📊 Análisis completado: ✅ ${approvedCount} aprobadas, ❌ ${rejectedCount} rechazadas`);
-          
-          // 🆕 MODO PRUEBA: No preguntar, subir automáticamente todas las fotos
-          console.log('🔬 MODO PRUEBA ACTIVADO: Subiendo todas las fotos (aprobadas y rechazadas) para análisis');
-          
-          // // Si hay fotos rechazadas, preguntar al usuario
-          // if (rejectedCount > 0) {
-          //   const confirm = window.confirm(
-          //     `⚠️ DETECCIÓN DE CONTENIDO INAPROPIADO\n\n` +
-          //     `${rejectedCount} foto(s) fueron rechazadas por el filtro automático.\n` +
-          //     `${approvedCount} foto(s) pasaron la verificación.\n\n` +
-          //     `Revisa la consola del navegador (F12) para ver detalles de puntuación.\n\n` +
-          //     `¿Deseas continuar subiendo solo las fotos aprobadas?`
-          //   );
-          //   
-          //   if (!confirm) {
-          //     console.log('❌ Usuario canceló la subida');
-          //     setIsCreating(false);
-          //     return;
-          //   }
-          // }
-        } catch (err) {
-          console.error('❌ Error en análisis:', err);
-          setIsAnalyzing(false);
-          alert('Error al analizar las fotos. Por favor intenta de nuevo.');
-          setIsCreating(false);
-          return;
-        }
-      }
+      // ✅ ML VALIDATOR v3.5: Sin análisis previo
+      // Las fotos se suben primero, validación en segundo plano
+      console.log('✅ Subida inmediata activa (ML Validator v3.5)');
       
       // 1. Crear el álbum en la BD
       const { data: newAlbum, error: albumError } = await supabase
@@ -534,9 +490,9 @@ export default function AlbumesPage() {
           const fileExt = photo.file.name.split('.').pop();
           const fileName = `${user.id}/${newAlbum.id}/${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
           
-          // Subir a Storage
+          // 🆕 v3.5: Subir a bucket photos-pending (nuevo sistema)
           const { data: uploadData, error: uploadError } = await supabase.storage
-            .from('album-photos')
+            .from('photos-pending')
             .upload(fileName, resizedFile, {
               cacheControl: '3600',
               upsert: false
@@ -544,63 +500,50 @@ export default function AlbumesPage() {
           
           if (uploadError) throw uploadError;
           
-          // Obtener URL pública
+          // Obtener URL pública del storage
           const { data: { publicUrl } } = supabase.storage
-            .from('album-photos')
+            .from('photos-pending')
             .getPublicUrl(fileName);
           
-          // ✅ MODO PRUEBA: Subir TODAS las fotos (incluso rechazadas) para análisis
-          let moderationStatus = 'approved';
-          let moderationReason = 'Sin análisis (álbum privado)';
-          let moderationScore = 0;
-          let finalScore = 0;
-          
-          if (privacyType === 'publico' && photoAnalysisResults[i]) {
-            const analysis = photoAnalysisResults[i];
-            moderationStatus = analysis.safe ? 'approved' : 'rejected';
-            moderationReason = analysis.reason || 'Análisis NSFW';
-            finalScore = analysis.finalScore || 0;
-            
-            if (analysis.scores) {
-              const maxScore = Math.max(
-                analysis.scores.Porn || 0,
-                analysis.scores.Sexy || 0,
-                analysis.scores.Hentai || 0
-              );
-              moderationScore = maxScore;
-            }
-          }
-          
-          // 🆕 MODO PRUEBA: Subir todas las fotos (comentar líneas de rechazo)
-          // if (moderationStatus === 'rejected') {
-          //   console.log(`⛔ Foto ${i + 1}/${uploadedPhotos.length} rechazada (no se sube)`);
-          //   return null;
-          // }
-          
-          // 🆕 Crear descripción con número y resultado
-          const photoNumber = i + 1;
-          const statusEmoji = moderationStatus === 'approved' ? '✅' : '❌';
-          const autoDescription = `${statusEmoji} Foto #${photoNumber} - Score: ${finalScore.toFixed(3)}`;
-          
+          // 🆕 v3.5: Insertar en tabla 'photos' (nuevo schema)
           const { data: photoData, error: photoError } = await supabase
-            .from('album_photos')
+            .from('photos')
             .insert({
-              album_id: newAlbum.id,
-              url: publicUrl,
-              description: autoDescription,  // 🆕 Descripción automática con número
-              orden: i,
-              moderation_status: moderationStatus,
-              moderation_reason: moderationReason,
-              moderation_score: moderationScore,
-              moderation_date: new Date().toISOString(),
+              user_id: user.id,
+              photo_type: 'album',
+              album_type: privacyType === 'publico' ? 'public' : 'private',
+              storage_path: fileName,
+              storage_url: publicUrl,
+              status: 'pending',
+              original_filename: photo.file.name,
+              file_size: photo.file.size,
+              mime_type: photo.file.type,
+              is_visible: false, // Solo visible para el usuario hasta aprobar
+              display_order: i
             })
             .select()
             .single();
           
           if (photoError) throw photoError;
           
-          const statusIcon = moderationStatus === 'approved' ? '✅' : '❌';
-          console.log(`${statusIcon} Foto #${photoNumber}/${uploadedPhotos.length} subida (score: ${finalScore.toFixed(3)})`);
+          // 🆕 v3.5: Llamar al webhook ML Validator en segundo plano
+          try {
+            fetch('http://192.168.1.159:5001/webhook/photo-uploaded', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                photo_id: photoData.id,
+                user_id: user.id,
+                photo_type: 'album',
+                album_type: privacyType === 'publico' ? 'public' : 'private',
+                storage_path: fileName
+              })
+            }).catch(err => console.error('⚠️ Error llamando webhook:', err));
+          } catch (err) {
+            console.error('⚠️ Error en fetch webhook:', err);
+          }
+          
+          console.log(`📤 Foto ${i + 1}/${uploadedPhotos.length} subida (pendiente validación)`);
           return publicUrl;
         } catch (err) {
           console.error(`❌ Error subiendo foto ${i + 1}:`, err);
@@ -619,20 +562,16 @@ export default function AlbumesPage() {
         })
         .eq('id', newAlbum.id);
       
-      // 4. Mostrar mensaje con resultados
-      const rejectedCount = photoAnalysisResults.filter(r => !r.safe).length;
-      const approvedCount = photoAnalysisResults.filter(r => r.safe).length;
+      // 4. Mostrar mensaje de éxito
       const totalCount = uploadedPhotoUrls.length;
       
       let message = `✅ ¡Álbum "${albumName}" creado!\n\n`;
       message += `📊 Total subidas: ${totalCount} fotos\n`;
-      message += `✅ Aprobadas: ${approvedCount}\n`;
-      message += `❌ Rechazadas: ${rejectedCount}\n\n`;
-      message += `🔬 MODO PRUEBA: Todas las fotos se subieron con:\n`;
-      message += `- Número visible en esquina superior izquierda\n`;
-      message += `- Borde verde (aprobadas) o rojo (rechazadas)\n`;
-      message += `- Descripción con score en cada foto\n\n`;
-      message += `📋 Revisa la consola (F12) para logs detallados.`;
+      message += `⏳ Estado: Pendientes de validación\n\n`;
+      message += `🔬 ML VALIDATOR v3.5 (en segundo plano):\n`;
+      message += `- Las fotos están siendo validadas automáticamente\n`;
+      message += `- Recibirás notificaciones cuando sean aprobadas/rechazadas\n`;
+      message += `- Mientras tanto, solo tú puedes verlas\n`;
       
       alert(message);
       
@@ -665,12 +604,10 @@ export default function AlbumesPage() {
       setAlbumPassword("");
       setShowCreateModal(false);
       setIsCreating(false);
-      setIsAnalyzing(false);
     } catch (err) {
       console.error('Error:', err);
       alert('Error al crear el álbum');
       setIsCreating(false);
-      setIsAnalyzing(false);
     }
   };
 
@@ -883,7 +820,7 @@ export default function AlbumesPage() {
                       <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
                       </svg>
-                      Las fotos públicas serán analizadas automáticamente
+                      Las fotos públicas serán validadas automáticamente (ML Validator v3.5)
                     </p>
                   )}
                 </div>
@@ -1021,18 +958,10 @@ export default function AlbumesPage() {
                 </Button>
                 <Button 
                   onClick={handleCreateAlbum} 
-                  disabled={!albumName.trim() || uploadedPhotos.length === 0 || (privacyType === "protegido" && (!albumPassword.trim() || albumPassword.length < 6)) || isAnalyzing || isCreating}
+                  disabled={!albumName.trim() || uploadedPhotos.length === 0 || (privacyType === "protegido" && (!albumPassword.trim() || albumPassword.length < 6)) || isCreating}
                   className="bg-primary text-connect-bg-dark hover:brightness-110 font-bold disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isAnalyzing ? (
-                    <span className="flex items-center gap-2">
-                      <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      Analizando contenido...
-                    </span>
-                  ) : isCreating ? (
+                  {isCreating ? (
                     <span className="flex items-center gap-2">
                       <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>

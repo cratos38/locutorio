@@ -112,11 +112,11 @@ export async function POST(request: NextRequest) {
     const mediumFileName = `${username}/${timestamp}_medium.${fileExt}`;
     const largeFileName = `${username}/${timestamp}.${fileExt}`;
     
-    // 1️⃣ Subir THUMBNAIL (96px)
+    // 1️⃣ Subir THUMBNAIL (96px) - v3.5: photos-pending
     console.log(`💾 Subiendo thumbnail: ${thumbnailFileName}`);
     const thumbnailBuffer = new Uint8Array(await thumbnailFile.arrayBuffer());
     const { error: thumbnailError } = await supabase.storage
-      .from('profile-photos')
+      .from('photos-pending')
       .upload(thumbnailFileName, thumbnailBuffer, {
         contentType: thumbnailFile.type,
         upsert: false
@@ -130,11 +130,11 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // 2️⃣ Subir MEDIUM (400px)
+    // 2️⃣ Subir MEDIUM (400px) - v3.5: photos-pending
     console.log(`💾 Subiendo medium: ${mediumFileName}`);
     const mediumBuffer = new Uint8Array(await mediumFile.arrayBuffer());
     const { error: mediumError } = await supabase.storage
-      .from('profile-photos')
+      .from('photos-pending')
       .upload(mediumFileName, mediumBuffer, {
         contentType: mediumFile.type,
         upsert: false
@@ -148,11 +148,11 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // 3️⃣ Subir LARGE (1024px)
+    // 3️⃣ Subir LARGE (1024px) - v3.5: photos-pending
     console.log(`💾 Subiendo large: ${largeFileName}`);
     const largeBuffer = new Uint8Array(await largeFile.arrayBuffer());
     const { error: largeError } = await supabase.storage
-      .from('profile-photos')
+      .from('photos-pending')
       .upload(largeFileName, largeBuffer, {
         contentType: largeFile.type,
         upsert: false
@@ -166,17 +166,17 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // Obtener URLs públicas de las 3 versiones
+    // Obtener URLs públicas de las 3 versiones - v3.5: photos-pending
     const { data: thumbnailUrlData } = supabase.storage
-      .from('profile-photos')
+      .from('photos-pending')
       .getPublicUrl(thumbnailFileName);
     
     const { data: mediumUrlData } = supabase.storage
-      .from('profile-photos')
+      .from('photos-pending')
       .getPublicUrl(mediumFileName);
     
     const { data: largeUrlData } = supabase.storage
-      .from('profile-photos')
+      .from('photos-pending')
       .getPublicUrl(largeFileName);
     
     const thumbnailUrl = thumbnailUrlData.publicUrl;
@@ -205,27 +205,32 @@ export async function POST(request: NextRequest) {
     
     const userId = userData.id;
     
-    // Si es foto principal, desmarcar las demás
+    // Si es foto principal, desmarcar las demás - v3.5: tabla photos
     if (isPrincipal) {
       console.log('⭐ Desmarcando otras fotos principales...');
       await supabase
-        .from('profile_photos')
-        .update({ is_principal: false })
-        .eq('user_id', userId);
+        .from('photos')
+        .update({ is_primary: false })
+        .eq('user_id', userId)
+        .eq('photo_type', 'profile');
     }
     
-    // Guardar registro de la foto en la base de datos (con 3 URLs)
-    console.log('💾 Guardando registro en profile_photos con 3 URLs...');
+    // Guardar registro de la foto en la base de datos - v3.5: tabla photos
+    console.log('💾 Guardando registro en tabla photos (v3.5)...');
     const { data: photoData, error: photoError } = await supabase
-      .from('profile_photos')
+      .from('photos')
       .insert({
         user_id: userId,
-        url: photoUrl,              // Large (1024px)
-        url_medium: mediumUrl,      // Medium (400px)
-        url_thumbnail: thumbnailUrl, // Thumbnail (96px)
-        is_principal: isPrincipal,
-        estado: 'pendiente', // Por defecto pendiente de aprobación
-        orden: 0
+        photo_type: 'profile',
+        storage_path: largeFileName,
+        storage_url: photoUrl,      // Large (1024px)
+        cropped_url: mediumUrl,     // Medium (400px)
+        status: 'pending',          // Por defecto pendiente de aprobación
+        is_primary: isPrincipal,
+        is_visible: false,          // Solo visible para el usuario hasta aprobar
+        original_filename: largeFile.name,
+        file_size: largeFile.size,
+        mime_type: largeFile.type
       })
       .select()
       .single();
@@ -240,26 +245,24 @@ export async function POST(request: NextRequest) {
     
     console.log('✅ Foto guardada exitosamente en BD');
     
-    // 🤖 Iniciar validación automática en segundo plano
-    console.log('🤖 Iniciando validación automática...');
+    // 🤖 ML VALIDATOR v3.5: Llamar webhook en segundo plano
+    console.log('🤖 Iniciando validación ML Validator v3.5...');
     try {
-      // Llamar al endpoint de análisis (sin esperar respuesta para no bloquear)
-      fetch(`${process.env.NEXT_PUBLIC_SITE_URL || 'https://locutorio.com.ve'}/api/profile-photos/analyze`, {
+      // Llamar al webhook ML Validator (sin esperar respuesta para no bloquear)
+      fetch('http://192.168.1.159:5001/webhook/photo-uploaded', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          photoId: photoData.id,
-          photoUrl: photoUrl,
-          isPrincipal: isPrincipal  // Pasar si es foto principal
+          photo_id: photoData.id,
+          user_id: userId,
+          photo_type: 'profile',
+          storage_path: largeFileName
         })
       }).catch(err => {
         console.error('⚠️ Error iniciando validación automática:', err);
       });
       
-      console.log('🚀 Validación automática iniciada en segundo plano');
+      console.log('🚀 ML Validator v3.5 iniciado en segundo plano');
     } catch (error) {
       console.error('⚠️ Error al iniciar validación:', error);
       // No fallar el upload si la validación falla
@@ -271,7 +274,7 @@ export async function POST(request: NextRequest) {
         id: photoData.id,
         url: photoUrl,
         isPrincipal: isPrincipal,
-        estado: 'pendiente'
+        status: 'pending'
       }
     });
     
