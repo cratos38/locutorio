@@ -3,16 +3,21 @@ import { createClient } from '@supabase/supabase-js';
 
 export const runtime = 'nodejs';
 
-// Crear cliente de Supabase
+// Crear cliente de Supabase con SERVICE_ROLE_KEY para bypassing RLS
 const getSupabaseClient = () => {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+  // Usar SERVICE_ROLE_KEY para bypassing RLS (permite leer todas las fotos)
+  const supabaseKey = process.env.SUPABASE_SERVICE_KEY || 
+                      process.env.SUPABASE_SERVICE_ROLE_KEY ||
+                      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
   
   if (!supabaseUrl || !supabaseKey) {
     throw new Error('Supabase environment variables not configured');
   }
   
-  return createClient(supabaseUrl, supabaseKey);
+  return createClient(supabaseUrl, supabaseKey, {
+    auth: { persistSession: false }
+  });
 };
 
 /**
