@@ -1,0 +1,102 @@
+============================================================================
+COMANDOS PARA TU SERVIDOR UBUNTU (192.168.1.159)
+============================================================================
+
+📁 PASO 1: Ir al directorio donde está el código
+----------------------------------------------------------------------------
+cd /home/tu-usuario/locutorio
+# O donde hayas guardado los archivos server-v3.5-complete.py y supabase_webhook_v3.5.py
+
+
+🔍 PASO 2: Verificar si los servidores ya están corriendo
+----------------------------------------------------------------------------
+# Ver procesos Python corriendo:
+ps aux | grep python
+
+# Ver si los puertos 5000 y 5001 están en uso:
+sudo netstat -tulpn | grep :5000
+sudo netstat -tulpn | grep :5001
+
+
+🛑 PASO 3: Si están corriendo, detenerlos (opcional)
+----------------------------------------------------------------------------
+# Matar proceso en puerto 5000:
+sudo kill -9 $(sudo lsof -t -i:5000)
+
+# Matar proceso en puerto 5001:
+sudo kill -9 $(sudo lsof -t -i:5001)
+
+
+🚀 PASO 4: Iniciar el ML Validator (puerto 5000)
+----------------------------------------------------------------------------
+# Opción A - En primer plano (verás los logs):
+python3 server-v3.5-complete.py
+
+# Opción B - En segundo plano:
+nohup python3 server-v3.5-complete.py > ml-validator.log 2>&1 &
+
+# Ver el log en tiempo real (si usaste opción B):
+tail -f ml-validator.log
+
+
+🚀 PASO 5: Iniciar el Webhook (puerto 5001) - EN OTRA TERMINAL
+----------------------------------------------------------------------------
+# Opción A - En primer plano:
+python3 supabase_webhook_v3.5.py
+
+# Opción B - En segundo plano:
+nohup python3 supabase_webhook_v3.5.py > webhook.log 2>&1 &
+
+# Ver el log en tiempo real (si usaste opción B):
+tail -f webhook.log
+
+
+✅ PASO 6: Verificar que funcionan
+----------------------------------------------------------------------------
+# Probar ML Validator (puerto 5000):
+curl http://localhost:5000/health
+
+# Probar Webhook (puerto 5001):
+curl http://localhost:5001/health
+
+
+📋 PASO 7: Ver los logs en tiempo real
+----------------------------------------------------------------------------
+# Ver log del ML Validator:
+tail -f ml-validator.log
+
+# Ver log del Webhook:
+tail -f webhook.log
+
+
+🛑 PASO 8: Detener los servidores (cuando quieras)
+----------------------------------------------------------------------------
+# Encontrar el PID del proceso:
+ps aux | grep python
+
+# Matar el proceso (usa el número PID de arriba):
+kill -9 [PID]
+
+
+============================================================================
+RESUMEN RÁPIDO - COMANDOS MÁS COMUNES:
+============================================================================
+
+1. Ver qué está corriendo:
+   ps aux | grep python
+
+2. Iniciar ML Validator:
+   nohup python3 server-v3.5-complete.py > ml-validator.log 2>&1 &
+
+3. Iniciar Webhook:
+   nohup python3 supabase_webhook_v3.5.py > webhook.log 2>&1 &
+
+4. Ver logs:
+   tail -f ml-validator.log
+   tail -f webhook.log
+
+5. Detener todo:
+   sudo kill -9 $(sudo lsof -t -i:5000)
+   sudo kill -9 $(sudo lsof -t -i:5001)
+
+============================================================================

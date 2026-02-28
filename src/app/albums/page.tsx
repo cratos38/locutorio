@@ -526,22 +526,8 @@ export default function AlbumesPage() {
           
           if (photoError) throw photoError;
           
-          // 🆕 v3.5: Llamar al webhook ML Validator en segundo plano
-          try {
-            fetch('http://192.168.1.159:5001/webhook/photo-uploaded', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                photo_id: photoData.id,
-                user_id: user.id,
-                photo_type: 'album',
-                album_type: privacyType === 'publico' ? 'public' : 'private',
-                storage_path: fileName
-              })
-            }).catch(err => console.error('⚠️ Error llamando webhook:', err));
-          } catch (err) {
-            console.error('⚠️ Error en fetch webhook:', err);
-          }
+          // El trigger de Supabase cambiará automáticamente el status a 'processing'
+          // Y el Database Webhook llamará al ML Validator
           
           console.log(`📤 Foto ${i + 1}/${uploadedPhotos.length} subida (pendiente validación)`);
           return publicUrl;
