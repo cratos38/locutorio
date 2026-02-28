@@ -138,14 +138,30 @@ export async function GET(request: NextRequest) {
     
     console.log(`⏱️ [${Date.now() - startTime}ms] ✅ ${photos?.length || 0} fotos encontradas - TOTAL: ${Date.now() - startTime}ms`);
     
-    // Generar URLs firmadas para fotos en buckets privados
-    const photosWithSignedUrls = await Promise.all((photos || []).map(async (photo) => {
+    // Generar URLs correctas según el bucket
+    const photosWithCorrectUrls = await Promise.all((photos || []).map(async (photo) => {
       try {
-        // Si la foto está en photos-pending (privado), generar URL firmada
-        if (photo.storage_url && photo.storage_url.includes('/photos-pending/')) {
-          const path = photo.storage_path;
+        // Determinar bucket según el storage_url
+        let bucket = 'photos-pending';
+        if (photo.storage_url && photo.storage_url.includes('/photos-approved/')) {
+          bucket = 'photos-approved';
+        } else if (photo.storage_url && photo.storage_url.includes('/photos-rejected/')) {
+          bucket = 'photos-rejected';
+        }
+        
+        // Si está en bucket público (photos-approved), la URL ya es pública
+        if (bucket === 'photos-approved') {
+          // No hacer nada, la URL ya es correcta
+          return photo;
+        }
+        
+        // Si está en bucket privado (photos-pending o photos-rejected), generar URL firmada
+        const path = photo.storage_path;
+        
+        // storage_url (original)
+        if (photo.storage_url && (bucket === 'photos-pending' || bucket === 'photos-rejected')) {
           const { data: signedData, error: signError } = await supabase.storage
-            .from('photos-pending')
+            .from(bucket)
             .createSignedUrl(path, 3600); // válida por 1 hora
           
           if (!signError && signedData) {
@@ -153,26 +169,38 @@ export async function GET(request: NextRequest) {
           }
         }
         
-        // Lo mismo para cropped_url
-        if (photo.cropped_url && photo.cropped_url.includes('/photos-pending/')) {
-          const croppedPath = photo.storage_path.replace('.jpg', '_medium.jpg').replace('.png', '_medium.png');
+        // cropped_url (medium)
+        if (photo.cropped_url && (bucket === 'photos-pending' || bucket === 'photos-rejected')) {
+          const croppedPath = path.replace(/\.(jpg|png)$/, '_medium.$1');
           const { data: signedData, error: signError } = await supabase.storage
-            .from('photos-pending')
+            .from(bucket)
             .createSignedUrl(croppedPath, 3600);
           
           if (!signError && signedData) {
             photo.cropped_url = signedData.signedUrl;
           }
         }
+        
+        // thumbnail_url
+        if (photo.thumbnail_url && (bucket === 'photos-pending' || bucket === 'photos-rejected')) {
+          const thumbnailPath = path.replace(/\.(jpg|png)$/, '_thumbnail.$1');
+          const { data: signedData, error: signError } = await supabase.storage
+            .from(bucket)
+            .createSignedUrl(thumbnailPath, 3600);
+          
+          if (!signError && signedData) {
+            photo.thumbnail_url = signedData.signedUrl;
+          }
+        }
       } catch (err) {
-        console.error('Error generando URL firmada:', err);
+        console.error('Error generando URLs:', err);
       }
       return photo;
     }));
     
     return NextResponse.json({
       success: true,
-      photos: photosWithSignedUrls
+      photos: photosWithCorrectUrls
     });
     
   } catch (error) {

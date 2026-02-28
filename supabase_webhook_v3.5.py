@@ -177,10 +177,10 @@ def update_photo_status(photo_id, status, validation_result=None, rejection_reas
         return False
 
 
-def move_photo_to_approved(storage_path):
-    """Mueve todas las versiones de una foto de photos-pending a photos-approved"""
+def move_photo_to_bucket(storage_path, target_bucket):
+    """Mueve todas las versiones de una foto de photos-pending a otro bucket"""
     try:
-        print(f"📦 Moviendo foto de pending a approved...")
+        print(f"📦 Moviendo foto de pending a {target_bucket}...")
         print(f"   Path: {storage_path}")
         
         # Extraer base name sin extensión
@@ -204,8 +204,8 @@ def move_photo_to_approved(storage_path):
                 download_response.raise_for_status()
                 file_data = download_response.content
                 
-                # 2. Subir a photos-approved
-                upload_url = f"{SUPABASE_URL}/storage/v1/object/photos-approved/{version_path}"
+                # 2. Subir a target_bucket
+                upload_url = f"{SUPABASE_URL}/storage/v1/object/{target_bucket}/{version_path}"
                 headers = SUPABASE_HEADERS.copy()
                 headers['Content-Type'] = 'image/jpeg'
                 upload_response = requests.post(upload_url, headers=headers, data=file_data)
@@ -216,8 +216,12 @@ def move_photo_to_approved(storage_path):
                 delete_response = requests.delete(delete_url, headers=SUPABASE_HEADERS)
                 delete_response.raise_for_status()
                 
-                # Guardar nueva URL pública
-                new_url = f"{SUPABASE_URL}/storage/v1/object/public/photos-approved/{version_path}"
+                # Guardar nueva URL (pública para approved, privada para rejected)
+                if target_bucket == 'photos-approved':
+                    new_url = f"{SUPABASE_URL}/storage/v1/object/public/{target_bucket}/{version_path}"
+                else:
+                    new_url = f"{SUPABASE_URL}/storage/v1/object/{target_bucket}/{version_path}"
+                
                 if '_medium' in version_path:
                     moved_urls['cropped_url'] = new_url
                 elif '_thumbnail' in version_path:
@@ -235,6 +239,44 @@ def move_photo_to_approved(storage_path):
     except Exception as e:
         print(f"❌ Error moviendo foto: {e}")
         return {}
+
+
+def delete_photo_from_pending(storage_path):
+    """Borra todas las versiones de una foto de photos-pending (para auto-delete)"""
+    try:
+        print(f"🗑️ Borrando foto de pending (auto-delete)...")
+        print(f"   Path: {storage_path}")
+        
+        # Extraer base name sin extensión
+        base_path = storage_path.rsplit('.', 1)[0]
+        ext = storage_path.rsplit('.', 1)[1]
+        
+        # Versiones a borrar
+        versions = [
+            storage_path,
+            f"{base_path}_medium.{ext}",
+            f"{base_path}_thumbnail.{ext}"
+        ]
+        
+        for version_path in versions:
+            try:
+                delete_url = f"{SUPABASE_URL}/storage/v1/object/photos-pending/{version_path}"
+                delete_response = requests.delete(delete_url, headers=SUPABASE_HEADERS)
+                delete_response.raise_for_status()
+                print(f"   ✅ Borrada: {version_path}")
+            except Exception as e:
+                print(f"   ⚠️ Error borrando {version_path}: {e}")
+        
+        return True
+        
+    except Exception as e:
+        print(f"❌ Error borrando foto: {e}")
+        return False
+
+
+def move_photo_to_approved(storage_path):
+    """DEPRECATED: usar move_photo_to_bucket('photos-approved')"""
+    return move_photo_to_bucket(storage_path, 'photos-approved')
 
 
 def save_cropped_image(photo_id, user_id, cropped_base64):
@@ -451,7 +493,7 @@ def photo_uploaded():
         if verdict == 'APPROVE':
             # Mover foto de photos-pending a photos-approved
             print("📦 Moviendo foto a photos-approved...")
-            moved_urls = move_photo_to_approved(storage_path)
+            moved_urls = move_photo_to_bucket(storage_path, 'photos-approved')
             
             if moved_urls:
                 # Actualizar foto con nuevas URLs públicas
@@ -479,17 +521,55 @@ def photo_uploaded():
             rejection_reason = ml_result.get('message', ml_result.get('reason', 'Motivo no especificado'))
             
             if auto_delete:
+                # AUTO-DELETE: Borrar inmediatamente de photos-pending
                 print(f"🗑️ AUTO-DELETE: {rejection_reason}")
+                delete_success = delete_photo_from_pending(storage_path)
+                
+                if delete_success:
+                    update_photo_status(
+                        photo_id,
+                        'rejected',
+                        validation_result=ml_result,
+                        rejection_reason=rejection_reason,
+                        auto_delete=True
+                    )
+                    print("✅ FOTO RECHAZADA Y BORRADA INMEDIATAMENTE")
+                else:
+                    update_photo_status(
+                        photo_id,
+                        'rejected',
+                        validation_result=ml_result,
+                        rejection_reason=rejection_reason,
+                        auto_delete=True
+                    )
+                    print("⚠️ FOTO RECHAZADA (pero no se pudo borrar)")
             else:
+                # REJECT NORMAL: Mover a photos-rejected (se borrará después de 24h)
                 print(f"❌ RECHAZADA: {rejection_reason}")
-            
-            update_photo_status(
-                photo_id,
-                'rejected',
-                validation_result=ml_result,
-                rejection_reason=rejection_reason,
-                auto_delete=auto_delete
-            )
+                print("📦 Moviendo foto a photos-rejected...")
+                moved_urls = move_photo_to_bucket(storage_path, 'photos-rejected')
+                
+                if moved_urls:
+                    update_photo_status(
+                        photo_id,
+                        'rejected',
+                        validation_result=ml_result,
+                        rejection_reason=rejection_reason,
+                        auto_delete=False,
+                        cropped_url=moved_urls.get('cropped_url'),
+                        storage_url=moved_urls.get('storage_url'),
+                        thumbnail_url=moved_urls.get('thumbnail_url')
+                    )
+                    print("✅ FOTO RECHAZADA Y MOVIDA A BUCKET DE RECHAZADAS")
+                else:
+                    update_photo_status(
+                        photo_id,
+                        'rejected',
+                        validation_result=ml_result,
+                        rejection_reason=rejection_reason,
+                        auto_delete=False
+                    )
+                    print("⚠️ FOTO RECHAZADA (pero no se pudo mover)")
         
         elif verdict == 'MANUAL_REVIEW':
             print("⚠️ REQUIERE REVISIÓN MANUAL")
