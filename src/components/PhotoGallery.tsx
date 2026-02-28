@@ -145,7 +145,7 @@ export default function PhotoGallery({
       
       {/* Imagen real */}
       <img 
-        src={currentPhoto.url_medium || currentPhoto.url} 
+        src={currentPhoto.url} 
         alt={`Foto ${activeIndex + 1} de ${photos.length}`}
         className={`w-full h-full object-cover transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
         onLoad={() => setImageLoaded(true)}
