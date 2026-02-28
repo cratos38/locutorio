@@ -47,6 +47,7 @@ export interface Photo {
   url_thumbnail?: string; // URL thumbnail (96px) para miniatura
   esPrincipal: boolean;
   estado: 'pendiente' | 'aprobada' | 'rechazada';
+  rejection_reason?: string | null; // Motivo de rechazo del ML Validator
 }
 
 interface PhotoGalleryProps {

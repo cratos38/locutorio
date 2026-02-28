@@ -56,6 +56,7 @@ export interface Photo {
   url: string;
   esPrincipal: boolean;
   estado: 'pendiente' | 'aprobada' | 'rechazada';
+  rejection_reason?: string | null; // Motivo de rechazo del ML Validator
   file?: File; // Para guardar el archivo antes de subirlo
 }
 
@@ -263,7 +264,8 @@ export default function PhotoManager({
           esPrincipal: photo.is_primary, // v3.5: is_primary
           estado: photo.status === 'approved' ? 'aprobada' : 
                   photo.status === 'rejected' ? 'rechazada' : 
-                  'pendiente' // v3.5: status es el campo nuevo
+                  'pendiente', // v3.5: status es el campo nuevo
+          rejection_reason: photo.rejection_reason || null // v3.5: rejection_reason
         }));
         
         console.log(`✅ ${loadedPhotos.length} fotos cargadas desde BD`);
@@ -554,60 +556,109 @@ export default function PhotoManager({
           }
         }}
       >
-        {(() => {
-          console.log('🖼️ RENDER PhotoManager - photos.length:', photos.length);
-          console.log('🖼️ photos:', photos);
-          return photos.length > 0 ? (
-          // Tenemos fotos: usar PhotoGallery
-          <PhotoGallery
-            photos={photos}
-            currentIndex={currentPhotoIndex}
-            onIndexChange={setCurrentPhotoIndex}
-            onClick={() => {
-              if (!canUpload) return;
-              // Al hacer click en la foto, abrir selector de archivos
-              const input = document.createElement('input');
-              input.type = 'file';
-              input.accept = 'image/jpeg,image/png';
-              input.onchange = (e) => {
-                const file = (e.target as HTMLInputElement).files?.[0];
-                if (file) handlePhotoUpload(file);
-              };
-              input.click();
-            }}
-          />
-        ) : (
-          // NO hay fotos: mostrar área de subida con drag & drop
-          // SIN rounded-xl porque el wrapper exterior ya lo tiene
-          <div 
-            className="relative bg-connect-bg-dark/30 border-2 border-dashed border-connect-border flex items-center justify-center cursor-pointer hover:bg-white/5 transition-all"
-            style={{ aspectRatio: '10/13' }}
-            onClick={() => {
-              if (!canUpload) return;
-              const input = document.createElement('input');
-              input.type = 'file';
-              input.accept = 'image/jpeg,image/png';
-              input.onchange = (e) => {
-                const file = (e.target as HTMLInputElement).files?.[0];
-                if (file) handlePhotoUpload(file);
-              };
-              input.click();
-            }}
-          >
-            <div className="text-center p-8">
-              <div className="text-4xl mb-2">📸</div>
-              <p className="text-gray-400 text-sm mb-1">
-                {!canUpload ? 'Sin fotos' : 'Subir foto o arrastra aquí'}
-              </p>
-              {canUpload && (
-                <p className="text-gray-500 text-xs">
-                  JPG o PNG • Máx. 5 MB
+        <div className="relative">
+          {(() => {
+            console.log('🖼️ RENDER PhotoManager - photos.length:', photos.length);
+            console.log('🖼️ photos:', photos);
+            return photos.length > 0 ? (
+            // Tenemos fotos: usar PhotoGallery
+            <PhotoGallery
+              photos={photos}
+              currentIndex={currentPhotoIndex}
+              onIndexChange={setCurrentPhotoIndex}
+              onClick={() => {
+                if (!canUpload) return;
+                // Al hacer click en la foto, abrir selector de archivos
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = 'image/jpeg,image/png';
+                input.onchange = (e) => {
+                  const file = (e.target as HTMLInputElement).files?.[0];
+                  if (file) handlePhotoUpload(file);
+                };
+                input.click();
+              }}
+            />
+          ) : (
+            // NO hay fotos: mostrar área de subida con drag & drop
+            // SIN rounded-xl porque el wrapper exterior ya lo tiene
+            <div 
+              className="relative bg-connect-bg-dark/30 border-2 border-dashed border-connect-border flex items-center justify-center cursor-pointer hover:bg-white/5 transition-all"
+              style={{ aspectRatio: '10/13' }}
+              onClick={() => {
+                if (!canUpload) return;
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = 'image/jpeg,image/png';
+                input.onchange = (e) => {
+                  const file = (e.target as HTMLInputElement).files?.[0];
+                  if (file) handlePhotoUpload(file);
+                };
+                input.click();
+              }}
+            >
+              <div className="text-center p-8">
+                <div className="text-4xl mb-2">📸</div>
+                <p className="text-gray-400 text-sm mb-1">
+                  {!canUpload ? 'Sin fotos' : 'Subir foto o arrastra aquí'}
                 </p>
-              )}
+                {canUpload && (
+                  <p className="text-gray-500 text-xs">
+                    JPG o PNG • Máx. 5 MB
+                  </p>
+                )}
+              </div>
             </div>
-          </div>
-        );
-        })()}
+          );
+          })()}
+          
+          {/* =================== OVERLAY DE RECHAZO =================== */}
+          {photos.length > 0 && photos[currentPhotoIndex]?.estado === 'rechazada' && (
+            <div className="absolute inset-0 bg-red-900/80 backdrop-blur-sm flex flex-col items-center justify-center z-10 p-6 rounded-xl">
+              <div className="text-center space-y-4">
+                <div className="text-6xl">❌</div>
+                <h3 className="text-2xl font-bold text-white">Foto Rechazada</h3>
+                <p className="text-red-200 text-sm max-w-md">
+                  {photos[currentPhotoIndex].rejection_reason || 'Esta foto no cumple con las políticas de contenido.'}
+                </p>
+                
+                {/* Botones de acción */}
+                {canDelete && (
+                  <div className="flex gap-2 mt-6">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeletePhoto();
+                      }}
+                      className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-colors"
+                    >
+                      🗑️ Eliminar
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        alert('📧 Función de apelación próximamente. Por ahora, sube una foto diferente.');
+                      }}
+                      className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg text-sm font-medium transition-colors"
+                    >
+                      📧 Reportar Error
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+          
+          {/* =================== OVERLAY DE PENDIENTE =================== */}
+          {photos.length > 0 && photos[currentPhotoIndex]?.estado === 'pendiente' && (
+            <div className="absolute top-0 left-0 right-0 bg-yellow-500/90 backdrop-blur-sm py-2 px-4 z-10 rounded-t-xl">
+              <div className="flex items-center gap-2 text-yellow-900">
+                <div className="animate-spin">⏳</div>
+                <span className="text-sm font-medium">Validación en progreso... (~1-2 min)</span>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       {/**
