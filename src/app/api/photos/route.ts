@@ -79,15 +79,26 @@ export async function GET(request: NextRequest) {
     const authHeader = request.headers.get('authorization');
     let isOwner = false;
     
+    console.log(`⏱️ [${Date.now() - startTime}ms] 🔐 Authorization header: ${authHeader ? 'presente' : 'ausente'}`);
+    
     if (authHeader?.startsWith('Bearer ')) {
       const token = authHeader.substring(7);
+      console.log(`⏱️ [${Date.now() - startTime}ms] 🔑 Token extraído (primeros 20 chars): ${token.substring(0, 20)}...`);
+      
       const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+      
+      console.log(`⏱️ [${Date.now() - startTime}ms] 👤 Usuario del token: ${user?.id || 'NULL'}`);
+      console.log(`⏱️ [${Date.now() - startTime}ms] 👤 Usuario del perfil: ${userId}`);
+      
+      if (authError) {
+        console.log(`⏱️ [${Date.now() - startTime}ms] ❌ Error de autenticación: ${authError.message}`);
+      }
       
       if (user && user.id === userId) {
         isOwner = true;
         console.log(`⏱️ [${Date.now() - startTime}ms] ✅ Usuario autenticado es el DUEÑO`);
       } else {
-        console.log(`⏱️ [${Date.now() - startTime}ms] ℹ️ Usuario visitante o no autenticado`);
+        console.log(`⏱️ [${Date.now() - startTime}ms] ℹ️ Usuario visitante o no autenticado (user=${!!user}, match=${user?.id === userId})`);
       }
     }
     
