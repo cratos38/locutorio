@@ -46,7 +46,7 @@ export default function InicioPage() {
     nombre: user?.username || '',
     edad: 0,
     ciudad: '',
-    foto_perfil: '', // No cargar desde localStorage, siempre desde API
+    foto_perfil: '',
     amigos_count: 0,
     fotos_count: 0,
     visitas_count: 0,
@@ -92,12 +92,9 @@ export default function InicioPage() {
               fotoPrincipal = photos[0].url_thumbnail || photos[0].url_medium || photos[0].url;
             }
             
-            // Guardar en localStorage para carga rápida (solo si NO es localhost)
-            if (fotoPrincipal && user?.username && !fotoPrincipal.includes('localhost')) {
-              localStorage.setItem(`avatar_${user.username}`, fotoPrincipal);
-            } else if (user?.username) {
-              // Limpiar localhost del localStorage
-              localStorage.removeItem(`avatar_${user.username}`);
+            // Cache-busting: agregar timestamp para evitar caché del navegador
+            if (fotoPrincipal) {
+              fotoPrincipal = `${fotoPrincipal}?t=${Date.now()}`;
             }
           }
           
