@@ -225,7 +225,7 @@ export async function POST(request: NextRequest) {
         storage_path: largeFileName,
         storage_url: photoUrl,      // Large (1024px)
         cropped_url: mediumUrl,     // Medium (400px)
-        url_thumbnail: thumbnailUrl, // Thumbnail (96px) - AGREGADO pero con nombre viejo
+        // url_thumbnail: thumbnailUrl, // COMENTADO temporalmente hasta agregar columna
         status: 'pending',          // Por defecto pendiente de aprobación
         is_primary: isPrincipal,
         is_visible: false,          // Solo visible para el usuario hasta aprobar
