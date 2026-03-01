@@ -3,13 +3,26 @@ import { createClient } from '@supabase/supabase-js';
 
 export const runtime = 'nodejs';
 
-// Crear cliente de Supabase con SERVICE_ROLE_KEY para bypassing RLS
-const getSupabaseClient = () => {
+// Cliente ADMIN para queries (bypassing RLS)
+const getSupabaseAdmin = () => {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-  // Usar SERVICE_ROLE_KEY para bypassing RLS (permite leer todas las fotos)
   const supabaseKey = process.env.SUPABASE_SERVICE_KEY || 
                       process.env.SUPABASE_SERVICE_ROLE_KEY ||
                       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+  
+  if (!supabaseUrl || !supabaseKey) {
+    throw new Error('Supabase environment variables not configured');
+  }
+  
+  return createClient(supabaseUrl, supabaseKey, {
+    auth: { persistSession: false }
+  });
+};
+
+// Cliente ANON para validar tokens de usuario
+const getSupabaseAuth = () => {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
   
   if (!supabaseUrl || !supabaseKey) {
     throw new Error('Supabase environment variables not configured');
@@ -39,8 +52,9 @@ export async function GET(request: NextRequest) {
   try {
     console.log(`⏱️ [${Date.now() - startTime}ms] 🔥 API /api/photos v3.5 - NUEVA TABLA PHOTOS`);
     
-    const supabase = getSupabaseClient();
-    console.log(`⏱️ [${Date.now() - startTime}ms] Cliente Supabase creado`);
+    const supabaseAdmin = getSupabaseAdmin(); // Para queries
+    const supabaseAuth = getSupabaseAuth();   // Para validar token
+    console.log(`⏱️ [${Date.now() - startTime}ms] Clientes Supabase creados`);
     
     const { searchParams } = new URL(request.url);
     const username = searchParams.get('username');
@@ -55,9 +69,9 @@ export async function GET(request: NextRequest) {
     
     console.log(`⏱️ [${Date.now() - startTime}ms] 📥 Obteniendo fotos para usuario: ${username} (showAll: ${showAll})`);
     
-    // Buscar user_id por username
+    // Buscar user_id por username (usando ADMIN client)
     const userStartTime = Date.now();
-    const { data: userData, error: userError } = await supabase
+    const { data: userData, error: userError } = await supabaseAdmin
       .from('users')
       .select('id')
       .eq('username', username)
@@ -75,7 +89,7 @@ export async function GET(request: NextRequest) {
     const userId = userData.id;
     console.log(`⏱️ [${Date.now() - startTime}ms] User ID encontrado: ${userId}`);
     
-    // Verificar si el usuario logueado es el DUEÑO del perfil
+    // Verificar si el usuario logueado es el DUEÑO del perfil (usando AUTH client)
     const authHeader = request.headers.get('authorization');
     let isOwner = false;
     
@@ -85,7 +99,8 @@ export async function GET(request: NextRequest) {
       const token = authHeader.substring(7);
       console.log(`⏱️ [${Date.now() - startTime}ms] 🔑 Token extraído (primeros 20 chars): ${token.substring(0, 20)}...`);
       
-      const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+      // CAMBIO: Usar AUTH client para validar token
+      const { data: { user }, error: authError } = await supabaseAuth.auth.getUser(token);
       
       console.log(`⏱️ [${Date.now() - startTime}ms] 👤 Usuario del token: ${user?.id || 'NULL'}`);
       console.log(`⏱️ [${Date.now() - startTime}ms] 👤 Usuario del perfil: ${userId}`);
@@ -102,8 +117,8 @@ export async function GET(request: NextRequest) {
       }
     }
     
-    // Construir query de fotos
-    let query = supabase
+    // Construir query de fotos (usando ADMIN client para bypassear RLS)
+    let query = supabaseAdmin
       .from('photos')
       .select('*')
       .eq('user_id', userId)
@@ -160,7 +175,7 @@ export async function GET(request: NextRequest) {
         
         // storage_url (original)
         if (photo.storage_url && (bucket === 'photos-pending' || bucket === 'photos-rejected')) {
-          const { data: signedData, error: signError } = await supabase.storage
+          const { data: signedData, error: signError } = await supabaseAdmin.storage
             .from(bucket)
             .createSignedUrl(path, 3600); // válida por 1 hora
           
@@ -172,7 +187,7 @@ export async function GET(request: NextRequest) {
         // cropped_url (medium)
         if (photo.cropped_url && (bucket === 'photos-pending' || bucket === 'photos-rejected')) {
           const croppedPath = path.replace(/\.(jpg|png)$/, '_medium.$1');
-          const { data: signedData, error: signError } = await supabase.storage
+          const { data: signedData, error: signError } = await supabaseAdmin.storage
             .from(bucket)
             .createSignedUrl(croppedPath, 3600);
           
@@ -184,7 +199,7 @@ export async function GET(request: NextRequest) {
         // thumbnail_url
         if (photo.thumbnail_url && (bucket === 'photos-pending' || bucket === 'photos-rejected')) {
           const thumbnailPath = path.replace(/\.(jpg|png)$/, '_thumbnail.$1');
-          const { data: signedData, error: signError } = await supabase.storage
+          const { data: signedData, error: signError } = await supabaseAdmin.storage
             .from(bucket)
             .createSignedUrl(thumbnailPath, 3600);
           
