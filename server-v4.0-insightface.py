@@ -94,7 +94,7 @@ def cosine_similarity(emb1, emb2):
     return np.dot(emb1, emb2) / (np.linalg.norm(emb1) * np.linalg.norm(emb2))
 
 # ============================================================================
-# CONFIGURACIÓN v3.5
+# CONFIGURACIÓN v4.0 (basada en v3.5 con InsightFace)
 # ============================================================================
 
 VALIDATION_CONFIG = {
@@ -1159,12 +1159,12 @@ def verify_identity_document(selfie_url, user_id, profile_age):
 
 
 # ============================================================================
-# FUNCIÓN PRINCIPAL DE VALIDACIÓN v3.5
+# FUNCIÓN PRINCIPAL DE VALIDACIÓN v4.0
 # ============================================================================
 
 def validate_and_crop_photo(photo_url, photo_type='profile', user_id=None, user_gender=None, user_age=None):
     """
-    Valida y recorta una foto según el tipo (v3.5)
+    Valida y recorta una foto según el tipo (v4.0 - InsightFace)
     
     Types:
         - 'profile': Todas las validaciones
@@ -1517,7 +1517,7 @@ def health():
     return jsonify({
         "status": "ok",
         "service": "ml-validator",
-        "version": "3.5",
+        "version": "4.0-InsightFace",
         "gpu_enabled": gpu_available,
         "features": {
             "profile": {
@@ -1698,7 +1698,7 @@ if __name__ == '__main__':
     print("   • Blacklist:       GET/POST/DELETE http://192.168.1.159:5000/blacklist")
     print("   • Test UI:         GET    http://192.168.1.159:5000/test.html")
     
-    print("\n⚙️ CONFIGURACIÓN v3.5:")
+    print("\n⚙️ CONFIGURACIÓN v4.0:")
     print("\n🖼️ PERFIL:")
     print("   • Exactamente 1 rostro")
     print("   • Rostro ≥ 10%, nitidez ≥ 50, resolución ≥ 400px")
