@@ -247,7 +247,28 @@ export default function PhotoManager({
       setLoading(true);
       console.log(`📥 Cargando fotos para usuario: ${username}`);
       
-      const response = await fetch(`/api/photos?username=${username}&showAll=true`);
+      // Obtener token del localStorage (mismo método que upload línea 349)
+      let authToken = '';
+      try {
+        const supabaseAuth = localStorage.getItem('sb-hbzlxwbyxuzdasfaksiy-auth-token');
+        if (supabaseAuth) {
+          const authData = JSON.parse(supabaseAuth);
+          authToken = authData.access_token || '';
+        }
+      } catch (e) {
+        console.warn('⚠️ No se pudo obtener token de autenticación');
+      }
+      
+      // Crear headers con token si existe
+      const headers: HeadersInit = {};
+      if (authToken) {
+        headers['Authorization'] = `Bearer ${authToken}`;
+        console.log('🔐 Token enviado - API reconocerá al dueño');
+      } else {
+        console.log('⚠️ Sin token - API solo mostrará fotos aprobadas');
+      }
+      
+      const response = await fetch(`/api/photos?username=${username}&showAll=true`, { headers });
       
       if (!response.ok) {
         console.error('Error al cargar fotos');
