@@ -175,8 +175,52 @@ export async function GET(request: NextRequest) {
       console.warn('Error al cargar fotos:', photosError);
     }
     
-    // 3. Mapear fotos al formato esperado - usar columnas reales de Supabase
-    const fotos = (photosData || []).map(photo => ({
+    // 3. Regenerar URLs firmadas para fotos en buckets privados
+    const fotosConUrls = await Promise.all((photosData || []).map(async (photo) => {
+      try {
+        // Determinar bucket según storage_url
+        let bucket = 'photos-pending';
+        if (photo.storage_url && photo.storage_url.includes('/photos-approved/')) {
+          bucket = 'photos-approved';
+        } else if (photo.storage_url && photo.storage_url.includes('/photos-rejected/')) {
+          bucket = 'photos-rejected';
+        }
+        
+        // Si está en bucket privado, regenerar URLs firmadas
+        if (bucket === 'photos-pending' || bucket === 'photos-rejected') {
+          const path = photo.storage_path;
+          
+          // Regenerar storage_url
+          if (path) {
+            const { data: signedData } = await supabase.storage
+              .from(bucket)
+              .createSignedUrl(path, 3600); // 1 hora
+            
+            if (signedData) {
+              photo.storage_url = signedData.signedUrl;
+            }
+          }
+          
+          // Regenerar cropped_url
+          if (path) {
+            const croppedPath = path.replace(/\.(jpg|png)$/, '_medium.$1');
+            const { data: signedData } = await supabase.storage
+              .from(bucket)
+              .createSignedUrl(croppedPath, 3600);
+            
+            if (signedData) {
+              photo.cropped_url = signedData.signedUrl;
+            }
+          }
+        }
+      } catch (err) {
+        console.error('Error regenerando URLs:', err);
+      }
+      return photo;
+    }));
+    
+    // 4. Mapear fotos al formato esperado - usar columnas reales de Supabase
+    const fotos = fotosConUrls.map(photo => ({
       id: photo.id,
       url: photo.storage_url,
       url_medium: photo.cropped_url,
@@ -189,7 +233,7 @@ export async function GET(request: NextRequest) {
               photo.status === 'rejected' ? 'rechazada' : 'pendiente'
     }));
     
-    // 4. Combinar datos
+    // 5. Combinar datos
     const profileWithPhotos = {
       ...userData,
       fotos: fotos
