@@ -421,6 +421,12 @@ export default function PhotoManager({
         
         console.log('✅ Foto subida exitosamente:', uploadResult);
         
+        // Limpiar avatar del localStorage para forzar recarga
+        if (username) {
+          localStorage.removeItem(`avatar_${username}`);
+          console.log('🗑️ Avatar del localStorage limpiado');
+        }
+        
         // Recargar TODAS las fotos desde la BD
         await loadPhotosFromDB();
         
@@ -502,6 +508,12 @@ export default function PhotoManager({
         }
         
         console.log('✅ Foto eliminada de BD:', photoToDelete.id);
+        
+        // Limpiar avatar del localStorage para forzar recarga
+        if (username) {
+          localStorage.removeItem(`avatar_${username}`);
+          console.log('🗑️ Avatar del localStorage limpiado');
+        }
       } catch (error) {
         console.error('❌ Error en DELETE:', error);
         alert('Error al eliminar la foto. Inténtalo de nuevo.');
