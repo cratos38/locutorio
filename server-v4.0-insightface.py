@@ -616,7 +616,7 @@ def check_face_matching(img_array, face_locations, user_id=None):
             'confidence': 0.0,
             'should_reject': False,
             'match_type': 'no_match',
-            'face_embedding': current_embedding
+            'face_embedding': current_embedding.tolist()  # Convertir numpy array a lista
         }
         
     except Exception as e:
