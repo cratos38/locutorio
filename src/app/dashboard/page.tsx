@@ -110,6 +110,8 @@ export default function InicioPage() {
           
           setStatusText(data.status_text || '');
           console.log('✅ Datos de dashboard cargados');
+          console.log('📸 Avatar URL:', fotoPrincipal);
+          console.log('📊 Total fotos:', photosCount);
         }
       } catch (error) {
         console.error('❌ Error al cargar datos del dashboard:', error);
