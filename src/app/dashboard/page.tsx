@@ -95,7 +95,9 @@ export default function InicioPage() {
             
             // Cache-busting: agregar timestamp para evitar caché del navegador
             if (fotoPrincipal) {
-              fotoPrincipal = `${fotoPrincipal}?t=${Date.now()}`;
+              // Si ya tiene query string (?), usar &, sino usar ?
+              const separator = fotoPrincipal.includes('?') ? '&' : '?';
+              fotoPrincipal = `${fotoPrincipal}${separator}t=${Date.now()}`;
             }
           }
           
