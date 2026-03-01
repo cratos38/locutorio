@@ -159,15 +159,14 @@ export async function GET(request: NextRequest) {
     // 2. Obtener fotos del usuario
     let photosQuery = supabase
       .from('photos')
-      .select('id, url, url_medium, url_thumbnail, is_principal, estado, orden, created_at')
+      .select('id, storage_url, cropped_url, is_primary, status, created_at')
       .eq('user_id', userData.id)
-      .order('is_principal', { ascending: false })
-      .order('orden', { ascending: true })
+      .order('is_primary', { ascending: false })
       .order('created_at', { ascending: false});
     
     // Si no es showAllPhotos, solo mostrar aprobadas
     if (!showAllPhotos) {
-      photosQuery = photosQuery.eq('estado', 'aprobada');
+      photosQuery = photosQuery.eq('status', 'approved');
     }
     
     const { data: photosData, error: photosError } = await photosQuery;
@@ -176,15 +175,18 @@ export async function GET(request: NextRequest) {
       console.warn('Error al cargar fotos:', photosError);
     }
     
-    // 3. Mapear fotos al formato esperado por PhotoGallery
+    // 3. Mapear fotos al formato esperado - usar columnas reales de Supabase
     const fotos = (photosData || []).map(photo => ({
       id: photo.id,
-      url: photo.url,
-      url_medium: photo.url_medium,
-      url_thumbnail: photo.url_thumbnail,
-      esPrincipal: photo.is_principal,
-      estado: photo.estado === 'aprobada' ? 'aprobada' : 
-              photo.estado === 'rechazada' ? 'rechazada' : 'pendiente'
+      url: photo.storage_url,
+      url_medium: photo.cropped_url,
+      url_thumbnail: photo.cropped_url, // Usar cropped como thumbnail temporalmente
+      cropped_url: photo.cropped_url,
+      storage_url: photo.storage_url,
+      esPrincipal: photo.is_primary,
+      is_principal: photo.is_primary,
+      estado: photo.status === 'approved' ? 'aprobada' : 
+              photo.status === 'rejected' ? 'rechazada' : 'pendiente'
     }));
     
     // 4. Combinar datos
