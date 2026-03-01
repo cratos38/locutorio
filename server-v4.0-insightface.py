@@ -1171,7 +1171,7 @@ def validate_and_crop_photo(photo_url, photo_type='profile', user_id=None, user_
         config = VALIDATION_CONFIG.get(photo_type, VALIDATION_CONFIG['profile'])
         
         print("\n" + "="*70)
-        print(f"🔍 VALIDANDO FOTO v3.5: {photo_type.upper()}")
+        print(f"🔍 VALIDANDO FOTO v4.0 - INSIGHTFACE: {photo_type.upper()}")
         if user_id:
             print(f"👤 Usuario: {user_id}")
         print(f"📍 URL: {photo_url[:80]}...")
@@ -1230,6 +1230,17 @@ def validate_and_crop_photo(photo_url, photo_type='profile', user_id=None, user_
         if config.get('face_matching_enabled', False):
             print("\n🎭 VERIFICANDO IDENTIDAD (Face Matching):")
             face_match_result = check_face_matching(img_resized, faces, user_id)
+            
+            # Mostrar resultado del face matching
+            if face_match_result:
+                print(f"   Match type: {face_match_result.get('match_type', 'unknown')}")
+                if 'similarity' in face_match_result:
+                    print(f"   Similarity: {face_match_result['similarity']:.3f}")
+                if 'confidence' in face_match_result:
+                    print(f"   Confidence: {face_match_result['confidence']:.3f}")
+                print(f"   Should reject: {face_match_result.get('should_reject', False)}")
+                if face_match_result.get('message'):
+                    print(f"   Message: {face_match_result['message']}")
             
             if face_match_result.get('should_reject'):
                 print(f"❌ RECHAZADA: {face_match_result.get('message')}")
