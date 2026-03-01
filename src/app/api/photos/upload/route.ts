@@ -215,21 +215,20 @@ export async function POST(request: NextRequest) {
         .eq('photo_type', 'profile');
     }
     
-    // Guardar registro de la foto en la base de datos - v4.0: columnas actualizadas
-    console.log('💾 Guardando registro en tabla photos (v4.0)...');
+    // Guardar registro de la foto en la base de datos - v3.5: tabla photos
+    console.log('💾 Guardando registro en tabla photos (v3.5)...');
     const { data: photoData, error: photoError } = await supabase
       .from('photos')
       .insert({
         user_id: userId,
         photo_type: 'profile',
         storage_path: largeFileName,
-        photo_url: photoUrl,           // Large (1024px) - nombre correcto
-        url_medium: mediumUrl,         // Medium (400px) - nombre correcto
-        url_thumbnail: thumbnailUrl,   // Thumbnail (96px) - ¡AGREGADO!
-        url: photoUrl,                 // Alias para compatibilidad
-        status: 'pending',             // Por defecto pendiente de aprobación
-        is_principal: isPrincipal,     // Nombre correcto (no is_primary)
-        is_visible: false,             // Solo visible para el usuario hasta aprobar
+        storage_url: photoUrl,      // Large (1024px)
+        cropped_url: mediumUrl,     // Medium (400px)
+        url_thumbnail: thumbnailUrl, // Thumbnail (96px) - AGREGADO pero con nombre viejo
+        status: 'pending',          // Por defecto pendiente de aprobación
+        is_primary: isPrincipal,
+        is_visible: false,          // Solo visible para el usuario hasta aprobar
         original_filename: largeFile.name,
         file_size: largeFile.size,
         mime_type: largeFile.type
