@@ -86,10 +86,11 @@ export default function InicioPage() {
             // Buscar foto principal y usar thumbnail para miniatura
             const principalPhoto = photos.find((p: any) => p.is_principal);
             if (principalPhoto) {
-              fotoPrincipal = principalPhoto.url_thumbnail || principalPhoto.url_medium || principalPhoto.url;
+              // Usar cropped_url (que sí existe) en lugar de url_thumbnail
+              fotoPrincipal = principalPhoto.url_thumbnail || principalPhoto.cropped_url || principalPhoto.url_medium || principalPhoto.storage_url || principalPhoto.url;
             } else if (photos.length > 0) {
-              // Si no hay principal, usar la primera (thumbnail)
-              fotoPrincipal = photos[0].url_thumbnail || photos[0].url_medium || photos[0].url;
+              // Si no hay principal, usar la primera
+              fotoPrincipal = photos[0].url_thumbnail || photos[0].cropped_url || photos[0].url_medium || photos[0].storage_url || photos[0].url;
             }
             
             // Cache-busting: agregar timestamp para evitar caché del navegador
