@@ -644,40 +644,10 @@ export default function PhotoManager({
           );
           })()}
           
-          {/* =================== OVERLAY DE RECHAZO =================== */}
+          {/* =================== BADGE DE RECHAZO (ARRIBA) =================== */}
           {photos.length > 0 && photos[currentPhotoIndex]?.estado === 'rechazada' && (
-            <div className="absolute inset-0 bg-red-900/80 backdrop-blur-sm flex flex-col items-center justify-center z-10 p-6 rounded-xl">
-              <div className="text-center space-y-4">
-                <div className="text-6xl">❌</div>
-                <h3 className="text-2xl font-bold text-white">Foto Rechazada</h3>
-                <p className="text-red-200 text-sm max-w-md">
-                  {photos[currentPhotoIndex].rejection_reason || 'Esta foto no cumple con las políticas de contenido.'}
-                </p>
-                
-                {/* Botones de acción */}
-                {canDelete && (
-                  <div className="flex gap-2 mt-6">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDeletePhoto();
-                      }}
-                      className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-colors"
-                    >
-                      🗑️ Eliminar
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        alert('📧 Función de apelación próximamente. Por ahora, sube una foto diferente.');
-                      }}
-                      className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg text-sm font-medium transition-colors"
-                    >
-                      📧 Reportar Error
-                    </button>
-                  </div>
-                )}
-              </div>
+            <div className="absolute top-2 left-2 bg-red-500 text-white text-xs px-3 py-1 rounded-lg font-medium z-10">
+              ❌ Rechazada: {photos[currentPhotoIndex].rejection_reason || 'No cumple políticas'}
             </div>
           )}
           
@@ -784,43 +754,74 @@ export default function PhotoManager({
           {/* Botones de acción */}
           {(canUpload || canDelete || canSetPrincipal) && (
             <div className="grid grid-cols-3 gap-2">
-              {/* Subir */}
-              {canUpload && (
-                <button
-                  onClick={() => {
-                    const input = document.createElement('input');
-                    input.type = 'file';
-                    input.accept = 'image/jpeg,image/png';
-                    input.onchange = (e) => {
-                      const file = (e.target as HTMLInputElement).files?.[0];
-                      if (file) handlePhotoUpload(file);
-                    };
-                    input.click();
-                  }}
-                  className="text-xs px-3 py-1.5 rounded-lg transition-all border text-[#2BEE79] border-[#2BEE79]/50 shadow-[0_0_10px_rgba(43,238,121,0.2)] hover:border-[#2BEE79] hover:shadow-[0_0_20px_rgba(43,238,121,0.4)]"
-                >
-                  Subir
-                </button>
-              )}
-              
-              {/* Eliminar */}
-              {canDelete && (
-                <button
-                  onClick={handleDeletePhoto}
-                  className="text-xs px-3 py-1.5 rounded-lg transition-all border text-[#2BEE79] border-[#2BEE79]/50 shadow-[0_0_10px_rgba(43,238,121,0.2)] hover:border-[#2BEE79] hover:shadow-[0_0_20px_rgba(43,238,121,0.4)]"
-                >
-                  Eliminar
-                </button>
-              )}
-              
-              {/* Marcar como principal */}
-              {canSetPrincipal && (
-                <button
-                  onClick={handleSetPrincipal}
-                  className="text-xs px-3 py-1.5 rounded-lg transition-all border text-[#2BEE79] border-[#2BEE79]/50 shadow-[0_0_10px_rgba(43,238,121,0.2)] hover:border-[#2BEE79] hover:shadow-[0_0_20px_rgba(43,238,121,0.4)]"
-                >
-                  Principal
-                </button>
+              {/* Si la foto está rechazada, mostrar solo Reclamar y Eliminar */}
+              {photos.length > 0 && photos[currentPhotoIndex]?.estado === 'rechazada' ? (
+                <>
+                  {/* Reclamar */}
+                  {canDelete && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        alert('📧 Función de reclamación próximamente. Por ahora, sube una foto diferente.');
+                      }}
+                      className="text-xs px-3 py-1.5 rounded-lg transition-all border text-[#2BEE79] border-[#2BEE79]/50 shadow-[0_0_10px_rgba(43,238,121,0.2)] hover:border-[#2BEE79] hover:shadow-[0_0_20px_rgba(43,238,121,0.4)]"
+                    >
+                      📧 Reclamar
+                    </button>
+                  )}
+                  
+                  {/* Eliminar */}
+                  {canDelete && (
+                    <button
+                      onClick={handleDeletePhoto}
+                      className="text-xs px-3 py-1.5 rounded-lg transition-all border text-red-500 border-red-500/50 shadow-[0_0_10px_rgba(239,68,68,0.2)] hover:border-red-500 hover:shadow-[0_0_20px_rgba(239,68,68,0.4)]"
+                    >
+                      🗑️ Eliminar
+                    </button>
+                  )}
+                </>
+              ) : (
+                <>
+                  {/* Botones normales para fotos aprobadas/pendientes */}
+                  {/* Subir */}
+                  {canUpload && (
+                    <button
+                      onClick={() => {
+                        const input = document.createElement('input');
+                        input.type = 'file';
+                        input.accept = 'image/jpeg,image/png';
+                        input.onchange = (e) => {
+                          const file = (e.target as HTMLInputElement).files?.[0];
+                          if (file) handlePhotoUpload(file);
+                        };
+                        input.click();
+                      }}
+                      className="text-xs px-3 py-1.5 rounded-lg transition-all border text-[#2BEE79] border-[#2BEE79]/50 shadow-[0_0_10px_rgba(43,238,121,0.2)] hover:border-[#2BEE79] hover:shadow-[0_0_20px_rgba(43,238,121,0.4)]"
+                    >
+                      Subir
+                    </button>
+                  )}
+                  
+                  {/* Eliminar */}
+                  {canDelete && (
+                    <button
+                      onClick={handleDeletePhoto}
+                      className="text-xs px-3 py-1.5 rounded-lg transition-all border text-[#2BEE79] border-[#2BEE79]/50 shadow-[0_0_10px_rgba(43,238,121,0.2)] hover:border-[#2BEE79] hover:shadow-[0_0_20px_rgba(43,238,121,0.4)]"
+                    >
+                      Eliminar
+                    </button>
+                  )}
+                  
+                  {/* Marcar como principal */}
+                  {canSetPrincipal && (
+                    <button
+                      onClick={handleSetPrincipal}
+                      className="text-xs px-3 py-1.5 rounded-lg transition-all border text-[#2BEE79] border-[#2BEE79]/50 shadow-[0_0_10px_rgba(43,238,121,0.2)] hover:border-[#2BEE79] hover:shadow-[0_0_20px_rgba(43,238,121,0.4)]"
+                    >
+                      Principal
+                    </button>
+                  )}
+                </>
               )}
             </div>
           )}
