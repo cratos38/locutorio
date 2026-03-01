@@ -534,7 +534,7 @@ def check_prohibited_objects(img_array, mode='all'):
         os.unlink(tmp.name)
 
 
-def check_face_matching(img_array, face_locations, user_id=None):
+def check_face_matching(img_array, face_locations, user_id=None, insightface_faces=None):
     """Detección de celebridades/suplantación mediante face matching con InsightFace"""
     if not face_locations:
         return {
@@ -546,10 +546,15 @@ def check_face_matching(img_array, face_locations, user_id=None):
         }
     
     try:
-        # Detectar rostros con InsightFace
-        faces = face_app.get(img_array)
+        # Usar rostros InsightFace ya detectados o detectar de nuevo
+        if insightface_faces is None or len(insightface_faces) == 0:
+            print("   ⚠️ Re-detectando rostros con InsightFace...")
+            faces = face_app.get(img_array)
+        else:
+            faces = insightface_faces
         
         if not faces or len(faces) == 0:
+            print("   ❌ No se encontraron rostros con InsightFace")
             return {
                 'is_match': False,
                 'matched_identity': None,
@@ -561,6 +566,7 @@ def check_face_matching(img_array, face_locations, user_id=None):
         # Usar el primer rostro detectado
         current_face = faces[0]
         current_embedding = current_face.embedding
+        print(f"   ✅ Embedding extraído: {len(current_embedding)} dimensiones")
         
         # Función de similitud coseno (InsightFace usa esto en lugar de distancia euclidiana)
         def cosine_similarity(emb1, emb2):
@@ -1229,7 +1235,7 @@ def validate_and_crop_photo(photo_url, photo_type='profile', user_id=None, user_
         face_match_result = None
         if config.get('face_matching_enabled', False):
             print("\n🎭 VERIFICANDO IDENTIDAD (Face Matching):")
-            face_match_result = check_face_matching(img_resized, faces, user_id)
+            face_match_result = check_face_matching(img_resized, faces, user_id, insightface_faces)
             
             # Mostrar resultado del face matching
             if face_match_result:
