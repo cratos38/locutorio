@@ -589,13 +589,33 @@ def check_face_matching(img_array, face_locations, user_id=None, insightface_fac
                         'message': f"Posible suplantación de identidad: {identity}"
                     }
         
+        # Verificar contra TODOS los usuarios (detectar fotos robadas)
+        for other_user_id, other_embedding in user_faces_db.items():
+            # Skip si es el mismo usuario
+            if other_user_id == user_id:
+                continue
+            
+            similarity = cosine_similarity(other_embedding, current_embedding)
+            
+            # Threshold muy alto (0.8) = foto casi idéntica de otro usuario
+            if similarity > 0.8:
+                return {
+                    'is_match': True,
+                    'matched_identity': f"user_{other_user_id}",
+                    'confidence': round(similarity, 3),
+                    'similarity': round(similarity, 3),
+                    'should_reject': True,
+                    'match_type': 'stolen_photo',
+                    'message': f"Esta foto pertenece a otro usuario (similarity: {similarity:.3f})"
+                }
+        
         # Verificar rostro de usuario
         if user_id and user_id in user_faces_db:
             approved_embedding = user_faces_db[user_id]
             similarity = cosine_similarity(approved_embedding, current_embedding)
             
-            # Threshold más estricto con InsightFace: 0.35 (equivalente a 0.6 en dlib)
-            if similarity > 0.35:
+            # Threshold: 0.6 (equivalente a distance < 0.4 en dlib v3.3 original)
+            if similarity > 0.6:
                 return {
                     'is_match': True,
                     'matched_identity': f"user_{user_id}",
@@ -613,7 +633,7 @@ def check_face_matching(img_array, face_locations, user_id=None, insightface_fac
                     'similarity': round(similarity, 3),
                     'should_reject': True,
                     'match_type': 'user_mismatch',
-                    'message': f"El rostro no coincide con el perfil del usuario (similarity: {similarity:.3f}, threshold: 0.35)"
+                    'message': f"El rostro no coincide con el perfil del usuario (similarity: {similarity:.3f}, threshold: 0.6)"
                 }
         
         return {
