@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { uploadToR2, BUCKETS } from '@/lib/r2';
+import { adminAuth } from '@/lib/firebase-admin';
 
 // Cambiar a Node.js runtime (más compatible)
 export const runtime = 'nodejs';
@@ -54,35 +56,35 @@ export async function POST(request: NextRequest) {
   try {
     console.log('📥 === INICIO SUBIDA DE FOTO ===');
     
-    // 🔐 Obtener token de autenticación del header
+    // 🔐 Obtener token de autenticación del header (Firebase)
     const authHeader = request.headers.get('Authorization');
     const token = authHeader?.replace('Bearer ', '');
     
     console.log('🔑 Token recibido:', token ? '✅ SÍ' : '❌ NO');
     
-    // Crear cliente de Supabase ADMIN (con SERVICE_ROLE_KEY)
-    const supabase = getSupabaseAdmin();
-    
-    // 🔐 Verificar que el token sea válido
-    if (token) {
-      const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-      
-      if (authError || !user) {
-        console.error('❌ Token inválido:', authError);
-        return NextResponse.json(
-          { error: 'Token de autenticación inválido' },
-          { status: 401 }
-        );
-      }
-      
-      console.log('✅ Usuario autenticado:', user.email);
-    } else {
+    // 🔐 Verificar token de Firebase
+    if (!token) {
       console.warn('⚠️ No se recibió token de autenticación');
       return NextResponse.json(
         { error: 'Se requiere autenticación' },
         { status: 401 }
       );
     }
+    
+    let firebaseUser;
+    try {
+      firebaseUser = await adminAuth.verifyIdToken(token);
+      console.log('✅ Usuario autenticado (Firebase):', firebaseUser.email, '| UID:', firebaseUser.uid);
+    } catch (authError) {
+      console.error('❌ Token inválido (Firebase):', authError);
+      return NextResponse.json(
+        { error: 'Token de autenticación inválido' },
+        { status: 401 }
+      );
+    }
+    
+    // Crear cliente de Supabase ADMIN (solo para consultas a la BD)
+    const supabase = getSupabaseAdmin();
     
     // Obtener FormData
     console.log('📦 Obteniendo FormData...');
@@ -112,78 +114,61 @@ export async function POST(request: NextRequest) {
     const mediumFileName = `${username}/${timestamp}_medium.${fileExt}`;
     const largeFileName = `${username}/${timestamp}.${fileExt}`;
     
-    // 1️⃣ Subir THUMBNAIL (96px) - v3.5: photos-pending
-    console.log(`💾 Subiendo thumbnail: ${thumbnailFileName}`);
+    // 1️⃣ Subir THUMBNAIL (96px) a Cloudflare R2 - photos-profile-pending
+    console.log(`💾 [R2] Subiendo thumbnail: ${thumbnailFileName}`);
     const thumbnailBuffer = new Uint8Array(await thumbnailFile.arrayBuffer());
-    const { error: thumbnailError } = await supabase.storage
-      .from('photos-pending')
-      .upload(thumbnailFileName, thumbnailBuffer, {
-        contentType: thumbnailFile.type,
-        upsert: false
-      });
+    const thumbnailUrl = await uploadToR2(
+      thumbnailBuffer,
+      thumbnailFileName,
+      BUCKETS.PHOTOS_PROFILE_PENDING,
+      thumbnailFile.type
+    );
     
-    if (thumbnailError) {
-      console.error('❌ Error al subir thumbnail:', thumbnailError);
+    if (!thumbnailUrl) {
+      console.error('❌ Error al subir thumbnail a R2');
       return NextResponse.json(
-        { error: 'Error al subir thumbnail', details: thumbnailError.message },
+        { error: 'Error al subir thumbnail a Cloudflare R2' },
         { status: 500 }
       );
     }
     
-    // 2️⃣ Subir MEDIUM (400px) - v3.5: photos-pending
-    console.log(`💾 Subiendo medium: ${mediumFileName}`);
+    // 2️⃣ Subir MEDIUM (400px) a Cloudflare R2 - photos-profile-pending
+    console.log(`💾 [R2] Subiendo medium: ${mediumFileName}`);
     const mediumBuffer = new Uint8Array(await mediumFile.arrayBuffer());
-    const { error: mediumError } = await supabase.storage
-      .from('photos-pending')
-      .upload(mediumFileName, mediumBuffer, {
-        contentType: mediumFile.type,
-        upsert: false
-      });
+    const mediumUrl = await uploadToR2(
+      mediumBuffer,
+      mediumFileName,
+      BUCKETS.PHOTOS_PROFILE_PENDING,
+      mediumFile.type
+    );
     
-    if (mediumError) {
-      console.error('❌ Error al subir medium:', mediumError);
+    if (!mediumUrl) {
+      console.error('❌ Error al subir medium a R2');
       return NextResponse.json(
-        { error: 'Error al subir medium', details: mediumError.message },
+        { error: 'Error al subir medium a Cloudflare R2' },
         { status: 500 }
       );
     }
     
-    // 3️⃣ Subir LARGE (1024px) - v3.5: photos-pending
-    console.log(`💾 Subiendo large: ${largeFileName}`);
+    // 3️⃣ Subir LARGE (1024px) a Cloudflare R2 - photos-profile-pending
+    console.log(`💾 [R2] Subiendo large: ${largeFileName}`);
     const largeBuffer = new Uint8Array(await largeFile.arrayBuffer());
-    const { error: largeError } = await supabase.storage
-      .from('photos-pending')
-      .upload(largeFileName, largeBuffer, {
-        contentType: largeFile.type,
-        upsert: false
-      });
+    const photoUrl = await uploadToR2(
+      largeBuffer,
+      largeFileName,
+      BUCKETS.PHOTOS_PROFILE_PENDING,
+      largeFile.type
+    );
     
-    if (largeError) {
-      console.error('❌ Error al subir large:', largeError);
+    if (!photoUrl) {
+      console.error('❌ Error al subir large a R2');
       return NextResponse.json(
-        { error: 'Error al subir large', details: largeError.message },
+        { error: 'Error al subir large a Cloudflare R2' },
         { status: 500 }
       );
     }
     
-    // Obtener URLs públicas de las 3 versiones - v3.5: photos-pending
-    const { data: thumbnailUrlData } = supabase.storage
-      .from('photos-pending')
-      .getPublicUrl(thumbnailFileName);
-    
-    const { data: mediumUrlData } = supabase.storage
-      .from('photos-pending')
-      .getPublicUrl(mediumFileName);
-    
-    const { data: largeUrlData } = supabase.storage
-      .from('photos-pending')
-      .getPublicUrl(largeFileName);
-    
-    const thumbnailUrl = thumbnailUrlData.publicUrl;
-    const mediumUrl = mediumUrlData.publicUrl;
-    const photoUrl = largeUrlData.publicUrl;
-    
-    console.log(`✅ 3 versiones subidas exitosamente`);
+    console.log(`✅ [R2] 3 versiones subidas exitosamente a Cloudflare R2`);
     console.log(`  - Thumbnail (96px): ${thumbnailUrl}`);
     console.log(`  - Medium (400px): ${mediumUrl}`);
     console.log(`  - Large (1024px): ${photoUrl}`);
@@ -244,9 +229,9 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    console.log('✅ Foto guardada exitosamente en BD');
-    console.log('🔄 Trigger de Supabase cambiará status a "processing"');
-    console.log('🤖 Supabase Database Webhook llamará al ML Validator automáticamente');
+    console.log('✅ Foto guardada exitosamente en BD (Supabase)');
+    console.log('📦 Almacenamiento: Cloudflare R2 (bucket: photos-profile-pending)');
+    console.log('🔄 Próximo paso: Configurar webhook para validación con ML Validator');
     
     return NextResponse.json({
       success: true,
