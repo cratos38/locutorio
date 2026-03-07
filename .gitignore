@@ -41,3 +41,22 @@ yarn-error.log*
 next-env.d.ts
 core
 core.*
+
+# Wrangler local state
+.wrangler/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Logs
+logs/
+*.log
+
+# Supervisor
+supervisord.pid
+
+# Temporary scripts
+check_buckets.js
+export_admin_data.js
+export_supabase_schema.js

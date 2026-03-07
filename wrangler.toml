@@ -1,0 +1,47 @@
+# Wrangler configuration for Cloudflare Workers + D1
+name = "locutorio"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+
+# Cloudflare D1 Database
+[[d1_databases]]
+binding = "DB"
+database_name = "locutorio"
+database_id = "689222cb-b8eb-4c77-8638-4b0a58fd66e9"
+
+# R2 Buckets
+[[r2_buckets]]
+binding = "PHOTOS_PROFILE_PENDING"
+bucket_name = "photos-profile-pending"
+
+[[r2_buckets]]
+binding = "PHOTOS_PROFILE_APPROVED"
+bucket_name = "photos-profile-approved"
+
+[[r2_buckets]]
+binding = "PHOTOS_PROFILE_REJECTED"
+bucket_name = "photos-profile-rejected"
+
+[[r2_buckets]]
+binding = "PHOTOS_ALBUMS_PENDING"
+bucket_name = "photos-albums-pending"
+
+[[r2_buckets]]
+binding = "PHOTOS_ALBUMS_APPROVED"
+bucket_name = "photos-albums-approved"
+
+[[r2_buckets]]
+binding = "PHOTOS_ALBUMS_REJECTED"
+bucket_name = "photos-albums-rejected"
+
+[[r2_buckets]]
+binding = "USERS_FILES"
+bucket_name = "users-files"
+
+[[r2_buckets]]
+binding = "PHOTO_REPORTS"
+bucket_name = "photo-reports"
+
+[[r2_buckets]]
+binding = "PHOTO_APPEALS"
+bucket_name = "photo-appeals"
