@@ -60,3 +60,4 @@ supervisord.pid
 check_buckets.js
 export_admin_data.js
 export_supabase_schema.js
+firebase-service-account.json
