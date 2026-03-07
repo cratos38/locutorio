@@ -1,0 +1,44 @@
+# Variables de entorno para Vercel
+# Copiar estas variables en: https://vercel.com/cratos38s-projects/locutorio/settings/environment-variables
+
+# ========================================
+# FIREBASE AUTH
+# ========================================
+NEXT_PUBLIC_FIREBASE_API_KEY=AIzaSyCn5vS2WktZFG0d4-LS-tVkX8cLIUgD7FE
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=locutorio-2cea5.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=locutorio-2cea5
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=locutorio-2cea5.firebasestorage.app
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=662647435576
+NEXT_PUBLIC_FIREBASE_APP_ID=1:662647435576:web:886e977e98c350f679d1cd
+
+# ========================================
+# SUPABASE (Database temporal)
+# ========================================
+NEXT_PUBLIC_SUPABASE_URL=https://hbzlxwbyxuzdasfaksiy.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhiemx4d2J5eHV6ZGFzZmFrc2l5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc3MDUwNzksImV4cCI6MjA4MzI4MTA3OX0.Oke8nAFHSwgF-S02TRCGCbELMRdZLc_fuXfabp0_QCg
+
+# ========================================
+# CLOUDFLARE R2 (Storage)
+# ========================================
+R2_ACCOUNT_ID=130f04e76a4e3a1c4ce2b048a4422ee7
+R2_ACCESS_KEY_ID=d884dfa0cff0831e5f289c9f42fbf917
+R2_SECRET_ACCESS_KEY=efdcd6269acd95cc8f712f19a99d445abff7808964ae7f10d508ca25a416fc04
+R2_ENDPOINT=https://130f04e76a4e3a1c4ce2b048a4422ee7.r2.cloudflarestorage.com
+
+# Cloudflare R2 - URLs públicas
+NEXT_PUBLIC_R2_PROFILE_APPROVED_URL=https://pub-120688e0a3084219a049f90bc8e2dece.r2.dev
+NEXT_PUBLIC_R2_ALBUMS_APPROVED_URL=https://pub-75ac634676f8440aae96e50c823c14f9.r2.dev
+
+# ========================================
+# CLOUDFLARE D1 (Database - futuro)
+# ========================================
+CLOUDFLARE_D1_DATABASE_ID=689222cb-b8eb-4c77-8638-4b0a58fd66e9
+CLOUDFLARE_ACCOUNT_ID=130f04e76a4e3a1c4ce2b048a4422ee7
+CLOUDFLARE_API_TOKEN=8RkPrPyEkel9OdZW8aOBxs7TtDALH1_-XmxHl4gy
+
+# ========================================
+# NOTA IMPORTANTE:
+# ========================================
+# firebase-service-account.json debe ser subido como archivo
+# en la configuración de Vercel (no como variable de entorno)
+# Path en Vercel: /var/task/firebase-service-account.json
