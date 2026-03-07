@@ -17,16 +17,26 @@ function initializeFirebaseAdmin() {
   }
 
   try {
-    // Leer el service account key
-    const serviceAccountPath = path.join(process.cwd(), 'firebase-service-account.json');
-    
-    if (!fs.existsSync(serviceAccountPath)) {
-      throw new Error('Firebase service account key not found');
-    }
+    let serviceAccount;
 
-    const serviceAccount = JSON.parse(
-      fs.readFileSync(serviceAccountPath, 'utf8')
-    );
+    // Opción 1: Leer desde variable de entorno (para Vercel)
+    if (process.env.FIREBASE_SERVICE_ACCOUNT_JSON) {
+      console.log('🔧 Loading Firebase service account from env variable');
+      serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON);
+    }
+    // Opción 2: Leer desde archivo local (para desarrollo)
+    else {
+      console.log('🔧 Loading Firebase service account from file');
+      const serviceAccountPath = path.join(process.cwd(), 'firebase-service-account.json');
+      
+      if (!fs.existsSync(serviceAccountPath)) {
+        throw new Error('Firebase service account key not found (file or env variable)');
+      }
+
+      serviceAccount = JSON.parse(
+        fs.readFileSync(serviceAccountPath, 'utf8')
+      );
+    }
 
     app = initializeApp({
       credential: cert(serviceAccount),
@@ -48,6 +58,7 @@ function initializeFirebaseAdmin() {
 const { app: firebaseApp, auth: firebaseAuth } = initializeFirebaseAdmin();
 
 export { firebaseApp as app, firebaseAuth as auth };
+export const adminAuth = firebaseAuth; // Alias para compatibilidad
 
 /**
  * Verifica un token JWT de Firebase
