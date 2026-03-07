@@ -2,12 +2,7 @@
 // POST /api/auth/register
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+import { executeD1Query } from '@/lib/d1';
 
 export async function POST(request: NextRequest) {
   try {
@@ -29,56 +24,56 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log('📝 Creando perfil en Supabase para:', { firebase_uid, username, email });
+    console.log('📝 [D1] Creando perfil para:', { firebase_uid, username, email });
 
     // Verificar si el username ya existe
-    const { data: existingUser } = await supabase
-      .from('users')
-      .select('id')
-      .eq('username', username)
-      .single();
+    const existingUsers = await executeD1Query(
+      'SELECT id FROM users WHERE username = ? LIMIT 1',
+      [username]
+    );
 
-    if (existingUser) {
+    if (existingUsers && existingUsers.length > 0) {
+      console.log('❌ [D1] Username ya existe:', username);
       return NextResponse.json(
         { error: 'El nombre de usuario ya está en uso' },
         { status: 409 }
       );
     }
 
-    // Crear perfil en Supabase
-    const { data, error } = await supabase
-      .from('users')
-      .insert({
-        id: firebase_uid, // Usar el UID de Firebase como ID
-        email,
-        username,
-        ciudad: ciudad || null,
-        edad: edad || null,
-        genero: genero || null,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      })
-      .select()
-      .single();
+    // Crear perfil en D1
+    try {
+      await executeD1Query(
+        `INSERT INTO users (
+          id, email, username, ciudad, edad, genero,
+          created_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))`,
+        [
+          firebase_uid, // Usar el UID de Firebase como ID
+          email,
+          username,
+          ciudad || null,
+          edad || null,
+          genero || null
+        ]
+      );
 
-    if (error) {
-      console.error('❌ Error creando perfil en Supabase:', error);
+      console.log('✅ [D1] Perfil creado exitosamente:', firebase_uid);
+
+      return NextResponse.json({
+        success: true,
+        user: {
+          id: firebase_uid,
+          username: username,
+          email: email,
+        },
+      });
+    } catch (dbError) {
+      console.error('❌ [D1] Error creando perfil:', dbError);
       return NextResponse.json(
-        { error: 'Error al crear perfil', details: error.message },
+        { error: 'Error al crear perfil en D1', details: String(dbError) },
         { status: 500 }
       );
     }
-
-    console.log('✅ Perfil creado exitosamente:', data.id);
-
-    return NextResponse.json({
-      success: true,
-      user: {
-        id: data.id,
-        username: data.username,
-        email: data.email,
-      },
-    });
 
   } catch (error: any) {
     console.error('❌ Error en /api/auth/register:', error);

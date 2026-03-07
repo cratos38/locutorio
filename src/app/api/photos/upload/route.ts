@@ -1,47 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
 import { uploadToR2, BUCKETS } from '@/lib/r2';
 import { adminAuth } from '@/lib/firebase-admin';
+import { executeD1Query } from '@/lib/d1';
 
 // Cambiar a Node.js runtime (más compatible)
 export const runtime = 'nodejs';
-
-// Crear cliente de Supabase con SERVICE_ROLE_KEY para operaciones administrativas
-const getSupabaseAdmin = () => {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-  
-  // Intentar obtener SERVICE_ROLE_KEY de diferentes fuentes
-  // WORKAROUND: Vercel solo pasa variables con NEXT_PUBLIC_ prefix
-  const supabaseServiceKey = 
-    process.env.NEXT_PUBLIC_SUPABASE_SERVICE_KEY ||  // Workaround para Vercel
-    process.env.SUPABASE_SERVICE_KEY ||              // Nombre corto
-    process.env.SUPABASE_SERVICE_ROLE_KEY ||         // Nombre largo
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||     // Fallback
-    '';
-  
-  console.log('🔧 Configurando Supabase Admin...');
-  console.log('📍 URL:', supabaseUrl ? '✅ OK' : '❌ MISSING');
-  console.log('🔑 NEXT_PUBLIC_SUPABASE_SERVICE_KEY:', process.env.NEXT_PUBLIC_SUPABASE_SERVICE_KEY ? '✅ OK' : '❌ MISSING');
-  console.log('🔑 SUPABASE_SERVICE_KEY:', process.env.SUPABASE_SERVICE_KEY ? '✅ OK' : '❌ MISSING');
-  console.log('🔑 SUPABASE_SERVICE_ROLE_KEY:', process.env.SUPABASE_SERVICE_ROLE_KEY ? '✅ OK' : '❌ MISSING');
-  console.log('🔑 Using key from:', 
-    process.env.NEXT_PUBLIC_SUPABASE_SERVICE_KEY ? 'NEXT_PUBLIC_SUPABASE_SERVICE_KEY (workaround)' :
-    process.env.SUPABASE_SERVICE_KEY ? 'SUPABASE_SERVICE_KEY' :
-    process.env.SUPABASE_SERVICE_ROLE_KEY ? 'SUPABASE_SERVICE_ROLE_KEY' :
-    'ANON_KEY (fallback)'
-  );
-  
-  if (!supabaseUrl || !supabaseServiceKey) {
-    throw new Error('Supabase environment variables not configured');
-  }
-  
-  return createClient(supabaseUrl, supabaseServiceKey, {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false
-    }
-  });
-};
 
 /**
  * API para subir fotos de perfil a Supabase Storage
@@ -82,9 +45,6 @@ export async function POST(request: NextRequest) {
         { status: 401 }
       );
     }
-    
-    // Crear cliente de Supabase ADMIN (solo para consultas a la BD)
-    const supabase = getSupabaseAdmin();
     
     // Obtener FormData
     console.log('📦 Obteniendo FormData...');
@@ -173,75 +133,84 @@ export async function POST(request: NextRequest) {
     console.log(`  - Medium (400px): ${mediumUrl}`);
     console.log(`  - Large (1024px): ${photoUrl}`);
     
-    // Buscar user_id por username
-    const { data: userData, error: userError } = await supabase
-      .from('users')
-      .select('id')
-      .eq('username', username)
-      .single();
+    // Buscar user_id por username en D1
+    console.log('🔍 [D1] Buscando usuario:', username);
+    const userResults = await executeD1Query(
+      'SELECT id FROM users WHERE username = ? LIMIT 1',
+      [username]
+    );
     
-    if (userError || !userData) {
-      console.error('❌ Usuario no encontrado:', userError);
+    if (!userResults || userResults.length === 0) {
+      console.error('❌ Usuario no encontrado en D1');
       return NextResponse.json(
         { error: 'Usuario no encontrado' },
         { status: 404 }
       );
     }
     
-    const userId = userData.id;
+    const userId = userResults[0].id;
+    console.log('✅ [D1] Usuario encontrado, ID:', userId);
     
-    // Si es foto principal, desmarcar las demás - v3.5: tabla photos
+    // Si es foto principal, desmarcar las demás en D1
     if (isPrincipal) {
-      console.log('⭐ Desmarcando otras fotos principales...');
-      await supabase
-        .from('photos')
-        .update({ is_primary: false })
-        .eq('user_id', userId)
-        .eq('photo_type', 'profile');
-    }
-    
-    // Guardar registro de la foto en la base de datos - v3.5: tabla photos
-    console.log('💾 Guardando registro en tabla photos (v3.5)...');
-    const { data: photoData, error: photoError } = await supabase
-      .from('photos')
-      .insert({
-        user_id: userId,
-        photo_type: 'profile',
-        storage_path: largeFileName,
-        storage_url: photoUrl,      // Large (1024px)
-        cropped_url: mediumUrl,     // Medium (400px)
-        // url_thumbnail: thumbnailUrl, // COMENTADO temporalmente hasta agregar columna
-        status: 'pending',          // Por defecto pendiente de aprobación
-        is_primary: isPrincipal,
-        is_visible: false,          // Solo visible para el usuario hasta aprobar
-        original_filename: largeFile.name,
-        file_size: largeFile.size,
-        mime_type: largeFile.type
-      })
-      .select()
-      .single();
-    
-    if (photoError) {
-      console.error('❌ Error al guardar registro de foto:', photoError);
-      return NextResponse.json(
-        { error: 'Error al guardar registro de foto', details: photoError.message },
-        { status: 500 }
+      console.log('⭐ [D1] Desmarcando otras fotos principales...');
+      await executeD1Query(
+        'UPDATE photos SET is_primary = 0 WHERE user_id = ? AND photo_type = ?',
+        [userId, 'profile']
       );
     }
     
-    console.log('✅ Foto guardada exitosamente en BD (Supabase)');
-    console.log('📦 Almacenamiento: Cloudflare R2 (bucket: photos-profile-pending)');
-    console.log('🔄 Próximo paso: Configurar webhook para validación con ML Validator');
+    // Guardar registro de la foto en D1
+    console.log('💾 [D1] Guardando registro en tabla photos...');
     
-    return NextResponse.json({
-      success: true,
-      photo: {
-        id: photoData.id,
-        url: photoUrl,
-        isPrincipal: isPrincipal,
-        status: 'pending'
-      }
-    });
+    try {
+      // INSERT en D1
+      await executeD1Query(
+        `INSERT INTO photos (
+          user_id, photo_type, storage_path, storage_url, cropped_url,
+          status, is_primary, is_visible, original_filename, file_size, mime_type,
+          created_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))`,
+        [
+          userId,
+          'profile',
+          largeFileName,
+          photoUrl,
+          mediumUrl,
+          'pending',
+          isPrincipal ? 1 : 0,
+          0, // is_visible = false
+          largeFile.name,
+          largeFile.size,
+          largeFile.type
+        ]
+      );
+      
+      // Obtener el ID de la foto recién insertada
+      const [lastInsert] = await executeD1Query('SELECT last_insert_rowid() as id');
+      const photoId = lastInsert.id;
+      
+      console.log('✅ [D1] Foto guardada exitosamente, ID:', photoId);
+      console.log('📦 Almacenamiento: Cloudflare R2 (bucket: photos-profile-pending)');
+      console.log('🗄️ Base de datos: Cloudflare D1 (SQLite)');
+      console.log('🔄 Próximo paso: Configurar webhook para validación con ML Validator');
+      
+      return NextResponse.json({
+        success: true,
+        photo: {
+          id: photoId,
+          url: photoUrl,
+          isPrincipal: isPrincipal,
+          status: 'pending'
+        }
+      });
+    } catch (dbError) {
+      console.error('❌ [D1] Error al guardar registro de foto:', dbError);
+      return NextResponse.json(
+        { error: 'Error al guardar registro de foto en D1', details: String(dbError) },
+        { status: 500 }
+      );
+    }
     
   } catch (error) {
     console.error('❌ Error en API de upload:', error);
