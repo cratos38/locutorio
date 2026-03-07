@@ -20,7 +20,7 @@ const r2Client = new S3Client({
 });
 
 // Nombres de los buckets
-export const R2_BUCKETS = {
+export const BUCKETS = {
   PHOTOS_PROFILE_PENDING: 'photos-profile-pending',
   PHOTOS_PROFILE_APPROVED: 'photos-profile-approved',
   PHOTOS_PROFILE_REJECTED: 'photos-profile-rejected',
@@ -32,6 +32,9 @@ export const R2_BUCKETS = {
   PHOTO_APPEALS: 'photo-appeals',
 };
 
+// Alias para compatibilidad
+export const R2_BUCKETS = BUCKETS;
+
 // URLs públicas de los buckets aprobados
 export const R2_PUBLIC_URLS = {
   PHOTOS_PROFILE_APPROVED: process.env.NEXT_PUBLIC_R2_PROFILE_APPROVED_URL!,
@@ -40,16 +43,16 @@ export const R2_PUBLIC_URLS = {
 
 /**
  * Sube un archivo a R2
- * @param bucket - Nombre del bucket
- * @param key - Ruta/nombre del archivo en R2
  * @param body - Contenido del archivo (Buffer o Uint8Array)
+ * @param key - Ruta/nombre del archivo en R2
+ * @param bucket - Nombre del bucket
  * @param contentType - MIME type del archivo
  * @returns URL del archivo
  */
 export async function uploadToR2(
-  bucket: string,
-  key: string,
   body: Buffer | Uint8Array,
+  key: string,
+  bucket: string,
   contentType: string
 ): Promise<string> {
   const command = new PutObjectCommand({
